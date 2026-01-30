@@ -1,0 +1,5 @@
+{
+  "name": "QuickChat Anonimo",
+  "description": "Un'app di chat anonima elegante, ispirata a WhatsApp, che permette agli utenti di unirsi a una stanza globale unica usando un alias e il genere, con sincronizzazione dei messaggi in tempo reale.",
+  "requestFramePermissions": []
+}
