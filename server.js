@@ -1,88 +1,222 @@
-
 import express from 'express';
+import { createServer } from 'http';
+import { Server } from 'socket.io';
 import { fileURLToPath } from 'url';
 import path from 'path';
+import Database from 'better-sqlite3';
+import rateLimit from 'express-rate-limit';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"]
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 
-// Middleware per gestire i dati JSON
 app.use(express.json());
 
-// Database temporaneo in memoria (si azzera al riavvio del server)
-const db = {
-  messages: [],
-  presence: {} // { userId: { alias: string, lastSeen: number } }
+// Rate Limiting per API HTTP
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minuti
+  max: 100, // Limite
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use('/api', limiter);
+
+// SQLite Config
+const db = new Database('chat.db');
+db.pragma('journal_mode = WAL');
+
+// Inizializza Tabelle
+db.exec(`
+  CREATE TABLE IF NOT EXISTS tenants (
+    slug TEXT PRIMARY KEY,
+    name TEXT,
+    createdAt INTEGER
+  );
+
+  CREATE TABLE IF NOT EXISTS messages (
+    id TEXT PRIMARY KEY,
+    senderId TEXT,
+    senderAlias TEXT,
+    senderGender TEXT,
+    text TEXT,
+    timestamp INTEGER,
+    recipientId TEXT,
+    tenantSlug TEXT
+  );
+`);
+
+// Migrations
+try { db.exec('ALTER TABLE messages ADD COLUMN recipientId TEXT'); } catch (e) { }
+try { db.exec('ALTER TABLE messages ADD COLUMN tenantSlug TEXT'); } catch (e) { }
+
+// Seed Tenants se vuoto
+const tenantCount = db.prepare('SELECT COUNT(*) as count FROM tenants').get().count;
+if (tenantCount === 0) {
+  const insert = db.prepare('INSERT INTO tenants (slug, name, createdAt) VALUES (?, ?, ?)');
+  insert.run('spiaggia-azzurra', 'Spiaggia Azzurra', Date.now());
+  insert.run('disco-club', 'Disco Club 90', Date.now());
+  insert.run('treno-wifi', 'Treno WiFi Chat', Date.now());
+}
+
+// API: Recupera metadata Tenant
+app.get('/api/tenants/:slug', (req, res) => {
+  const tenant = db.prepare('SELECT * FROM tenants WHERE slug = ?').get(req.params.slug);
+  if (!tenant) return res.status(404).json({ error: 'Tenant not found' });
+  res.json(tenant);
+});
+
+// API: Recupera solo messaggi PUBBLICI del tenant (ultimi 100)
+app.get('/api/messages', (req, res) => {
+  const { tenant } = req.query;
+  if (!tenant) return res.status(400).json({ error: 'Missing tenant parameter' });
+  try {
+    const messages = db.prepare(`
+      SELECT * FROM messages 
+      WHERE recipientId IS NULL AND tenantSlug = ?
+      ORDER BY timestamp DESC 
+      LIMIT 100
+    `).all(tenant);
+    res.json(messages.reverse());
+  } catch (err) {
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+
+// Mappa utenti online: socketId -> UserData (include tenantSlug)
+const onlineUsers = new Map();
+
+// Helper per inviare presenceUpdate solo agli utenti dello stesso tenant
+const broadcastPresence = (tenantSlug) => {
+  const users = Array.from(onlineUsers.values()).filter(u => u.tenantSlug === tenantSlug);
+  io.to(`room:${tenantSlug}`).emit('presenceUpdate', users);
 };
 
-// API: Recupera tutti i messaggi
-app.get('/api/messages', (req, res) => {
-  res.json(db.messages);
-});
+// Socket.io Logic
+io.on('connection', (socket) => {
 
-// API: Invia un nuovo messaggio
-app.post('/api/messages', (req, res) => {
-  const message = req.body;
-  if (!message || !message.text) return res.status(400).json({ error: 'Messaggio non valido' });
+  // Gestione Identità
+  socket.on('join', (data) => {
+    const { user, tenantSlug } = data;
+    if (!user || !tenantSlug) return;
 
-  // Limita la cronologia a 100 messaggi per performance
-  db.messages.push(message);
-  if (db.messages.length > 100) db.messages.shift();
+    onlineUsers.set(socket.id, { ...user, socketId: socket.id, tenantSlug });
 
-  // LOG NEL TERMINALE: <alias> (time) <message>
-  const time = new Date(message.timestamp || Date.now()).toLocaleTimeString('it-IT', {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit'
+    // Unisciti a room del tenant e room personale
+    socket.join(`room:${tenantSlug}`);
+    socket.join(user.id);
+
+    console.log(`\x1b[34m[JOIN]\x1b[0m ${user.alias} joined ${tenantSlug}`);
+    broadcastPresence(tenantSlug);
   });
 
-  console.log(`\x1b[32m<${message.senderAlias}>\x1b[0m \x1b[90m(${time})\x1b[0m ${message.text}`);
+  socket.on('updateAlias', (data) => {
+    const { oldAlias, newAlias } = data;
+    const user = onlineUsers.get(socket.id);
+    if (!user) return;
 
-  res.status(201).json(message);
-});
+    console.log(`\x1b[33m[ALIAS]\x1b[0m ${oldAlias} -> ${newAlias} (${user.tenantSlug})`);
 
-// API: Aggiorna presenza e ottieni conteggio utenti
-app.post('/api/presence', (req, res) => {
-  const { id, alias } = req.body;
-  const now = Date.now();
+    // Aggiorna alias in memoria
+    user.alias = newAlias;
+    onlineUsers.set(socket.id, user);
 
-  if (id) {
-    db.presence[id] = { alias, lastSeen: now };
-  }
+    // Crea messaggio di sistema
+    const sysMsg = {
+      id: Math.random().toString(36).substr(2, 9),
+      senderId: 'system',
+      senderAlias: 'Sistema',
+      senderGender: 'other',
+      text: `Utente ${oldAlias} ha cambiato il suo alias in ${newAlias}`,
+      timestamp: Date.now(),
+      tenantSlug: user.tenantSlug
+    };
 
-  // Pulisci utenti inattivi (> 15 secondi)
-  const threshold = now - 15000;
-  let activeCount = 0;
-  Object.keys(db.presence).forEach(userId => {
-    if (db.presence[userId].lastSeen > threshold) {
-      activeCount++;
-    } else {
-      delete db.presence[userId];
+    // Salva e invia a tutti nel tenant
+    db.prepare('INSERT INTO messages (id, senderId, senderAlias, senderGender, text, timestamp, tenantSlug) VALUES (?, ?, ?, ?, ?, ?, ?)')
+      .run(sysMsg.id, sysMsg.senderId, sysMsg.senderAlias, sysMsg.senderGender, sysMsg.text, sysMsg.timestamp, sysMsg.tenantSlug);
+
+    io.to(`room:${user.tenantSlug}`).emit('newMessage', sysMsg);
+    broadcastPresence(user.tenantSlug);
+  });
+
+  socket.on('sendMessage', (message) => {
+    if (!message || !message.text) return;
+    const user = onlineUsers.get(socket.id);
+    if (!user) {
+      console.log(`\x1b[31m[SEND_ERR]\x1b[0m Socket ${socket.id} not found in onlineUsers`);
+      return;
+    }
+
+    console.log(`\x1b[32m[MSG]\x1b[0m ${user.alias} @ ${user.tenantSlug}: ${message.text.substring(0, 20)}`);
+
+    // Rate Limiting
+    const now = Date.now();
+    if (socket.lastMessageTime && now - socket.lastMessageTime < 500) return;
+    socket.lastMessageTime = now;
+
+    // Bad Word Filter
+    const badWords = ['stupido', 'idiota', 'scemo'];
+    let cleanText = message.text;
+    badWords.forEach(word => {
+      const regex = new RegExp(`\\b${word}\\b`, 'gi');
+      cleanText = cleanText.replace(regex, '***');
+    });
+    message.text = cleanText;
+    message.tenantSlug = user.tenantSlug;
+    message.recipientId = message.recipientId || null;
+    message.timestamp = message.timestamp || Date.now();
+
+    try {
+      db.prepare(`
+        INSERT INTO messages (id, senderId, senderAlias, senderGender, text, timestamp, recipientId, tenantSlug)
+        VALUES (@id, @senderId, @senderAlias, @senderGender, @text, @timestamp, @recipientId, @tenantSlug)
+      `).run(message);
+
+      if (message.recipientId) {
+        io.to(message.recipientId).emit('privateMessage', message);
+        socket.emit('privateMessage', message);
+      } else {
+        io.to(`room:${user.tenantSlug}`).emit('newMessage', message);
+      }
+    } catch (err) {
+      console.error('Failed to save message:', err);
     }
   });
 
-  res.json({ activeCount });
+  socket.on('disconnect', () => {
+    const user = onlineUsers.get(socket.id);
+    if (user) {
+      onlineUsers.delete(socket.id);
+      broadcastPresence(user.tenantSlug);
+    }
+  });
 });
 
-// Serve i file statici dalla cartella di build
+// Serve i file statici
 app.use(express.static(path.join(__dirname, 'dist')));
-app.use(express.static(__dirname)); // Fallback per sviluppo diretto
+app.use(express.static(__dirname));
 
-// Rotta per la SPA
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-app.listen(PORT, '0.0.0.0', () => {
+httpServer.listen(PORT, '0.0.0.0', () => {
   console.log(`
-  🌟 QuickChat SERVER AVVIATO!
+  🌟 QuickChat SERVER (Socket.io) AVVIATO!
   -----------------------------------------
   💻 Locale:    http://localhost:${PORT}
-  📱 In Rete:   Cerca l'IP del tuo Mac (es. http://192.168.1.15:${PORT})
+  📱 In Rete:   Cerca l'IP del tuo Mac
   -----------------------------------------
-  Messaggi in tempo reale:
+  Messaggi in tempo reale via WebSocket
   `);
 });

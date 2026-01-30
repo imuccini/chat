@@ -4,9 +4,10 @@ import { User, Gender } from '../types';
 
 interface LoginProps {
   onLogin: (user: User) => void;
+  tenantName: string;
 }
 
-const Login: React.FC<LoginProps> = ({ onLogin }) => {
+const Login: React.FC<LoginProps> = ({ onLogin, tenantName }) => {
   const [alias, setAlias] = useState('');
   const [gender, setGender] = useState<Gender>('male');
 
@@ -43,8 +44,8 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
           </svg>
         </div>
-        <h1 className="text-2xl font-bold text-gray-800 tracking-tight">Treno WiFi</h1>
-        <p className="text-gray-500 mt-2 text-sm">Chatta con i passeggeri di questo treno</p>
+        <h1 className="text-2xl font-bold text-gray-800 tracking-tight">{tenantName}</h1>
+        <p className="text-gray-500 mt-2 text-sm">chatta in modo anonimo con le persone intorno a te</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">

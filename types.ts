@@ -15,4 +15,5 @@ export interface Message {
   senderGender: Gender;
   text: string;
   timestamp: number;
+  recipientId?: string;
 }
