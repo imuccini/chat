@@ -210,6 +210,21 @@ io.on('connection', (socket) => {
   });
 });
 
+// Mapping NAS ID -> Tenant Slug
+const NAS_TENANT_MAP = {
+  '94:83:C4:81:61:E1': 'treno-lucca-aulla'
+};
+
+// Redirect basato su nas_id
+app.get('/', (req, res, next) => {
+  const nasId = req.query.nas_id;
+  if (nasId && NAS_TENANT_MAP[nasId]) {
+    console.log(`🔀 Redirecting NAS ${nasId} to /${NAS_TENANT_MAP[nasId]}`);
+    return res.redirect(`/${NAS_TENANT_MAP[nasId]}`);
+  }
+  next();
+});
+
 // Serve i file statici
 app.use(express.static(path.join(__dirname, 'dist')));
 app.use(express.static(__dirname));
