@@ -59,14 +59,22 @@ db.exec(`
 try { db.exec('ALTER TABLE messages ADD COLUMN recipientId TEXT'); } catch (e) { }
 try { db.exec('ALTER TABLE messages ADD COLUMN tenantSlug TEXT'); } catch (e) { }
 
-// Seed Tenants se vuoto
-const tenantCount = db.prepare('SELECT COUNT(*) as count FROM tenants').get().count;
-if (tenantCount === 0) {
-  const insert = db.prepare('INSERT INTO tenants (slug, name, createdAt) VALUES (?, ?, ?)');
-  insert.run('spiaggia-azzurra', 'Spiaggia Azzurra', Date.now());
-  insert.run('disco-club', 'Disco Club 90', Date.now());
-  insert.run('treno-wifi', 'Treno WiFi Chat', Date.now());
-}
+// Seed Tenants
+const defaultTenants = [
+  { slug: 'spiaggia-azzurra', name: 'Spiaggia Azzurra' },
+  { slug: 'disco-club', name: 'Disco Club 90' },
+  { slug: 'treno-wifi', name: 'Treno WiFi Chat' },
+  { slug: 'treno-lucca-aulla', name: 'Treno Lucca-Aulla' }
+];
+
+const insertTenant = db.prepare('INSERT INTO tenants (slug, name, createdAt) VALUES (?, ?, ?)');
+defaultTenants.forEach(t => {
+  const exists = db.prepare('SELECT 1 FROM tenants WHERE slug = ?').get(t.slug);
+  if (!exists) {
+    insertTenant.run(t.slug, t.name, Date.now());
+    console.log(`🌱 Tenant creato: ${t.name} (${t.slug})`);
+  }
+});
 
 // API: Recupera metadata Tenant
 app.get('/api/tenants/:slug', (req, res) => {
