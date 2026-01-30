@@ -270,6 +270,7 @@ const App: React.FC = () => {
             hideHeader={true}
             showBottomNavPadding={false}
             onInputFocusChange={setIsInputFocused}
+            isFocused={isInputFocused}
           />
         </div>
       </div>
@@ -289,6 +290,7 @@ const App: React.FC = () => {
             headerTitle={tenant.name}
             showBottomNavPadding={true}
             onInputFocusChange={setIsInputFocused}
+            isFocused={isInputFocused}
           />
         )}
         {activeTab === 'users' && (

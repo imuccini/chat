@@ -10,11 +10,11 @@ interface GlobalChatProps {
   hideHeader?: boolean;
   headerTitle?: string;
   showBottomNavPadding?: boolean;
+  isFocused?: boolean;
   onInputFocusChange?: (isFocused: boolean) => void;
 }
 
 const GenderIcon = memo(({ gender, className }: { gender: Gender; className?: string }) => {
-  // ... existing GenderIcon code ...
   if (gender === 'male') {
     return (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -40,10 +40,11 @@ const GenderIcon = memo(({ gender, className }: { gender: Gender; className?: st
   );
 });
 
-const ChatInput = memo(({ onSendMessage, showBottomNavPadding, onFocusChange }: {
+const ChatInput = memo(({ onSendMessage, showBottomNavPadding, onFocusChange, isFocused }: {
   onSendMessage: (text: string) => void,
   showBottomNavPadding?: boolean,
-  onFocusChange?: (isFocused: boolean) => void
+  onFocusChange?: (isFocused: boolean) => void,
+  isFocused?: boolean
 }) => {
   const [text, setText] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -63,8 +64,14 @@ const ChatInput = memo(({ onSendMessage, showBottomNavPadding, onFocusChange }: 
     }
   };
 
+  const footerPadding = isFocused
+    ? 'pb-2'
+    : showBottomNavPadding
+      ? 'pb-[calc(60px+env(safe-area-inset-bottom,0px)+8px)] md:pb-[80px]'
+      : 'pb-6 pt-2';
+
   return (
-    <footer className={`p-3 md:p-4 bg-gray-50 border-t border-gray-200 shrink-0 ${showBottomNavPadding ? 'pb-[calc(70px+env(safe-area-inset-bottom,0px)+12px)] md:pb-[90px]' : 'pb-6 pt-2'}`}>
+    <footer className={`p-3 md:p-4 bg-gray-50 border-t border-gray-200 shrink-0 ${footerPadding}`}>
       <form onSubmit={handleSubmit} className="flex items-center gap-2 md:gap-3 max-w-5xl mx-auto">
         <input
           ref={inputRef}
@@ -90,7 +97,7 @@ const ChatInput = memo(({ onSendMessage, showBottomNavPadding, onFocusChange }: 
   );
 });
 
-const GlobalChat: React.FC<GlobalChatProps> = ({ user, messages, onSendMessage, onlineCount, isOnline, hideHeader, headerTitle, showBottomNavPadding, onInputFocusChange }) => {
+const GlobalChat: React.FC<GlobalChatProps> = ({ user, messages, onSendMessage, onlineCount, isOnline, hideHeader, headerTitle, showBottomNavPadding, onInputFocusChange, isFocused }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const isAtBottom = useRef(true);
 
@@ -179,6 +186,7 @@ const GlobalChat: React.FC<GlobalChatProps> = ({ user, messages, onSendMessage, 
         onSendMessage={onSendMessage}
         showBottomNavPadding={showBottomNavPadding}
         onFocusChange={onInputFocusChange}
+        isFocused={isFocused}
       />
     </div>
   );
