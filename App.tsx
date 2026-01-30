@@ -35,6 +35,7 @@ const App: React.FC = () => {
   // UI State
   const [selectedChatPeerId, setSelectedChatPeerId] = useState<string | null>(null);
   const [isConnected, setIsConnected] = useState(false);
+  const [isInputFocused, setIsInputFocused] = useState(false);
 
   // 1. Detect Tenant from URL and Restore User
   useEffect(() => {
@@ -268,6 +269,7 @@ const App: React.FC = () => {
             isOnline={true}
             hideHeader={true}
             showBottomNavPadding={false}
+            onInputFocusChange={setIsInputFocused}
           />
         </div>
       </div>
@@ -286,6 +288,7 @@ const App: React.FC = () => {
             isOnline={isConnected}
             headerTitle={tenant.name}
             showBottomNavPadding={true}
+            onInputFocusChange={setIsInputFocused}
           />
         )}
         {activeTab === 'users' && (
@@ -317,15 +320,17 @@ const App: React.FC = () => {
         )}
       </div>
 
-      <BottomNav
-        activeTab={activeTab}
-        onTabChange={(t) => {
-          setActiveTab(t);
-          setSelectedChatPeerId(null);
-        }}
-        usersCount={onlineUsers.length}
-        unreadChatsCount={totalUnread}
-      />
+      {!isInputFocused && (
+        <BottomNav
+          activeTab={activeTab}
+          onTabChange={(t) => {
+            setActiveTab(t);
+            setSelectedChatPeerId(null);
+          }}
+          usersCount={onlineUsers.length}
+          unreadChatsCount={totalUnread}
+        />
+      )}
     </div>
   );
 };

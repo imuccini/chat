@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, memo } from 'react';
+import React, { useState, useRef, useEffect, memo } from 'react';
 import { User, Message, Gender } from '../types';
 
 interface GlobalChatProps {
@@ -10,9 +10,11 @@ interface GlobalChatProps {
   hideHeader?: boolean;
   headerTitle?: string;
   showBottomNavPadding?: boolean;
+  onInputFocusChange?: (isFocused: boolean) => void;
 }
 
 const GenderIcon = memo(({ gender, className }: { gender: Gender; className?: string }) => {
+  // ... existing GenderIcon code ...
   if (gender === 'male') {
     return (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -38,7 +40,12 @@ const GenderIcon = memo(({ gender, className }: { gender: Gender; className?: st
   );
 });
 
-const ChatInput = memo(({ onSendMessage, showBottomNavPadding }: { onSendMessage: (text: string) => void, showBottomNavPadding?: boolean }) => {
+const ChatInput = memo(({ onSendMessage, showBottomNavPadding, onFocusChange }: {
+  onSendMessage: (text: string) => void,
+  showBottomNavPadding?: boolean,
+  onFocusChange?: (isFocused: boolean) => void
+}) => {
+  const [text, setText] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Safeguard: forza il blur al montaggio per evitare che iOS apra la tastiera
@@ -50,27 +57,24 @@ const ChatInput = memo(({ onSendMessage, showBottomNavPadding }: { onSendMessage
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (inputRef.current) {
-      const val = inputRef.current.value.trim();
-      if (val) {
-        onSendMessage(val);
-        inputRef.current.value = '';
-      }
+    if (text.trim()) {
+      onSendMessage(text.trim());
+      setText('');
     }
   };
 
   return (
-    <footer className={`p-3 md:p-4 bg-gray-50 border-t border-gray-200 shrink-0 ${showBottomNavPadding ? 'pb-[80px] md:pb-[90px]' : 'pb-6'}`}>
+    <footer className={`p-3 md:p-4 bg-gray-50 border-t border-gray-200 shrink-0 ${showBottomNavPadding ? 'pb-[calc(70px+env(safe-area-inset-bottom,0px)+12px)] md:pb-[90px]' : 'pb-6 pt-2'}`}>
       <form onSubmit={handleSubmit} className="flex items-center gap-2 md:gap-3 max-w-5xl mx-auto">
         <input
           ref={inputRef}
           type="text"
-          id="global-chat-input"
-          autoFocus={false}
-          autoComplete="off"
-          enterKeyHint="send"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          onFocus={() => onFocusChange?.(true)}
+          onBlur={() => onFocusChange?.(false)}
           placeholder="Messaggio alla stanza..."
-          className="flex-1 px-4 py-2.5 bg-white rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-gray-800 shadow-sm"
+          className="flex-1 px-4 py-2.5 bg-white border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-sm md:text-base placeholder-gray-400"
           style={{ fontSize: '16px' }}
         />
         <button
@@ -86,7 +90,7 @@ const ChatInput = memo(({ onSendMessage, showBottomNavPadding }: { onSendMessage
   );
 });
 
-const GlobalChat: React.FC<GlobalChatProps> = ({ user, messages, onSendMessage, onlineCount, isOnline, hideHeader, headerTitle, showBottomNavPadding }) => {
+const GlobalChat: React.FC<GlobalChatProps> = ({ user, messages, onSendMessage, onlineCount, isOnline, hideHeader, headerTitle, showBottomNavPadding, onInputFocusChange }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const isAtBottom = useRef(true);
 
@@ -171,7 +175,11 @@ const GlobalChat: React.FC<GlobalChatProps> = ({ user, messages, onSendMessage, 
         })}
       </main>
 
-      <ChatInput onSendMessage={onSendMessage} showBottomNavPadding={showBottomNavPadding} />
+      <ChatInput
+        onSendMessage={onSendMessage}
+        showBottomNavPadding={showBottomNavPadding}
+        onFocusChange={onInputFocusChange}
+      />
     </div>
   );
 };
