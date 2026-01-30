@@ -14,6 +14,11 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
     e.preventDefault();
     if (!alias.trim()) return;
 
+    // Forza il blur per chiudere la tastiera su mobile (iOS CNA)
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+
     const newUser: User = {
       id: Math.random().toString(36).substr(2, 9),
       alias: alias.trim(),

@@ -45,6 +45,13 @@ const GenderIcon = memo(({ gender, className }: { gender: Gender; className?: st
 const ChatInput = memo(({ onSendMessage }: { onSendMessage: (text: string) => void }) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Safeguard: forza il blur al montaggio per evitare che iOS apra la tastiera
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.blur();
+    }
+  }, []);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (inputRef.current) {
