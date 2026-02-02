@@ -24,7 +24,7 @@ export default async function TenantChatPage(props: PageProps) {
     // Transform to UI Message type
     const initialMessages: Message[] = dbMessages.map(msg => ({
         id: msg.id,
-        text: msg.content,
+        text: msg.text,
         senderId: msg.userId,
         senderAlias: msg.user?.name || "Anonymous", // Fallback
         senderGender: "other", // Database doesn't have gender yet, default/mock

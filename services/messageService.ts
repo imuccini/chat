@@ -29,12 +29,16 @@ export const getMessages = async (tenantId: string, limit = 50) => {
     });
 };
 
-export const createMessage = async (content: string, userId: string, tenantId: string) => {
+export const createMessage = async (text: string, userId: string, tenantId: string) => {
     return await prisma.message.create({
         data: {
-            content,
+            text,
             userId,
             tenantId,
+            // Legacy/Socket fields required by schema
+            senderId: userId,
+            senderAlias: "Unknown",
+            senderGender: "other"
         },
     });
 };

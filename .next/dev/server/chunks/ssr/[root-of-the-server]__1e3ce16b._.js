@@ -69,12 +69,16 @@ const getMessages = async (tenantId, limit = 50)=>{
         }
     });
 };
-const createMessage = async (content, userId, tenantId)=>{
+const createMessage = async (text, userId, tenantId)=>{
     return await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].message.create({
         data: {
-            content,
+            text,
             userId,
-            tenantId
+            tenantId,
+            // Legacy/Socket fields required by schema
+            senderId: userId,
+            senderAlias: "Unknown",
+            senderGender: "other"
         }
     });
 };
