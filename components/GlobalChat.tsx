@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, memo } from 'react';
-import { User, Message, Gender } from '../types';
+import { User, Message, Gender } from '@/types';
 
 interface GlobalChatProps {
   user: User;

@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { User, Gender } from '../types';
+import { User, Gender } from '@/types';
 
 interface UserListProps {
     currentUser: User;

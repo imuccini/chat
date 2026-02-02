@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { User, Message, Gender } from '../types';
+import { User, Message, Gender } from '@/types';
 
 interface PrivateChatSession {
     peer: User;
