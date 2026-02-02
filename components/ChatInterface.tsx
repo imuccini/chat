@@ -248,7 +248,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
     // Render Login
     if (!currentUser) {
         return (
-            <div className="h-[100dvh] w-full flex items-center justify-center bg-gray-50 flex-col">
+            <div className="h-[100dvh] w-full flex items-center justify-center bg-white sm:bg-gray-50 flex-col">
                 <Login onLogin={handleLogin} tenantName={tenant.name} />
             </div>
         );

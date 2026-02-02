@@ -7,8 +7,8 @@ export default function AdminLogin() {
     const [state, action, isPending] = useActionState(loginAction, { error: '' });
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-gray-100">
-            <div className="p-8 bg-white rounded shadow-md w-96">
+        <div className="flex items-center justify-center min-h-screen bg-white sm:bg-gray-100">
+            <div className="w-full h-screen sm:h-auto sm:w-96 p-8 bg-white sm:rounded sm:shadow-md flex flex-col justify-center">
                 <h1 className="mb-6 text-2xl font-bold text-center">Admin Login</h1>
                 <form action={action} className="space-y-4">
                     <div>

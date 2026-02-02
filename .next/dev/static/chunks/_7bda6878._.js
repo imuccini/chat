@@ -53,7 +53,7 @@ const Login = ({ onLogin, tenantName })=>{
         other: 'Altro'
     };
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-        className: "bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border border-gray-100",
+        className: "bg-white p-6 sm:p-8 w-full h-full sm:h-auto sm:max-w-md sm:rounded-2xl sm:shadow-xl sm:border border-gray-100 flex flex-col justify-center",
         children: [
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 className: "text-center mb-8",
@@ -688,7 +688,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist
 ;
 const BottomNav = ({ activeTab, onTabChange, usersCount, unreadChatsCount })=>{
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("nav", {
-        className: "bg-white border-t border-gray-200 fixed bottom-0 left-0 right-0 z-50 h-[calc(60px+env(safe-area-inset-bottom,0px))] md:h-[70px] flex justify-around items-center pb-[env(safe-area-inset-bottom,0px)] shadow-[0_-1px_3px_rgba(0,0,0,0.05)]",
+        className: "bg-white border-t border-gray-200 fixed bottom-0 left-0 right-0 z-50 h-[calc(65px+env(safe-area-inset-bottom,0px))] md:h-[70px] flex justify-around items-center pb-[calc(env(safe-area-inset-bottom,0px)+12px)] shadow-[0_-1px_3px_rgba(0,0,0,0.05)]",
         children: [
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                 onClick: ()=>onTabChange('room'),
@@ -1909,7 +1909,7 @@ function ChatInterface({ tenant, initialMessages }) {
     // Render Login
     if (!currentUser) {
         return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-            className: "h-[100dvh] w-full flex items-center justify-center bg-gray-50 flex-col",
+            className: "h-[100dvh] w-full flex items-center justify-center bg-white sm:bg-gray-50 flex-col",
             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$Login$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
                 onLogin: handleLogin,
                 tenantName: tenant.name
