@@ -22,7 +22,9 @@ model Tenant {
 
 model NasDevice {
   id        String   @id @default(uuid())
-  nasId     String   @unique
+  nasId     String?  @unique
+  vpnIp     String?  @unique
+  publicIp  String?  @unique
   name      String?
   tenantId  String
   tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
