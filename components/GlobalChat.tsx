@@ -87,6 +87,7 @@ const ChatInput = memo(({ onSendMessage, showBottomNavPadding, onFocusChange, is
         <button
           type="submit"
           className="w-10 h-10 flex items-center justify-center rounded-full bg-emerald-500 text-white shadow-md active:scale-95 transition-transform"
+          onMouseDown={(e) => e.preventDefault()}
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 rotate-45" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />

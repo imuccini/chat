@@ -219,8 +219,19 @@ const NAS_TENANT_MAP = {
 app.get('/', (req, res, next) => {
   const nasId = req.query.nas_id;
   if (nasId && NAS_TENANT_MAP[nasId]) {
-    console.log(`🔀 Redirecting NAS ${nasId} to /${NAS_TENANT_MAP[nasId]}`);
-    return res.redirect(`/${NAS_TENANT_MAP[nasId]}`);
+    const tenantSlug = NAS_TENANT_MAP[nasId];
+    console.log(`🔀 Redirecting NAS ${nasId} to /${tenantSlug}`);
+
+    try {
+      const tenant = db.prepare('SELECT name FROM tenants WHERE slug = ?').get(tenantSlug);
+      if (tenant) {
+        console.log(`A user connected from ${nasId} that belongs to tenant ${tenant.name}`);
+      }
+    } catch (err) {
+      console.error('Error fetching tenant name for logging:', err);
+    }
+
+    return res.redirect(`/${tenantSlug}`);
   }
   next();
 });
