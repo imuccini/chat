@@ -1133,10 +1133,6 @@ body {
   padding: .5rem;
 }
 
-.p-24 {
-  padding: 6rem;
-}
-
 .p-3 {
   padding: .75rem;
 }
@@ -1304,11 +1300,6 @@ body {
 .text-3xl {
   font-size: 1.875rem;
   line-height: 2.25rem;
-}
-
-.text-4xl {
-  font-size: 2.25rem;
-  line-height: 2.5rem;
 }
 
 .text-\[10px\] {

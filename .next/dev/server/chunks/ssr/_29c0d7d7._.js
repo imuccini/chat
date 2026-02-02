@@ -34,14 +34,20 @@ async function createTenantAction(formData) {
     const name = formData.get('name');
     const slug = formData.get('slug');
     const nasIds = formData.get('nasIds').split(',').map((s)=>s.trim()).filter(Boolean);
+    const publicIps = (formData.get('publicIps') || "").split(',').map((s)=>s.trim()).filter(Boolean);
     await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].tenant.create({
         data: {
             name,
             slug,
             devices: {
-                create: nasIds.map((nasId)=>({
-                        nasId
-                    }))
+                create: [
+                    ...nasIds.map((nasId)=>({
+                            nasId
+                        })),
+                    ...publicIps.map((ip)=>({
+                            publicIp: ip
+                        }))
+                ]
             }
         }
     });
@@ -52,6 +58,7 @@ async function updateTenantAction(formData) {
     const name = formData.get('name');
     const slug = formData.get('slug');
     const nasIds = formData.get('nasIds').split(',').map((s)=>s.trim()).filter(Boolean);
+    const publicIps = (formData.get('publicIps') || "").split(',').map((s)=>s.trim()).filter(Boolean);
     // Update basic info
     await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].tenant.update({
         where: {
@@ -62,19 +69,25 @@ async function updateTenantAction(formData) {
             slug
         }
     });
-    // Since we want to sync the list of NAS IDs, we delete old ones and re-create for simplicity
-    // Ideally, we'd diff them, but this is an MVP
+    // Sync devices: Delete all and recreate
     await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].nasDevice.deleteMany({
         where: {
             tenantId: id
         }
     });
-    if (nasIds.length > 0) {
+    const devicesToCreate = [
+        ...nasIds.map((nasId)=>({
+                nasId,
+                tenantId: id
+            })),
+        ...publicIps.map((ip)=>({
+                publicIp: ip,
+                tenantId: id
+            }))
+    ];
+    if (devicesToCreate.length > 0) {
         await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].nasDevice.createMany({
-            data: nasIds.map((nasId)=>({
-                    nasId,
-                    tenantId: id
-                }))
+            data: devicesToCreate
         });
     }
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$cache$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["revalidatePath"])('/admin/dashboard');
