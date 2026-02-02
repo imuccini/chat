@@ -32,13 +32,15 @@ TrenoChat è una chat room temporanea basata sulla posizione fisica. L'obiettivo
 
 ### Identificazione Tenant
 
-Il sistema risolve il tenant in tre modi (in ordine di priorità):
+Il sistema risolve il tenant in ordine di priorità (gestito in `server.js` endpoint `/api/validate-nas`):
 
-1. **NAS ID (URL Param)**: `?nas_id=ae:b6:ac:f9:6e:1e` → Lookup su `NasDevice.nasId`
-2. **VPN IP**: Header `x-forwarded-for` → Lookup su `NasDevice.vpnIp`
-3. **Public IP**: Header `x-forwarded-for` → Lookup su `NasDevice.publicIp`
+1. **BSSID (App Nativa)**: Letto via `@capgo/capacitor-wifi` → Lookup su `NasDevice.bssid`
+2. **NAS ID (Captive Portal)**: `?nas_id=ae:b6:ac:f9:6e:1e` → Lookup su `NasDevice.nasId`
+3. **VPN IP**: Header `x-forwarded-for` → Lookup su `NasDevice.vpnIp`
+4. **Public IP**: Header `x-forwarded-for` → Lookup su `NasDevice.publicIp`
 
-File: `services/tenantResolver.ts`
+**Flusso Client → Server:**
+- Client (`app/page.tsx`) → `services/apiService.ts` → HTTP → `server.js` → Prisma
 
 ### Schema Database (Prisma)
 
@@ -172,12 +174,14 @@ npx cap copy
 
 | File | Scopo |
 |------|-------|
-| `server.js` | Entry point: Express + Socket.IO + Next.js |
-| `services/tenantResolver.ts` | Logica risoluzione tenant |
+| `server.js` | Entry point: Express + Socket.IO + Next.js + API endpoints |
+| `services/apiService.ts` | Client-side API calls (resolve tenant, get messages) |
+| `services/messageService.ts` | Server-side message creation |
+| `lib/wifi.ts` | Utility per lettura BSSID WiFi (Capacitor) |
+| `lib/sqlite.ts` | Servizio SQLite per offline |
 | `prisma/schema.prisma` | Schema database |
 | `components/ChatInterface.tsx` | Componente principale chat |
 | `components/GlobalChat.tsx` | UI messaggi pubblici |
-| `lib/sqlite.ts` | Servizio SQLite per offline |
 | `config.ts` | URL API (native vs web) |
 | `capacitor.config.ts` | Configurazione Capacitor |
 
