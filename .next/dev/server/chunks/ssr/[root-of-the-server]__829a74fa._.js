@@ -100,7 +100,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$capacitor$
 ;
 // Detect if running natively (iOS or Android)
 const isNative = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$capacitor$2f$core$2f$dist$2f$index$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Capacitor"].isNativePlatform();
-const API_BASE_URL = isNative ? 'http://192.168.1.111:3000' : '';
+const API_BASE_URL = isNative ? ("TURBOPACK compile-time value", "http://192.168.1.111:3000") || 'http://localhost:3000' : '';
 }),
 "[project]/components/Login.tsx [app-ssr] (ecmascript)", ((__turbopack_context__) => {
 "use strict";
