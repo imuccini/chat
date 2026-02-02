@@ -61,6 +61,7 @@ const ChatInput = memo(({ onSendMessage, showBottomNavPadding, onFocusChange, is
     if (text.trim()) {
       onSendMessage(text.trim());
       setText('');
+      inputRef.current?.blur();
     }
   };
 
