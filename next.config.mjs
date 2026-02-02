@@ -1,5 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+    output: (process.env.NODE_ENV !== 'development' && process.env.NEXT_STATIC_EXPORT === 'true') ? 'export' : undefined,
+    images: {
+        unoptimized: true,
+    },
     typescript: {
         // !! WARN !!
         // Dangerously allow production builds to successfully complete even if

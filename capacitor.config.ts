@@ -7,11 +7,7 @@ const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://104.248.196.179:
 const config: CapacitorConfig = {
   appId: 'io.trenochat.app',
   appName: 'TrenoChat',
-  webDir: 'public',
-  server: {
-    url: serverUrl,
-    cleartext: true
-  }
+  webDir: 'out'
 };
 
 export default config;

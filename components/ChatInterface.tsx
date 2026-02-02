@@ -5,6 +5,11 @@ import { io, Socket } from 'socket.io-client';
 import { Tenant } from '@prisma/client';
 import { User, Message } from '@/types';
 import { API_BASE_URL } from '@/config';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { sqliteService } from '@/lib/sqlite';
+import { Keyboard, KeyboardResize } from '@capacitor/keyboard';
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
+import { Capacitor } from '@capacitor/core';
 
 // UI Components
 import Login from './Login';
@@ -32,13 +37,44 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
     const [isInputFocused, setIsInputFocused] = useState(false);
 
     // Data State
-    const [messages, setMessages] = useState<Message[]>(initialMessages); // Global messages
     const [onlineUsers, setOnlineUsers] = useState<(User & { socketId: string })[]>([]);
     const [privateChats, setPrivateChats] = useState<PrivateChatsMap>({});
     const [isConnected, setIsConnected] = useState(false);
 
 
-    // 1. Initialize User (Check localStorage)
+    const queryClient = useQueryClient();
+
+    // 1. Initial Data Fetching (Offline-First)
+    const { data: messages = initialMessages, isFetching: isFetchingGlobal } = useQuery({
+        queryKey: ['messages', 'global', tenant.slug],
+        queryFn: async () => {
+            // First load from SQLite
+            const localMessages = await sqliteService.getMessages(true);
+
+            // In a real app, you'd fetch from API here and update SQLite
+            // For now, we simulate API fetch by returning initialMessages if SQLite is empty
+            // or just returning what we have.
+
+            // Simulate background sync from server
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/messages?tenant=${tenant.slug}`);
+                if (response.ok) {
+                    const serverMessages: Message[] = await response.json();
+                    for (const msg of serverMessages) {
+                        await sqliteService.saveMessage(msg, true);
+                    }
+                    return serverMessages;
+                }
+            } catch (e) {
+                console.warn("Failed to fetch from server, using local data", e);
+            }
+
+            return localMessages.length > 0 ? localMessages : initialMessages;
+        },
+        initialData: initialMessages,
+    });
+
+    // 2. Initialize User, Keyboard and Haptics
     useEffect(() => {
         if (typeof window !== 'undefined') {
             const savedUser = localStorage.getItem('chat_user');
@@ -50,10 +86,17 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                     console.error("Invalid saved user", e);
                 }
             }
+
+            // Keyboard Configuration
+            if (Capacitor.isNativePlatform()) {
+                Keyboard.setResizeMode({ mode: KeyboardResize.Body }).catch(err => {
+                    console.error("Error setting keyboard resize mode", err);
+                });
+            }
         }
     }, []);
 
-    // 2. Connect Socket & Handlers
+    // 3. Connect Socket & Handlers
     useEffect(() => {
         if (!currentUser) return;
 
@@ -80,20 +123,21 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
             setOnlineUsers(users);
         });
 
-        newSocket.on('newMessage', (msg: Message) => {
-            setMessages(prev => {
-                if (prev.some(m => m.id === msg.id)) return prev;
-                return [...prev, msg];
-            });
+        newSocket.on('newMessage', async (msg: Message) => {
+            await sqliteService.saveMessage(msg, true);
+            queryClient.invalidateQueries({ queryKey: ['messages', 'global', tenant.slug] });
         });
 
-        newSocket.on('privateMessage', (msg: Message) => {
+        newSocket.on('privateMessage', async (msg: Message) => {
             const isMe = msg.senderId === currentUser.id;
             const peerId = isMe ? msg.recipientId! : msg.senderId;
 
-            // If receiving a message from someone not in our list, we need their info.
-            // For now, we construct it from the message data if valid.
-            // In a real app we might fetch user details.
+            await sqliteService.saveMessage(msg, false);
+
+            // Haptic feedback for incoming private messages
+            if (!isMe && Capacitor.isNativePlatform()) {
+                Haptics.impact({ style: ImpactStyle.Light }).catch(() => { });
+            }
 
             setPrivateChats(prev => {
                 const existing = prev[peerId] || {
@@ -109,11 +153,6 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
 
                 if (existing.messages.some(m => m.id === msg.id)) return prev;
 
-                // If we are currently viewing this chat, unread is 0
-                // Note: we can't access live 'activeTab' here inside closure easily without ref or dependency.
-                // But we have 'selectedChatPeerId' in dependency potentially or we handle read status in another effect.
-                // Simplified: increment unread, let the Effect [activeTab, selectedChatPeerId] clear it if open.
-
                 return {
                     ...prev,
                     [peerId]: {
@@ -128,7 +167,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
         return () => {
             newSocket.disconnect();
         }
-    }, [currentUser, tenant.slug]);
+    }, [currentUser, tenant.slug, queryClient]);
 
     // 3. Mark read when viewing chat
     useEffect(() => {
@@ -155,7 +194,8 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
         setSocket(null);
         localStorage.removeItem('chat_user');
         setPrivateChats({});
-        setMessages(initialMessages); // Reset to basics
+        sqliteService.clearMessages();
+        queryClient.setQueryData(['messages', 'global', tenant.slug], initialMessages);
         setSelectedChatPeerId(null);
         setActiveTab('room');
     };
@@ -185,7 +225,18 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
             timestamp: new Date().toISOString()
         };
 
-        setMessages(prev => [...prev, optimisticMsg]);
+        // Haptic feedback for local send
+        if (Capacitor.isNativePlatform()) {
+            Haptics.impact({ style: ImpactStyle.Light }).catch(() => { });
+        }
+
+        // Persist to local SQLite immediately
+        await sqliteService.saveMessage(optimisticMsg, true);
+
+        // Update TanStack Query cache optimistically
+        queryClient.setQueryData(['messages', 'global', tenant.slug], (prev: Message[] | undefined) => {
+            return [...(prev || []), optimisticMsg];
+        });
 
         socket.emit('sendMessage', {
             ...optimisticMsg,
@@ -205,6 +256,11 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
             timestamp: new Date().toISOString(),
             recipientId: selectedChatPeerId
         };
+
+        // Haptic feedback for local send
+        if (Capacitor.isNativePlatform()) {
+            Haptics.impact({ style: ImpactStyle.Light }).catch(() => { });
+        }
 
         // Optimistic update
         setPrivateChats(prev => ({
@@ -292,6 +348,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                         showBottomNavPadding={false}
                         onInputFocusChange={setIsInputFocused}
                         isFocused={isInputFocused}
+                        isSyncing={false} // Private chat sync is separate
                     />
                 </div>
             </div>
@@ -314,6 +371,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                         showBottomNavPadding={true}
                         onInputFocusChange={setIsInputFocused}
                         isFocused={isInputFocused}
+                        isSyncing={isFetchingGlobal}
                     />
                 )}
                 {activeTab === 'users' && (

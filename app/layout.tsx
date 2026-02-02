@@ -22,6 +22,8 @@ export const viewport = {
     viewportFit: "cover",
 };
 
+import Providers from "@/components/Providers";
+
 export default function RootLayout({
     children,
 }: Readonly<{
@@ -30,7 +32,9 @@ export default function RootLayout({
     return (
         <html lang="it" suppressHydrationWarning>
             <body className="antialiased bg-gray-50 text-gray-900">
-                {children}
+                <Providers>
+                    {children}
+                </Providers>
             </body>
         </html>
     );

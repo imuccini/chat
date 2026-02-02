@@ -36,9 +36,6 @@ nextApp.prepare().then(async () => {
   });
   app.use('/api', limiter);
 
-
-
-
   // API: Recupera metadata Tenant
   app.get('/api/tenants/:slug', async (req, res) => {
     try {
@@ -46,9 +43,6 @@ nextApp.prepare().then(async () => {
         where: { slug: req.params.slug }
       });
       if (!tenant) return res.status(404).json({ error: 'Tenant not found' });
-      // Map Prisma date to timestamp number if expected by client legacy format, 
-      // OR just return standard JSON. The client 'ChatInterface' uses `tenant.slug` and `tenant.name`.
-      // The type definition expects `createdAt` to be Date or string.
       res.json(tenant);
     } catch (e) {
       console.error(e);
@@ -58,13 +52,11 @@ nextApp.prepare().then(async () => {
 
   // API: Recupera solo messaggi PUBBLICI del tenant (ultimi 100)
   app.get('/api/messages', async (req, res) => {
-    const { tenant } = req.query;
-    if (!tenant) return res.status(400).json({ error: 'Missing tenant parameter' });
+    const { tenant: tenantSlug } = req.query;
+    if (!tenantSlug) return res.status(400).json({ error: 'Missing tenant parameter' });
 
     try {
-      // We find tenant first to get ID? Or just join?
-      // Actually we need to filter by tenant.
-      const tenantRecord = await prisma.tenant.findUnique({ where: { slug: String(tenant) } });
+      const tenantRecord = await prisma.tenant.findUnique({ where: { slug: String(tenantSlug) } });
       if (!tenantRecord) return res.json([]);
 
       const messages = await prisma.message.findMany({
@@ -76,11 +68,9 @@ nextApp.prepare().then(async () => {
         orderBy: { createdAt: 'desc' }
       });
 
-      // The client expects `timestamp` (number). Prisma has `createdAt` (Date).
-      // We should map it back to match legacy type `Message`.
       const mappedMessages = messages.map(m => ({
         ...m,
-        timestamp: m.createdAt.getTime() // Convert Date to ms
+        timestamp: m.createdAt.toISOString() // Consistent with client Message type
       }));
 
       res.json(mappedMessages.reverse());
@@ -90,22 +80,7 @@ nextApp.prepare().then(async () => {
     }
   });
 
-  // Mapping NAS ID -> Tenant Slug (Legacy/Express logic)
-  const NAS_TENANT_MAP = {
-    'ae:b6:ac:f9:6e:1e': 'treno-lucca-aulla'
-  };
-
-  app.get('/api/validate-nas', (req, res) => {
-    const { nas_id } = req.query;
-    const tenantSlug = NAS_TENANT_MAP[nas_id];
-    if (tenantSlug) {
-      res.json({ valid: true, tenantSlug });
-    } else {
-      res.json({ valid: false });
-    }
-  });
-
-  // --- Socket.IO Logic (Preserved) ---
+  // --- Socket.IO Logic ---
   const onlineUsers = new Map();
   const broadcastPresence = (tenantSlug) => {
     const users = Array.from(onlineUsers.values()).filter(u => u.tenantSlug === tenantSlug);
@@ -122,61 +97,43 @@ nextApp.prepare().then(async () => {
       broadcastPresence(tenantSlug);
     });
 
-    socket.on('sendMessage', (message) => {
-      // NOTE: This logic handles the socket message. 
-      // Ideally, in the new architecture, you might rely solely on Server Actions + Optimistic UI,
-      // but keeping this allows instant feedback and broadcasting to OTHERS.
-
+    socket.on('sendMessage', async (message) => {
       if (!message || !message.text) return;
       const user = onlineUsers.get(socket.id);
       if (!user) return;
 
-      message.tenantSlug = user.tenantSlug;
-      message.timestamp = Date.now();
+      const tenantSlug = user.tenantSlug;
+      message.timestamp = new Date().toISOString();
 
-      // Save to Postgres (Prisma)
-      (async () => {
-        try {
-          const tenantRecord = await prisma.tenant.findUnique({ where: { slug: user.tenantSlug } });
-          if (tenantRecord) {
-            await prisma.message.create({
-              data: {
-                id: message.id, // Use client generated UUID? Or let Prisma generate? 
-                // Legacy client sends 'id'. We should respect it if possible or ignore.
-                // Prisma schema has `id String @default(uuid())`.
-                // If we pass ID, it uses it.
-                // Legacy client sends 'text', schema has 'text'.
-                text: message.text,
-                senderId: message.senderId,
-                senderAlias: message.senderAlias,
-                senderGender: message.senderGender,
-                recipientId: message.recipientId || null,
-                tenantId: tenantRecord.id,
-                createdAt: new Date() // Current time
-              }
-            });
-          }
-        } catch (e) {
-          console.error("Error saving message to Prisma:", e);
+      try {
+        const tenantRecord = await prisma.tenant.findUnique({ where: { slug: tenantSlug } });
+        if (tenantRecord) {
+          await prisma.message.create({
+            data: {
+              id: message.id || Date.now().toString(),
+              text: message.text,
+              senderId: message.senderId,
+              senderAlias: message.senderAlias,
+              senderGender: message.senderGender,
+              recipientId: message.recipientId || null,
+              tenantId: tenantRecord.id,
+              createdAt: new Date()
+            }
+          });
         }
-      })();
+      } catch (e) {
+        console.error("Error saving message to Prisma:", e);
+      }
 
-      // Check if Private Message
       if (message.recipientId) {
-        // 1. Find Recipient Socket
         const recipientSocket = Array.from(onlineUsers.values()).find(u => u.id === message.recipientId);
-
         if (recipientSocket) {
-          // Send to Recipient
           io.to(recipientSocket.socketId).emit('privateMessage', message);
-          // Send back to Sender (optional, enables multi-device sync if implemented later)
-          // But for now, we just rely on Optimistic UI or we can ack.
-          // Let's emit back so other tabs of sender get it too
-          io.to(user.socketId).emit('privateMessage', message);
         }
+        // Send back to sender
+        socket.emit('privateMessage', message);
       } else {
-        // Broadcast Public Message
-        io.to(`room:${user.tenantSlug}`).emit('newMessage', message);
+        io.to(`room:${tenantSlug}`).emit('newMessage', message);
       }
     });
 
@@ -189,8 +146,6 @@ nextApp.prepare().then(async () => {
     });
   });
 
-  // --- Next.js Request Handler ---
-  // This handles all other routes (pages, public assets, next api routes)
   app.all('*', (req, res) => {
     const parsedUrl = parse(req.url, true);
     handle(req, res, parsedUrl);

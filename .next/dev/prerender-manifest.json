@@ -1,11 +1,1 @@
-{
-  "version": 4,
-  "routes": {},
-  "dynamicRoutes": {},
-  "notFoundRoutes": [],
-  "preview": {
-    "previewModeId": "af260787877239fa7e227fc79941cd19",
-    "previewModeSigningKey": "eae9da0f87c6fe915e295c781b5e80e70a8bbc532a4e68c5278a34dd0b1ad42e",
-    "previewModeEncryptionKey": "196d4897931ec27c0078ecfcd2abb04dc4d0bf3b7179dcfb1b38b9d65ed7d7fc"
-  }
-}
+{"version":4,"routes":{"/treno-lucca-aulla":{},"/pisa-centrale":{},"/demo":{}},"dynamicRoutes":{"/[tenantSlug]":{"dataRoute":null,"dataRouteRegex":null,"fallback":null,"fallbackRevalidate":false,"fallbackSourceRoute":"/[tenantSlug]","routeRegex":"^\\/([^/]+?)(?:\\/)?$","allowHeader":[]}},"notFoundRoutes":[],"preview":{"previewModeId":"c42bd8b2e5bf172346b1690833e6f4f4","previewModeSigningKey":"70b510ef966dba8d6e3de92fdd38d05dde59f26ca970b093ed6f57a4c53a0b27","previewModeEncryptionKey":"7de059f42e2834cfd1650d979645c556d467ce3e0b2c42b9dbc5369a826befb4"}}

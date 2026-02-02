@@ -1,44 +1,59 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 async function main() {
-    const nasId = 'ae:b6:ac:f9:6e:1e'
-    const slug = 'treno-pisa-aulla'
-    const name = 'Treno Pisa-Aulla'
-
-    // Upsert Tenant: Create if not exists, update if exists
-    // Upsert Tenant: Create if not exists, update if exists
-    const tenant = await prisma.tenant.upsert({
-        where: { slug: slug },
-        update: {
-            name: name,
-            devices: {
-                upsert: {
-                    where: { nasId: nasId },
-                    update: { name: 'Main Router' },
-                    create: { nasId: nasId, name: 'Main Router' }
-                }
-            }
+    const tenants = [
+        {
+            name: "Treno Lucca-Aulla",
+            slug: "treno-lucca-aulla",
+            nasId: "ae:b6:ac:f9:6e:1e"
         },
-        create: {
-            slug: slug,
-            name: name,
-            devices: {
-                create: { nasId: nasId, name: 'Main Router' }
-            }
+        {
+            name: "Pisa Centrale",
+            slug: "pisa-centrale",
+            nasId: "pisa-router-01"
         },
-    })
+        {
+            name: "Demo Environment",
+            slug: "demo",
+            nasId: "demo-nas-id"
+        }
+    ];
 
-    console.log({ tenant })
+    console.log('Seeding database...');
+
+    for (const t of tenants) {
+        const tenant = await prisma.tenant.upsert({
+            where: { slug: t.slug },
+            update: { name: t.name },
+            create: {
+                name: t.name,
+                slug: t.slug,
+            },
+        });
+
+        await prisma.nasDevice.upsert({
+            where: { nasId: t.nasId },
+            update: { tenantId: tenant.id },
+            create: {
+                nasId: t.nasId,
+                name: `${t.name} NAS`,
+                tenantId: tenant.id,
+            }
+        });
+
+        console.log(`- Seeded ${t.slug}`);
+    }
+
+    console.log('Seeding complete.');
 }
 
 main()
-    .then(async () => {
-        await prisma.$disconnect()
+    .catch((e) => {
+        console.error(e);
+        process.exit(1);
     })
-    .catch(async (e) => {
-        console.error(e)
-        await prisma.$disconnect()
-        process.exit(1)
-    })
+    .finally(async () => {
+        await prisma.$disconnect();
+    });

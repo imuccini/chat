@@ -1,0 +1,2 @@
+:HL["/_next/static/chunks/6d22cc616c04a0f8.css","style"]
+0:{"buildId":"9kuAo3M_fJdElcwwSDeUT","tree":{"name":"","paramType":null,"paramKey":"","hasRuntimePrefetch":false,"slots":{"children":{"name":"tenantSlug","paramType":"d","paramKey":"pisa-centrale","hasRuntimePrefetch":false,"slots":{"children":{"name":"__PAGE__","paramType":null,"paramKey":"__PAGE__","hasRuntimePrefetch":false,"slots":null,"isRootLayout":false}},"isRootLayout":false}},"isRootLayout":true},"staleTime":300}
