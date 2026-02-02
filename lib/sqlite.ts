@@ -107,6 +107,46 @@ class SQLiteService {
             console.error('Error clearing messages from SQLite:', err);
         }
     }
+
+    async getPrivateChats(currentUserId: string): Promise<{ peerId: string; messages: Message[] }[]> {
+        if (!this.db) await this.initialize();
+        if (!this.db) return [];
+
+        try {
+            const res = await this.db.query(
+                `SELECT * FROM messages WHERE isGlobal = 0 ORDER BY timestamp ASC;`,
+                []
+            );
+
+            const messages = (res.values || []).map((m: any) => ({
+                id: m.id,
+                text: m.text,
+                senderId: m.senderId,
+                senderAlias: m.senderAlias,
+                senderGender: m.senderGender,
+                timestamp: m.timestamp,
+                recipientId: m.recipientId
+            })) as Message[];
+
+            // Group by peer ID
+            const chatMap = new Map<string, Message[]>();
+            for (const msg of messages) {
+                const peerId = msg.senderId === currentUserId ? msg.recipientId! : msg.senderId;
+                if (!chatMap.has(peerId)) {
+                    chatMap.set(peerId, []);
+                }
+                chatMap.get(peerId)!.push(msg);
+            }
+
+            return Array.from(chatMap.entries()).map(([peerId, msgs]) => ({
+                peerId,
+                messages: msgs
+            }));
+        } catch (err) {
+            console.error('Error loading private chats from SQLite:', err);
+            return [];
+        }
+    }
 }
 
 export const sqliteService = new SQLiteService();

@@ -82,6 +82,30 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                 try {
                     const user = JSON.parse(savedUser);
                     setCurrentUser(user);
+
+                    // Restore private chats from SQLite (native only)
+                    if (Capacitor.isNativePlatform()) {
+                        sqliteService.getPrivateChats(user.id).then(chats => {
+                            if (chats.length > 0) {
+                                const restoredChats: PrivateChatsMap = {};
+                                for (const chat of chats) {
+                                    const lastMsg = chat.messages[chat.messages.length - 1];
+                                    restoredChats[chat.peerId] = {
+                                        peer: {
+                                            id: chat.peerId,
+                                            alias: lastMsg.senderId === user.id ? 'Chat' : lastMsg.senderAlias,
+                                            gender: lastMsg.senderId === user.id ? 'other' : lastMsg.senderGender,
+                                            joinedAt: Date.now()
+                                        },
+                                        messages: chat.messages,
+                                        unread: 0
+                                    };
+                                }
+                                setPrivateChats(restoredChats);
+                                console.log(`Restored ${chats.length} private chats from SQLite`);
+                            }
+                        }).catch(err => console.error('Error restoring private chats:', err));
+                    }
                 } catch (e) {
                     console.error("Invalid saved user", e);
                 }
@@ -244,7 +268,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
         });
     };
 
-    const handlePrivateSend = (text: string) => {
+    const handlePrivateSend = async (text: string) => {
         if (!currentUser || !socket || !selectedChatPeerId) return;
 
         const msg: Message = {
@@ -261,6 +285,9 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
         if (Capacitor.isNativePlatform()) {
             Haptics.impact({ style: ImpactStyle.Light }).catch(() => { });
         }
+
+        // Save to SQLite for offline persistence
+        await sqliteService.saveMessage(msg, false);
 
         // Optimistic update
         setPrivateChats(prev => ({

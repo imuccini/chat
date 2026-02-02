@@ -220,6 +220,38 @@ class SQLiteService {
             console.error('Error clearing messages from SQLite:', err);
         }
     }
+    async getPrivateChats(currentUserId) {
+        if (!this.db) await this.initialize();
+        if (!this.db) return [];
+        try {
+            const res = await this.db.query(`SELECT * FROM messages WHERE isGlobal = 0 ORDER BY timestamp ASC;`, []);
+            const messages = (res.values || []).map((m)=>({
+                    id: m.id,
+                    text: m.text,
+                    senderId: m.senderId,
+                    senderAlias: m.senderAlias,
+                    senderGender: m.senderGender,
+                    timestamp: m.timestamp,
+                    recipientId: m.recipientId
+                }));
+            // Group by peer ID
+            const chatMap = new Map();
+            for (const msg of messages){
+                const peerId = msg.senderId === currentUserId ? msg.recipientId : msg.senderId;
+                if (!chatMap.has(peerId)) {
+                    chatMap.set(peerId, []);
+                }
+                chatMap.get(peerId).push(msg);
+            }
+            return Array.from(chatMap.entries()).map(([peerId, msgs])=>({
+                    peerId,
+                    messages: msgs
+                }));
+        } catch (err) {
+            console.error('Error loading private chats from SQLite:', err);
+            return [];
+        }
+    }
 }
 const sqliteService = new SQLiteService();
 }),
@@ -2172,7 +2204,7 @@ function ChatInterface({ tenant, initialMessages }) {
             tenantSlug: tenant.slug
         });
     };
-    const handlePrivateSend = (text)=>{
+    const handlePrivateSend = async (text)=>{
         if (!currentUser || !socket || !selectedChatPeerId) return;
         const msg = {
             id: Date.now().toString(),
@@ -2189,6 +2221,8 @@ function ChatInterface({ tenant, initialMessages }) {
                 style: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$capacitor$2f$haptics$2f$dist$2f$esm$2f$definitions$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["ImpactStyle"].Light
             }).catch(()=>{});
         }
+        // Save to SQLite for offline persistence
+        await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$sqlite$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["sqliteService"].saveMessage(msg, false);
         // Optimistic update
         setPrivateChats((prev)=>({
                 ...prev,
@@ -2241,12 +2275,12 @@ function ChatInterface({ tenant, initialMessages }) {
                 tenantName: tenant.name
             }, void 0, false, {
                 fileName: "[project]/components/ChatInterface.tsx",
-                lineNumber: 308,
+                lineNumber: 335,
                 columnNumber: 17
             }, this)
         }, void 0, false, {
             fileName: "[project]/components/ChatInterface.tsx",
-            lineNumber: 307,
+            lineNumber: 334,
             columnNumber: 13
         }, this);
     }
@@ -2282,17 +2316,17 @@ function ChatInterface({ tenant, initialMessages }) {
                                         d: "M15 19l-7-7 7-7"
                                     }, void 0, false, {
                                         fileName: "[project]/components/ChatInterface.tsx",
-                                        lineNumber: 328,
+                                        lineNumber: 355,
                                         columnNumber: 33
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/components/ChatInterface.tsx",
-                                    lineNumber: 327,
+                                    lineNumber: 354,
                                     columnNumber: 29
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/ChatInterface.tsx",
-                                lineNumber: 326,
+                                lineNumber: 353,
                                 columnNumber: 25
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2303,7 +2337,7 @@ function ChatInterface({ tenant, initialMessages }) {
                                         children: chat.peer.alias
                                     }, void 0, false, {
                                         fileName: "[project]/components/ChatInterface.tsx",
-                                        lineNumber: 332,
+                                        lineNumber: 359,
                                         columnNumber: 29
                                     }, this),
                                     onlineUsers.some((u)=>u.id === selectedChatPeerId) && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2311,24 +2345,24 @@ function ChatInterface({ tenant, initialMessages }) {
                                         children: "Online"
                                     }, void 0, false, {
                                         fileName: "[project]/components/ChatInterface.tsx",
-                                        lineNumber: 334,
+                                        lineNumber: 361,
                                         columnNumber: 33
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/ChatInterface.tsx",
-                                lineNumber: 331,
+                                lineNumber: 358,
                                 columnNumber: 25
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/ChatInterface.tsx",
-                        lineNumber: 325,
+                        lineNumber: 352,
                         columnNumber: 21
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/components/ChatInterface.tsx",
-                    lineNumber: 324,
+                    lineNumber: 351,
                     columnNumber: 17
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2346,18 +2380,18 @@ function ChatInterface({ tenant, initialMessages }) {
                         isSyncing: false
                     }, void 0, false, {
                         fileName: "[project]/components/ChatInterface.tsx",
-                        lineNumber: 341,
+                        lineNumber: 368,
                         columnNumber: 21
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/components/ChatInterface.tsx",
-                    lineNumber: 340,
+                    lineNumber: 367,
                     columnNumber: 17
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/components/ChatInterface.tsx",
-            lineNumber: 323,
+            lineNumber: 350,
             columnNumber: 13
         }, this);
     }
@@ -2381,7 +2415,7 @@ function ChatInterface({ tenant, initialMessages }) {
                         isSyncing: isFetchingGlobal
                     }, void 0, false, {
                         fileName: "[project]/components/ChatInterface.tsx",
-                        lineNumber: 364,
+                        lineNumber: 391,
                         columnNumber: 21
                     }, this),
                     activeTab === 'users' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$UserList$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
@@ -2390,7 +2424,7 @@ function ChatInterface({ tenant, initialMessages }) {
                         onStartChat: handleStartChat
                     }, void 0, false, {
                         fileName: "[project]/components/ChatInterface.tsx",
-                        lineNumber: 378,
+                        lineNumber: 405,
                         columnNumber: 21
                     }, this),
                     activeTab === 'chats' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ChatList$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
@@ -2406,7 +2440,7 @@ function ChatInterface({ tenant, initialMessages }) {
                         onDeleteChat: handleDeleteChat
                     }, void 0, false, {
                         fileName: "[project]/components/ChatInterface.tsx",
-                        lineNumber: 385,
+                        lineNumber: 412,
                         columnNumber: 21
                     }, this),
                     activeTab === 'settings' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$Settings$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
@@ -2415,13 +2449,13 @@ function ChatInterface({ tenant, initialMessages }) {
                         onUpdateAlias: handleUpdateAlias
                     }, void 0, false, {
                         fileName: "[project]/components/ChatInterface.tsx",
-                        lineNumber: 396,
+                        lineNumber: 423,
                         columnNumber: 21
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/ChatInterface.tsx",
-                lineNumber: 362,
+                lineNumber: 389,
                 columnNumber: 13
             }, this),
             !isInputFocused && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$BottomNav$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
@@ -2434,13 +2468,13 @@ function ChatInterface({ tenant, initialMessages }) {
                 unreadChatsCount: totalUnread
             }, void 0, false, {
                 fileName: "[project]/components/ChatInterface.tsx",
-                lineNumber: 405,
+                lineNumber: 432,
                 columnNumber: 17
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/ChatInterface.tsx",
-        lineNumber: 361,
+        lineNumber: 388,
         columnNumber: 9
     }, this);
 }

@@ -13,10 +13,6 @@ const nextConfig = {
         // the Type Checker runs out of memory. We check types locally anyway.
         ignoreBuildErrors: true,
     },
-    eslint: {
-        // Also ignore ESLint during build to save memory
-        ignoreDuringBuilds: true,
-    },
 };
 
 export default nextConfig;

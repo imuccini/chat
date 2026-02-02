@@ -82,9 +82,20 @@ nextApp.prepare().then(async () => {
 
   // --- Socket.IO Logic ---
   const onlineUsers = new Map();
+  const lastMessageTime = new Map(); // Rate limiting
+  const RATE_LIMIT_MS = 500; // Minimum time between messages
+  const MAX_MESSAGE_LENGTH = 1000;
+  const MAX_ALIAS_LENGTH = 30;
+
   const broadcastPresence = (tenantSlug) => {
     const users = Array.from(onlineUsers.values()).filter(u => u.tenantSlug === tenantSlug);
     io.to(`room:${tenantSlug}`).emit('presenceUpdate', users);
+  };
+
+  // Helper to sanitize text (strip HTML tags)
+  const sanitizeText = (text) => {
+    if (typeof text !== 'string') return '';
+    return text.replace(/<[^>]*>/g, '').trim();
   };
 
   io.on('connection', (socket) => {
@@ -102,7 +113,35 @@ nextApp.prepare().then(async () => {
       const user = onlineUsers.get(socket.id);
       if (!user) return;
 
+      // Rate limiting check
+      const now = Date.now();
+      const lastTime = lastMessageTime.get(socket.id) || 0;
+      if (now - lastTime < RATE_LIMIT_MS) {
+        socket.emit('rateLimited', {
+          message: 'Stai inviando messaggi troppo velocemente. Aspetta un momento.',
+          retryAfter: RATE_LIMIT_MS - (now - lastTime)
+        });
+        return;
+      }
+      lastMessageTime.set(socket.id, now);
+
+      // Message validation
+      const sanitizedText = sanitizeText(message.text);
+      if (!sanitizedText || sanitizedText.length === 0) {
+        socket.emit('messageError', { message: 'Il messaggio non può essere vuoto.' });
+        return;
+      }
+      if (sanitizedText.length > MAX_MESSAGE_LENGTH) {
+        socket.emit('messageError', { message: `Il messaggio è troppo lungo (max ${MAX_MESSAGE_LENGTH} caratteri).` });
+        return;
+      }
+      if (message.senderAlias && message.senderAlias.length > MAX_ALIAS_LENGTH) {
+        socket.emit('messageError', { message: `Il nome è troppo lungo (max ${MAX_ALIAS_LENGTH} caratteri).` });
+        return;
+      }
+
       const tenantSlug = user.tenantSlug;
+      message.text = sanitizedText; // Use sanitized version
       message.timestamp = new Date().toISOString();
 
       try {
