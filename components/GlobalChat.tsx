@@ -65,12 +65,12 @@ const ChatInput = memo(({ onSendMessage, showBottomNavPadding, onFocusChange, is
     }
   };
 
-  // Calculate bottom padding: NavHeight (65px) + Safe Area + Visual Buffer (12px)
+  // Calculate bottom padding: NavHeight (60px) + Safe Area + Visual Buffer (12px)
   // This ensures 12px visible space below input, matching p-3 (12px) top padding.
   const footerPadding = isFocused
     ? 'pb-2'
     : showBottomNavPadding
-      ? 'pb-[calc(65px+env(safe-area-inset-bottom,0px)+12px)] md:pb-[80px]'
+      ? 'pb-[calc(60px+env(safe-area-inset-bottom,0px)+12px)] md:pb-[80px]'
       : 'pb-6 pt-2';
 
   return (

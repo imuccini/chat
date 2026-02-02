@@ -11,7 +11,7 @@ interface BottomNavProps {
 
 const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange, usersCount, unreadChatsCount }) => {
     return (
-        <nav className="bg-white border-t border-gray-200 fixed bottom-0 left-0 right-0 z-50 h-[calc(65px+env(safe-area-inset-bottom,0px))] md:h-[70px] flex justify-around items-center pb-[calc(env(safe-area-inset-bottom,0px)+12px)] shadow-[0_-1px_3px_rgba(0,0,0,0.05)]">
+        <nav className="bg-white border-t border-gray-200 fixed bottom-0 left-0 right-0 z-50 h-[calc(60px+env(safe-area-inset-bottom,0px))] md:h-[70px] flex justify-around items-center pb-[calc(env(safe-area-inset-bottom,0px)+12px)] shadow-[0_-1px_3px_rgba(0,0,0,0.05)]">
 
             {/* Tab 1: Room */}
             <button

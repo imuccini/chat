@@ -451,9 +451,9 @@ const ChatInput = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5
             inputRef.current?.blur();
         }
     };
-    // Calculate bottom padding: NavHeight (65px) + Safe Area + Visual Buffer (12px)
+    // Calculate bottom padding: NavHeight (60px) + Safe Area + Visual Buffer (12px)
     // This ensures 12px visible space below input, matching p-3 (12px) top padding.
-    const footerPadding = isFocused ? 'pb-2' : showBottomNavPadding ? 'pb-[calc(65px+env(safe-area-inset-bottom,0px)+12px)] md:pb-[80px]' : 'pb-6 pt-2';
+    const footerPadding = isFocused ? 'pb-2' : showBottomNavPadding ? 'pb-[calc(60px+env(safe-area-inset-bottom,0px)+12px)] md:pb-[80px]' : 'pb-6 pt-2';
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("footer", {
         className: `px-3 pt-3 md:p-4 bg-gray-50 border-t border-gray-200 shrink-0 ${footerPadding}`,
         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("form", {
@@ -749,7 +749,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist
 ;
 const BottomNav = ({ activeTab, onTabChange, usersCount, unreadChatsCount })=>{
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("nav", {
-        className: "bg-white border-t border-gray-200 fixed bottom-0 left-0 right-0 z-50 h-[calc(65px+env(safe-area-inset-bottom,0px))] md:h-[70px] flex justify-around items-center pb-[calc(env(safe-area-inset-bottom,0px)+12px)] shadow-[0_-1px_3px_rgba(0,0,0,0.05)]",
+        className: "bg-white border-t border-gray-200 fixed bottom-0 left-0 right-0 z-50 h-[calc(60px+env(safe-area-inset-bottom,0px))] md:h-[70px] flex justify-around items-center pb-[calc(env(safe-area-inset-bottom,0px)+12px)] shadow-[0_-1px_3px_rgba(0,0,0,0.05)]",
         children: [
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                 onClick: ()=>onTabChange('room'),
