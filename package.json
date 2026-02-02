@@ -53,6 +53,6 @@
     "vite-plugin-pwa": "^1.2.0"
   },
   "prisma": {
-    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
+    "seed": "node --loader ts-node/esm prisma/seed.ts"
   }
 }
