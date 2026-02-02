@@ -236,6 +236,17 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
         socket.emit('join', { user: updatedUser, tenantSlug: tenant.slug });
     };
 
+    const handleUpdateStatus = (newStatus: string) => {
+        if (!currentUser || !socket) return;
+
+        const updatedUser = { ...currentUser, status: newStatus };
+        setCurrentUser(updatedUser);
+        localStorage.setItem('chat_user', JSON.stringify(updatedUser));
+
+        // Notify server of status update
+        socket.emit('join', { user: updatedUser, tenantSlug: tenant.slug });
+    };
+
     const handleGlobalSend = async (text: string) => {
         if (!currentUser || !socket) return;
 
@@ -424,6 +435,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                         user={currentUser}
                         onLogout={handleLogout}
                         onUpdateAlias={handleUpdateAlias}
+                        onUpdateStatus={handleUpdateStatus}
                     />
                 )}
             </div>

@@ -1323,8 +1323,15 @@ const UserList = ({ currentUser, users, onStartChat })=>{
                                             columnNumber: 37
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                            className: "text-sm text-gray-500 truncate capitalize",
-                                            children: user.gender
+                                            className: "text-sm text-gray-500 truncate",
+                                            children: user.status || /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                className: "capitalize",
+                                                children: user.gender
+                                            }, void 0, false, {
+                                                fileName: "[project]/components/UserList.tsx",
+                                                lineNumber: 87,
+                                                columnNumber: 57
+                                            }, ("TURBOPACK compile-time value", void 0))
                                         }, void 0, false, {
                                             fileName: "[project]/components/UserList.tsx",
                                             lineNumber: 86,
@@ -1352,17 +1359,17 @@ const UserList = ({ currentUser, users, onStartChat })=>{
                                             d: "M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
                                         }, void 0, false, {
                                             fileName: "[project]/components/UserList.tsx",
-                                            lineNumber: 93,
+                                            lineNumber: 95,
                                             columnNumber: 41
                                         }, ("TURBOPACK compile-time value", void 0))
                                     }, void 0, false, {
                                         fileName: "[project]/components/UserList.tsx",
-                                        lineNumber: 92,
+                                        lineNumber: 94,
                                         columnNumber: 37
                                     }, ("TURBOPACK compile-time value", void 0))
                                 }, void 0, false, {
                                     fileName: "[project]/components/UserList.tsx",
-                                    lineNumber: 88,
+                                    lineNumber: 90,
                                     columnNumber: 33
                                 }, ("TURBOPACK compile-time value", void 0))
                             ]
@@ -1678,15 +1685,23 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist
 ;
 var _s = __turbopack_context__.k.signature();
 ;
-const Settings = ({ user, onLogout, onUpdateAlias })=>{
+const Settings = ({ user, onLogout, onUpdateAlias, onUpdateStatus })=>{
     _s();
-    const [isEditing, setIsEditing] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
+    const [isEditingAlias, setIsEditingAlias] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
+    const [isEditingStatus, setIsEditingStatus] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     const [newAlias, setNewAlias] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(user.alias);
-    const handleSave = ()=>{
+    const [newStatus, setNewStatus] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(user.status || '');
+    const handleSaveAlias = ()=>{
         if (newAlias.trim() && newAlias !== user.alias) {
             onUpdateAlias(newAlias.trim());
         }
-        setIsEditing(false);
+        setIsEditingAlias(false);
+    };
+    const handleSaveStatus = ()=>{
+        if (newStatus.trim() !== (user.status || '')) {
+            onUpdateStatus(newStatus.trim());
+        }
+        setIsEditingStatus(false);
     };
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
         className: "flex flex-col h-full bg-white",
@@ -1700,17 +1715,17 @@ const Settings = ({ user, onLogout, onUpdateAlias })=>{
                         children: "Profilo"
                     }, void 0, false, {
                         fileName: "[project]/components/Settings.tsx",
-                        lineNumber: 25,
+                        lineNumber: 35,
                         columnNumber: 21
                     }, ("TURBOPACK compile-time value", void 0))
                 }, void 0, false, {
                     fileName: "[project]/components/Settings.tsx",
-                    lineNumber: 24,
+                    lineNumber: 34,
                     columnNumber: 17
                 }, ("TURBOPACK compile-time value", void 0))
             }, void 0, false, {
                 fileName: "[project]/components/Settings.tsx",
-                lineNumber: 23,
+                lineNumber: 33,
                 columnNumber: 13
             }, ("TURBOPACK compile-time value", void 0)),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("main", {
@@ -1724,121 +1739,208 @@ const Settings = ({ user, onLogout, onUpdateAlias })=>{
                                 children: user.alias.charAt(0).toUpperCase()
                             }, void 0, false, {
                                 fileName: "[project]/components/Settings.tsx",
-                                lineNumber: 32,
+                                lineNumber: 42,
                                 columnNumber: 21
                             }, ("TURBOPACK compile-time value", void 0)),
-                            isEditing ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                className: "w-full flex flex-col items-center gap-2",
+                            isEditingAlias ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "w-full flex flex-col items-center gap-2 mb-3",
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
                                         type: "text",
                                         value: newAlias,
                                         onChange: (e)=>setNewAlias(e.target.value),
+                                        maxLength: 20,
                                         className: "px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-center text-lg font-bold",
                                         autoFocus: true
                                     }, void 0, false, {
                                         fileName: "[project]/components/Settings.tsx",
-                                        lineNumber: 38,
+                                        lineNumber: 49,
                                         columnNumber: 29
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "flex gap-2",
                                         children: [
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                                                onClick: handleSave,
+                                                onClick: handleSaveAlias,
                                                 className: "px-4 py-1.5 bg-emerald-500 text-white rounded-lg text-sm font-bold",
                                                 children: "Salva"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/Settings.tsx",
-                                                lineNumber: 46,
+                                                lineNumber: 58,
                                                 columnNumber: 33
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                                                 onClick: ()=>{
-                                                    setIsEditing(false);
+                                                    setIsEditingAlias(false);
                                                     setNewAlias(user.alias);
                                                 },
                                                 className: "px-4 py-1.5 bg-gray-200 text-gray-600 rounded-lg text-sm font-bold",
                                                 children: "Annulla"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/Settings.tsx",
-                                                lineNumber: 47,
+                                                lineNumber: 59,
                                                 columnNumber: 33
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/Settings.tsx",
-                                        lineNumber: 45,
+                                        lineNumber: 57,
                                         columnNumber: 29
                                     }, ("TURBOPACK compile-time value", void 0))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/Settings.tsx",
-                                lineNumber: 37,
+                                lineNumber: 48,
                                 columnNumber: 25
-                            }, ("TURBOPACK compile-time value", void 0)) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
+                            }, ("TURBOPACK compile-time value", void 0)) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
+                                className: "text-xl font-bold text-gray-900 flex items-center gap-2 mb-1",
                                 children: [
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
-                                        className: "text-xl font-bold text-gray-900 flex items-center gap-2",
-                                        children: [
-                                            user.alias,
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                                                onClick: ()=>setIsEditing(true),
-                                                className: "p-1 text-gray-400 hover:text-emerald-500",
-                                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("svg", {
-                                                    xmlns: "http://www.w3.org/2000/svg",
-                                                    className: "h-4 w-4",
-                                                    fill: "none",
-                                                    viewBox: "0 0 24 24",
-                                                    stroke: "currentColor",
-                                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("path", {
-                                                        strokeLinecap: "round",
-                                                        strokeLinejoin: "round",
-                                                        strokeWidth: 2,
-                                                        d: "M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-                                                    }, void 0, false, {
-                                                        fileName: "[project]/components/Settings.tsx",
-                                                        lineNumber: 56,
-                                                        columnNumber: 41
-                                                    }, ("TURBOPACK compile-time value", void 0))
-                                                }, void 0, false, {
-                                                    fileName: "[project]/components/Settings.tsx",
-                                                    lineNumber: 55,
-                                                    columnNumber: 37
-                                                }, ("TURBOPACK compile-time value", void 0))
+                                    user.alias,
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                        onClick: ()=>setIsEditingAlias(true),
+                                        className: "p-1 text-gray-400 hover:text-emerald-500",
+                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("svg", {
+                                            xmlns: "http://www.w3.org/2000/svg",
+                                            className: "h-4 w-4",
+                                            fill: "none",
+                                            viewBox: "0 0 24 24",
+                                            stroke: "currentColor",
+                                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("path", {
+                                                strokeLinecap: "round",
+                                                strokeLinejoin: "round",
+                                                strokeWidth: 2,
+                                                d: "M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/Settings.tsx",
-                                                lineNumber: 54,
+                                                lineNumber: 67,
+                                                columnNumber: 37
+                                            }, ("TURBOPACK compile-time value", void 0))
+                                        }, void 0, false, {
+                                            fileName: "[project]/components/Settings.tsx",
+                                            lineNumber: 66,
+                                            columnNumber: 33
+                                        }, ("TURBOPACK compile-time value", void 0))
+                                    }, void 0, false, {
+                                        fileName: "[project]/components/Settings.tsx",
+                                        lineNumber: 65,
+                                        columnNumber: 29
+                                    }, ("TURBOPACK compile-time value", void 0))
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/components/Settings.tsx",
+                                lineNumber: 63,
+                                columnNumber: 25
+                            }, ("TURBOPACK compile-time value", void 0)),
+                            isEditingStatus ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "w-full flex flex-col items-center gap-2 mt-2",
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                        type: "text",
+                                        value: newStatus,
+                                        onChange: (e)=>setNewStatus(e.target.value),
+                                        maxLength: 50,
+                                        placeholder: "Es. In viaggio verso Roma...",
+                                        className: "w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-center text-sm",
+                                        autoFocus: true
+                                    }, void 0, false, {
+                                        fileName: "[project]/components/Settings.tsx",
+                                        lineNumber: 76,
+                                        columnNumber: 29
+                                    }, ("TURBOPACK compile-time value", void 0)),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        className: "flex gap-2",
+                                        children: [
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                                onClick: handleSaveStatus,
+                                                className: "px-4 py-1.5 bg-emerald-500 text-white rounded-lg text-sm font-bold",
+                                                children: "Salva"
+                                            }, void 0, false, {
+                                                fileName: "[project]/components/Settings.tsx",
+                                                lineNumber: 86,
+                                                columnNumber: 33
+                                            }, ("TURBOPACK compile-time value", void 0)),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                                onClick: ()=>{
+                                                    setIsEditingStatus(false);
+                                                    setNewStatus(user.status || '');
+                                                },
+                                                className: "px-4 py-1.5 bg-gray-200 text-gray-600 rounded-lg text-sm font-bold",
+                                                children: "Annulla"
+                                            }, void 0, false, {
+                                                fileName: "[project]/components/Settings.tsx",
+                                                lineNumber: 87,
                                                 columnNumber: 33
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/Settings.tsx",
-                                        lineNumber: 52,
-                                        columnNumber: 29
-                                    }, ("TURBOPACK compile-time value", void 0)),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                        className: "text-gray-500 capitalize",
-                                        children: user.gender
-                                    }, void 0, false, {
-                                        fileName: "[project]/components/Settings.tsx",
-                                        lineNumber: 60,
-                                        columnNumber: 29
-                                    }, ("TURBOPACK compile-time value", void 0)),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                        className: "text-[10px] text-gray-400 mt-1 font-mono uppercase tracking-widest",
-                                        children: user.id
-                                    }, void 0, false, {
-                                        fileName: "[project]/components/Settings.tsx",
-                                        lineNumber: 61,
+                                        lineNumber: 85,
                                         columnNumber: 29
                                     }, ("TURBOPACK compile-time value", void 0))
                                 ]
-                            }, void 0, true)
+                            }, void 0, true, {
+                                fileName: "[project]/components/Settings.tsx",
+                                lineNumber: 75,
+                                columnNumber: 25
+                            }, ("TURBOPACK compile-time value", void 0)) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                onClick: ()=>setIsEditingStatus(true),
+                                className: "flex items-center gap-1.5 text-sm text-gray-500 hover:text-emerald-600 transition-colors mt-1",
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                        className: "italic",
+                                        children: user.status || 'Aggiungi uno stato...'
+                                    }, void 0, false, {
+                                        fileName: "[project]/components/Settings.tsx",
+                                        lineNumber: 95,
+                                        columnNumber: 29
+                                    }, ("TURBOPACK compile-time value", void 0)),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("svg", {
+                                        xmlns: "http://www.w3.org/2000/svg",
+                                        className: "h-3.5 w-3.5",
+                                        fill: "none",
+                                        viewBox: "0 0 24 24",
+                                        stroke: "currentColor",
+                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("path", {
+                                            strokeLinecap: "round",
+                                            strokeLinejoin: "round",
+                                            strokeWidth: 2,
+                                            d: "M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                                        }, void 0, false, {
+                                            fileName: "[project]/components/Settings.tsx",
+                                            lineNumber: 97,
+                                            columnNumber: 33
+                                        }, ("TURBOPACK compile-time value", void 0))
+                                    }, void 0, false, {
+                                        fileName: "[project]/components/Settings.tsx",
+                                        lineNumber: 96,
+                                        columnNumber: 29
+                                    }, ("TURBOPACK compile-time value", void 0))
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/components/Settings.tsx",
+                                lineNumber: 91,
+                                columnNumber: 25
+                            }, ("TURBOPACK compile-time value", void 0)),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                className: "text-gray-400 capitalize text-xs mt-3",
+                                children: user.gender
+                            }, void 0, false, {
+                                fileName: "[project]/components/Settings.tsx",
+                                lineNumber: 102,
+                                columnNumber: 21
+                            }, ("TURBOPACK compile-time value", void 0)),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                className: "text-[10px] text-gray-300 mt-1 font-mono uppercase tracking-widest",
+                                children: user.id
+                            }, void 0, false, {
+                                fileName: "[project]/components/Settings.tsx",
+                                lineNumber: 103,
+                                columnNumber: 21
+                            }, ("TURBOPACK compile-time value", void 0))
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/Settings.tsx",
-                        lineNumber: 31,
+                        lineNumber: 41,
                         columnNumber: 17
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1862,17 +1964,17 @@ const Settings = ({ user, onLogout, onUpdateAlias })=>{
                                             d: "M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
                                         }, void 0, false, {
                                             fileName: "[project]/components/Settings.tsx",
-                                            lineNumber: 74,
+                                            lineNumber: 114,
                                             columnNumber: 33
                                         }, ("TURBOPACK compile-time value", void 0))
                                     }, void 0, false, {
                                         fileName: "[project]/components/Settings.tsx",
-                                        lineNumber: 73,
+                                        lineNumber: 113,
                                         columnNumber: 29
                                     }, ("TURBOPACK compile-time value", void 0))
                                 }, void 0, false, {
                                     fileName: "[project]/components/Settings.tsx",
-                                    lineNumber: 72,
+                                    lineNumber: 112,
                                     columnNumber: 25
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1880,34 +1982,34 @@ const Settings = ({ user, onLogout, onUpdateAlias })=>{
                                     children: "Disconnetti"
                                 }, void 0, false, {
                                     fileName: "[project]/components/Settings.tsx",
-                                    lineNumber: 77,
+                                    lineNumber: 117,
                                     columnNumber: 25
                                 }, ("TURBOPACK compile-time value", void 0))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/Settings.tsx",
-                            lineNumber: 68,
+                            lineNumber: 108,
                             columnNumber: 21
                         }, ("TURBOPACK compile-time value", void 0))
                     }, void 0, false, {
                         fileName: "[project]/components/Settings.tsx",
-                        lineNumber: 67,
+                        lineNumber: 107,
                         columnNumber: 17
                     }, ("TURBOPACK compile-time value", void 0))
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/Settings.tsx",
-                lineNumber: 29,
+                lineNumber: 39,
                 columnNumber: 13
             }, ("TURBOPACK compile-time value", void 0))
         ]
     }, void 0, true, {
         fileName: "[project]/components/Settings.tsx",
-        lineNumber: 22,
+        lineNumber: 32,
         columnNumber: 9
     }, ("TURBOPACK compile-time value", void 0));
 };
-_s(Settings, "vKabtKaO089lMxfuCD3Wf0d9VZI=");
+_s(Settings, "5QEAD0oUSc7xvJOUytaPNGQh7oI=");
 _c = Settings;
 const __TURBOPACK__default__export__ = Settings;
 var _c;
@@ -2208,6 +2310,20 @@ function ChatInterface({ tenant, initialMessages }) {
             tenantSlug: tenant.slug
         });
     };
+    const handleUpdateStatus = (newStatus)=>{
+        if (!currentUser || !socket) return;
+        const updatedUser = {
+            ...currentUser,
+            status: newStatus
+        };
+        setCurrentUser(updatedUser);
+        localStorage.setItem('chat_user', JSON.stringify(updatedUser));
+        // Notify server of status update
+        socket.emit('join', {
+            user: updatedUser,
+            tenantSlug: tenant.slug
+        });
+    };
     const handleGlobalSend = async (text)=>{
         if (!currentUser || !socket) return;
         const tempId = Date.now().toString();
@@ -2314,12 +2430,12 @@ function ChatInterface({ tenant, initialMessages }) {
                 tenantName: tenant.name
             }, void 0, false, {
                 fileName: "[project]/components/ChatInterface.tsx",
-                lineNumber: 335,
+                lineNumber: 346,
                 columnNumber: 17
             }, this)
         }, void 0, false, {
             fileName: "[project]/components/ChatInterface.tsx",
-            lineNumber: 334,
+            lineNumber: 345,
             columnNumber: 13
         }, this);
     }
@@ -2355,17 +2471,17 @@ function ChatInterface({ tenant, initialMessages }) {
                                         d: "M15 19l-7-7 7-7"
                                     }, void 0, false, {
                                         fileName: "[project]/components/ChatInterface.tsx",
-                                        lineNumber: 355,
+                                        lineNumber: 366,
                                         columnNumber: 33
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/components/ChatInterface.tsx",
-                                    lineNumber: 354,
+                                    lineNumber: 365,
                                     columnNumber: 29
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/ChatInterface.tsx",
-                                lineNumber: 353,
+                                lineNumber: 364,
                                 columnNumber: 25
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2376,7 +2492,7 @@ function ChatInterface({ tenant, initialMessages }) {
                                         children: chat.peer.alias
                                     }, void 0, false, {
                                         fileName: "[project]/components/ChatInterface.tsx",
-                                        lineNumber: 359,
+                                        lineNumber: 370,
                                         columnNumber: 29
                                     }, this),
                                     onlineUsers.some((u)=>u.id === selectedChatPeerId) && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2384,24 +2500,24 @@ function ChatInterface({ tenant, initialMessages }) {
                                         children: "Online"
                                     }, void 0, false, {
                                         fileName: "[project]/components/ChatInterface.tsx",
-                                        lineNumber: 361,
+                                        lineNumber: 372,
                                         columnNumber: 33
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/ChatInterface.tsx",
-                                lineNumber: 358,
+                                lineNumber: 369,
                                 columnNumber: 25
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/ChatInterface.tsx",
-                        lineNumber: 352,
+                        lineNumber: 363,
                         columnNumber: 21
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/components/ChatInterface.tsx",
-                    lineNumber: 351,
+                    lineNumber: 362,
                     columnNumber: 17
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2419,18 +2535,18 @@ function ChatInterface({ tenant, initialMessages }) {
                         isSyncing: false
                     }, void 0, false, {
                         fileName: "[project]/components/ChatInterface.tsx",
-                        lineNumber: 368,
+                        lineNumber: 379,
                         columnNumber: 21
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/components/ChatInterface.tsx",
-                    lineNumber: 367,
+                    lineNumber: 378,
                     columnNumber: 17
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/components/ChatInterface.tsx",
-            lineNumber: 350,
+            lineNumber: 361,
             columnNumber: 13
         }, this);
     }
@@ -2454,7 +2570,7 @@ function ChatInterface({ tenant, initialMessages }) {
                         isSyncing: isFetchingGlobal
                     }, void 0, false, {
                         fileName: "[project]/components/ChatInterface.tsx",
-                        lineNumber: 391,
+                        lineNumber: 402,
                         columnNumber: 21
                     }, this),
                     activeTab === 'users' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$UserList$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -2463,7 +2579,7 @@ function ChatInterface({ tenant, initialMessages }) {
                         onStartChat: handleStartChat
                     }, void 0, false, {
                         fileName: "[project]/components/ChatInterface.tsx",
-                        lineNumber: 405,
+                        lineNumber: 416,
                         columnNumber: 21
                     }, this),
                     activeTab === 'chats' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ChatList$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -2479,22 +2595,23 @@ function ChatInterface({ tenant, initialMessages }) {
                         onDeleteChat: handleDeleteChat
                     }, void 0, false, {
                         fileName: "[project]/components/ChatInterface.tsx",
-                        lineNumber: 412,
+                        lineNumber: 423,
                         columnNumber: 21
                     }, this),
                     activeTab === 'settings' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$Settings$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
                         user: currentUser,
                         onLogout: handleLogout,
-                        onUpdateAlias: handleUpdateAlias
+                        onUpdateAlias: handleUpdateAlias,
+                        onUpdateStatus: handleUpdateStatus
                     }, void 0, false, {
                         fileName: "[project]/components/ChatInterface.tsx",
-                        lineNumber: 423,
+                        lineNumber: 434,
                         columnNumber: 21
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/ChatInterface.tsx",
-                lineNumber: 389,
+                lineNumber: 400,
                 columnNumber: 13
             }, this),
             !isInputFocused && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$BottomNav$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -2507,13 +2624,13 @@ function ChatInterface({ tenant, initialMessages }) {
                 unreadChatsCount: totalUnread
             }, void 0, false, {
                 fileName: "[project]/components/ChatInterface.tsx",
-                lineNumber: 432,
+                lineNumber: 444,
                 columnNumber: 17
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/ChatInterface.tsx",
-        lineNumber: 388,
+        lineNumber: 399,
         columnNumber: 9
     }, this);
 }

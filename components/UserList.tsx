@@ -83,7 +83,9 @@ const UserList: React.FC<UserListProps> = ({ currentUser, users, onStartChat }) 
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <h3 className="font-bold text-gray-900 truncate text-base">{user.alias}</h3>
-                                    <p className="text-sm text-gray-500 truncate capitalize">{user.gender}</p>
+                                    <p className="text-sm text-gray-500 truncate">
+                                        {user.status || <span className="capitalize">{user.gender}</span>}
+                                    </p>
                                 </div>
                                 <button
                                     onClick={() => onStartChat(user)}

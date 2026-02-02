@@ -4,6 +4,7 @@ export interface User {
   id: string;
   alias: string;
   gender: Gender;
+  status?: string; // Short status text (e.g. "In viaggio", "Disponibile")
   joinedAt?: number;
 }
 

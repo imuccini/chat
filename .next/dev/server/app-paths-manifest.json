@@ -1,4 +1,3 @@
 {
-  "/[tenantSlug]/page": "app/[tenantSlug]/page.js",
-  "/admin/(authenticated)/dashboard/page": "app/admin/(authenticated)/dashboard/page.js"
+  "/[tenantSlug]/page": "app/[tenantSlug]/page.js"
 }
