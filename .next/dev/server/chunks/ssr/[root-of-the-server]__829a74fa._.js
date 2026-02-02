@@ -451,9 +451,11 @@ const ChatInput = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5
             inputRef.current?.blur();
         }
     };
-    const footerPadding = isFocused ? 'pb-2' : showBottomNavPadding ? 'pb-[calc(60px+env(safe-area-inset-bottom,0px)+8px)] md:pb-[80px]' : 'pb-6 pt-2';
+    // Calculate bottom padding: NavHeight (65px) + Safe Area + Visual Buffer (12px)
+    // This ensures 12px visible space below input, matching p-3 (12px) top padding.
+    const footerPadding = isFocused ? 'pb-2' : showBottomNavPadding ? 'pb-[calc(65px+env(safe-area-inset-bottom,0px)+12px)] md:pb-[80px]' : 'pb-6 pt-2';
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("footer", {
-        className: `p-3 md:p-4 bg-gray-50 border-t border-gray-200 shrink-0 ${footerPadding}`,
+        className: `px-3 pt-3 md:p-4 bg-gray-50 border-t border-gray-200 shrink-0 ${footerPadding}`,
         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("form", {
             onSubmit: handleSubmit,
             className: "flex items-center gap-2 md:gap-3 max-w-5xl mx-auto",
@@ -472,7 +474,7 @@ const ChatInput = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5
                     }
                 }, void 0, false, {
                     fileName: "[project]/components/GlobalChat.tsx",
-                    lineNumber: 77,
+                    lineNumber: 79,
                     columnNumber: 9
                 }, ("TURBOPACK compile-time value", void 0)),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -492,28 +494,28 @@ const ChatInput = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5
                             d: "M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
                         }, void 0, false, {
                             fileName: "[project]/components/GlobalChat.tsx",
-                            lineNumber: 94,
+                            lineNumber: 96,
                             columnNumber: 13
                         }, ("TURBOPACK compile-time value", void 0))
                     }, void 0, false, {
                         fileName: "[project]/components/GlobalChat.tsx",
-                        lineNumber: 93,
+                        lineNumber: 95,
                         columnNumber: 11
                     }, ("TURBOPACK compile-time value", void 0))
                 }, void 0, false, {
                     fileName: "[project]/components/GlobalChat.tsx",
-                    lineNumber: 88,
+                    lineNumber: 90,
                     columnNumber: 9
                 }, ("TURBOPACK compile-time value", void 0))
             ]
         }, void 0, true, {
             fileName: "[project]/components/GlobalChat.tsx",
-            lineNumber: 76,
+            lineNumber: 78,
             columnNumber: 7
         }, ("TURBOPACK compile-time value", void 0))
     }, void 0, false, {
         fileName: "[project]/components/GlobalChat.tsx",
-        lineNumber: 75,
+        lineNumber: 77,
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 });
@@ -568,17 +570,17 @@ const GlobalChat = ({ user, messages, onSendMessage, onlineCount, isOnline, hide
                                         d: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
                                     }, void 0, false, {
                                         fileName: "[project]/components/GlobalChat.tsx",
-                                        lineNumber: 136,
+                                        lineNumber: 138,
                                         columnNumber: 19
                                     }, ("TURBOPACK compile-time value", void 0))
                                 }, void 0, false, {
                                     fileName: "[project]/components/GlobalChat.tsx",
-                                    lineNumber: 135,
+                                    lineNumber: 137,
                                     columnNumber: 17
                                 }, ("TURBOPACK compile-time value", void 0))
                             }, void 0, false, {
                                 fileName: "[project]/components/GlobalChat.tsx",
-                                lineNumber: 134,
+                                lineNumber: 136,
                                 columnNumber: 15
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -588,7 +590,7 @@ const GlobalChat = ({ user, messages, onSendMessage, onlineCount, isOnline, hide
                                         children: headerTitle || 'Salotto Pubblico'
                                     }, void 0, false, {
                                         fileName: "[project]/components/GlobalChat.tsx",
-                                        lineNumber: 140,
+                                        lineNumber: 142,
                                         columnNumber: 17
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -598,7 +600,7 @@ const GlobalChat = ({ user, messages, onSendMessage, onlineCount, isOnline, hide
                                                 className: `w-2 h-2 rounded-full ${isOnline ? 'bg-emerald-400' : 'bg-red-400'}`
                                             }, void 0, false, {
                                                 fileName: "[project]/components/GlobalChat.tsx",
-                                                lineNumber: 142,
+                                                lineNumber: 144,
                                                 columnNumber: 19
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -606,35 +608,35 @@ const GlobalChat = ({ user, messages, onSendMessage, onlineCount, isOnline, hide
                                                 children: isOnline ? `${onlineCount} persone qui` : 'Disconnesso'
                                             }, void 0, false, {
                                                 fileName: "[project]/components/GlobalChat.tsx",
-                                                lineNumber: 143,
+                                                lineNumber: 145,
                                                 columnNumber: 19
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/GlobalChat.tsx",
-                                        lineNumber: 141,
+                                        lineNumber: 143,
                                         columnNumber: 17
                                     }, ("TURBOPACK compile-time value", void 0))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/GlobalChat.tsx",
-                                lineNumber: 139,
+                                lineNumber: 141,
                                 columnNumber: 15
                             }, ("TURBOPACK compile-time value", void 0))
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/GlobalChat.tsx",
-                        lineNumber: 133,
+                        lineNumber: 135,
                         columnNumber: 13
                     }, ("TURBOPACK compile-time value", void 0))
                 }, void 0, false, {
                     fileName: "[project]/components/GlobalChat.tsx",
-                    lineNumber: 132,
+                    lineNumber: 134,
                     columnNumber: 11
                 }, ("TURBOPACK compile-time value", void 0))
             }, void 0, false, {
                 fileName: "[project]/components/GlobalChat.tsx",
-                lineNumber: 131,
+                lineNumber: 133,
                 columnNumber: 9
             }, ("TURBOPACK compile-time value", void 0)),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("main", {
@@ -659,19 +661,19 @@ const GlobalChat = ({ user, messages, onSendMessage, onlineCount, isOnline, hide
                                                 className: "w-2 h-2 text-white"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/GlobalChat.tsx",
-                                                lineNumber: 169,
+                                                lineNumber: 171,
                                                 columnNumber: 25
                                             }, ("TURBOPACK compile-time value", void 0))
                                         }, void 0, false, {
                                             fileName: "[project]/components/GlobalChat.tsx",
-                                            lineNumber: 168,
+                                            lineNumber: 170,
                                             columnNumber: 23
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         isMe ? 'Tu' : msg.senderAlias
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/GlobalChat.tsx",
-                                    lineNumber: 166,
+                                    lineNumber: 168,
                                     columnNumber: 19
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -681,12 +683,12 @@ const GlobalChat = ({ user, messages, onSendMessage, onlineCount, isOnline, hide
                                         children: msg.text
                                     }, void 0, false, {
                                         fileName: "[project]/components/GlobalChat.tsx",
-                                        lineNumber: 176,
+                                        lineNumber: 178,
                                         columnNumber: 19
                                     }, ("TURBOPACK compile-time value", void 0))
                                 }, void 0, false, {
                                     fileName: "[project]/components/GlobalChat.tsx",
-                                    lineNumber: 175,
+                                    lineNumber: 177,
                                     columnNumber: 17
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -697,24 +699,24 @@ const GlobalChat = ({ user, messages, onSendMessage, onlineCount, isOnline, hide
                                     })
                                 }, void 0, false, {
                                     fileName: "[project]/components/GlobalChat.tsx",
-                                    lineNumber: 178,
+                                    lineNumber: 180,
                                     columnNumber: 17
                                 }, ("TURBOPACK compile-time value", void 0))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/GlobalChat.tsx",
-                            lineNumber: 164,
+                            lineNumber: 166,
                             columnNumber: 15
                         }, ("TURBOPACK compile-time value", void 0))
                     }, msg.id, false, {
                         fileName: "[project]/components/GlobalChat.tsx",
-                        lineNumber: 163,
+                        lineNumber: 165,
                         columnNumber: 13
                     }, ("TURBOPACK compile-time value", void 0));
                 })
             }, void 0, false, {
                 fileName: "[project]/components/GlobalChat.tsx",
-                lineNumber: 153,
+                lineNumber: 155,
                 columnNumber: 7
             }, ("TURBOPACK compile-time value", void 0)),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(ChatInput, {
@@ -724,13 +726,13 @@ const GlobalChat = ({ user, messages, onSendMessage, onlineCount, isOnline, hide
                 isFocused: isFocused
             }, void 0, false, {
                 fileName: "[project]/components/GlobalChat.tsx",
-                lineNumber: 187,
+                lineNumber: 189,
                 columnNumber: 7
             }, ("TURBOPACK compile-time value", void 0))
         ]
     }, void 0, true, {
         fileName: "[project]/components/GlobalChat.tsx",
-        lineNumber: 128,
+        lineNumber: 130,
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 };

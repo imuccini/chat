@@ -304,6 +304,10 @@ body {
   overflow: hidden;
 }
 
+.visible {
+  visibility: visible;
+}
+
 .fixed {
   position: fixed;
 }
@@ -1278,6 +1282,14 @@ body {
 
 .pb-\[calc\(env\(safe-area-inset-bottom\,0px\)\+12px\)\] {
   padding-bottom: calc(env(safe-area-inset-bottom, 0px)  + 12px);
+}
+
+.pb-\[calc\(65px\+env\(safe-area-inset-bottom\,0px\)\+12px\)\] {
+  padding-bottom: calc(65px + env(safe-area-inset-bottom, 0px)  + 12px);
+}
+
+.pt-3 {
+  padding-top: .75rem;
 }
 
 .text-left {
