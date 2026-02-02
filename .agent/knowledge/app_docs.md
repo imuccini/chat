@@ -185,8 +185,9 @@ npx cap copy
 
 ## Prossimi Sviluppi Suggeriti
 
-1. **WiFi Wizard 2**: Integrare `@nicoraii/capacitor-wifi-wizard` per leggere BSSID e identificare location più precisamente.
+1. ~~**WiFi Wizard 2**: Integrare `@nicoraii/capacitor-wifi-wizard` per leggere BSSID.~~ ✅ **Implementato** con `@capgo/capacitor-wifi`.
 2. **Push Notifications**: Per messaggi privati quando l'app è in background.
 3. **Moderazione**: Sistema di segnalazione/ban per contenuti inappropriati.
 4. **Analytics**: Tracciare numero utenti attivi per tenant.
 5. **Personalizzazione Tenant**: Usare `metadata` JSON per colori/logo custom.
+

@@ -37,7 +37,24 @@ export const columns: ColumnDef<TenantWithDevices>[] = [
         header: "NAS IDs",
         cell: ({ row }) => {
             const devices = row.original.devices || [];
-            return <span>{devices.map(d => d.nasId).join(", ")}</span>
+            return <span>{devices.map(d => d.nasId).filter(Boolean).join(", ") || "-"}</span>
+        }
+    },
+    {
+        id: "bssids",
+        header: "BSSIDs",
+        cell: ({ row }) => {
+            const devices = row.original.devices || [];
+            const bssids = devices.map(d => d.bssid).filter(Boolean);
+            if (bssids.length === 0) return <span className="text-muted-foreground">-</span>;
+            return (
+                <span className="text-xs font-mono">
+                    {bssids.length > 2
+                        ? `${bssids.slice(0, 2).join(", ")} +${bssids.length - 2}`
+                        : bssids.join(", ")
+                    }
+                </span>
+            );
         }
     },
     {

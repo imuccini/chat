@@ -1,8 +1,12 @@
 import { API_BASE_URL } from "@/config";
 import { Message } from "@/types";
 
-export const clientResolveTenant = async (urlNasId?: string): Promise<string | null> => {
-    const query = urlNasId ? `?nas_id=${urlNasId}` : '';
+export const clientResolveTenant = async (urlNasId?: string, bssid?: string): Promise<string | null> => {
+    const params = new URLSearchParams();
+    if (bssid) params.append('bssid', bssid);
+    if (urlNasId) params.append('nas_id', urlNasId);
+
+    const query = params.toString() ? `?${params.toString()}` : '';
     const res = await fetch(`${API_BASE_URL}/api/validate-nas${query}`);
     if (!res.ok) return null;
     const data = await res.json();

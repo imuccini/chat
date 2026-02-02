@@ -52,5 +52,7 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>TrenoChat ha bisogno della tua posizione per identificare la rete WiFi a cui sei connesso e mostrarti la chat del locale.</string>
 </dict>
 </plist>

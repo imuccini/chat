@@ -6,8 +6,9 @@ import { revalidatePath } from 'next/cache';
 export async function createTenantAction(formData: FormData) {
     const name = formData.get('name') as string;
     const slug = formData.get('slug') as string;
-    const nasIds = (formData.get('nasIds') as string).split(',').map(s => s.trim()).filter(Boolean);
+    const nasIds = (formData.get('nasIds') as string || "").split(',').map(s => s.trim()).filter(Boolean);
     const publicIps = (formData.get('publicIps') as string || "").split(',').map(s => s.trim()).filter(Boolean);
+    const bssids = (formData.get('bssids') as string || "").split(',').map(s => s.trim()).filter(Boolean);
 
     await prisma.tenant.create({
         data: {
@@ -16,7 +17,8 @@ export async function createTenantAction(formData: FormData) {
             devices: {
                 create: [
                     ...nasIds.map(nasId => ({ nasId })),
-                    ...publicIps.map(ip => ({ publicIp: ip }))
+                    ...publicIps.map(ip => ({ publicIp: ip })),
+                    ...bssids.map(bssid => ({ bssid }))
                 ]
             }
         }
@@ -28,8 +30,9 @@ export async function updateTenantAction(formData: FormData) {
     const id = formData.get('id') as string;
     const name = formData.get('name') as string;
     const slug = formData.get('slug') as string;
-    const nasIds = (formData.get('nasIds') as string).split(',').map(s => s.trim()).filter(Boolean);
+    const nasIds = (formData.get('nasIds') as string || "").split(',').map(s => s.trim()).filter(Boolean);
     const publicIps = (formData.get('publicIps') as string || "").split(',').map(s => s.trim()).filter(Boolean);
+    const bssids = (formData.get('bssids') as string || "").split(',').map(s => s.trim()).filter(Boolean);
 
     // Update basic info
     await prisma.tenant.update({
@@ -42,7 +45,8 @@ export async function updateTenantAction(formData: FormData) {
 
     const devicesToCreate = [
         ...nasIds.map(nasId => ({ nasId, tenantId: id })),
-        ...publicIps.map(ip => ({ publicIp: ip, tenantId: id }))
+        ...publicIps.map(ip => ({ publicIp: ip, tenantId: id })),
+        ...bssids.map(bssid => ({ bssid, tenantId: id }))
     ];
 
     if (devicesToCreate.length > 0) {

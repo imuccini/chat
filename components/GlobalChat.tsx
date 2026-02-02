@@ -67,13 +67,13 @@ const ChatInput = memo(({ onSendMessage, showBottomNavPadding, onFocusChange, is
   };
 
   const footerPadding = isFocused
-    ? 'pb-2'
+    ? 'py-3'
     : showBottomNavPadding
-      ? 'pb-[calc(60px+env(safe-area-inset-bottom,0px)+12px)] md:pb-[80px]'
-      : 'pb-6 pt-2';
+      ? 'pb-[calc(70px+env(safe-area-inset-bottom,0px)+12px)] md:pb-[90px]'
+      : 'py-4';
 
   return (
-    <footer className={`px-3 pt-3 md:p-4 bg-gray-50 border-t border-gray-200 shrink-0 ${footerPadding}`}>
+    <footer className={`px-3 py-3 md:p-4 bg-gray-50 border-t border-gray-200 shrink-0 ${footerPadding}`}>
       <form onSubmit={handleSubmit} className="flex items-center gap-2 md:gap-3 max-w-5xl mx-auto">
         <input
           ref={inputRef}

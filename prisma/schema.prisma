@@ -25,6 +25,7 @@ model NasDevice {
   nasId     String?  @unique
   vpnIp     String?  @unique
   publicIp  String?  @unique
+  bssid     String?  @unique   // WiFi AP BSSID for native app detection
   name      String?
   tenantId  String
   tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)

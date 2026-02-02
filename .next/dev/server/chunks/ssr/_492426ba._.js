@@ -33,8 +33,9 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist
 async function createTenantAction(formData) {
     const name = formData.get('name');
     const slug = formData.get('slug');
-    const nasIds = formData.get('nasIds').split(',').map((s)=>s.trim()).filter(Boolean);
+    const nasIds = (formData.get('nasIds') || "").split(',').map((s)=>s.trim()).filter(Boolean);
     const publicIps = (formData.get('publicIps') || "").split(',').map((s)=>s.trim()).filter(Boolean);
+    const bssids = (formData.get('bssids') || "").split(',').map((s)=>s.trim()).filter(Boolean);
     await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].tenant.create({
         data: {
             name,
@@ -46,6 +47,9 @@ async function createTenantAction(formData) {
                         })),
                     ...publicIps.map((ip)=>({
                             publicIp: ip
+                        })),
+                    ...bssids.map((bssid)=>({
+                            bssid
                         }))
                 ]
             }
@@ -57,8 +61,9 @@ async function updateTenantAction(formData) {
     const id = formData.get('id');
     const name = formData.get('name');
     const slug = formData.get('slug');
-    const nasIds = formData.get('nasIds').split(',').map((s)=>s.trim()).filter(Boolean);
+    const nasIds = (formData.get('nasIds') || "").split(',').map((s)=>s.trim()).filter(Boolean);
     const publicIps = (formData.get('publicIps') || "").split(',').map((s)=>s.trim()).filter(Boolean);
+    const bssids = (formData.get('bssids') || "").split(',').map((s)=>s.trim()).filter(Boolean);
     // Update basic info
     await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].tenant.update({
         where: {
@@ -82,6 +87,10 @@ async function updateTenantAction(formData) {
             })),
         ...publicIps.map((ip)=>({
                 publicIp: ip,
+                tenantId: id
+            })),
+        ...bssids.map((bssid)=>({
+                bssid,
                 tenantId: id
             }))
     ];

@@ -50,6 +50,65 @@ nextApp.prepare().then(async () => {
     }
   });
 
+  // API: Resolve tenant via NAS ID, BSSID, or IP (unified endpoint)
+  app.get('/api/validate-nas', async (req, res) => {
+    const { nas_id, bssid } = req.query;
+
+    try {
+      // 1. Try BSSID first (native app)
+      if (bssid) {
+        const deviceByBssid = await prisma.nasDevice.findUnique({
+          where: { bssid: String(bssid) },
+          include: { tenant: true }
+        });
+        if (deviceByBssid?.tenant) {
+          return res.json({ valid: true, tenantSlug: deviceByBssid.tenant.slug });
+        }
+      }
+
+      // 2. Try NAS ID (captive portal)
+      if (nas_id) {
+        const deviceByNasId = await prisma.nasDevice.findUnique({
+          where: { nasId: String(nas_id) },
+          include: { tenant: true }
+        });
+        if (deviceByNasId?.tenant) {
+          return res.json({ valid: true, tenantSlug: deviceByNasId.tenant.slug });
+        }
+      }
+
+      // 3. Try request IP (VPN or public)
+      const forwardedFor = req.headers['x-forwarded-for'];
+      let remoteIp = forwardedFor ? String(forwardedFor).split(',')[0].trim() : req.ip;
+
+      // Normalize IPv6-mapped IPv4
+      if (remoteIp && remoteIp.startsWith('::ffff:')) {
+        remoteIp = remoteIp.replace('::ffff:', '');
+      }
+
+      if (remoteIp) {
+        const deviceByIp = await prisma.nasDevice.findFirst({
+          where: {
+            OR: [
+              { vpnIp: remoteIp },
+              { publicIp: remoteIp }
+            ]
+          },
+          include: { tenant: true }
+        });
+        if (deviceByIp?.tenant) {
+          return res.json({ valid: true, tenantSlug: deviceByIp.tenant.slug });
+        }
+      }
+
+      // No tenant found
+      res.json({ valid: false });
+    } catch (e) {
+      console.error('Error in validate-nas:', e);
+      res.status(500).json({ error: 'DB Error' });
+    }
+  });
+
   // API: Recupera solo messaggi PUBBLICI del tenant (ultimi 100)
   app.get('/api/messages', async (req, res) => {
     const { tenant: tenantSlug } = req.query;

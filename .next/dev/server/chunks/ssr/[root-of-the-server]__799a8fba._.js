@@ -605,9 +605,9 @@ const ChatInput = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5
             inputRef.current?.blur();
         }
     };
-    const footerPadding = isFocused ? 'pb-2' : showBottomNavPadding ? 'pb-[calc(60px+env(safe-area-inset-bottom,0px)+12px)] md:pb-[80px]' : 'pb-6 pt-2';
+    const footerPadding = isFocused ? 'py-3' : showBottomNavPadding ? 'pb-[calc(70px+env(safe-area-inset-bottom,0px)+12px)] md:pb-[90px]' : 'py-4';
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("footer", {
-        className: `px-3 pt-3 md:p-4 bg-gray-50 border-t border-gray-200 shrink-0 ${footerPadding}`,
+        className: `px-3 py-3 md:p-4 bg-gray-50 border-t border-gray-200 shrink-0 ${footerPadding}`,
         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("form", {
             onSubmit: handleSubmit,
             className: "flex items-center gap-2 md:gap-3 max-w-5xl mx-auto",
@@ -953,11 +953,11 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist
 ;
 const BottomNav = ({ activeTab, onTabChange, usersCount, unreadChatsCount })=>{
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("nav", {
-        className: "bg-white border-t border-gray-200 fixed bottom-0 left-0 right-0 z-50 h-[calc(60px+env(safe-area-inset-bottom,0px))] md:h-[70px] flex justify-around items-center pb-[calc(env(safe-area-inset-bottom,0px)+12px)] shadow-[0_-1px_3px_rgba(0,0,0,0.05)]",
+        className: "bg-white border-t border-gray-200 fixed bottom-0 left-0 right-0 z-50 h-[calc(70px+env(safe-area-inset-bottom,0px))] md:h-[80px] flex justify-around items-start pt-3 pb-[calc(env(safe-area-inset-bottom,0px)+8px)] shadow-[0_-1px_3px_rgba(0,0,0,0.05)]",
         children: [
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                 onClick: ()=>onTabChange('room'),
-                className: `flex flex-col items-center justify-center w-full h-full relative ${activeTab === 'room' ? 'text-emerald-600' : 'text-gray-400'}`,
+                className: `flex flex-col items-center justify-center w-full relative ${activeTab === 'room' ? 'text-emerald-600' : 'text-gray-400'}`,
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "relative",
@@ -984,7 +984,7 @@ const BottomNav = ({ activeTab, onTabChange, usersCount, unreadChatsCount })=>{
                                 columnNumber: 21
                             }, ("TURBOPACK compile-time value", void 0)),
                             usersCount > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                className: "absolute -top-1 -right-2 bg-emerald-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full min-w-[16px] flex items-center justify-center border border-white",
+                                className: "absolute -top-0.5 -right-1.5 bg-emerald-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full min-w-[16px] flex items-center justify-center border-2 border-white",
                                 children: usersCount
                             }, void 0, false, {
                                 fileName: "[project]/components/BottomNav.tsx",
@@ -1013,7 +1013,7 @@ const BottomNav = ({ activeTab, onTabChange, usersCount, unreadChatsCount })=>{
             }, ("TURBOPACK compile-time value", void 0)),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                 onClick: ()=>onTabChange('users'),
-                className: `flex flex-col items-center justify-center w-full h-full relative ${activeTab === 'users' ? 'text-emerald-600' : 'text-gray-400'}`,
+                className: `flex flex-col items-center justify-center w-full relative ${activeTab === 'users' ? 'text-emerald-600' : 'text-gray-400'}`,
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("svg", {
                         xmlns: "http://www.w3.org/2000/svg",
@@ -1052,7 +1052,7 @@ const BottomNav = ({ activeTab, onTabChange, usersCount, unreadChatsCount })=>{
             }, ("TURBOPACK compile-time value", void 0)),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                 onClick: ()=>onTabChange('chats'),
-                className: `flex flex-col items-center justify-center w-full h-full relative ${activeTab === 'chats' ? 'text-emerald-600' : 'text-gray-400'}`,
+                className: `flex flex-col items-center justify-center w-full relative ${activeTab === 'chats' ? 'text-emerald-600' : 'text-gray-400'}`,
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "relative",
@@ -1079,7 +1079,7 @@ const BottomNav = ({ activeTab, onTabChange, usersCount, unreadChatsCount })=>{
                                 columnNumber: 21
                             }, ("TURBOPACK compile-time value", void 0)),
                             unreadChatsCount > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                className: "absolute -top-1 -right-2 bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full min-w-[16px] flex items-center justify-center border border-white",
+                                className: "absolute -top-0.5 -right-1.5 bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full min-w-[16px] flex items-center justify-center border-2 border-white",
                                 children: unreadChatsCount
                             }, void 0, false, {
                                 fileName: "[project]/components/BottomNav.tsx",
@@ -1108,7 +1108,7 @@ const BottomNav = ({ activeTab, onTabChange, usersCount, unreadChatsCount })=>{
             }, ("TURBOPACK compile-time value", void 0)),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                 onClick: ()=>onTabChange('settings'),
-                className: `flex flex-col items-center justify-center w-full h-full relative ${activeTab === 'settings' ? 'text-emerald-600' : 'text-gray-400'}`,
+                className: `flex flex-col items-center justify-center w-full relative ${activeTab === 'settings' ? 'text-emerald-600' : 'text-gray-400'}`,
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("svg", {
                         xmlns: "http://www.w3.org/2000/svg",
@@ -2492,8 +2492,11 @@ __turbopack_context__.s([
 ]);
 var __TURBOPACK__imported__module__$5b$project$5d2f$config$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/config.ts [app-ssr] (ecmascript)");
 ;
-const clientResolveTenant = async (urlNasId)=>{
-    const query = urlNasId ? `?nas_id=${urlNasId}` : '';
+const clientResolveTenant = async (urlNasId, bssid)=>{
+    const params = new URLSearchParams();
+    if (bssid) params.append('bssid', bssid);
+    if (urlNasId) params.append('nas_id', urlNasId);
+    const query = params.toString() ? `?${params.toString()}` : '';
     const res = await fetch(`${__TURBOPACK__imported__module__$5b$project$5d2f$config$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["API_BASE_URL"]}/api/validate-nas${query}`);
     if (!res.ok) return null;
     const data = await res.json();

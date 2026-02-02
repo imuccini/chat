@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { TagInput } from "@/components/ui/tag-input"
 import { createTenantAction, updateTenantAction } from "@/app/actions/adminTenant"
 import { TenantWithDevices } from "./columns" // Import type
 import { useState } from "react"
@@ -25,7 +26,6 @@ export function CreateTenantDialog() {
         await createTenantAction(formData);
         setOpen(false);
         router.refresh();
-        // Reset form? Server action revalidate usually handles list update.
     }
 
     return (
@@ -33,7 +33,7 @@ export function CreateTenantDialog() {
             <DialogTrigger asChild>
                 <Button>Create New Tenant</Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-[500px]">
                 <DialogHeader>
                     <DialogTitle>Create Tenant</DialogTitle>
                     <DialogDescription>
@@ -53,17 +53,35 @@ export function CreateTenantDialog() {
                         </Label>
                         <Input id="slug" name="slug" className="col-span-3" required />
                     </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="nasIds" className="text-right">
+                    <div className="grid grid-cols-4 items-start gap-4">
+                        <Label className="text-right pt-2">
                             NAS IDs
                         </Label>
-                        <Input id="nasIds" name="nasIds" placeholder="id1, id2" className="col-span-3" />
+                        <TagInput
+                            name="nasIds"
+                            placeholder="Captive portal NAS ID"
+                            className="col-span-3"
+                        />
                     </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="publicIps" className="text-right">
+                    <div className="grid grid-cols-4 items-start gap-4">
+                        <Label className="text-right pt-2">
                             Public IPs
                         </Label>
-                        <Input id="publicIps" name="publicIps" placeholder="104.x.x.x, 10.x.x.x" className="col-span-3" />
+                        <TagInput
+                            name="publicIps"
+                            placeholder="IP pubblico (es. 93.42.x.x)"
+                            className="col-span-3"
+                        />
+                    </div>
+                    <div className="grid grid-cols-4 items-start gap-4">
+                        <Label className="text-right pt-2">
+                            BSSIDs
+                        </Label>
+                        <TagInput
+                            name="bssids"
+                            placeholder="WiFi BSSID (es. AA:BB:CC:DD:EE:FF)"
+                            className="col-span-3"
+                        />
                     </div>
                     <DialogFooter>
                         <Button type="submit">Create</Button>
@@ -89,9 +107,20 @@ export function EditTenantDialog({ tenant, open, onOpenChange }: EditTenantProps
         router.refresh();
     }
 
+    // Extract existing values from devices
+    const existingNasIds = tenant.devices
+        .map(d => d.nasId)
+        .filter((v): v is string => Boolean(v));
+    const existingPublicIps = tenant.devices
+        .map(d => d.publicIp)
+        .filter((v): v is string => Boolean(v));
+    const existingBssids = tenant.devices
+        .map(d => d.bssid)
+        .filter((v): v is string => Boolean(v));
+
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-[500px]">
                 <DialogHeader>
                     <DialogTitle>Edit Tenant</DialogTitle>
                 </DialogHeader>
@@ -105,21 +134,30 @@ export function EditTenantDialog({ tenant, open, onOpenChange }: EditTenantProps
                         <Label htmlFor="edit-slug" className="text-right">Slug</Label>
                         <Input id="edit-slug" name="slug" defaultValue={tenant.slug} className="col-span-3" />
                     </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="edit-nasIds" className="text-right">NAS IDs</Label>
-                        <Input
-                            id="edit-nasIds"
+                    <div className="grid grid-cols-4 items-start gap-4">
+                        <Label className="text-right pt-2">NAS IDs</Label>
+                        <TagInput
                             name="nasIds"
-                            defaultValue={tenant.devices.map(d => d.nasId).filter(Boolean).join(', ')}
+                            defaultValue={existingNasIds}
+                            placeholder="Captive portal NAS ID"
                             className="col-span-3"
                         />
                     </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="edit-publicIps" className="text-right">Public IPs</Label>
-                        <Input
-                            id="edit-publicIps"
+                    <div className="grid grid-cols-4 items-start gap-4">
+                        <Label className="text-right pt-2">Public IPs</Label>
+                        <TagInput
                             name="publicIps"
-                            defaultValue={tenant.devices.map(d => d.publicIp).filter(Boolean).join(', ')}
+                            defaultValue={existingPublicIps}
+                            placeholder="IP pubblico (es. 93.42.x.x)"
+                            className="col-span-3"
+                        />
+                    </div>
+                    <div className="grid grid-cols-4 items-start gap-4">
+                        <Label className="text-right pt-2">BSSIDs</Label>
+                        <TagInput
+                            name="bssids"
+                            defaultValue={existingBssids}
+                            placeholder="WiFi BSSID (es. AA:BB:CC:DD:EE:FF)"
                             className="col-span-3"
                         />
                     </div>
