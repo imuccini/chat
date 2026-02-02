@@ -212,7 +212,7 @@ io.on('connection', (socket) => {
 
 // Mapping NAS ID -> Tenant Slug
 const NAS_TENANT_MAP = {
-  '94:83:C4:81:61:E1': 'treno-lucca-aulla'
+  'ae:b6:ac:f9:6e:1e': 'treno-lucca-aulla'
 };
 
 // Redirect basato su nas_id
