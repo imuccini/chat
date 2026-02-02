@@ -21,7 +21,12 @@ export const resolveTenant = cache(async (urlNasId?: string): Promise<string | n
     const headersList = await headers();
     // Helper to get real IP (handles x-forwarded-for if behind proxy)
     const forwardedFor = headersList.get('x-forwarded-for');
-    const remoteIp = forwardedFor ? forwardedFor.split(',')[0].trim() : null;
+    let remoteIp = forwardedFor ? forwardedFor.split(',')[0].trim() : null;
+
+    // Normalize IP: Remove IPv6 prefix for IPv4-mapped addresses (e.g. ::ffff:192.168.1.1)
+    if (remoteIp && remoteIp.startsWith('::ffff:')) {
+        remoteIp = remoteIp.replace('::ffff:', '');
+    }
 
     // In dev, ip might be ::1 or 127.0.0.1, usually strictly ignored or mapped to localhost
     if (!remoteIp) return null;

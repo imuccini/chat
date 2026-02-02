@@ -54,7 +54,11 @@ const resolveTenant = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_m
     const headersList = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$headers$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["headers"])();
     // Helper to get real IP (handles x-forwarded-for if behind proxy)
     const forwardedFor = headersList.get('x-forwarded-for');
-    const remoteIp = forwardedFor ? forwardedFor.split(',')[0].trim() : null;
+    let remoteIp = forwardedFor ? forwardedFor.split(',')[0].trim() : null;
+    // Normalize IP: Remove IPv6 prefix for IPv4-mapped addresses (e.g. ::ffff:192.168.1.1)
+    if (remoteIp && remoteIp.startsWith('::ffff:')) {
+        remoteIp = remoteIp.replace('::ffff:', '');
+    }
     // In dev, ip might be ::1 or 127.0.0.1, usually strictly ignored or mapped to localhost
     if (!remoteIp) return null;
     const deviceByIp = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["prisma"].nasDevice.findFirst({
