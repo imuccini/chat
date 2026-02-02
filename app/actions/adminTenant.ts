@@ -7,13 +7,17 @@ export async function createTenantAction(formData: FormData) {
     const name = formData.get('name') as string;
     const slug = formData.get('slug') as string;
     const nasIds = (formData.get('nasIds') as string).split(',').map(s => s.trim()).filter(Boolean);
+    const publicIps = (formData.get('publicIps') as string || "").split(',').map(s => s.trim()).filter(Boolean);
 
     await prisma.tenant.create({
         data: {
             name,
             slug,
             devices: {
-                create: nasIds.map(nasId => ({ nasId }))
+                create: [
+                    ...nasIds.map(nasId => ({ nasId })),
+                    ...publicIps.map(ip => ({ publicIp: ip }))
+                ]
             }
         }
     });
@@ -25,6 +29,7 @@ export async function updateTenantAction(formData: FormData) {
     const name = formData.get('name') as string;
     const slug = formData.get('slug') as string;
     const nasIds = (formData.get('nasIds') as string).split(',').map(s => s.trim()).filter(Boolean);
+    const publicIps = (formData.get('publicIps') as string || "").split(',').map(s => s.trim()).filter(Boolean);
 
     // Update basic info
     await prisma.tenant.update({
@@ -32,13 +37,17 @@ export async function updateTenantAction(formData: FormData) {
         data: { name, slug }
     });
 
-    // Since we want to sync the list of NAS IDs, we delete old ones and re-create for simplicity
-    // Ideally, we'd diff them, but this is an MVP
+    // Sync devices: Delete all and recreate
     await prisma.nasDevice.deleteMany({ where: { tenantId: id } });
 
-    if (nasIds.length > 0) {
+    const devicesToCreate = [
+        ...nasIds.map(nasId => ({ nasId, tenantId: id })),
+        ...publicIps.map(ip => ({ publicIp: ip, tenantId: id }))
+    ];
+
+    if (devicesToCreate.length > 0) {
         await prisma.nasDevice.createMany({
-            data: nasIds.map(nasId => ({ nasId, tenantId: id }))
+            data: devicesToCreate
         });
     }
 

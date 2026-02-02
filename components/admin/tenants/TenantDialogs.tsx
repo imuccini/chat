@@ -57,7 +57,13 @@ export function CreateTenantDialog() {
                         <Label htmlFor="nasIds" className="text-right">
                             NAS IDs
                         </Label>
-                        <Input id="nasIds" name="nasIds" placeholder="Comma separated" className="col-span-3" />
+                        <Input id="nasIds" name="nasIds" placeholder="id1, id2" className="col-span-3" />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="publicIps" className="text-right">
+                            Public IPs
+                        </Label>
+                        <Input id="publicIps" name="publicIps" placeholder="104.x.x.x, 10.x.x.x" className="col-span-3" />
                     </div>
                     <DialogFooter>
                         <Button type="submit">Create</Button>
@@ -104,7 +110,16 @@ export function EditTenantDialog({ tenant, open, onOpenChange }: EditTenantProps
                         <Input
                             id="edit-nasIds"
                             name="nasIds"
-                            defaultValue={tenant.devices.map(d => d.nasId).join(', ')}
+                            defaultValue={tenant.devices.map(d => d.nasId).filter(Boolean).join(', ')}
+                            className="col-span-3"
+                        />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="edit-publicIps" className="text-right">Public IPs</Label>
+                        <Input
+                            id="edit-publicIps"
+                            name="publicIps"
+                            defaultValue={tenant.devices.map(d => d.publicIp).filter(Boolean).join(', ')}
                             className="col-span-3"
                         />
                     </div>
