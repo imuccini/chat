@@ -18,6 +18,7 @@ import BottomNav from './BottomNav';
 import UserList from './UserList';
 import ChatList from './ChatList';
 import Settings from './Settings';
+import { useSwipeBack } from '@/hooks/useSwipeBack';
 
 interface ChatInterfaceProps {
     tenant: Tenant;
@@ -348,6 +349,12 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
         );
     }
 
+    // Swipe back gesture for private chat
+    const { swipeHandlers, swipeStyle, isDragging } = useSwipeBack({
+        onSwipeBack: () => setSelectedChatPeerId(null),
+        enabled: Capacitor.isNativePlatform() && selectedChatPeerId !== null
+    });
+
     // Render Private Chat View
     if (selectedChatPeerId && activeTab === 'chats') {
         const chat = privateChats[selectedChatPeerId];
@@ -358,7 +365,18 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
         }
 
         return (
-            <div className="flex flex-col w-full h-[100dvh] max-w-3xl mx-auto bg-white shadow-xl overflow-hidden relative">
+            <div
+                className="flex flex-col w-full h-[100dvh] max-w-3xl mx-auto bg-white shadow-xl overflow-hidden relative"
+                style={swipeStyle}
+                {...swipeHandlers}
+            >
+                {/* Shadow overlay when dragging */}
+                {isDragging && (
+                    <div
+                        className="absolute inset-y-0 -left-8 w-8 bg-gradient-to-r from-black/10 to-transparent z-50 pointer-events-none"
+                    />
+                )}
+
                 <header className="bg-white border-b border-gray-100 pt-safe text-gray-800 z-10 sticky top-0">
                     <div className="h-[60px] px-4 flex items-center gap-3">
                         <button onClick={() => setSelectedChatPeerId(null)} className="p-2 -ml-2 rounded-full hover:bg-gray-100 text-gray-600">
