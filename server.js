@@ -3,10 +3,12 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { fileURLToPath } from 'url';
 import path from 'path';
-import Database from 'better-sqlite3';
 import rateLimit from 'express-rate-limit';
 import next from 'next';
 import { parse } from 'url';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -18,7 +20,7 @@ const handle = nextApp.getRequestHandler();
 
 const PORT = process.env.PORT || 3000;
 
-nextApp.prepare().then(() => {
+nextApp.prepare().then(async () => {
   const app = express();
   const httpServer = createServer(app);
   const io = new Server(httpServer);
@@ -27,74 +29,63 @@ nextApp.prepare().then(() => {
 
   // Rate Limiting per API HTTP
   const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minuti
-    max: 100, // Limite
+    windowMs: 15 * 60 * 1000,
+    max: 100,
     standardHeaders: true,
     legacyHeaders: false,
   });
   app.use('/api', limiter);
 
-  // SQLite Config (Legacy - Consider moving to Prisma eventually)
-  const db = new Database('chat.db');
-  db.pragma('journal_mode = WAL');
 
-  // ... (Existing DB Schema init logic preserved below in abbreviated form if needed, or we rely on Prisma in newer services)
-  // For now, keeping legacy DB init to ensure existing logic still works until full migration
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS tenants (
-      slug TEXT PRIMARY KEY,
-      name TEXT,
-      createdAt INTEGER
-    );
-    CREATE TABLE IF NOT EXISTS messages (
-      id TEXT PRIMARY KEY,
-      senderId TEXT,
-      senderAlias TEXT,
-      senderGender TEXT,
-      text TEXT,
-      timestamp INTEGER,
-      recipientId TEXT,
-      tenantSlug TEXT
-    );
-  `);
-  // Migrations
-  try { db.exec('ALTER TABLE messages ADD COLUMN recipientId TEXT'); } catch (e) { }
-  try { db.exec('ALTER TABLE messages ADD COLUMN tenantSlug TEXT'); } catch (e) { }
-
-  // Seed Tenants
-  const defaultTenants = [
-    { slug: 'spiaggia-azzurra', name: 'Spiaggia Azzurra' },
-    { slug: 'disco-club', name: 'Disco Club 90' },
-    { slug: 'treno-wifi', name: 'Treno WiFi Chat' },
-    { slug: 'treno-lucca-aulla', name: 'Treno Lucca-Aulla' }
-  ];
-  const insertTenant = db.prepare('INSERT INTO tenants (slug, name, createdAt) VALUES (?, ?, ?)');
-  defaultTenants.forEach(t => {
-    const exists = db.prepare('SELECT 1 FROM tenants WHERE slug = ?').get(t.slug);
-    if (!exists) insertTenant.run(t.slug, t.name, Date.now());
-  });
 
 
   // API: Recupera metadata Tenant
-  app.get('/api/tenants/:slug', (req, res) => {
-    const tenant = db.prepare('SELECT * FROM tenants WHERE slug = ?').get(req.params.slug);
-    if (!tenant) return res.status(404).json({ error: 'Tenant not found' });
-    res.json(tenant);
+  app.get('/api/tenants/:slug', async (req, res) => {
+    try {
+      const tenant = await prisma.tenant.findUnique({
+        where: { slug: req.params.slug }
+      });
+      if (!tenant) return res.status(404).json({ error: 'Tenant not found' });
+      // Map Prisma date to timestamp number if expected by client legacy format, 
+      // OR just return standard JSON. The client 'ChatInterface' uses `tenant.slug` and `tenant.name`.
+      // The type definition expects `createdAt` to be Date or string.
+      res.json(tenant);
+    } catch (e) {
+      console.error(e);
+      res.status(500).json({ error: 'DB Error' });
+    }
   });
 
   // API: Recupera solo messaggi PUBBLICI del tenant (ultimi 100)
-  app.get('/api/messages', (req, res) => {
+  app.get('/api/messages', async (req, res) => {
     const { tenant } = req.query;
     if (!tenant) return res.status(400).json({ error: 'Missing tenant parameter' });
+
     try {
-      const messages = db.prepare(`
-        SELECT * FROM messages 
-        WHERE recipientId IS NULL AND tenantSlug = ?
-        ORDER BY timestamp DESC 
-        LIMIT 100
-      `).all(tenant);
-      res.json(messages.reverse());
+      // We find tenant first to get ID? Or just join?
+      // Actually we need to filter by tenant.
+      const tenantRecord = await prisma.tenant.findUnique({ where: { slug: String(tenant) } });
+      if (!tenantRecord) return res.json([]);
+
+      const messages = await prisma.message.findMany({
+        where: {
+          tenantId: tenantRecord.id,
+          recipientId: null // Public only
+        },
+        take: 100,
+        orderBy: { createdAt: 'desc' }
+      });
+
+      // The client expects `timestamp` (number). Prisma has `createdAt` (Date).
+      // We should map it back to match legacy type `Message`.
+      const mappedMessages = messages.map(m => ({
+        ...m,
+        timestamp: m.createdAt.getTime() // Convert Date to ms
+      }));
+
+      res.json(mappedMessages.reverse());
     } catch (err) {
+      console.error(err);
       res.status(500).json({ error: 'Database error' });
     }
   });
@@ -143,15 +134,32 @@ nextApp.prepare().then(() => {
       message.tenantSlug = user.tenantSlug;
       message.timestamp = Date.now();
 
-      // Save to SQLite (Legacy)
-      try {
-        db.prepare(`
-          INSERT INTO messages (id, senderId, senderAlias, senderGender, text, timestamp, recipientId, tenantSlug)
-          VALUES (@id, @senderId, @senderAlias, @senderGender, @text, @timestamp, @recipientId, @tenantSlug)
-        `).run({ ...message, recipientId: message.recipientId || null });
-      } catch (e) {
-        console.error("Error saving socket message", e);
-      }
+      // Save to Postgres (Prisma)
+      (async () => {
+        try {
+          const tenantRecord = await prisma.tenant.findUnique({ where: { slug: user.tenantSlug } });
+          if (tenantRecord) {
+            await prisma.message.create({
+              data: {
+                id: message.id, // Use client generated UUID? Or let Prisma generate? 
+                // Legacy client sends 'id'. We should respect it if possible or ignore.
+                // Prisma schema has `id String @default(uuid())`.
+                // If we pass ID, it uses it.
+                // Legacy client sends 'text', schema has 'text'.
+                text: message.text,
+                senderId: message.senderId,
+                senderAlias: message.senderAlias,
+                senderGender: message.senderGender,
+                recipientId: message.recipientId || null,
+                tenantId: tenantRecord.id,
+                createdAt: new Date() // Current time
+              }
+            });
+          }
+        } catch (e) {
+          console.error("Error saving message to Prisma:", e);
+        }
+      })();
 
       // Check if Private Message
       if (message.recipientId) {
