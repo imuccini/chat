@@ -2,7 +2,7 @@
   "/[tenantSlug]/page": "app/[tenantSlug]/page.js",
   "/_global-error/page": "app/_global-error/page.js",
   "/_not-found/page": "app/_not-found/page.js",
-  "/admin/dashboard/page": "app/admin/dashboard/page.js",
+  "/admin/(authenticated)/dashboard/page": "app/admin/(authenticated)/dashboard/page.js",
   "/admin/login/page": "app/admin/login/page.js",
   "/page": "app/page.js"
 }
