@@ -23,7 +23,8 @@ const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<Tab>('room');
   const [socket, setSocket] = useState<Socket | null>(null);
 
-  // Multi-tenant State
+  // multi-tenant state
+  const [accessDenied, setAccessDenied] = useState(false);
   const [tenant, setTenant] = useState<Tenant | null>(null);
   const [tenantSlug, setTenantSlug] = useState<string>('');
 
@@ -39,25 +40,46 @@ const App: React.FC = () => {
 
   // 1. Detect Tenant from URL and Restore User
   useEffect(() => {
-    // URL patterns: /beach-club or /?tenant=beach-club
-    let slug = window.location.pathname.split('/')[1] || 'treno-wifi';
-    if (!slug) {
-      const params = new URLSearchParams(window.location.search);
-      slug = params.get('tenant') || 'treno-wifi';
-    }
-    setTenantSlug(slug);
+    const params = new URLSearchParams(window.location.search);
+    const nasId = params.get('nas_id');
 
-    // Fetch tenant metadata
-    fetch(`/api/tenants/${slug}`)
-      .then(res => {
-        if (!res.ok) throw new Error('Tenant not found');
-        return res.json();
-      })
-      .then(data => setTenant(data))
-      .catch(err => {
-        console.error(err);
-        setTenant({ slug: 'error', name: 'Chat Non Trovata' });
-      });
+    // Helper to load tenant
+    const loadTenant = (slug: string) => {
+      setTenantSlug(slug);
+      fetch(`/api/tenants/${slug}`)
+        .then(res => {
+          if (!res.ok) throw new Error('Tenant not found');
+          return res.json();
+        })
+        .then(data => setTenant(data))
+        .catch(err => {
+          console.error(err);
+          setTenant({ slug: 'error', name: 'Chat Non Trovata' });
+        });
+    };
+
+    if (nasId) {
+      // Validate NAS ID
+      fetch(`/api/validate-nas?nas_id=${nasId}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.valid) {
+            loadTenant(data.tenantSlug);
+            // Optionally update URL to reflect clean state?
+            // window.history.replaceState(null, '', `/${data.tenantSlug}`);
+          } else {
+            setAccessDenied(true);
+          }
+        })
+        .catch(() => setAccessDenied(true));
+    } else {
+      // Standard URL check
+      let slug = window.location.pathname.split('/')[1] || 'treno-wifi';
+      if (!slug) {
+        slug = params.get('tenant') || 'treno-wifi';
+      }
+      loadTenant(slug);
+    }
 
     const savedUser = sessionStorage.getItem('chat_user');
     if (savedUser) {
@@ -68,6 +90,17 @@ const App: React.FC = () => {
       }
     }
   }, []);
+
+  if (accessDenied) {
+    return (
+      <div className="h-screen w-full flex items-center justify-center bg-gray-100 p-4">
+        <div className="text-center p-8 bg-white rounded-lg shadow-lg max-w-md">
+          <h1 className="text-2xl font-bold text-red-500 mb-4">Accesso Negato</h1>
+          <p className="text-gray-700">La chat in questo spazio non e' attiva</p>
+        </div>
+      </div>
+    );
+  }
 
   // 2. Socket Connection (Tenant Aware)
   useEffect(() => {

@@ -215,23 +215,50 @@ const NAS_TENANT_MAP = {
   'ae:b6:ac:f9:6e:1e': 'treno-lucca-aulla'
 };
 
+// API: Validate NAS ID
+app.get('/api/validate-nas', (req, res) => {
+  const { nas_id } = req.query;
+  const tenantSlug = NAS_TENANT_MAP[nas_id];
+  if (tenantSlug) {
+    res.json({ valid: true, tenantSlug });
+  } else {
+    res.json({ valid: false });
+  }
+});
+
 // Redirect basato su nas_id
 app.get('/', (req, res, next) => {
   const nasId = req.query.nas_id;
-  if (nasId && NAS_TENANT_MAP[nasId]) {
-    const tenantSlug = NAS_TENANT_MAP[nasId];
-    console.log(`🔀 Redirecting NAS ${nasId} to /${tenantSlug}`);
 
-    try {
-      const tenant = db.prepare('SELECT name FROM tenants WHERE slug = ?').get(tenantSlug);
-      if (tenant) {
-        console.log(`A user connected from ${nasId} that belongs to tenant ${tenant.name}`);
+  if (nasId) {
+    if (NAS_TENANT_MAP[nasId]) {
+      const tenantSlug = NAS_TENANT_MAP[nasId];
+      console.log(`🔀 Redirecting NAS ${nasId} to /${tenantSlug}`);
+
+      try {
+        const tenant = db.prepare('SELECT name FROM tenants WHERE slug = ?').get(tenantSlug);
+        if (tenant) {
+          console.log(`A user connected from ${nasId} that belongs to tenant ${tenant.name}`);
+        }
+      } catch (err) {
+        console.error('Error fetching tenant name for logging:', err);
       }
-    } catch (err) {
-      console.error('Error fetching tenant name for logging:', err);
-    }
 
-    return res.redirect(`/${tenantSlug}`);
+      return res.redirect(`/${tenantSlug}`);
+    } else {
+      // Block invalid NAS ID
+      return res.status(403).send(`
+        <html>
+          <head><title>Accesso Negato</title></head>
+          <body style="font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; background: #f3f4f6;">
+            <div style="text-align: center; padding: 2rem; background: white; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+              <h1 style="color: #ef4444; margin-bottom: 1rem;">Accesso Negato</h1>
+              <p style="color: #374151;">La chat in questo spazio non e' attiva</p>
+            </div>
+          </body>
+        </html>
+      `);
+    }
   }
   next();
 });
