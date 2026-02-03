@@ -16,11 +16,11 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange, usersCoun
             {/* Tab 1: Room */}
             <button
                 onClick={() => onTabChange('room')}
-                className={`flex flex-col items-center justify-center w-full relative ${activeTab === 'room' ? 'text-emerald-600' : 'text-gray-400'}`}
+                className={`flex flex-col items-center justify-center w-full relative ${activeTab === 'room' ? 'text-emerald-700' : 'text-gray-500'}`}
             >
                 <div className="relative">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 md:h-7 md:w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={activeTab === 'room' ? 2.5 : 2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={activeTab === 'room' ? 2.6 : 2.2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
                     {usersCount > 0 && (
                         <span className="absolute -top-0.5 -right-1.5 bg-emerald-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full min-w-[16px] flex items-center justify-center border-2 border-white">
@@ -28,28 +28,28 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange, usersCoun
                         </span>
                     )}
                 </div>
-                <span className="text-[10px] font-medium mt-1">Stanza</span>
+                <span className={`text-[10px] mt-1 ${activeTab === 'room' ? 'font-bold' : 'font-semibold'}`}>Stanza</span>
             </button>
 
             {/* Tab 2: Users */}
             <button
                 onClick={() => onTabChange('users')}
-                className={`flex flex-col items-center justify-center w-full relative ${activeTab === 'users' ? 'text-emerald-600' : 'text-gray-400'}`}
+                className={`flex flex-col items-center justify-center w-full relative ${activeTab === 'users' ? 'text-emerald-700' : 'text-gray-500'}`}
             >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 md:h-7 md:w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={activeTab === 'users' ? 2.5 : 2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={activeTab === 'users' ? 2.6 : 2.2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                 </svg>
-                <span className="text-[10px] font-medium mt-1">Utenti</span>
+                <span className={`text-[10px] mt-1 ${activeTab === 'users' ? 'font-bold' : 'font-semibold'}`}>Utenti</span>
             </button>
 
             {/* Tab 3: Chats */}
             <button
                 onClick={() => onTabChange('chats')}
-                className={`flex flex-col items-center justify-center w-full relative ${activeTab === 'chats' ? 'text-emerald-600' : 'text-gray-400'}`}
+                className={`flex flex-col items-center justify-center w-full relative ${activeTab === 'chats' ? 'text-emerald-700' : 'text-gray-500'}`}
             >
                 <div className="relative">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 md:h-7 md:w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={activeTab === 'chats' ? 2.5 : 2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={activeTab === 'chats' ? 2.6 : 2.2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
                     </svg>
                     {unreadChatsCount > 0 && (
                         <span className="absolute -top-0.5 -right-1.5 bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full min-w-[16px] flex items-center justify-center border-2 border-white">
@@ -57,18 +57,18 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange, usersCoun
                         </span>
                     )}
                 </div>
-                <span className="text-[10px] font-medium mt-1">Chats</span>
+                <span className={`text-[10px] mt-1 ${activeTab === 'chats' ? 'font-bold' : 'font-semibold'}`}>Chats</span>
             </button>
 
             {/* Tab 4: Settings */}
             <button
                 onClick={() => onTabChange('settings')}
-                className={`flex flex-col items-center justify-center w-full relative ${activeTab === 'settings' ? 'text-emerald-600' : 'text-gray-400'}`}
+                className={`flex flex-col items-center justify-center w-full relative ${activeTab === 'settings' ? 'text-emerald-700' : 'text-gray-500'}`}
             >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 md:h-7 md:w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={activeTab === 'settings' ? 2.5 : 2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={activeTab === 'settings' ? 2.6 : 2.2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
-                <span className="text-[10px] font-medium mt-1">Me</span>
+                <span className={`text-[10px] mt-1 ${activeTab === 'settings' ? 'font-bold' : 'font-semibold'}`}>Me</span>
             </button>
         </nav>
     );

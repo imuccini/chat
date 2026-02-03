@@ -15,6 +15,11 @@ const config: CapacitorConfig = {
   plugins: {
     Keyboard: {
       resize: 'body' as any
+    },
+    StatusBar: {
+      overlaysWebView: false,
+      backgroundColor: '#059669', // Brand Emerald 600
+      style: 'DARK'
     }
   }
 };

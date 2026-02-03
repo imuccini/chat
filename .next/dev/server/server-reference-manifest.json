@@ -1,51 +1,5 @@
 {
-  "node": {
-    "409c481257ec688f429490b968aad6b8096d3382c4": {
-      "workers": {
-        "app/admin/(authenticated)/dashboard/page": {
-          "moduleId": "[project]/.next-internal/server/app/admin/(authenticated)/dashboard/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/actions/adminTenant.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
-          "async": false,
-          "exportedName": "deleteTenantAction",
-          "filename": "app/actions/adminTenant.ts"
-        }
-      },
-      "layer": {
-        "app/admin/(authenticated)/dashboard/page": "action-browser"
-      },
-      "filename": "app/actions/adminTenant.ts",
-      "exportedName": "deleteTenantAction"
-    },
-    "4080ffdc1db55290dcbb390db1dfbd90c175e2b12d": {
-      "workers": {
-        "app/admin/(authenticated)/dashboard/page": {
-          "moduleId": "[project]/.next-internal/server/app/admin/(authenticated)/dashboard/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/actions/adminTenant.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
-          "async": false,
-          "exportedName": "createTenantAction",
-          "filename": "app/actions/adminTenant.ts"
-        }
-      },
-      "layer": {
-        "app/admin/(authenticated)/dashboard/page": "action-browser"
-      },
-      "filename": "app/actions/adminTenant.ts",
-      "exportedName": "createTenantAction"
-    },
-    "4012e6a2451c3c5d8e481a61333a94fd1794fbd854": {
-      "workers": {
-        "app/admin/(authenticated)/dashboard/page": {
-          "moduleId": "[project]/.next-internal/server/app/admin/(authenticated)/dashboard/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/actions/adminTenant.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
-          "async": false,
-          "exportedName": "updateTenantAction",
-          "filename": "app/actions/adminTenant.ts"
-        }
-      },
-      "layer": {
-        "app/admin/(authenticated)/dashboard/page": "action-browser"
-      },
-      "filename": "app/actions/adminTenant.ts",
-      "exportedName": "updateTenantAction"
-    }
-  },
+  "node": {},
   "edge": {},
   "encryptionKey": "toBQ3yvszrlnzyig1/pfCVGXP748I/Z7U4deqjzD234="
 }

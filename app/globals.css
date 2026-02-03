@@ -98,6 +98,11 @@ body {
   padding-top: env(safe-area-inset-top);
 }
 
+/* Fallback for Android if safe-area-inset-top is 0 but overlap exists */
+.platform-android .pt-safe {
+  padding-top: max(env(safe-area-inset-top), 24px);
+}
+
 .clickable-avatar {
   cursor: pointer;
   transition: opacity 0.2s ease;

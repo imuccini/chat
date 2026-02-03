@@ -8,6 +8,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { sqliteService } from '@/lib/sqlite';
 import { Keyboard, KeyboardResize } from '@capacitor/keyboard';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
+import { StatusBar, Style } from '@capacitor/status-bar';
 import { Capacitor } from '@capacitor/core';
 
 // UI Components
@@ -111,11 +112,26 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                 }
             }
 
+            // Add platform class to body for targeted CSS
+            const platform = Capacitor.getPlatform();
+            document.documentElement.classList.add(`platform-${platform}`);
+
             // Keyboard Configuration & Listeners
             if (Capacitor.isNativePlatform()) {
                 // Use Body resize with zero-delay native patch
                 Keyboard.setResizeMode({ mode: KeyboardResize.Body }).catch(err => {
                     console.error("Error setting keyboard resize mode", err);
+                });
+
+                // StatusBar Configuration (Programmatic fix for Android overlap)
+                StatusBar.setOverlaysWebView({ overlay: false }).catch(err => {
+                    console.error("Error setting StatusBar overlay", err);
+                });
+                StatusBar.setBackgroundColor({ color: '#059669' }).catch(err => {
+                    console.warn("StatusBar background color not supported on this platform", err);
+                });
+                StatusBar.setStyle({ style: Style.Dark }).catch(err => {
+                    console.error("Error setting StatusBar style", err);
                 });
 
                 let showListener: any;
