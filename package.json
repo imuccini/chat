@@ -6,7 +6,7 @@
     "dev": "node server.js",
     "build": "next build",
     "build:cap": "export $(grep -v '^#' .env | xargs) && mv app/admin app/_admin && NEXT_STATIC_EXPORT=true next build && mv app/_admin app/admin",
-    "start": "node server.js",
+    "start": "NODE_ENV=production node server.js",
     "lint": "next lint",
     "postinstall": "patch-package"
   },

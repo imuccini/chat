@@ -1,5 +1,66 @@
 {
-  "node": {},
+  "node": {
+    "40f364c3e63d9d77df9f7e7dedd8c30b725852cdfe": {
+      "workers": {
+        "app/admin/(authenticated)/dashboard/page": {
+          "moduleId": 40001,
+          "async": false,
+          "exportedName": "deleteTenantAction",
+          "filename": "app/actions/adminTenant.ts"
+        }
+      },
+      "layer": {
+        "app/admin/(authenticated)/dashboard/page": "action-browser"
+      },
+      "filename": "app/actions/adminTenant.ts",
+      "exportedName": "deleteTenantAction"
+    },
+    "40a34a734e32e0af246bb980858f297662368744fa": {
+      "workers": {
+        "app/admin/(authenticated)/dashboard/page": {
+          "moduleId": 40001,
+          "async": false,
+          "exportedName": "createTenantAction",
+          "filename": "app/actions/adminTenant.ts"
+        }
+      },
+      "layer": {
+        "app/admin/(authenticated)/dashboard/page": "action-browser"
+      },
+      "filename": "app/actions/adminTenant.ts",
+      "exportedName": "createTenantAction"
+    },
+    "4048c77494fb08d1a43f5b3d1558caa4b957a7ca86": {
+      "workers": {
+        "app/admin/(authenticated)/dashboard/page": {
+          "moduleId": 40001,
+          "async": false,
+          "exportedName": "updateTenantAction",
+          "filename": "app/actions/adminTenant.ts"
+        }
+      },
+      "layer": {
+        "app/admin/(authenticated)/dashboard/page": "action-browser"
+      },
+      "filename": "app/actions/adminTenant.ts",
+      "exportedName": "updateTenantAction"
+    },
+    "606160c11a3f1f75daf8ede4c51d4d22950064df56": {
+      "workers": {
+        "app/admin/login/page": {
+          "moduleId": 71819,
+          "async": false,
+          "exportedName": "loginAction",
+          "filename": "app/actions/adminAuth.ts"
+        }
+      },
+      "layer": {
+        "app/admin/login/page": "action-browser"
+      },
+      "filename": "app/actions/adminAuth.ts",
+      "exportedName": "loginAction"
+    }
+  },
   "edge": {},
-  "encryptionKey": "pq+JFPk58n+WcvLV/K8BdqNYaqAmhOsKraT5c518e0E="
+  "encryptionKey": "fXSfhlYQEyjfwAXVbWYl4xoVFRnhRgKKjsmcsVZihIs="
 }

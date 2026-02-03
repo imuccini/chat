@@ -654,7 +654,7 @@ const GlobalChat = ({ user, messages, onSendMessage, onlineCount, isOnline, hide
         className: "w-full h-full flex flex-col bg-white",
         children: [
             !hideHeader && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("header", {
-                className: "bg-emerald-600 pt-safe text-white shadow-md z-10 shrink-0 sticky top-0",
+                className: "bg-white pt-safe border-b border-gray-100 sticky top-0 z-10 shrink-0",
                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                     className: "h-[60px] px-4 flex items-center justify-between",
                     children: [
@@ -662,17 +662,17 @@ const GlobalChat = ({ user, messages, onSendMessage, onlineCount, isOnline, hide
                             className: "flex items-center gap-3",
                             children: [
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    className: "w-9 h-9 rounded-full bg-white/20 flex items-center justify-center",
+                                    className: "w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center border border-emerald-100",
                                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("svg", {
                                         xmlns: "http://www.w3.org/2000/svg",
-                                        className: "h-5 w-5",
+                                        className: "h-5 w-5 text-emerald-600",
                                         fill: "none",
                                         viewBox: "0 0 24 24",
                                         stroke: "currentColor",
                                         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("path", {
                                             strokeLinecap: "round",
                                             strokeLinejoin: "round",
-                                            strokeWidth: 2,
+                                            strokeWidth: 2.5,
                                             d: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
                                         }, void 0, false, {
                                             fileName: "[project]/components/GlobalChat.tsx",
@@ -692,8 +692,8 @@ const GlobalChat = ({ user, messages, onSendMessage, onlineCount, isOnline, hide
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                     children: [
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
-                                            className: "font-bold text-lg leading-tight",
-                                            children: headerTitle || 'Salotto Pubblico'
+                                            className: "font-extrabold text-2xl text-gray-900 leading-tight tracking-tight",
+                                            children: headerTitle || 'Stanza'
                                         }, void 0, false, {
                                             fileName: "[project]/components/GlobalChat.tsx",
                                             lineNumber: 163,
@@ -703,14 +703,14 @@ const GlobalChat = ({ user, messages, onSendMessage, onlineCount, isOnline, hide
                                             className: "flex items-center gap-1.5",
                                             children: [
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                    className: `w-2 h-2 rounded-full ${isOnline ? 'bg-emerald-400' : 'bg-red-400'}`
+                                                    className: `w-2 h-2 rounded-full ${isOnline ? 'bg-emerald-500' : 'bg-red-500'}`
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/GlobalChat.tsx",
                                                     lineNumber: 165,
                                                     columnNumber: 19
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                    className: "text-xs text-emerald-100 opacity-90",
+                                                    className: "text-[11px] font-bold text-emerald-600 uppercase tracking-wide",
                                                     children: isOnline ? `${onlineCount} persone qui` : 'Disconnesso'
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/GlobalChat.tsx",
@@ -736,10 +736,10 @@ const GlobalChat = ({ user, messages, onSendMessage, onlineCount, isOnline, hide
                             columnNumber: 13
                         }, ("TURBOPACK compile-time value", void 0)),
                         isSyncing && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "flex items-center gap-1.5 bg-white/10 px-2 py-0.5 rounded-full border border-white/20 animate-pulse",
+                            className: "flex items-center gap-1.5 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-100 animate-pulse",
                             children: [
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("svg", {
-                                    className: "animate-spin h-3 w-3 text-white",
+                                    className: "animate-spin h-3 w-3 text-emerald-600",
                                     xmlns: "http://www.w3.org/2000/svg",
                                     fill: "none",
                                     viewBox: "0 0 24 24",
@@ -772,8 +772,8 @@ const GlobalChat = ({ user, messages, onSendMessage, onlineCount, isOnline, hide
                                     columnNumber: 17
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                    className: "text-[10px] font-medium text-white tracking-wide",
-                                    children: "SINCRONIZZAZIONE"
+                                    className: "text-[10px] font-bold text-emerald-700 tracking-wide uppercase",
+                                    children: "Sincronizzazione"
                                 }, void 0, false, {
                                     fileName: "[project]/components/GlobalChat.tsx",
                                     lineNumber: 178,
@@ -859,7 +859,7 @@ const BottomNav = ({ activeTab, onTabChange, usersCount, unreadChatsCount })=>{
         children: [
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                 onClick: ()=>onTabChange('room'),
-                className: `flex flex-col items-center justify-center w-full relative ${activeTab === 'room' ? 'text-emerald-600' : 'text-gray-400'}`,
+                className: `flex flex-col items-center justify-center w-full relative ${activeTab === 'room' ? 'text-emerald-700' : 'text-gray-500'}`,
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "relative",
@@ -873,7 +873,7 @@ const BottomNav = ({ activeTab, onTabChange, usersCount, unreadChatsCount })=>{
                                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("path", {
                                     strokeLinecap: "round",
                                     strokeLinejoin: "round",
-                                    strokeWidth: activeTab === 'room' ? 2.5 : 2,
+                                    strokeWidth: activeTab === 'room' ? 2.6 : 2.2,
                                     d: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
                                 }, void 0, false, {
                                     fileName: "[project]/components/BottomNav.tsx",
@@ -900,7 +900,7 @@ const BottomNav = ({ activeTab, onTabChange, usersCount, unreadChatsCount })=>{
                         columnNumber: 17
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                        className: "text-[10px] font-medium mt-1",
+                        className: `text-[10px] mt-1 ${activeTab === 'room' ? 'font-bold' : 'font-semibold'}`,
                         children: "Stanza"
                     }, void 0, false, {
                         fileName: "[project]/components/BottomNav.tsx",
@@ -915,7 +915,7 @@ const BottomNav = ({ activeTab, onTabChange, usersCount, unreadChatsCount })=>{
             }, ("TURBOPACK compile-time value", void 0)),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                 onClick: ()=>onTabChange('users'),
-                className: `flex flex-col items-center justify-center w-full relative ${activeTab === 'users' ? 'text-emerald-600' : 'text-gray-400'}`,
+                className: `flex flex-col items-center justify-center w-full relative ${activeTab === 'users' ? 'text-emerald-700' : 'text-gray-500'}`,
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("svg", {
                         xmlns: "http://www.w3.org/2000/svg",
@@ -926,7 +926,7 @@ const BottomNav = ({ activeTab, onTabChange, usersCount, unreadChatsCount })=>{
                         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("path", {
                             strokeLinecap: "round",
                             strokeLinejoin: "round",
-                            strokeWidth: activeTab === 'users' ? 2.5 : 2,
+                            strokeWidth: activeTab === 'users' ? 2.6 : 2.2,
                             d: "M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
                         }, void 0, false, {
                             fileName: "[project]/components/BottomNav.tsx",
@@ -939,7 +939,7 @@ const BottomNav = ({ activeTab, onTabChange, usersCount, unreadChatsCount })=>{
                         columnNumber: 17
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                        className: "text-[10px] font-medium mt-1",
+                        className: `text-[10px] mt-1 ${activeTab === 'users' ? 'font-bold' : 'font-semibold'}`,
                         children: "Utenti"
                     }, void 0, false, {
                         fileName: "[project]/components/BottomNav.tsx",
@@ -954,7 +954,7 @@ const BottomNav = ({ activeTab, onTabChange, usersCount, unreadChatsCount })=>{
             }, ("TURBOPACK compile-time value", void 0)),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                 onClick: ()=>onTabChange('chats'),
-                className: `flex flex-col items-center justify-center w-full relative ${activeTab === 'chats' ? 'text-emerald-600' : 'text-gray-400'}`,
+                className: `flex flex-col items-center justify-center w-full relative ${activeTab === 'chats' ? 'text-emerald-700' : 'text-gray-500'}`,
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "relative",
@@ -968,7 +968,7 @@ const BottomNav = ({ activeTab, onTabChange, usersCount, unreadChatsCount })=>{
                                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("path", {
                                     strokeLinecap: "round",
                                     strokeLinejoin: "round",
-                                    strokeWidth: activeTab === 'chats' ? 2.5 : 2,
+                                    strokeWidth: activeTab === 'chats' ? 2.6 : 2.2,
                                     d: "M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
                                 }, void 0, false, {
                                     fileName: "[project]/components/BottomNav.tsx",
@@ -995,7 +995,7 @@ const BottomNav = ({ activeTab, onTabChange, usersCount, unreadChatsCount })=>{
                         columnNumber: 17
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                        className: "text-[10px] font-medium mt-1",
+                        className: `text-[10px] mt-1 ${activeTab === 'chats' ? 'font-bold' : 'font-semibold'}`,
                         children: "Chats"
                     }, void 0, false, {
                         fileName: "[project]/components/BottomNav.tsx",
@@ -1010,7 +1010,7 @@ const BottomNav = ({ activeTab, onTabChange, usersCount, unreadChatsCount })=>{
             }, ("TURBOPACK compile-time value", void 0)),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                 onClick: ()=>onTabChange('settings'),
-                className: `flex flex-col items-center justify-center w-full relative ${activeTab === 'settings' ? 'text-emerald-600' : 'text-gray-400'}`,
+                className: `flex flex-col items-center justify-center w-full relative ${activeTab === 'settings' ? 'text-emerald-700' : 'text-gray-500'}`,
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("svg", {
                         xmlns: "http://www.w3.org/2000/svg",
@@ -1021,7 +1021,7 @@ const BottomNav = ({ activeTab, onTabChange, usersCount, unreadChatsCount })=>{
                         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("path", {
                             strokeLinecap: "round",
                             strokeLinejoin: "round",
-                            strokeWidth: activeTab === 'settings' ? 2.5 : 2,
+                            strokeWidth: activeTab === 'settings' ? 2.6 : 2.2,
                             d: "M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
                         }, void 0, false, {
                             fileName: "[project]/components/BottomNav.tsx",
@@ -1034,7 +1034,7 @@ const BottomNav = ({ activeTab, onTabChange, usersCount, unreadChatsCount })=>{
                         columnNumber: 17
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                        className: "text-[10px] font-medium mt-1",
+                        className: `text-[10px] mt-1 ${activeTab === 'settings' ? 'font-bold' : 'font-semibold'}`,
                         children: "Me"
                     }, void 0, false, {
                         fileName: "[project]/components/BottomNav.tsx",
@@ -1099,7 +1099,7 @@ const UserList = ({ currentUser, users, onStartChat })=>{
                         className: "h-[60px] px-4 flex items-center justify-between",
                         children: [
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
-                                className: "text-2xl font-bold text-gray-800",
+                                className: "text-2xl font-extrabold text-gray-900 tracking-tight",
                                 children: "Utenti"
                             }, void 0, false, {
                                 fileName: "[project]/components/UserList.tsx",
@@ -1107,7 +1107,7 @@ const UserList = ({ currentUser, users, onStartChat })=>{
                                 columnNumber: 21
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                className: "text-sm font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full",
+                                className: "text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full uppercase tracking-wide",
                                 children: [
                                     users.length,
                                     " Online"
@@ -1422,7 +1422,7 @@ const ChatList = ({ chats, onSelectChat, onDeleteChat })=>{
                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                     className: "h-[60px] px-4 flex items-center justify-between",
                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
-                        className: "text-2xl font-bold text-gray-800",
+                        className: "text-2xl font-extrabold text-gray-900 tracking-tight",
                         children: "Chat private"
                     }, void 0, false, {
                         fileName: "[project]/components/ChatList.tsx",
@@ -1681,8 +1681,8 @@ const Settings = ({ user, onLogout, onUpdateAlias, onUpdateStatus })=>{
                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                     className: "h-[60px] px-4 flex items-center",
                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
-                        className: "text-xl font-bold text-gray-900",
-                        children: "Profile"
+                        className: "text-2xl font-extrabold text-gray-900 tracking-tight",
+                        children: "Profilo"
                     }, void 0, false, {
                         fileName: "[project]/components/Settings.tsx",
                         lineNumber: 35,
@@ -2351,6 +2351,9 @@ function ChatInterface({ tenant, initialMessages }) {
                         console.error("Invalid saved user", e);
                     }
                 }
+                // Add platform class to body for targeted CSS
+                const platform = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$capacitor$2f$core$2f$dist$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Capacitor"].getPlatform();
+                document.documentElement.classList.add(`platform-${platform}`);
                 // Keyboard Configuration & Listeners
                 if (__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$capacitor$2f$core$2f$dist$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Capacitor"].isNativePlatform()) {
                     // Use Body resize with zero-delay native patch
@@ -2361,7 +2364,7 @@ function ChatInterface({ tenant, initialMessages }) {
                             console.error("Error setting keyboard resize mode", err);
                         }
                     }["ChatInterface.useEffect"]);
-                    // StatusBar Configuration (Programmatic fix for Android overlap)
+                    // StatusBar Configuration (Programmatic fix for white header standardization)
                     __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$capacitor$2f$status$2d$bar$2f$dist$2f$esm$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["StatusBar"].setOverlaysWebView({
                         overlay: false
                     }).catch({
@@ -2370,14 +2373,14 @@ function ChatInterface({ tenant, initialMessages }) {
                         }
                     }["ChatInterface.useEffect"]);
                     __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$capacitor$2f$status$2d$bar$2f$dist$2f$esm$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["StatusBar"].setBackgroundColor({
-                        color: '#059669'
+                        color: '#ffffff'
                     }).catch({
                         "ChatInterface.useEffect": (err)=>{
                             console.warn("StatusBar background color not supported on this platform", err);
                         }
                     }["ChatInterface.useEffect"]);
                     __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$capacitor$2f$status$2d$bar$2f$dist$2f$esm$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["StatusBar"].setStyle({
-                        style: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$capacitor$2f$status$2d$bar$2f$dist$2f$esm$2f$definitions$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Style"].Dark
+                        style: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$capacitor$2f$status$2d$bar$2f$dist$2f$esm$2f$definitions$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Style"].Light
                     }).catch({
                         "ChatInterface.useEffect": (err)=>{
                             console.error("Error setting StatusBar style", err);
@@ -2705,12 +2708,12 @@ function ChatInterface({ tenant, initialMessages }) {
                 tenantName: tenant.name
             }, void 0, false, {
                 fileName: "[project]/components/ChatInterface.tsx",
-                lineNumber: 396,
+                lineNumber: 400,
                 columnNumber: 17
             }, this)
         }, void 0, false, {
             fileName: "[project]/components/ChatInterface.tsx",
-            lineNumber: 395,
+            lineNumber: 399,
             columnNumber: 13
         }, this);
     }
@@ -2731,7 +2734,7 @@ function ChatInterface({ tenant, initialMessages }) {
                     className: "absolute inset-y-0 -left-8 w-8 bg-gradient-to-r from-black/10 to-transparent z-50 pointer-events-none"
                 }, void 0, false, {
                     fileName: "[project]/components/ChatInterface.tsx",
-                    lineNumber: 418,
+                    lineNumber: 422,
                     columnNumber: 21
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("header", {
@@ -2755,17 +2758,17 @@ function ChatInterface({ tenant, initialMessages }) {
                                         d: "M15 19l-7-7 7-7"
                                     }, void 0, false, {
                                         fileName: "[project]/components/ChatInterface.tsx",
-                                        lineNumber: 427,
+                                        lineNumber: 431,
                                         columnNumber: 33
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/components/ChatInterface.tsx",
-                                    lineNumber: 426,
+                                    lineNumber: 430,
                                     columnNumber: 29
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/ChatInterface.tsx",
-                                lineNumber: 425,
+                                lineNumber: 429,
                                 columnNumber: 25
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2776,7 +2779,7 @@ function ChatInterface({ tenant, initialMessages }) {
                                         children: chat.peer.alias
                                     }, void 0, false, {
                                         fileName: "[project]/components/ChatInterface.tsx",
-                                        lineNumber: 431,
+                                        lineNumber: 435,
                                         columnNumber: 29
                                     }, this),
                                     onlineUsers.some((u)=>u.id === selectedChatPeerId) && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2784,24 +2787,24 @@ function ChatInterface({ tenant, initialMessages }) {
                                         children: "Online"
                                     }, void 0, false, {
                                         fileName: "[project]/components/ChatInterface.tsx",
-                                        lineNumber: 433,
+                                        lineNumber: 437,
                                         columnNumber: 33
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/ChatInterface.tsx",
-                                lineNumber: 430,
+                                lineNumber: 434,
                                 columnNumber: 25
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/ChatInterface.tsx",
-                        lineNumber: 424,
+                        lineNumber: 428,
                         columnNumber: 21
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/components/ChatInterface.tsx",
-                    lineNumber: 423,
+                    lineNumber: 427,
                     columnNumber: 17
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2819,18 +2822,18 @@ function ChatInterface({ tenant, initialMessages }) {
                         isSyncing: false
                     }, void 0, false, {
                         fileName: "[project]/components/ChatInterface.tsx",
-                        lineNumber: 440,
+                        lineNumber: 444,
                         columnNumber: 21
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/components/ChatInterface.tsx",
-                    lineNumber: 439,
+                    lineNumber: 443,
                     columnNumber: 17
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/components/ChatInterface.tsx",
-            lineNumber: 411,
+            lineNumber: 415,
             columnNumber: 13
         }, this);
     }
@@ -2854,7 +2857,7 @@ function ChatInterface({ tenant, initialMessages }) {
                         isSyncing: isFetchingGlobal
                     }, void 0, false, {
                         fileName: "[project]/components/ChatInterface.tsx",
-                        lineNumber: 465,
+                        lineNumber: 469,
                         columnNumber: 21
                     }, this),
                     activeTab === 'users' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$UserList$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -2863,7 +2866,7 @@ function ChatInterface({ tenant, initialMessages }) {
                         onStartChat: handleStartChat
                     }, void 0, false, {
                         fileName: "[project]/components/ChatInterface.tsx",
-                        lineNumber: 479,
+                        lineNumber: 483,
                         columnNumber: 21
                     }, this),
                     activeTab === 'chats' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ChatList$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -2879,7 +2882,7 @@ function ChatInterface({ tenant, initialMessages }) {
                         onDeleteChat: handleDeleteChat
                     }, void 0, false, {
                         fileName: "[project]/components/ChatInterface.tsx",
-                        lineNumber: 486,
+                        lineNumber: 490,
                         columnNumber: 21
                     }, this),
                     activeTab === 'settings' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$Settings$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -2889,13 +2892,13 @@ function ChatInterface({ tenant, initialMessages }) {
                         onUpdateStatus: handleUpdateStatus
                     }, void 0, false, {
                         fileName: "[project]/components/ChatInterface.tsx",
-                        lineNumber: 497,
+                        lineNumber: 501,
                         columnNumber: 21
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/ChatInterface.tsx",
-                lineNumber: 463,
+                lineNumber: 467,
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2910,18 +2913,18 @@ function ChatInterface({ tenant, initialMessages }) {
                     unreadChatsCount: totalUnread
                 }, void 0, false, {
                     fileName: "[project]/components/ChatInterface.tsx",
-                    lineNumber: 511,
+                    lineNumber: 515,
                     columnNumber: 17
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/ChatInterface.tsx",
-                lineNumber: 507,
+                lineNumber: 511,
                 columnNumber: 13
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/ChatInterface.tsx",
-        lineNumber: 460,
+        lineNumber: 464,
         columnNumber: 9
     }, this);
 }

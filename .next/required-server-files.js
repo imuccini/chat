@@ -92,7 +92,6 @@ self.__SERVER_FILES_MANIFEST={
     "compiler": {},
     "expireTime": 31536000,
     "staticPageGenerationTimeout": 60,
-    "output": "export",
     "modularizeImports": {
       "@mui/icons-material": {
         "transform": "@mui/icons-material/{{member}}"
@@ -101,7 +100,7 @@ self.__SERVER_FILES_MANIFEST={
         "transform": "lodash/{{member}}"
       }
     },
-    "outputFileTracingRoot": "/Users/ivanmuccini/Apps/Antigravity/chat/chat",
+    "outputFileTracingRoot": "/Users/ivanmuccini/Desktop/chatapp/chat",
     "cacheComponents": false,
     "cacheLife": {
       "default": {
@@ -158,7 +157,7 @@ self.__SERVER_FILES_MANIFEST={
       "proxyPrefetch": "flexible",
       "optimisticClientCache": true,
       "manualClientBasePath": false,
-      "cpus": 11,
+      "cpus": 7,
       "memoryBasedWorkersCount": false,
       "imgOptConcurrency": null,
       "imgOptTimeoutInSeconds": 7,
@@ -294,11 +293,11 @@ self.__SERVER_FILES_MANIFEST={
     "bundlePagesRouterDependencies": false,
     "configFileName": "next.config.mjs",
     "turbopack": {
-      "root": "/Users/ivanmuccini/Apps/Antigravity/chat/chat"
+      "root": "/Users/ivanmuccini/Desktop/chatapp/chat"
     },
     "distDirRoot": ".next"
   },
-  "appDir": "/Users/ivanmuccini/Apps/Antigravity/chat/chat",
+  "appDir": "/Users/ivanmuccini/Desktop/chatapp/chat",
   "relativeAppDir": "",
   "files": [
     ".next/routes-manifest.json",

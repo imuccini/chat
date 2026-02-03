@@ -122,7 +122,7 @@
         "x-next-revalidate-tag-token"
       ]
     },
-    "/treno-pisa-aulla": {
+    "/admin/login": {
       "experimentalBypassFor": [
         {
           "type": "header",
@@ -135,8 +135,8 @@
         }
       ],
       "initialRevalidateSeconds": false,
-      "srcRoute": "/[tenantSlug]",
-      "dataRoute": "/treno-pisa-aulla.rsc",
+      "srcRoute": "/admin/login",
+      "dataRoute": "/admin/login.rsc",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -202,8 +202,8 @@
   },
   "notFoundRoutes": [],
   "preview": {
-    "previewModeId": "84072114ae38a25dbf9bf412d9079b76",
-    "previewModeSigningKey": "ebe43d6ab05dbb638bfce0a6d74658ab4b9f96f4c6535d39f618ebc9ba20326e",
-    "previewModeEncryptionKey": "537f94ed04e68408955a993b5aaa51586a7184919688f7898025e247adc23ad8"
+    "previewModeId": "f90f667f5093e3da34b47107beeb3a31",
+    "previewModeSigningKey": "290fdeaae0a9246f176c6f9b002d970ec2595fc8ad9719f47057960228dd3966",
+    "previewModeEncryptionKey": "b7c1e771f437f042551b5724663ffd6cf9a3691661a880a054e51a5b8725a714"
   }
 }
