@@ -18,3 +18,10 @@ export interface Message {
   recipientId?: string; // For private messages
   isSystem?: boolean;
 }
+
+export interface Tenant {
+  id: string;
+  name: string;
+  slug: string;
+  config?: any;
+}

@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { clientResolveTenant } from "@/services/apiService";
 import { Capacitor } from "@capacitor/core";
 import { checkAndRequestLocationPermissions, getConnectedWifiInfo } from "@/lib/wifi";
+import { API_BASE_URL } from "@/config";
 
 type InitState = 'loading' | 'permission_denied' | 'wifi_disconnected' | 'tenant_not_found' | 'error';
 
@@ -18,26 +19,35 @@ function HomeContent() {
         async function init() {
             try {
                 const isNative = Capacitor.isNativePlatform();
+
                 const nasId = searchParams.get('nas_id') || undefined;
                 let bssid: string | undefined = undefined;
 
-                // Native app: check permissions and get BSSID
+                // Native app: attempt to get BSSID, but don't block if failed
                 if (isNative) {
-                    // 1. Check/request location permissions
-                    const hasPermission = await checkAndRequestLocationPermissions();
-                    if (!hasPermission) {
-                        setState('permission_denied');
-                        return;
-                    }
+                    try {
+                        // Timeout promise to prevent hanging
+                        const wifiCheckPromise = async () => {
+                            const hasPermission = await checkAndRequestLocationPermissions();
+                            if (hasPermission) {
+                                const wifiInfo = await getConnectedWifiInfo();
+                                if (wifiInfo.isConnected && wifiInfo.bssid) {
+                                    bssid = wifiInfo.bssid;
+                                }
+                            }
+                        };
 
-                    // 2. Get connected WiFi info
-                    const wifiInfo = await getConnectedWifiInfo();
-                    if (!wifiInfo.isConnected) {
-                        setState('wifi_disconnected');
-                        return;
-                    }
+                        // Race against a 1.5s timeout (fast fallback)
+                        const timeoutPromise = new Promise((_, reject) =>
+                            setTimeout(() => reject(new Error("Timeout")), 1500)
+                        );
 
-                    bssid = wifiInfo.bssid || undefined;
+                        await Promise.race([wifiCheckPromise(), timeoutPromise]);
+
+                    } catch (e) {
+                        console.warn("WiFi detection skipped or failed:", e);
+                        // Continue usage to rely on IP address resolution
+                    }
                 }
 
                 // 3. Resolve tenant (tries BSSID → NAS ID → IP)
@@ -48,7 +58,7 @@ function HomeContent() {
                 } else {
                     setState('tenant_not_found');
                 }
-            } catch (err) {
+            } catch (err: any) {
                 console.error("Failed to resolve tenant", err);
                 setErrorMessage("Errore durante l'identificazione dello spazio chat.");
                 setState('error');

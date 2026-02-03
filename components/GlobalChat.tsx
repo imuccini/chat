@@ -51,11 +51,7 @@ const ChatInput = memo(({ onSendMessage, showBottomNavPadding, onFocusChange, is
   const [text, setText] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.blur();
-    }
-  }, []);
+  // Removed unnecessary blur on mount that could interfere with initial user interaction
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,10 +62,11 @@ const ChatInput = memo(({ onSendMessage, showBottomNavPadding, onFocusChange, is
     }
   };
 
+  // Stabilized padding calculation to prevent the input from jumping and cancelling taps
   const footerPadding = isFocused
-    ? 'py-3'
+    ? 'pb-4 pt-3'
     : showBottomNavPadding
-      ? 'pb-[calc(70px+env(safe-area-inset-bottom,0px)+12px)] md:pb-[90px]'
+      ? 'pb-[calc(70px+env(safe-area-inset-bottom,0px)+12px)] md:pb-[90px] pt-4'
       : 'py-4';
 
   return (

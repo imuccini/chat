@@ -8,3 +8,7 @@ const isNative = Capacitor.isNativePlatform();
 export const API_BASE_URL = isNative
     ? (process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000')
     : '';
+
+if (isNative) {
+    console.log("[ChatConfig] Native Platform Detected. API_BASE_URL:", API_BASE_URL);
+}

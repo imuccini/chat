@@ -122,7 +122,6 @@ __turbopack_context__.s([
     ()=>sqliteService
 ]);
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$capacitor$2d$community$2f$sqlite$2f$dist$2f$esm$2f$index$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/node_modules/@capacitor-community/sqlite/dist/esm/index.js [app-ssr] (ecmascript) <locals>");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$capacitor$2d$community$2f$sqlite$2f$dist$2f$esm$2f$definitions$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/@capacitor-community/sqlite/dist/esm/definitions.js [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$capacitor$2f$core$2f$dist$2f$index$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/@capacitor/core/dist/index.js [app-ssr] (ecmascript)");
 ;
 ;
@@ -131,37 +130,10 @@ class SQLiteService {
     db = null;
     dbName = 'chat_cache';
     async initialize() {
-        if (!__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$capacitor$2f$core$2f$dist$2f$index$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Capacitor"].isNativePlatform()) {
-            console.log("SQLite: Skipping initialization on non-native platform (Web).");
-            return;
-        }
-        if (this.db) return;
-        this.sqlite = new __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$capacitor$2d$community$2f$sqlite$2f$dist$2f$esm$2f$definitions$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SQLiteConnection"](__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$capacitor$2d$community$2f$sqlite$2f$dist$2f$esm$2f$index$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$locals$3e$__["CapacitorSQLite"]);
-        try {
-            // Check if connection exists and close it if necessary (for hot-reload)
-            const isConn = await this.sqlite.isConnection(this.dbName, false);
-            if (isConn.result) {
-                await this.sqlite.retrieveConnection(this.dbName, false);
-            }
-            this.db = await this.sqlite.createConnection(this.dbName, false, 'no-encryption', 1, false);
-            await this.db.open();
-            const schema = `
-                CREATE TABLE IF NOT EXISTS messages (
-                    id TEXT PRIMARY KEY,
-                    text TEXT,
-                    senderId TEXT,
-                    senderAlias TEXT,
-                    senderGender TEXT,
-                    timestamp TEXT,
-                    recipientId TEXT,
-                    isGlobal INTEGER DEFAULT 1
-                );
-            `;
-            await this.db.execute(schema);
-            console.log("SQLite DB Initialized with schema");
-        } catch (err) {
-            console.error('SQLite initialization error:', err);
-        }
+        console.log("SQLite: Disabled for debugging.");
+        return;
+        //TURBOPACK unreachable
+        ;
     }
     async saveMessage(msg, isGlobal = true) {
         if (!this.db) await this.initialize();
@@ -2239,6 +2211,7 @@ function ChatInterface({ tenant, initialMessages }) {
     const [onlineUsers, setOnlineUsers] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])([]);
     const [privateChats, setPrivateChats] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])({});
     const [isConnected, setIsConnected] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
+    const containerRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useRef"])(null);
     const queryClient = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$QueryClientProvider$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useQueryClient"])();
     // 1. Initial Data Fetching (Offline-First)
     const { data: messages = initialMessages, isFetching: isFetchingGlobal } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$query$2f$build$2f$modern$2f$useQuery$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useQuery"])({
@@ -2274,7 +2247,9 @@ function ChatInterface({ tenant, initialMessages }) {
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
         if ("TURBOPACK compile-time falsy", 0) //TURBOPACK unreachable
         ;
-    }, []);
+    }, [
+        tenant.slug
+    ]);
     // 3. Connect Socket & Handlers
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
         if (!currentUser) return;
@@ -2513,29 +2488,29 @@ function ChatInterface({ tenant, initialMessages }) {
             setSelectedChatPeerId(null);
         }
     };
-    // Render Login
-    if (!currentUser) {
-        return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-            className: "h-[100dvh] w-full flex items-center justify-center bg-white sm:bg-gray-50 flex-col",
-            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$Login$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
-                onLogin: handleLogin,
-                tenantName: tenant.name
-            }, void 0, false, {
-                fileName: "[project]/components/ChatInterface.tsx",
-                lineNumber: 347,
-                columnNumber: 17
-            }, this)
-        }, void 0, false, {
-            fileName: "[project]/components/ChatInterface.tsx",
-            lineNumber: 346,
-            columnNumber: 13
-        }, this);
-    }
     // Swipe back gesture for private chat
     const { swipeHandlers, swipeStyle, isDragging } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$hooks$2f$useSwipeBack$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useSwipeBack"])({
         onSwipeBack: ()=>setSelectedChatPeerId(null),
         enabled: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$capacitor$2f$core$2f$dist$2f$index$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Capacitor"].isNativePlatform() && selectedChatPeerId !== null
     });
+    // Render Login
+    if (!currentUser) {
+        return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "h-full w-full flex items-center justify-center bg-white sm:bg-gray-50 flex-col",
+            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$Login$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
+                onLogin: handleLogin,
+                tenantName: tenant.name
+            }, void 0, false, {
+                fileName: "[project]/components/ChatInterface.tsx",
+                lineNumber: 382,
+                columnNumber: 17
+            }, this)
+        }, void 0, false, {
+            fileName: "[project]/components/ChatInterface.tsx",
+            lineNumber: 381,
+            columnNumber: 13
+        }, this);
+    }
     // Render Private Chat View
     if (selectedChatPeerId && activeTab === 'chats') {
         const chat = privateChats[selectedChatPeerId];
@@ -2545,7 +2520,7 @@ function ChatInterface({ tenant, initialMessages }) {
             return null;
         }
         return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-            className: "flex flex-col w-full h-[100dvh] max-w-3xl mx-auto bg-white shadow-xl overflow-hidden relative",
+            className: "flex flex-col w-full h-full max-w-3xl mx-auto bg-white shadow-xl overflow-hidden relative",
             style: swipeStyle,
             ...swipeHandlers,
             children: [
@@ -2553,7 +2528,7 @@ function ChatInterface({ tenant, initialMessages }) {
                     className: "absolute inset-y-0 -left-8 w-8 bg-gradient-to-r from-black/10 to-transparent z-50 pointer-events-none"
                 }, void 0, false, {
                     fileName: "[project]/components/ChatInterface.tsx",
-                    lineNumber: 375,
+                    lineNumber: 404,
                     columnNumber: 21
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("header", {
@@ -2577,17 +2552,17 @@ function ChatInterface({ tenant, initialMessages }) {
                                         d: "M15 19l-7-7 7-7"
                                     }, void 0, false, {
                                         fileName: "[project]/components/ChatInterface.tsx",
-                                        lineNumber: 384,
+                                        lineNumber: 413,
                                         columnNumber: 33
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/components/ChatInterface.tsx",
-                                    lineNumber: 383,
+                                    lineNumber: 412,
                                     columnNumber: 29
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/ChatInterface.tsx",
-                                lineNumber: 382,
+                                lineNumber: 411,
                                 columnNumber: 25
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2598,7 +2573,7 @@ function ChatInterface({ tenant, initialMessages }) {
                                         children: chat.peer.alias
                                     }, void 0, false, {
                                         fileName: "[project]/components/ChatInterface.tsx",
-                                        lineNumber: 388,
+                                        lineNumber: 417,
                                         columnNumber: 29
                                     }, this),
                                     onlineUsers.some((u)=>u.id === selectedChatPeerId) && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2606,24 +2581,24 @@ function ChatInterface({ tenant, initialMessages }) {
                                         children: "Online"
                                     }, void 0, false, {
                                         fileName: "[project]/components/ChatInterface.tsx",
-                                        lineNumber: 390,
+                                        lineNumber: 419,
                                         columnNumber: 33
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/ChatInterface.tsx",
-                                lineNumber: 387,
+                                lineNumber: 416,
                                 columnNumber: 25
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/ChatInterface.tsx",
-                        lineNumber: 381,
+                        lineNumber: 410,
                         columnNumber: 21
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/components/ChatInterface.tsx",
-                    lineNumber: 380,
+                    lineNumber: 409,
                     columnNumber: 17
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2641,24 +2616,25 @@ function ChatInterface({ tenant, initialMessages }) {
                         isSyncing: false
                     }, void 0, false, {
                         fileName: "[project]/components/ChatInterface.tsx",
-                        lineNumber: 397,
+                        lineNumber: 426,
                         columnNumber: 21
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/components/ChatInterface.tsx",
-                    lineNumber: 396,
+                    lineNumber: 425,
                     columnNumber: 17
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/components/ChatInterface.tsx",
-            lineNumber: 368,
+            lineNumber: 397,
             columnNumber: 13
         }, this);
     }
     const totalUnread = Object.values(privateChats).reduce((acc, chat)=>acc + chat.unread, 0);
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-        className: "flex flex-col w-full h-[100dvh] max-w-3xl mx-auto bg-gray-100 shadow-xl overflow-hidden relative",
+        ref: containerRef,
+        className: "flex flex-col w-full h-full max-w-3xl mx-auto bg-white shadow-xl overflow-hidden relative",
         children: [
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 className: "flex-1 overflow-hidden relative",
@@ -2676,7 +2652,7 @@ function ChatInterface({ tenant, initialMessages }) {
                         isSyncing: isFetchingGlobal
                     }, void 0, false, {
                         fileName: "[project]/components/ChatInterface.tsx",
-                        lineNumber: 420,
+                        lineNumber: 452,
                         columnNumber: 21
                     }, this),
                     activeTab === 'users' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$UserList$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
@@ -2685,7 +2661,7 @@ function ChatInterface({ tenant, initialMessages }) {
                         onStartChat: handleStartChat
                     }, void 0, false, {
                         fileName: "[project]/components/ChatInterface.tsx",
-                        lineNumber: 434,
+                        lineNumber: 466,
                         columnNumber: 21
                     }, this),
                     activeTab === 'chats' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ChatList$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
@@ -2701,7 +2677,7 @@ function ChatInterface({ tenant, initialMessages }) {
                         onDeleteChat: handleDeleteChat
                     }, void 0, false, {
                         fileName: "[project]/components/ChatInterface.tsx",
-                        lineNumber: 441,
+                        lineNumber: 473,
                         columnNumber: 21
                     }, this),
                     activeTab === 'settings' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$Settings$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
@@ -2711,32 +2687,42 @@ function ChatInterface({ tenant, initialMessages }) {
                         onUpdateStatus: handleUpdateStatus
                     }, void 0, false, {
                         fileName: "[project]/components/ChatInterface.tsx",
-                        lineNumber: 452,
+                        lineNumber: 484,
                         columnNumber: 21
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/ChatInterface.tsx",
-                lineNumber: 418,
+                lineNumber: 450,
                 columnNumber: 13
             }, this),
-            !isInputFocused && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$BottomNav$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
-                activeTab: activeTab,
-                onTabChange: (t)=>{
-                    setActiveTab(t);
-                    setSelectedChatPeerId(null);
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: `transition-all duration-300 ease-in-out border-t border-gray-100 bg-white z-20 overflow-hidden ${isInputFocused ? 'opacity-0 pointer-events-none translate-y-full' : 'opacity-100 translate-y-0'}`,
+                style: {
+                    height: isInputFocused ? '0' : 'auto'
                 },
-                usersCount: onlineUsers.length,
-                unreadChatsCount: totalUnread
+                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$BottomNav$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
+                    activeTab: activeTab,
+                    onTabChange: (t)=>{
+                        setActiveTab(t);
+                        setSelectedChatPeerId(null);
+                    },
+                    usersCount: onlineUsers.length,
+                    unreadChatsCount: totalUnread
+                }, void 0, false, {
+                    fileName: "[project]/components/ChatInterface.tsx",
+                    lineNumber: 499,
+                    columnNumber: 17
+                }, this)
             }, void 0, false, {
                 fileName: "[project]/components/ChatInterface.tsx",
-                lineNumber: 462,
-                columnNumber: 17
+                lineNumber: 494,
+                columnNumber: 13
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/ChatInterface.tsx",
-        lineNumber: 417,
+        lineNumber: 446,
         columnNumber: 9
     }, this);
 }
@@ -2839,12 +2825,12 @@ function TenantChatClient() {
                 children: "Caricamento chat..."
             }, void 0, false, {
                 fileName: "[project]/app/[tenantSlug]/TenantChatClient.tsx",
-                lineNumber: 53,
+                lineNumber: 52,
                 columnNumber: 17
             }, this)
         }, void 0, false, {
             fileName: "[project]/app/[tenantSlug]/TenantChatClient.tsx",
-            lineNumber: 52,
+            lineNumber: 51,
             columnNumber: 13
         }, this);
     }
@@ -2852,18 +2838,18 @@ function TenantChatClient() {
         (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["notFound"])();
     }
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("main", {
-        className: "flex h-screen flex-col items-center justify-between",
+        className: "flex h-full flex-col items-center justify-between",
         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ChatInterface$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
             tenant: tenant,
             initialMessages: initialMessages
         }, void 0, false, {
             fileName: "[project]/app/[tenantSlug]/TenantChatClient.tsx",
-            lineNumber: 64,
+            lineNumber: 63,
             columnNumber: 13
         }, this)
     }, void 0, false, {
         fileName: "[project]/app/[tenantSlug]/TenantChatClient.tsx",
-        lineNumber: 63,
+        lineNumber: 62,
         columnNumber: 9
     }, this);
 }

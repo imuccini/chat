@@ -2,8 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
-import { Tenant } from '@prisma/client';
-import { User, Message } from '@/types';
+import { User, Message, Tenant } from '@/types';
 import { API_BASE_URL } from '@/config';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { sqliteService } from '@/lib/sqlite';
@@ -112,14 +111,35 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                 }
             }
 
-            // Keyboard Configuration
+            // Keyboard Configuration & Listeners
             if (Capacitor.isNativePlatform()) {
+                // Use Body resize with zero-delay native patch
                 Keyboard.setResizeMode({ mode: KeyboardResize.Body }).catch(err => {
                     console.error("Error setting keyboard resize mode", err);
                 });
+
+                let showListener: any;
+                let hideListener: any;
+
+                const setup = async () => {
+                    showListener = await Keyboard.addListener('keyboardWillShow', () => {
+                        setIsInputFocused(true);
+                    });
+
+                    hideListener = await Keyboard.addListener('keyboardWillHide', () => {
+                        setIsInputFocused(false);
+                    });
+                };
+
+                setup();
+
+                return () => {
+                    if (showListener) showListener.remove();
+                    if (hideListener) hideListener.remove();
+                };
             }
         }
-    }, []);
+    }, [tenant.slug]);
 
     // 3. Connect Socket & Handlers
     useEffect(() => {
@@ -129,10 +149,21 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
             query: {
                 tenantSlug: tenant.slug,
                 userId: currentUser.id
-            }
+            },
+            transports: ['websocket'],
+            reconnectionAttempts: 5,
+            timeout: 10000
         });
 
         setSocket(newSocket);
+
+        newSocket.on('connect_error', (err) => {
+            console.error("[Socket] Connect Error:", err.message, err);
+        });
+
+        newSocket.on('error', (err) => {
+            console.error("[Socket] General Error:", err);
+        });
 
         newSocket.on('connect', () => {
             console.log("Socket connected");
@@ -340,20 +371,20 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
     };
 
 
-    // Render Login
-    if (!currentUser) {
-        return (
-            <div className="h-[100dvh] w-full flex items-center justify-center bg-white sm:bg-gray-50 flex-col">
-                <Login onLogin={handleLogin} tenantName={tenant.name} />
-            </div>
-        );
-    }
-
     // Swipe back gesture for private chat
     const { swipeHandlers, swipeStyle, isDragging } = useSwipeBack({
         onSwipeBack: () => setSelectedChatPeerId(null),
         enabled: Capacitor.isNativePlatform() && selectedChatPeerId !== null
     });
+
+    // Render Login
+    if (!currentUser) {
+        return (
+            <div className="h-full w-full flex items-center justify-center bg-white sm:bg-gray-50 flex-col">
+                <Login onLogin={handleLogin} tenantName={tenant.name} />
+            </div>
+        );
+    }
 
     // Render Private Chat View
     if (selectedChatPeerId && activeTab === 'chats') {
@@ -366,7 +397,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
 
         return (
             <div
-                className="flex flex-col w-full h-[100dvh] max-w-3xl mx-auto bg-white shadow-xl overflow-hidden relative"
+                className="flex flex-col w-full h-full max-w-3xl mx-auto bg-white shadow-xl overflow-hidden relative"
                 style={swipeStyle}
                 {...swipeHandlers}
             >
@@ -414,7 +445,9 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
     const totalUnread = Object.values(privateChats).reduce((acc, chat) => acc + chat.unread, 0);
 
     return (
-        <div className="flex flex-col w-full h-[100dvh] max-w-3xl mx-auto bg-gray-100 shadow-xl overflow-hidden relative">
+        <div
+            className="flex flex-col w-full h-full max-w-3xl mx-auto bg-white shadow-xl overflow-hidden relative"
+        >
             <div className="flex-1 overflow-hidden relative">
                 {activeTab === 'room' && (
                     <GlobalChat
@@ -458,7 +491,11 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                 )}
             </div>
 
-            {!isInputFocused && (
+            {/* Bottom Navigation - Managed via React state for visibility */}
+            <div
+                className={`transition-all duration-300 ease-in-out border-t border-gray-100 bg-white z-20 overflow-hidden ${isInputFocused ? 'opacity-0 pointer-events-none h-0' : 'opacity-100 h-auto'
+                    }`}
+            >
                 <BottomNav
                     activeTab={activeTab}
                     onTabChange={(t) => {
@@ -468,7 +505,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                     usersCount={onlineUsers.length}
                     unreadChatsCount={totalUnread}
                 />
-            )}
+            </div>
         </div>
     );
 }

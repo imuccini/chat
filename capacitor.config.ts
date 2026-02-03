@@ -7,7 +7,16 @@ const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://104.248.196.179:
 const config: CapacitorConfig = {
   appId: 'io.trenochat.app',
   appName: 'TrenoChat',
-  webDir: 'out'
+  webDir: 'out',
+  server: {
+    androidScheme: 'http',
+    cleartext: true
+  },
+  plugins: {
+    Keyboard: {
+      resize: 'body' as any
+    }
+  }
 };
 
 export default config;

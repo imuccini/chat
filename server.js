@@ -7,6 +7,7 @@ import rateLimit from 'express-rate-limit';
 import next from 'next';
 import { parse } from 'url';
 import { PrismaClient } from '@prisma/client';
+import cors from 'cors';
 
 const prisma = new PrismaClient();
 
@@ -23,8 +24,14 @@ const PORT = process.env.PORT || 3000;
 nextApp.prepare().then(async () => {
   const app = express();
   const httpServer = createServer(app);
-  const io = new Server(httpServer);
+  const io = new Server(httpServer, {
+    cors: {
+      origin: "*",
+      methods: ["GET", "POST"]
+    }
+  });
 
+  app.use(cors());
   app.use(express.json());
 
   // Rate Limiting per API HTTP
@@ -249,7 +256,7 @@ nextApp.prepare().then(async () => {
     handle(req, res, parsedUrl);
   });
 
-  httpServer.listen(PORT, () => {
-    console.log(`> Ready on http://localhost:${PORT}`);
+  httpServer.listen(PORT, "0.0.0.0", () => {
+    console.log(`> Ready on http://localhost:${PORT} and http://0.0.0.0:${PORT}`);
   });
 });

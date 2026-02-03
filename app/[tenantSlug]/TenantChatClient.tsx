@@ -4,8 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, notFound } from "next/navigation";
 import ChatInterface from "@/components/ChatInterface";
 import { clientGetTenantBySlug, clientGetMessages } from "@/services/apiService";
-import { Tenant } from "@prisma/client";
-import { Message } from "@/types";
+import { Tenant, Message } from "@/types";
 
 export default function TenantChatClient() {
     const params = useParams();
@@ -60,7 +59,7 @@ export default function TenantChatClient() {
     }
 
     return (
-        <main className="flex h-screen flex-col items-center justify-between">
+        <main className="flex h-full flex-col items-center justify-between">
             <ChatInterface
                 tenant={tenant}
                 initialMessages={initialMessages}

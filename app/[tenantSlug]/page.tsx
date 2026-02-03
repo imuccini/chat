@@ -5,8 +5,8 @@ export default function TenantChatPage() {
     return <TenantChatClient />;
 }
 
-// Dynamic fallback: allows routes not pre-rendered to be generated at runtime
-export const dynamicParams = true;
+// Dynamic fallback: must be false for output: export
+export const dynamicParams = false;
 
 // Generate static pages for all tenants in the database at build time
 export async function generateStaticParams() {

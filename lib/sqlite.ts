@@ -8,6 +8,9 @@ class SQLiteService {
     private dbName: string = 'chat_cache';
 
     async initialize() {
+        console.log("SQLite: Disabled for debugging.");
+        return;
+
         if (!Capacitor.isNativePlatform()) {
             console.log("SQLite: Skipping initialization on non-native platform (Web).");
             return;
