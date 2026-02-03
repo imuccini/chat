@@ -123,14 +123,14 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                     console.error("Error setting keyboard resize mode", err);
                 });
 
-                // StatusBar Configuration (Programmatic fix for Android overlap)
+                // StatusBar Configuration (Programmatic fix for white header standardization)
                 StatusBar.setOverlaysWebView({ overlay: false }).catch(err => {
                     console.error("Error setting StatusBar overlay", err);
                 });
-                StatusBar.setBackgroundColor({ color: '#059669' }).catch(err => {
+                StatusBar.setBackgroundColor({ color: '#ffffff' }).catch(err => {
                     console.warn("StatusBar background color not supported on this platform", err);
                 });
-                StatusBar.setStyle({ style: Style.Dark }).catch(err => {
+                StatusBar.setStyle({ style: Style.Light }).catch(err => {
                     console.error("Error setting StatusBar style", err);
                 });
 

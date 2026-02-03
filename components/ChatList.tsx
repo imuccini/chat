@@ -42,7 +42,7 @@ const ChatList: React.FC<ChatListProps> = ({ chats, onSelectChat, onDeleteChat }
         <div className="flex flex-col h-full bg-white">
             <header className="bg-white pt-safe border-b border-gray-100 sticky top-0 z-10">
                 <div className="h-[60px] px-4 flex items-center justify-between">
-                    <h1 className="text-2xl font-bold text-gray-800">Chat private</h1>
+                    <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight">Chat private</h1>
                 </div>
             </header>
 
