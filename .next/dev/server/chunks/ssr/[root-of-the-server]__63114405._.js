@@ -198,7 +198,6 @@ function HomeContent() {
                 // Native app: attempt to get BSSID, but don't block if failed
                 if (isNative) {
                     try {
-                        // Timeout promise to prevent hanging
                         const wifiCheckPromise = async ()=>{
                             const hasPermission = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$wifi$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["checkAndRequestLocationPermissions"])();
                             if (hasPermission) {
@@ -208,7 +207,6 @@ function HomeContent() {
                                 }
                             }
                         };
-                        // Race against a 1.5s timeout (fast fallback)
                         const timeoutPromise = new Promise((_, reject)=>setTimeout(()=>reject(new Error("Timeout")), 1500));
                         await Promise.race([
                             wifiCheckPromise(),
@@ -216,10 +214,9 @@ function HomeContent() {
                         ]);
                     } catch (e) {
                         console.warn("WiFi detection skipped or failed:", e);
-                    // Continue usage to rely on IP address resolution
                     }
                 }
-                // 3. Resolve tenant (tries BSSID → NAS ID → IP)
+                // Resolve tenant
                 const tenantSlug = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$services$2f$apiService$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["clientResolveTenant"])(nasId, bssid);
                 if (tenantSlug) {
                     router.replace(`/${tenantSlug}`);
@@ -250,12 +247,12 @@ function HomeContent() {
                         className: "w-full h-full object-contain animate-pulse"
                     }, void 0, false, {
                         fileName: "[project]/app/page.tsx",
-                        lineNumber: 75,
+                        lineNumber: 72,
                         columnNumber: 21
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/app/page.tsx",
-                    lineNumber: 74,
+                    lineNumber: 71,
                     columnNumber: 17
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -263,7 +260,7 @@ function HomeContent() {
                     children: "Inizializzazione in corso..."
                 }, void 0, false, {
                     fileName: "[project]/app/page.tsx",
-                    lineNumber: 77,
+                    lineNumber: 74,
                     columnNumber: 17
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("footer", {
@@ -273,18 +270,18 @@ function HomeContent() {
                         children: "Powered by Local - Copyright 2025"
                     }, void 0, false, {
                         fileName: "[project]/app/page.tsx",
-                        lineNumber: 80,
+                        lineNumber: 77,
                         columnNumber: 21
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/app/page.tsx",
-                    lineNumber: 79,
+                    lineNumber: 76,
                     columnNumber: 17
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/app/page.tsx",
-            lineNumber: 73,
+            lineNumber: 70,
             columnNumber: 13
         }, this);
     }
@@ -326,12 +323,12 @@ function HomeContent() {
                             className: "w-full h-full object-contain"
                         }, void 0, false, {
                             fileName: "[project]/app/page.tsx",
-                            lineNumber: 118,
+                            lineNumber: 115,
                             columnNumber: 21
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/page.tsx",
-                        lineNumber: 117,
+                        lineNumber: 114,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
@@ -339,7 +336,7 @@ function HomeContent() {
                         children: config.title
                     }, void 0, false, {
                         fileName: "[project]/app/page.tsx",
-                        lineNumber: 120,
+                        lineNumber: 117,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -347,7 +344,7 @@ function HomeContent() {
                         children: config.message
                     }, void 0, false, {
                         fileName: "[project]/app/page.tsx",
-                        lineNumber: 121,
+                        lineNumber: 118,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -355,7 +352,7 @@ function HomeContent() {
                         children: config.hint
                     }, void 0, false, {
                         fileName: "[project]/app/page.tsx",
-                        lineNumber: 122,
+                        lineNumber: 119,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -364,13 +361,13 @@ function HomeContent() {
                         children: "Riprova"
                     }, void 0, false, {
                         fileName: "[project]/app/page.tsx",
-                        lineNumber: 124,
+                        lineNumber: 121,
                         columnNumber: 17
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/page.tsx",
-                lineNumber: 116,
+                lineNumber: 113,
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("footer", {
@@ -380,18 +377,18 @@ function HomeContent() {
                     children: "Powered by Local - Copyright 2025"
                 }, void 0, false, {
                     fileName: "[project]/app/page.tsx",
-                    lineNumber: 133,
+                    lineNumber: 130,
                     columnNumber: 17
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/page.tsx",
-                lineNumber: 132,
+                lineNumber: 129,
                 columnNumber: 13
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/page.tsx",
-        lineNumber: 115,
+        lineNumber: 112,
         columnNumber: 9
     }, this);
 }
@@ -404,22 +401,22 @@ function Home() {
                 children: "Inizializzazione in corso..."
             }, void 0, false, {
                 fileName: "[project]/app/page.tsx",
-                lineNumber: 145,
+                lineNumber: 142,
                 columnNumber: 17
             }, void 0)
         }, void 0, false, {
             fileName: "[project]/app/page.tsx",
-            lineNumber: 144,
+            lineNumber: 141,
             columnNumber: 13
         }, void 0),
         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(HomeContent, {}, void 0, false, {
             fileName: "[project]/app/page.tsx",
-            lineNumber: 148,
+            lineNumber: 145,
             columnNumber: 13
         }, this)
     }, void 0, false, {
         fileName: "[project]/app/page.tsx",
-        lineNumber: 143,
+        lineNumber: 140,
         columnNumber: 9
     }, this);
 }

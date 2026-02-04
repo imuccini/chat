@@ -7,7 +7,7 @@ export const metadata: Metadata = {
     appleWebApp: {
         capable: true,
         statusBarStyle: "default",
-        title: "Treno Chat",
+        title: "Local",
     },
     formatDetection: {
         telephone: false,

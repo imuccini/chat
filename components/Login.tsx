@@ -101,6 +101,13 @@ const Login: React.FC<LoginProps> = ({ onLogin, tenantName }) => {
         setView('passkey_reg');
       } else {
         console.log("[Passkey] Registration successful!");
+
+        // Final "Account Upgrade": Set isAnonymous to false
+        await authClient.updateUser({
+          // @ts-ignore
+          isAnonymous: false
+        });
+
         localStorage.removeItem('waiting_for_passkey');
         // Force session refresh or manually callback
         setTimeout(() => {

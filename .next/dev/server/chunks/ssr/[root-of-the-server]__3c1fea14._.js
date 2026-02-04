@@ -362,6 +362,11 @@ const Login = ({ onLogin, tenantName })=>{
                 setView('passkey_reg');
             } else {
                 console.log("[Passkey] Registration successful!");
+                // Final "Account Upgrade": Set isAnonymous to false
+                await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$auth$2d$client$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["authClient"].updateUser({
+                    // @ts-ignore
+                    isAnonymous: false
+                });
                 localStorage.removeItem('waiting_for_passkey');
                 // Force session refresh or manually callback
                 setTimeout(()=>{
@@ -392,7 +397,7 @@ const Login = ({ onLogin, tenantName })=>{
                     className: "animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mb-4"
                 }, void 0, false, {
                     fileName: "[project]/components/Login.tsx",
-                    lineNumber: 131,
+                    lineNumber: 138,
                     columnNumber: 9
                 }, ("TURBOPACK compile-time value", void 0)),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -400,13 +405,13 @@ const Login = ({ onLogin, tenantName })=>{
                     children: "In attesa..."
                 }, void 0, false, {
                     fileName: "[project]/components/Login.tsx",
-                    lineNumber: 132,
+                    lineNumber: 139,
                     columnNumber: 9
                 }, ("TURBOPACK compile-time value", void 0))
             ]
         }, void 0, true, {
             fileName: "[project]/components/Login.tsx",
-            lineNumber: 130,
+            lineNumber: 137,
             columnNumber: 7
         }, ("TURBOPACK compile-time value", void 0));
     }
@@ -424,12 +429,12 @@ const Login = ({ onLogin, tenantName })=>{
                             className: "w-full h-full object-contain"
                         }, void 0, false, {
                             fileName: "[project]/components/Login.tsx",
-                            lineNumber: 141,
+                            lineNumber: 148,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0))
                     }, void 0, false, {
                         fileName: "[project]/components/Login.tsx",
-                        lineNumber: 140,
+                        lineNumber: 147,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
@@ -437,7 +442,7 @@ const Login = ({ onLogin, tenantName })=>{
                         children: tenantName
                     }, void 0, false, {
                         fileName: "[project]/components/Login.tsx",
-                        lineNumber: 143,
+                        lineNumber: 150,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0)),
                     view === 'choice' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -445,13 +450,13 @@ const Login = ({ onLogin, tenantName })=>{
                         children: "chatta in modo anonimo o crea un profilo sicuro"
                     }, void 0, false, {
                         fileName: "[project]/components/Login.tsx",
-                        lineNumber: 144,
+                        lineNumber: 151,
                         columnNumber: 31
                     }, ("TURBOPACK compile-time value", void 0))
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/Login.tsx",
-                lineNumber: 139,
+                lineNumber: 146,
                 columnNumber: 7
             }, ("TURBOPACK compile-time value", void 0)),
             error && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -459,7 +464,7 @@ const Login = ({ onLogin, tenantName })=>{
                 children: error
             }, void 0, false, {
                 fileName: "[project]/components/Login.tsx",
-                lineNumber: 148,
+                lineNumber: 155,
                 columnNumber: 9
             }, ("TURBOPACK compile-time value", void 0)),
             view === 'choice' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -471,7 +476,7 @@ const Login = ({ onLogin, tenantName })=>{
                         children: "Accesso anonimo"
                     }, void 0, false, {
                         fileName: "[project]/components/Login.tsx",
-                        lineNumber: 155,
+                        lineNumber: 162,
                         columnNumber: 11
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -483,12 +488,12 @@ const Login = ({ onLogin, tenantName })=>{
                                     className: "w-full border-t border-gray-100"
                                 }, void 0, false, {
                                     fileName: "[project]/components/Login.tsx",
-                                    lineNumber: 162,
+                                    lineNumber: 169,
                                     columnNumber: 65
                                 }, ("TURBOPACK compile-time value", void 0))
                             }, void 0, false, {
                                 fileName: "[project]/components/Login.tsx",
-                                lineNumber: 162,
+                                lineNumber: 169,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -498,18 +503,18 @@ const Login = ({ onLogin, tenantName })=>{
                                     children: "Oppure"
                                 }, void 0, false, {
                                     fileName: "[project]/components/Login.tsx",
-                                    lineNumber: 163,
+                                    lineNumber: 170,
                                     columnNumber: 77
                                 }, ("TURBOPACK compile-time value", void 0))
                             }, void 0, false, {
                                 fileName: "[project]/components/Login.tsx",
-                                lineNumber: 163,
+                                lineNumber: 170,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0))
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/Login.tsx",
-                        lineNumber: 161,
+                        lineNumber: 168,
                         columnNumber: 11
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -518,7 +523,7 @@ const Login = ({ onLogin, tenantName })=>{
                         children: "Accedi con Passkey"
                     }, void 0, false, {
                         fileName: "[project]/components/Login.tsx",
-                        lineNumber: 165,
+                        lineNumber: 172,
                         columnNumber: 11
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -527,13 +532,13 @@ const Login = ({ onLogin, tenantName })=>{
                         children: "Non hai un account? Registrati con Passkey"
                     }, void 0, false, {
                         fileName: "[project]/components/Login.tsx",
-                        lineNumber: 171,
+                        lineNumber: 178,
                         columnNumber: 11
                     }, ("TURBOPACK compile-time value", void 0))
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/Login.tsx",
-                lineNumber: 154,
+                lineNumber: 161,
                 columnNumber: 9
             }, ("TURBOPACK compile-time value", void 0)),
             view === 'anonymous' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("form", {
@@ -546,7 +551,7 @@ const Login = ({ onLogin, tenantName })=>{
                         children: "← Torna indietro"
                     }, void 0, false, {
                         fileName: "[project]/components/Login.tsx",
-                        lineNumber: 182,
+                        lineNumber: 189,
                         columnNumber: 11
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -556,7 +561,7 @@ const Login = ({ onLogin, tenantName })=>{
                                 children: "Il tuo Alias"
                             }, void 0, false, {
                                 fileName: "[project]/components/Login.tsx",
-                                lineNumber: 186,
+                                lineNumber: 193,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -569,13 +574,13 @@ const Login = ({ onLogin, tenantName })=>{
                                 className: "w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-gray-800"
                             }, void 0, false, {
                                 fileName: "[project]/components/Login.tsx",
-                                lineNumber: 187,
+                                lineNumber: 194,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0))
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/Login.tsx",
-                        lineNumber: 185,
+                        lineNumber: 192,
                         columnNumber: 11
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -585,7 +590,7 @@ const Login = ({ onLogin, tenantName })=>{
                                 children: "Identità di Genere"
                             }, void 0, false, {
                                 fileName: "[project]/components/Login.tsx",
-                                lineNumber: 198,
+                                lineNumber: 205,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -601,18 +606,18 @@ const Login = ({ onLogin, tenantName })=>{
                                         children: genderLabels[g]
                                     }, g, false, {
                                         fileName: "[project]/components/Login.tsx",
-                                        lineNumber: 201,
+                                        lineNumber: 208,
                                         columnNumber: 17
                                     }, ("TURBOPACK compile-time value", void 0)))
                             }, void 0, false, {
                                 fileName: "[project]/components/Login.tsx",
-                                lineNumber: 199,
+                                lineNumber: 206,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0))
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/Login.tsx",
-                        lineNumber: 197,
+                        lineNumber: 204,
                         columnNumber: 11
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -621,13 +626,13 @@ const Login = ({ onLogin, tenantName })=>{
                         children: "Entra nella Stanza"
                     }, void 0, false, {
                         fileName: "[project]/components/Login.tsx",
-                        lineNumber: 215,
+                        lineNumber: 222,
                         columnNumber: 11
                     }, ("TURBOPACK compile-time value", void 0))
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/Login.tsx",
-                lineNumber: 181,
+                lineNumber: 188,
                 columnNumber: 9
             }, ("TURBOPACK compile-time value", void 0)),
             view === 'passkey_reg' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("form", {
@@ -640,7 +645,7 @@ const Login = ({ onLogin, tenantName })=>{
                         children: "← Torna indietro"
                     }, void 0, false, {
                         fileName: "[project]/components/Login.tsx",
-                        lineNumber: 223,
+                        lineNumber: 230,
                         columnNumber: 11
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -650,7 +655,7 @@ const Login = ({ onLogin, tenantName })=>{
                                 children: "Scegli un Alias"
                             }, void 0, false, {
                                 fileName: "[project]/components/Login.tsx",
-                                lineNumber: 227,
+                                lineNumber: 234,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -663,13 +668,13 @@ const Login = ({ onLogin, tenantName })=>{
                                 className: "w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-gray-800"
                             }, void 0, false, {
                                 fileName: "[project]/components/Login.tsx",
-                                lineNumber: 228,
+                                lineNumber: 235,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0))
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/Login.tsx",
-                        lineNumber: 226,
+                        lineNumber: 233,
                         columnNumber: 11
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -679,7 +684,7 @@ const Login = ({ onLogin, tenantName })=>{
                                 children: "Cellulare (per il recupero)"
                             }, void 0, false, {
                                 fileName: "[project]/components/Login.tsx",
-                                lineNumber: 239,
+                                lineNumber: 246,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -691,13 +696,13 @@ const Login = ({ onLogin, tenantName })=>{
                                 className: "w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-gray-800"
                             }, void 0, false, {
                                 fileName: "[project]/components/Login.tsx",
-                                lineNumber: 240,
+                                lineNumber: 247,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0))
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/Login.tsx",
-                        lineNumber: 238,
+                        lineNumber: 245,
                         columnNumber: 11
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -706,7 +711,7 @@ const Login = ({ onLogin, tenantName })=>{
                         children: "Crea Account con Passkey"
                     }, void 0, false, {
                         fileName: "[project]/components/Login.tsx",
-                        lineNumber: 249,
+                        lineNumber: 256,
                         columnNumber: 11
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -714,13 +719,13 @@ const Login = ({ onLogin, tenantName })=>{
                         children: "Il tuo numero verrà utilizzato esclusivamente per permetterti di recuperare l'accesso in caso di smarrimento del dispositivo."
                     }, void 0, false, {
                         fileName: "[project]/components/Login.tsx",
-                        lineNumber: 252,
+                        lineNumber: 259,
                         columnNumber: 11
                     }, ("TURBOPACK compile-time value", void 0))
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/Login.tsx",
-                lineNumber: 222,
+                lineNumber: 229,
                 columnNumber: 9
             }, ("TURBOPACK compile-time value", void 0)),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -728,13 +733,13 @@ const Login = ({ onLogin, tenantName })=>{
                 children: "Powered by Local - Copyright 2025"
             }, void 0, false, {
                 fileName: "[project]/components/Login.tsx",
-                lineNumber: 258,
+                lineNumber: 265,
                 columnNumber: 7
             }, ("TURBOPACK compile-time value", void 0))
         ]
     }, void 0, true, {
         fileName: "[project]/components/Login.tsx",
-        lineNumber: 138,
+        lineNumber: 145,
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 };

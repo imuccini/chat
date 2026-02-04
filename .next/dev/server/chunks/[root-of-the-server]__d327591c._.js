@@ -92,6 +92,10 @@ const auth = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f
             gender: {
                 type: "string",
                 required: false
+            },
+            isAnonymous: {
+                type: "boolean",
+                required: false
             }
         }
     },
@@ -116,7 +120,7 @@ const GET = async (req)=>{
     return await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$auth$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["auth"].handler(req);
 };
 const POST = async (req)=>{
-    console.log(`[Auth API] POST ${req.url}`);
+    console.log(`[Auth API] POST ${req.url} | Origin: ${req.headers.get('origin')} | Host: ${req.headers.get('host')}`);
     return await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$auth$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["auth"].handler(req);
 };
 }),

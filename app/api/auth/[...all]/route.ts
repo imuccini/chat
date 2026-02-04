@@ -6,6 +6,6 @@ export const GET = async (req: Request) => {
 };
 
 export const POST = async (req: Request) => {
-    console.log(`[Auth API] POST ${req.url}`);
+    console.log(`[Auth API] POST ${req.url} | Origin: ${req.headers.get('origin')} | Host: ${req.headers.get('host')}`);
     return await auth.handler(req);
 };

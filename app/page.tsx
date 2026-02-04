@@ -26,7 +26,6 @@ function HomeContent() {
                 // Native app: attempt to get BSSID, but don't block if failed
                 if (isNative) {
                     try {
-                        // Timeout promise to prevent hanging
                         const wifiCheckPromise = async () => {
                             const hasPermission = await checkAndRequestLocationPermissions();
                             if (hasPermission) {
@@ -37,7 +36,6 @@ function HomeContent() {
                             }
                         };
 
-                        // Race against a 1.5s timeout (fast fallback)
                         const timeoutPromise = new Promise((_, reject) =>
                             setTimeout(() => reject(new Error("Timeout")), 1500)
                         );
@@ -46,11 +44,10 @@ function HomeContent() {
 
                     } catch (e) {
                         console.warn("WiFi detection skipped or failed:", e);
-                        // Continue usage to rely on IP address resolution
                     }
                 }
 
-                // 3. Resolve tenant (tries BSSID → NAS ID → IP)
+                // Resolve tenant
                 const tenantSlug = await clientResolveTenant(nasId, bssid);
 
                 if (tenantSlug) {

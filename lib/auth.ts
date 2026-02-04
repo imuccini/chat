@@ -28,11 +28,12 @@ export const auth = betterAuth({
             gender: {
                 type: "string",
                 required: false
+            },
+            isAnonymous: {
+                type: "boolean",
+                required: false
             }
         }
     },
-    trustedOrigins: [process.env.BETTER_AUTH_URL || "http://localhost:3000", "*"],
-    advanced: {
-        trustHost: true
-    }
+    trustedOrigins: [process.env.BETTER_AUTH_URL || "http://localhost:3000"]
 });

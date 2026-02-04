@@ -56,7 +56,7 @@ const metadata = {
     appleWebApp: {
         capable: true,
         statusBarStyle: "default",
-        title: "Treno Chat"
+        title: "Local"
     },
     formatDetection: {
         telephone: false
