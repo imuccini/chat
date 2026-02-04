@@ -1,6 +1,6 @@
 {
   "node": {
-    "4068ec4e5df7232909953fa6b4233e1db0866e2f2f": {
+    "401ee3afafaed6fccbfbec7c0d81151df73ad4f568": {
       "workers": {
         "app/admin/(authenticated)/dashboard/page": {
           "moduleId": "[project]/.next-internal/server/app/admin/(authenticated)/dashboard/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/actions/adminTenant.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
@@ -15,7 +15,7 @@
       "exportedName": "deleteTenantAction",
       "filename": "app/actions/adminTenant.ts"
     },
-    "40222dd7266328daa03191545ca92aaf21d415bad7": {
+    "4086e9335130f72d12350934e60060959d8bf971f4": {
       "workers": {
         "app/admin/(authenticated)/dashboard/page": {
           "moduleId": "[project]/.next-internal/server/app/admin/(authenticated)/dashboard/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/actions/adminTenant.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
@@ -30,7 +30,7 @@
       "exportedName": "createTenantAction",
       "filename": "app/actions/adminTenant.ts"
     },
-    "401cc1da848db9d4bfc7e8fa0fc502a01f0faa21fd": {
+    "403856d59fe801380dd4faf91250ca811f15eeb028": {
       "workers": {
         "app/admin/(authenticated)/dashboard/page": {
           "moduleId": "[project]/.next-internal/server/app/admin/(authenticated)/dashboard/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/actions/adminTenant.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",

@@ -40,6 +40,7 @@ nextApp.prepare().then(async () => {
     max: 100,
     standardHeaders: true,
     legacyHeaders: false,
+    validate: { trustProxy: false },
   });
   app.use('/api', limiter);
 
