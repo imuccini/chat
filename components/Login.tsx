@@ -57,6 +57,8 @@ const Login: React.FC<LoginProps> = ({ onLogin, tenantName }) => {
         console.error("[Passkey] Login error:", error);
         if (error.status === 404 || (error as any).code === "PASSKEY_NOT_FOUND") {
           setError("Nessuna Passkey trovata per questo dispositivo. Registrati prima!");
+        } else if (error.message === "auth cancelled" || error.message === "Authentication cancelled") {
+          setError("Autenticazione fallita");
         } else {
           setError(error.message || "Errore durante l'accesso");
         }
@@ -125,7 +127,11 @@ const Login: React.FC<LoginProps> = ({ onLogin, tenantName }) => {
       if (passkeyError) {
         console.error("[Passkey] Registration error:", passkeyError);
         localStorage.removeItem('waiting_for_passkey');
-        setError(passkeyError.message || "Errore durante la registrazione biometrica");
+        if (passkeyError.message === "auth cancelled" || passkeyError.message === "Authentication cancelled") {
+          setError("Autenticazione fallita");
+        } else {
+          setError(passkeyError.message || "Errore durante la registrazione biometrica");
+        }
         setView('passkey_reg');
       } else {
         console.log("[Passkey] Registration successful!");
@@ -145,8 +151,10 @@ const Login: React.FC<LoginProps> = ({ onLogin, tenantName }) => {
     } catch (err: any) {
       console.error("[Passkey] Unexpected error:", err);
       localStorage.removeItem('waiting_for_passkey');
-      if (err.name === 'NotAllowedError') {
-        setError("L'operazione non è permessa in questo contesto. Assicurati di usare 'localhost' o HTTPS per accedere alla chat.");
+      if (err.name === 'NotAllowedError' || err.message === "auth cancelled" || err.message === "Authentication cancelled") {
+        setError(err.name === 'NotAllowedError'
+          ? "L'operazione non è permessa in questo contesto. Assicurati di usare 'localhost' o HTTPS per accedere alla chat."
+          : "Autenticazione fallita");
       } else {
         setError(err.message || "Errore inaspettato");
       }
