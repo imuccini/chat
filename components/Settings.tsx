@@ -28,6 +28,12 @@ const Settings: React.FC<SettingsProps> = ({ user, onLogout, onUpdateAlias, onUp
         setIsEditingStatus(false);
     };
 
+    const genderLabels: Record<string, string> = {
+        male: 'maschio',
+        female: 'femmina',
+        other: 'altro'
+    };
+
     return (
         <div className="flex flex-col h-full bg-gray-50">
             <header className="bg-white pt-safe border-b border-gray-100 sticky top-0 z-10">
@@ -37,30 +43,22 @@ const Settings: React.FC<SettingsProps> = ({ user, onLogout, onUpdateAlias, onUp
             </header>
 
             <main className="flex-1 overflow-y-auto">
-                {/* Scrollable area needs padding to clear the FIXED BottomNav */}
                 <div className="pb-32">
 
-                    {/* Avatar Section */}
+                    {/* Avatar Section - Photo edit removed as requested */}
                     <div className="py-8 flex flex-col items-center bg-white border-b border-gray-100">
                         <div className="relative group">
                             <div className="w-24 h-24 bg-emerald-500 rounded-full flex items-center justify-center text-white text-4xl font-bold shadow-sm overflow-hidden">
                                 {user.alias.charAt(0).toUpperCase()}
                             </div>
-                            <button className="absolute bottom-0 right-0 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center border border-gray-100">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                                </svg>
-                            </button>
                         </div>
-                        <button className="mt-4 text-emerald-600 font-medium text-sm hover:opacity-75">Edit</button>
                     </div>
 
                     {/* Info Groups */}
                     <div className="mt-6 space-y-6">
                         {/* About Section */}
                         <div>
-                            <h3 className="px-4 mb-2 text-xs font-medium text-gray-500 uppercase tracking-wider">About</h3>
+                            <h3 className="px-4 mb-2 text-xs font-medium text-gray-500 uppercase tracking-wider">Stato</h3>
                             <div className="bg-white border-y border-gray-100">
                                 <button
                                     onClick={() => setIsEditingStatus(true)}
@@ -80,12 +78,12 @@ const Settings: React.FC<SettingsProps> = ({ user, onLogout, onUpdateAlias, onUp
                                             />
                                         ) : (
                                             <span className="text-[17px] text-gray-900 truncate overflow-hidden w-full text-left">
-                                                {user.status || 'Available'}
+                                                {user.status || 'Disponibile'}
                                             </span>
                                         )}
                                     </div>
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-300 shrink-0 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5l7 7-7 7" />
                                     </svg>
                                 </button>
                             </div>
@@ -93,7 +91,7 @@ const Settings: React.FC<SettingsProps> = ({ user, onLogout, onUpdateAlias, onUp
 
                         {/* Name Section */}
                         <div>
-                            <h3 className="px-4 mb-2 text-xs font-medium text-gray-500 uppercase tracking-wider">Name</h3>
+                            <h3 className="px-4 mb-2 text-xs font-medium text-gray-500 uppercase tracking-wider">Alias</h3>
                             <div className="bg-white border-y border-gray-100">
                                 <button
                                     onClick={() => setIsEditingAlias(true)}
@@ -118,7 +116,7 @@ const Settings: React.FC<SettingsProps> = ({ user, onLogout, onUpdateAlias, onUp
                                         )}
                                     </div>
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-300 shrink-0 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5l7 7-7 7" />
                                     </svg>
                                 </button>
                             </div>
@@ -126,11 +124,11 @@ const Settings: React.FC<SettingsProps> = ({ user, onLogout, onUpdateAlias, onUp
 
                         {/* Account Info Section */}
                         <div>
-                            <h3 className="px-4 mb-2 text-xs font-medium text-gray-500 uppercase tracking-wider">Account</h3>
+                            <h3 className="px-4 mb-2 text-xs font-medium text-gray-500 uppercase tracking-wider">Informazioni</h3>
                             <div className="bg-white border-y border-gray-100 divide-y divide-gray-50">
                                 <div className="px-4 py-3.5 flex items-center justify-between">
-                                    <span className="text-[17px] text-gray-400 capitalize">Gender</span>
-                                    <span className="text-[17px] text-gray-900">{user.gender}</span>
+                                    <span className="text-[17px] text-gray-400">Sesso</span>
+                                    <span className="text-[17px] text-gray-900 capitalize">{genderLabels[user.gender] || user.gender}</span>
                                 </div>
                                 <div className="px-4 py-3.5 flex items-center justify-between">
                                     <span className="text-[17px] text-gray-400">User ID</span>
@@ -139,14 +137,14 @@ const Settings: React.FC<SettingsProps> = ({ user, onLogout, onUpdateAlias, onUp
                             </div>
                         </div>
 
-                        {/* Red Actions Section */}
+                        {/* Actions Section */}
                         <div className="pt-4">
                             <div className="bg-white border-y border-gray-100">
                                 <button
                                     onClick={onLogout}
                                     className="w-full px-4 py-4 flex items-center justify-center text-red-600 font-semibold text-lg hover:bg-red-50 transition-colors"
                                 >
-                                    Log Out
+                                    Esci
                                 </button>
                             </div>
                         </div>

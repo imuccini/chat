@@ -45,6 +45,14 @@
   },
   "dynamicRoutes": [
     {
+      "page": "/api/auth/[...all]",
+      "regex": "^/api/auth/(.+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPall": "nxtPall"
+      },
+      "namedRegex": "^/api/auth/(?<nxtPall>.+?)(?:/)?$"
+    },
+    {
       "page": "/[tenantSlug]",
       "regex": "^/([^/]+?)(?:/)?$",
       "routeKeys": {

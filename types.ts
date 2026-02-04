@@ -6,6 +6,7 @@ export interface User {
   gender: Gender;
   status?: string; // Short status text (e.g. "In viaggio", "Disponibile")
   joinedAt?: number;
+  phoneNumber?: string; // For account recovery
 }
 
 export interface Message {

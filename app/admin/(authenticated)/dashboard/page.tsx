@@ -5,6 +5,10 @@ import { redirect } from 'next/navigation';
 import { columns } from '@/components/admin/tenants/columns';
 import { DataTable } from '@/components/admin/tenants/data-table';
 import { CreateTenantDialog } from '@/components/admin/tenants/TenantDialogs';
+import { getAdminKpis } from '@/lib/kpi';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Users, MessageSquare, Activity } from "lucide-react";
+import { KpiDashboard } from '@/components/admin/charts/KpiDashboard';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,19 +18,67 @@ export default async function AdminDashboard() {
         redirect('/admin/login');
     }
 
-    const tenants = await prisma.tenant.findMany({
-        include: { devices: true },
-        orderBy: { createdAt: 'desc' }
-    });
+    const [tenants, kpis] = await Promise.all([
+        prisma.tenant.findMany({
+            include: { devices: true },
+            orderBy: { createdAt: 'desc' }
+        }),
+        getAdminKpis()
+    ]);
+
+    const tenantsWithKpis = tenants.map(t => ({
+        ...t,
+        activeUsersCount: kpis.tenantActiveCounts[t.id] || 0
+    }));
 
     return (
-        <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <h1 className="text-3xl font-bold tracking-tight">Tenants</h1>
-                <CreateTenantDialog />
+        <div className="space-y-8">
+            <div className="grid gap-4 md:grid-cols-3">
+                <Card className="bg-white/50 backdrop-blur-sm border-emerald-100">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium text-gray-600">Total Users</CardTitle>
+                        <Users className="h-4 w-4 text-emerald-500" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{kpis.totalUsers}</div>
+                        <p className="text-xs text-gray-500 mt-1">Registered accounts</p>
+                    </CardContent>
+                </Card>
+                <Card className="bg-white/50 backdrop-blur-sm border-blue-100">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium text-gray-600">Total Messages</CardTitle>
+                        <MessageSquare className="h-4 w-4 text-blue-500" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{kpis.totalMessages}</div>
+                        <p className="text-xs text-gray-500 mt-1">Exchanged to date</p>
+                    </CardContent>
+                </Card>
+                <Card className="bg-white/50 backdrop-blur-sm border-orange-100">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium text-gray-600">Active (24h)</CardTitle>
+                        <Activity className="h-4 w-4 text-orange-500" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">
+                            {Object.values(kpis.tenantActiveCounts).reduce((a, b) => a + b, 0)}
+                        </div>
+                        <p className="text-xs text-gray-500 mt-1">Unique active users</p>
+                    </CardContent>
+                </Card>
             </div>
 
-            <DataTable columns={columns} data={tenants} />
+            <KpiDashboard trends={kpis.trends} split={kpis.split} />
+
+            <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                    <h2 className="text-2xl font-bold tracking-tight text-gray-800">Tenants</h2>
+                    <CreateTenantDialog />
+                </div>
+                <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden px-1">
+                    <DataTable columns={columns} data={tenantsWithKpis} />
+                </div>
+            </div>
         </div>
     );
 }

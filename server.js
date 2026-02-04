@@ -32,7 +32,6 @@ nextApp.prepare().then(async () => {
   });
 
   app.use(cors());
-  app.use(express.json());
 
   // Rate Limiting per API HTTP
   const limiter = rateLimit({

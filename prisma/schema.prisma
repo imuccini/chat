@@ -39,20 +39,25 @@ model User {
   email         String?   @unique
   emailVerified Boolean?
   image         String?
+  phoneNumber   String?
+  gender        String?
+  isAnonymous   Boolean   @default(false)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
   sessions      Session[]
   accounts      Account[]
   messages      Message[]
+  passkeys      Passkey[]
 
   @@map("user") // Better-auth standard
+  @@index([createdAt])
 }
 
 model Session {
   id        String   @id @default(uuid())
   userId    String
-  token     String
+  token     String   @unique
   expiresAt DateTime
   ipAddress String?
   userAgent String?
@@ -115,6 +120,7 @@ model Message {
   @@index([tenantId])
   @@index([recipientId])
   @@index([senderId])
+  @@index([createdAt])
 }
 
 model SystemLog {
@@ -125,4 +131,21 @@ model SystemLog {
 
   tenantId  String?
   tenant    Tenant?  @relation(fields: [tenantId], references: [id])
+}
+
+model Passkey {
+  id           String    @id
+  name         String?
+  publicKey    String
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  credentialID String
+  counter      Int
+  deviceType   String
+  backedUp     Boolean
+  transports   String?
+  aaguid       String?
+  createdAt    DateTime?
+
+  @@map("passkey")
 }

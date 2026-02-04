@@ -11,6 +11,7 @@
     "postinstall": "patch-package"
   },
   "dependencies": {
+    "@better-auth/passkey": "^1.4.18",
     "@capacitor-community/sqlite": "^8.0.0",
     "@capacitor/android": "^8.0.2",
     "@capacitor/cli": "^8.0.2",

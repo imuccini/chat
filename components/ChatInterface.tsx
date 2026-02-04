@@ -19,6 +19,7 @@ import UserList from './UserList';
 import ChatList from './ChatList';
 import Settings from './Settings';
 import { useSwipeBack } from '@/hooks/useSwipeBack';
+import { useSession, signOut } from '@/lib/auth-client';
 
 interface ChatInterfaceProps {
     tenant: Tenant;
@@ -31,6 +32,7 @@ type PrivateChatsMap = Record<string, { peer: User; messages: Message[]; unread:
 export default function ChatInterface({ tenant, initialMessages }: ChatInterfaceProps) {
     const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [socket, setSocket] = useState<Socket | null>(null);
+    const { data: session, isPending: isSessionLoading } = useSession();
 
     // UI State
     const [activeTab, setActiveTab] = useState<Tab>('room');
@@ -77,9 +79,37 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
 
     // 2. Initialize User, Keyboard and Haptics
     useEffect(() => {
+        console.log(`[Session] Loading: ${isSessionLoading}, User: ${session?.user?.id}, Name: ${session?.user?.name}`);
+
+        if (!isSessionLoading && session?.user) {
+            // If we are in the middle of passkey registration, don't set currentUser yet
+            const isWaiting = localStorage.getItem('waiting_for_passkey') === 'true';
+            console.log(`[Session] Waiting for passkey: ${isWaiting}`);
+
+            if (isWaiting) {
+                return;
+            }
+
+            const authUser: User = {
+                id: session.user.id,
+                alias: session.user.name || "User",
+                gender: (session.user as any).gender || "other",
+                status: (session.user as any).status || "",
+                phoneNumber: (session.user as any).phoneNumber,
+                joinedAt: new Date(session.user.createdAt).getTime()
+            };
+            console.log("[Session] Setting authenticated user:", authUser);
+            setCurrentUser(authUser);
+            localStorage.setItem('chat_user', JSON.stringify(authUser));
+        }
+    }, [session, isSessionLoading]);
+
+    useEffect(() => {
         if (typeof window !== 'undefined') {
             const savedUser = localStorage.getItem('chat_user');
-            if (savedUser) {
+            const isWaiting = localStorage.getItem('waiting_for_passkey') === 'true';
+
+            if (savedUser && !session && !isSessionLoading && !isWaiting) {
                 try {
                     const user = JSON.parse(savedUser);
                     setCurrentUser(user);
@@ -261,7 +291,10 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
         localStorage.setItem('chat_user', JSON.stringify(user));
     };
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
+        if (session) {
+            await signOut();
+        }
         setCurrentUser(null);
         setSocket(null);
         localStorage.removeItem('chat_user');

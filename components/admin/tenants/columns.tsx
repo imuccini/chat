@@ -14,9 +14,10 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { deleteTenantAction } from "@/app/actions/adminTenant"
 
-// Extended type to include devices
+// Extended type to include devices and KPIs
 export type TenantWithDevices = Tenant & {
     devices: NasDevice[]
+    activeUsersCount?: number
 }
 
 import { EditTenantDialog } from "./TenantDialogs"
@@ -31,6 +32,13 @@ export const columns: ColumnDef<TenantWithDevices>[] = [
     {
         accessorKey: "slug",
         header: "Slug",
+    },
+    {
+        accessorKey: "activeUsersCount",
+        header: "Active Users (24h)",
+        cell: ({ row }) => {
+            return <span className="font-medium">{row.original.activeUsersCount || 0}</span>
+        }
     },
     {
         accessorKey: "devices",
