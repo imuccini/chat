@@ -1,5 +1,0 @@
-{
-  "/[tenantSlug]/page": "app/[tenantSlug]/page.js",
-  "/admin/(authenticated)/dashboard/page": "app/admin/(authenticated)/dashboard/page.js",
-  "/api/auth/[...all]/route": "app/api/auth/[...all]/route.js"
-}
