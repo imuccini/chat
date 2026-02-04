@@ -63,18 +63,36 @@ class SQLiteService {
             console.error('Error saving message to SQLite:', err);
         }
     }
-    async getMessages(isGlobal = true, recipientId) {
+    async purgeOldMessages() {
         if (!this.db) await this.initialize();
+        if (!this.db) return;
+        const threeHoursAgo = new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString();
+        try {
+            await this.db.run('DELETE FROM messages WHERE timestamp < ?;', [
+                threeHoursAgo
+            ]);
+            console.log("SQLite: Purged messages older than:", threeHoursAgo);
+        } catch (err) {
+            console.error('Error purging old messages from SQLite:', err);
+        }
+    }
+    async getMessages(isGlobal = true, recipientId) {
+        await this.purgeOldMessages();
         if (!this.db) return [];
+        const threeHoursAgo = new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString();
         let query = '';
         let params = [];
         if (isGlobal) {
-            query = `SELECT * FROM messages WHERE isGlobal = 1 ORDER BY timestamp ASC LIMIT 100;`;
+            query = `SELECT * FROM messages WHERE isGlobal = 1 AND timestamp >= ? ORDER BY timestamp ASC LIMIT 100;`;
+            params = [
+                threeHoursAgo
+            ];
         } else {
-            query = `SELECT * FROM messages WHERE isGlobal = 0 AND (recipientId = ? OR senderId = ?) ORDER BY timestamp ASC LIMIT 100;`;
+            query = `SELECT * FROM messages WHERE isGlobal = 0 AND (recipientId = ? OR senderId = ?) AND timestamp >= ? ORDER BY timestamp ASC LIMIT 100;`;
             params = [
                 recipientId,
-                recipientId
+                recipientId,
+                threeHoursAgo
             ];
         }
         try {
@@ -98,10 +116,13 @@ class SQLiteService {
         }
     }
     async getPrivateChats(currentUserId) {
-        if (!this.db) await this.initialize();
+        await this.purgeOldMessages();
         if (!this.db) return [];
         try {
-            const res = await this.db.query(`SELECT * FROM messages WHERE isGlobal = 0 ORDER BY timestamp ASC;`, []);
+            const threeHoursAgo = new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString();
+            const res = await this.db.query(`SELECT * FROM messages WHERE isGlobal = 0 AND timestamp >= ? ORDER BY timestamp ASC;`, [
+                threeHoursAgo
+            ]);
             const messages = (res.values || []).map((m)=>({
                     id: m.id,
                     text: m.text,

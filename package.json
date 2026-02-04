@@ -6,8 +6,10 @@
     "dev": "node server.js",
     "dev:marketing": "next dev marketing -p 3001",
     "build": "next build",
+    "build:marketing": "next build marketing",
     "build:cap": "export $(grep -v '^#' .env | xargs) && mv app/admin app/_admin && NEXT_STATIC_EXPORT=true next build && mv app/_admin app/admin",
     "start": "NODE_ENV=production node server.js",
+    "start:marketing": "next start marketing -p ${PORT:-3000}",
     "lint": "next lint",
     "postinstall": "patch-package"
   },

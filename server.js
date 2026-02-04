@@ -125,10 +125,15 @@ nextApp.prepare().then(async () => {
       const tenantRecord = await prisma.tenant.findUnique({ where: { slug: String(tenantSlug) } });
       if (!tenantRecord) return res.json([]);
 
+      const threeHoursAgo = new Date(Date.now() - 3 * 60 * 60 * 1000);
+
       const messages = await prisma.message.findMany({
         where: {
           tenantId: tenantRecord.id,
-          recipientId: null // Public only
+          recipientId: null, // Public only
+          createdAt: {
+            gte: threeHoursAgo
+          }
         },
         take: 100,
         orderBy: { createdAt: 'desc' }

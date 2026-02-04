@@ -6,6 +6,8 @@ export default {
     './components/**/*.{ts,tsx}',
     './app/**/*.{ts,tsx}',
     './src/**/*.{ts,tsx}',
+    './marketing/app/**/*.{ts,tsx}',
+    './marketing/components/**/*.{ts,tsx}',
   ],
   theme: {
     container: {
