@@ -4,57 +4,62 @@ import { passkey } from "@better-auth/passkey";
 import { anonymous } from "better-auth/plugins";
 import { prisma } from "./db";
 
-export const auth = betterAuth({
-    database: prismaAdapter(prisma, {
-        provider: "postgresql"
-    }),
-    secret: process.env.BETTER_AUTH_SECRET,
-    baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
-    debug: true, // Enable debug logs
-    plugins: [
-        passkey({
-            rpID: process.env.RP_ID || "192.168.8.213",
-            rpName: "Local",
-            origin: process.env.BETTER_AUTH_URL || "http://localhost:3000"
+/**
+ * Creates a dynamic auth instance based on the current request origin.
+ * This is crucial for Passkeys to work across localhost, local IPs, and production.
+ */
+export const getAuth = (origin: string) => {
+    const url = new URL(origin);
+    const rpID = url.hostname;
+
+    return betterAuth({
+        database: prismaAdapter(prisma, {
+            provider: "postgresql"
         }),
-        anonymous()
-    ],
-    socialProviders: {
-        ...(process.env.GOOGLE_CLIENT_ID && {
-            google: {
-                clientId: process.env.GOOGLE_CLIENT_ID,
-                clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+        secret: process.env.BETTER_AUTH_SECRET,
+        baseURL: origin,
+        debug: true,
+        plugins: [
+            passkey({
+                rpID,
+                rpName: "Local",
+                origin: origin
+            }),
+            anonymous()
+        ],
+        socialProviders: {
+            ...(process.env.GOOGLE_CLIENT_ID && {
+                google: {
+                    clientId: process.env.GOOGLE_CLIENT_ID,
+                    clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+                }
+            }),
+            ...(process.env.APPLE_CLIENT_ID && {
+                apple: {
+                    clientId: process.env.APPLE_CLIENT_ID,
+                    clientSecret: process.env.APPLE_CLIENT_SECRET!,
+                }
+            })
+        },
+        user: {
+            additionalFields: {
+                phoneNumber: { type: "string", required: false },
+                gender: { type: "string", required: false },
+                isAnonymous: { type: "boolean", required: false }
             }
-        }),
-        ...(process.env.APPLE_CLIENT_ID && {
-            apple: {
-                clientId: process.env.APPLE_CLIENT_ID,
-                clientSecret: process.env.APPLE_CLIENT_SECRET!,
-            }
-        })
-    },
-    user: {
-        additionalFields: {
-            phoneNumber: {
-                type: "string",
-                required: false
-            },
-            gender: {
-                type: "string",
-                required: false
-            },
-            isAnonymous: {
-                type: "boolean",
-                required: false
-            }
-        }
-    },
-    trustedOrigins: [
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "capacitor://localhost",
-        "http://localhost",
-        process.env.BETTER_AUTH_URL || "",
-        process.env.NEXT_PUBLIC_SERVER_URL || ""
-    ].filter(Boolean)
-});
+        },
+        trustedOrigins: [
+            "capacitor://localhost",
+            "http://localhost",
+            origin,
+            process.env.BETTER_AUTH_URL || "",
+            process.env.NEXT_PUBLIC_SERVER_URL || ""
+        ].filter(Boolean)
+    });
+};
+
+/**
+ * Default auth instance for background tasks or cases where a request is not available.
+ * Uses the environment variable as a fallback.
+ */
+export const auth = getAuth(process.env.BETTER_AUTH_URL || "http://localhost:3000");
