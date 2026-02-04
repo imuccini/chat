@@ -5,5 +5,10 @@
   "/admin/(authenticated)/dashboard/page": "/admin/dashboard",
   "/admin/login/page": "/admin/login",
   "/api/auth/[...all]/route": "/api/auth/[...all]",
+  "/apple-icon.png/route": "/apple-icon.png",
+  "/favicon.ico/route": "/favicon.ico",
+  "/icon0.svg/route": "/icon0.svg",
+  "/icon1.png/route": "/icon1.png",
+  "/manifest.json/route": "/manifest.json",
   "/page": "/"
 }

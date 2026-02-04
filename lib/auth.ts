@@ -13,12 +13,26 @@ export const auth = betterAuth({
     debug: true, // Enable debug logs
     plugins: [
         passkey({
-            rpID: process.env.RP_ID || "localhost",
-            rpName: "TrenoChat",
+            rpID: process.env.RP_ID || "192.168.8.213",
+            rpName: "Local",
             origin: process.env.BETTER_AUTH_URL || "http://localhost:3000"
         }),
         anonymous()
     ],
+    socialProviders: {
+        ...(process.env.GOOGLE_CLIENT_ID && {
+            google: {
+                clientId: process.env.GOOGLE_CLIENT_ID,
+                clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+            }
+        }),
+        ...(process.env.APPLE_CLIENT_ID && {
+            apple: {
+                clientId: process.env.APPLE_CLIENT_ID,
+                clientSecret: process.env.APPLE_CLIENT_SECRET!,
+            }
+        })
+    },
     user: {
         additionalFields: {
             phoneNumber: {
@@ -35,5 +49,12 @@ export const auth = betterAuth({
             }
         }
     },
-    trustedOrigins: [process.env.BETTER_AUTH_URL || "http://localhost:3000"]
+    trustedOrigins: [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "capacitor://localhost",
+        "http://localhost",
+        process.env.BETTER_AUTH_URL || "",
+        process.env.NEXT_PUBLIC_SERVER_URL || ""
+    ].filter(Boolean)
 });

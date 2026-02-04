@@ -77,12 +77,26 @@ const auth = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f
     debug: true,
     plugins: [
         (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$better$2d$auth$2f$passkey$2f$dist$2f$index$2e$mjs__$5b$app$2d$route$5d$__$28$ecmascript$29$__["passkey"])({
-            rpID: process.env.RP_ID || "localhost",
-            rpName: "TrenoChat",
+            rpID: process.env.RP_ID || "192.168.8.213",
+            rpName: "Local",
             origin: process.env.BETTER_AUTH_URL || "http://localhost:3000"
         }),
         (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$better$2d$auth$2f$dist$2f$plugins$2f$anonymous$2f$index$2e$mjs__$5b$app$2d$route$5d$__$28$ecmascript$29$__["anonymous"])()
     ],
+    socialProviders: {
+        ...process.env.GOOGLE_CLIENT_ID && {
+            google: {
+                clientId: process.env.GOOGLE_CLIENT_ID,
+                clientSecret: process.env.GOOGLE_CLIENT_SECRET
+            }
+        },
+        ...process.env.APPLE_CLIENT_ID && {
+            apple: {
+                clientId: process.env.APPLE_CLIENT_ID,
+                clientSecret: process.env.APPLE_CLIENT_SECRET
+            }
+        }
+    },
     user: {
         additionalFields: {
             phoneNumber: {
@@ -100,8 +114,13 @@ const auth = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f
         }
     },
     trustedOrigins: [
-        process.env.BETTER_AUTH_URL || "http://localhost:3000"
-    ]
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "capacitor://localhost",
+        "http://localhost",
+        process.env.BETTER_AUTH_URL || "",
+        ("TURBOPACK compile-time value", "http://192.168.8.213:3000") || ""
+    ].filter(Boolean)
 });
 }),
 "[project]/app/api/auth/[...all]/route.ts [app-route] (ecmascript)", ((__turbopack_context__) => {

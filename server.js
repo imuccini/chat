@@ -23,6 +23,7 @@ const PORT = process.env.PORT || 3000;
 
 nextApp.prepare().then(async () => {
   const app = express();
+  app.set('trust proxy', true);
   const httpServer = createServer(app);
   const io = new Server(httpServer, {
     cors: {
