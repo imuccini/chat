@@ -7,10 +7,24 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Next.js
+.next/
+out/
+build/
+
+# Production
 node_modules
 dist
 dist-ssr
 *.local
+
+# Environment
+.env
+.env*.local
+
+# Mobile
+android/
+ios/
 
 # Editor directories and files
 .vscode/*
