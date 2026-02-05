@@ -78,6 +78,8 @@ const ChatInput = memo(({ onSendMessage, showBottomNavPadding, onFocusChange, is
           type="text"
           value={text}
           onChange={(e) => setText(e.target.value)}
+          onFocus={() => onFocusChange?.(true)}
+          onBlur={() => onFocusChange?.(false)}
           placeholder="Messaggio alla stanza..."
           className="flex-1 px-4 py-2.5 bg-white border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm md:text-base placeholder-gray-400"
           style={{ fontSize: '16px' }}
@@ -197,6 +199,7 @@ const GlobalChat = memo<GlobalChatProps>(({
         onSendMessage={onSendMessage}
         showBottomNavPadding={showBottomNavPadding}
         isFocused={isFocused}
+        onFocusChange={onInputFocusChange}
       />
     </div>
   );

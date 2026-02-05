@@ -6,7 +6,7 @@ import { User, Message, Tenant } from '@/types';
 import { API_BASE_URL } from '@/config';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { sqliteService } from '@/lib/sqlite';
-import { Keyboard, KeyboardResize } from '@capacitor/keyboard';
+import { Keyboard, KeyboardResize, KeyboardStyle } from '@capacitor/keyboard';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { Capacitor } from '@capacitor/core';
@@ -169,6 +169,13 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
     useEffect(() => {
         if (!Capacitor.isNativePlatform()) return;
 
+        // Ensure white background if not logged in (Login screen)
+        if (!currentUser) {
+            document.body.style.backgroundColor = '#ffffff';
+            document.documentElement.style.backgroundColor = '#ffffff';
+            return;
+        }
+
         // When in chat (Global Room or Private Chat), use beige (#e5ddd5) to match the input container footer.
         // This ensures the "gap" behind the keyboard is seamless.
         // For other tabs (like Settings, Users) or lists, keep it white.
@@ -184,15 +191,20 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
             document.body.style.backgroundColor = '#ffffff';
             document.documentElement.style.backgroundColor = '#ffffff';
         };
-    }, [activeTab, selectedChatPeerId]);
+    }, [activeTab, selectedChatPeerId, currentUser]);
 
     useEffect(() => {
         // Keyboard Configuration & Listeners
         // Only attach listeners when user is logged in to avoid lag on Login screen
         if (Capacitor.isNativePlatform() && isLoggedIn) {
-            // Use Native resize so iOS shrinks entire webview when keyboard appears
-            Keyboard.setResizeMode({ mode: KeyboardResize.Native }).catch(err => {
+            // Use Body resize (lighter than native)
+            Keyboard.setResizeMode({ mode: KeyboardResize.Body }).catch(err => {
                 console.error("Error setting keyboard resize mode", err);
+            });
+
+            // Enforce Light Style for consistency
+            Keyboard.setStyle({ style: KeyboardStyle.Light }).catch(err => {
+                console.warn("Error setting keyboard style", err);
             });
 
             // Hide accessory bar for cleaner UI
@@ -536,6 +548,10 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
 
     const totalUnread = Object.values(privateChats).reduce((acc, chat) => acc + chat.unread, 0);
 
+    const handleInputFocus = (focused: boolean) => {
+        setIsInputFocused(focused);
+    };
+
     return (
         <div
             className="flex flex-col w-full h-full max-w-3xl mx-auto bg-white shadow-xl overflow-hidden relative"
@@ -551,6 +567,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                         headerTitle={tenant.name}
                         showBottomNavPadding={true}
                         isFocused={isInputFocused}
+                        onInputFocusChange={handleInputFocus}
                         isSyncing={isFetchingGlobal}
                     />
                 )}

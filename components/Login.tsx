@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { authClient, signIn, signUp } from '@/lib/auth-client';
 import { User, Gender } from '@/types';
 import { Capacitor } from '@capacitor/core';
+import { Keyboard, KeyboardStyle } from '@capacitor/keyboard';
 
 interface LoginProps {
   onLogin: (user: User) => void;
@@ -16,6 +17,17 @@ const Login: React.FC<LoginProps> = ({ onLogin, tenantName }) => {
   const [gender, setGender] = useState<Gender>('male');
   const [phone, setPhone] = useState('');
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (Capacitor.isNativePlatform()) {
+      // Enforce white background
+      document.body.style.backgroundColor = '#ffffff';
+      document.documentElement.style.backgroundColor = '#ffffff';
+
+      // Enforce Light Keyboard
+      Keyboard.setStyle({ style: KeyboardStyle.Light }).catch(() => { });
+    }
+  }, []);
 
   // Feature detection for WebAuthn/Passkeys
   const isWebAuthnSupported = typeof window !== 'undefined' &&
