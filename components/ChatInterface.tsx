@@ -8,7 +8,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { sqliteService } from '@/lib/sqlite';
 import { Keyboard, KeyboardResize, KeyboardStyle } from '@capacitor/keyboard';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
-import { StatusBar, Style } from '@capacitor/status-bar';
+
 import { Capacitor } from '@capacitor/core';
 
 // UI Components
@@ -217,16 +217,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
             // Hide accessory bar for cleaner UI
             Keyboard.setAccessoryBarVisible({ isVisible: false }).catch(() => { });
 
-            // StatusBar Configuration (Programmatic fix for white header standardization)
-            StatusBar.setOverlaysWebView({ overlay: false }).catch(err => {
-                console.error("Error setting StatusBar overlay", err);
-            });
-            StatusBar.setBackgroundColor({ color: '#ffffff' }).catch(err => {
-                console.warn("StatusBar background color not supported on this platform", err);
-            });
-            StatusBar.setStyle({ style: Style.Light }).catch(err => {
-                console.error("Error setting StatusBar style", err);
-            });
+
 
             let showListener: any;
             let hideListener: any;

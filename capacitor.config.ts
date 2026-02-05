@@ -17,11 +17,7 @@ const config: CapacitorConfig = {
     Keyboard: {
       resize: 'body' as any
     },
-    StatusBar: {
-      overlaysWebView: false,
-      backgroundColor: '#059669', // Brand Emerald 600
-      style: 'DARK'
-    }
+
   },
   ios: {
     backgroundColor: '#ffffff'
