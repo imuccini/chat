@@ -1,14 +1,15 @@
 'use client';
 
 import React, { useEffect, useState } from "react";
-import { useParams, notFound } from "next/navigation";
+import { usePathname, notFound } from "next/navigation";
 import ChatInterface from "@/components/ChatInterface";
 import { clientGetTenantBySlug, clientGetMessages } from "@/services/apiService";
 import { Tenant, Message } from "@/types";
 
 export default function TenantChatClient() {
-    const params = useParams();
-    const tenantSlug = params.tenantSlug as string;
+    const pathname = usePathname();
+    // Extract tenant slug from pathname (e.g., "/treno-lucca-aulla" -> "treno-lucca-aulla")
+    const tenantSlug = pathname?.replace(/^\//, '') || '';
 
     const [tenant, setTenant] = useState<Tenant | null>(null);
     const [initialMessages, setInitialMessages] = useState<Message[]>([]);
@@ -16,6 +17,13 @@ export default function TenantChatClient() {
     const [error, setError] = useState(false);
 
     useEffect(() => {
+        // Skip if no slug (root path)
+        if (!tenantSlug) {
+            setError(true);
+            setLoading(false);
+            return;
+        }
+
         async function loadData() {
             try {
                 const tenantData = await clientGetTenantBySlug(tenantSlug);
