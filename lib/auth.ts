@@ -9,6 +9,14 @@ import { prisma } from "./db";
  * This is crucial for Passkeys to work across localhost, local IPs, and production.
  */
 export const getAuth = (origin: string) => {
+    // BetterAuth requires baseURL to be http/https.
+    // If the origin is capacitor:// (iOS/Android), use the configured server URL as valid base
+    // but keep the original origin in trustedOrigins and for RP ID derivation.
+    const isCapacitor = origin.startsWith("capacitor://");
+    const baseURL = isCapacitor
+        ? (process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:3000")
+        : origin;
+
     const url = new URL(origin);
     const rpID = url.hostname;
 
@@ -17,13 +25,13 @@ export const getAuth = (origin: string) => {
             provider: "postgresql"
         }),
         secret: process.env.BETTER_AUTH_SECRET,
-        baseURL: origin,
+        baseURL: baseURL,
         debug: true,
         plugins: [
             passkey({
                 rpID,
                 rpName: "Local",
-                origin: origin
+                origin: origin // Keep original origin here for WebAuthn validation
             }),
             anonymous()
         ],
@@ -52,9 +60,10 @@ export const getAuth = (origin: string) => {
             "capacitor://localhost",
             "http://localhost",
             origin,
+            baseURL, // Ensure the fallback base is also trusted
             process.env.BETTER_AUTH_URL || "",
             process.env.NEXT_PUBLIC_SERVER_URL || ""
-        ].filter(Boolean)
+        ].filter((item, index, self) => Boolean(item) && self.indexOf(item) === index)
     });
 };
 

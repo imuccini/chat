@@ -32,7 +32,33 @@ nextApp.prepare().then(async () => {
     }
   });
 
-  app.use(cors());
+  const isValidOrigin = (origin) => {
+    if (!origin) return true; // Allow server-to-server or non-browser requests
+    const allowed = [
+      'capacitor://localhost',
+      'http://localhost',
+      'http://localhost:3000',
+    ];
+    // Check if it's in the allowed list OR if it's a local IP address (192.168.x.x, 10.x.x.x, etc.)
+    return allowed.includes(origin) ||
+      origin.startsWith('http://192.168.') ||
+      origin.startsWith('http://10.') ||
+      origin.startsWith('http://172.');
+  };
+
+  app.use(cors({
+    origin: (origin, callback) => {
+      if (isValidOrigin(origin)) {
+        callback(null, true);
+      } else {
+        console.warn(`Blocked by CORS: ${origin}`);
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin']
+  }));
 
   // Rate Limiting per API HTTP
   const limiter = rateLimit({

@@ -164,6 +164,28 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
 
     // Separate effect for Keyboard listeners to avoid re-binding loop
     const isLoggedIn = !!currentUser;
+
+    // Dynamic Background Color: Match body background to active tab to fix keyboard gap color
+    useEffect(() => {
+        if (!Capacitor.isNativePlatform()) return;
+
+        // When in chat (Global Room or Private Chat), use beige (#e5ddd5) to match the input container footer.
+        // This ensures the "gap" behind the keyboard is seamless.
+        // For other tabs (like Settings, Users) or lists, keep it white.
+        const isChatActive = activeTab === 'room' || !!selectedChatPeerId;
+        const color = isChatActive ? '#e5ddd5' : '#ffffff';
+
+        document.body.style.backgroundColor = color;
+        // Also set root element for safety
+        document.documentElement.style.backgroundColor = color;
+
+        return () => {
+            // Cleanup: reset on unmount
+            document.body.style.backgroundColor = '#ffffff';
+            document.documentElement.style.backgroundColor = '#ffffff';
+        };
+    }, [activeTab, selectedChatPeerId]);
+
     useEffect(() => {
         // Keyboard Configuration & Listeners
         // Only attach listeners when user is logged in to avoid lag on Login screen
