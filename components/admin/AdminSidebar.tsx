@@ -6,11 +6,16 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Bot, Home, Users, Settings, LogOut, Activity } from "lucide-react"
+import { logoutAction } from "@/app/actions/adminAuth"
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> { }
 
 export function AdminSidebar({ className }: SidebarProps) {
     const pathname = usePathname()
+
+    const handleLogout = async () => {
+        await logoutAction()
+    }
 
     const routes = [
         {
@@ -67,7 +72,11 @@ export function AdminSidebar({ className }: SidebarProps) {
                 </div>
             </div>
             <div className="absolute bottom-4 left-0 w-full px-3">
-                <Button variant="outline" className="w-full justify-start text-red-500 hover:text-red-600 hover:bg-red-50">
+                <Button
+                    onClick={handleLogout}
+                    variant="outline"
+                    className="w-full justify-start text-red-500 hover:text-red-600 hover:bg-red-50"
+                >
                     <LogOut className="mr-2 h-4 w-4" />
                     Logout
                 </Button>

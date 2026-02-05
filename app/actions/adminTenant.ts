@@ -2,11 +2,13 @@
 
 import { prisma } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
-import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
-import { authorizeTenant } from '@/lib/authorize';
+import { authorizeTenant, isGlobalAdmin } from '@/lib/authorize';
 
 export async function createTenantAction(formData: FormData) {
+    const { isSuperadmin } = await isGlobalAdmin();
+    if (!isSuperadmin) throw new Error("Unauthorized: Superadmin access required");
+
     const name = formData.get('name') as string;
     const slug = formData.get('slug') as string;
     const nasIds = (formData.get('nasIds') as string || "").split(',').map(s => s.trim()).filter(Boolean);
@@ -41,6 +43,9 @@ export async function createTenantAction(formData: FormData) {
 }
 
 export async function updateTenantAction(formData: FormData) {
+    const { isSuperadmin } = await isGlobalAdmin();
+    if (!isSuperadmin) throw new Error("Unauthorized: Superadmin access required");
+
     const id = formData.get('id') as string;
     const name = formData.get('name') as string;
     const slug = formData.get('slug') as string;
@@ -76,6 +81,9 @@ export async function updateTenantAction(formData: FormData) {
 }
 
 export async function deleteTenantAction(formData: FormData) {
+    const { isSuperadmin } = await isGlobalAdmin();
+    if (!isSuperadmin) throw new Error("Unauthorized: Superadmin access required");
+
     const id = formData.get('id') as string;
     await prisma.tenant.delete({ where: { id } });
     revalidatePath('/admin/tenants');
@@ -89,13 +97,15 @@ export async function addTenantMemberAction(formData: FormData) {
     const canManageOrders = formData.get('canManageOrders') === 'on';
     const canViewStats = formData.get('canViewStats') === 'on';
 
-    const session = await auth.api.getSession({ headers: await headers() });
-    if (!session?.user) throw new Error("Unauthorized");
+    const { isSuperadmin, user } = await isGlobalAdmin();
+    if (!isSuperadmin && !user) throw new Error("Unauthorized");
 
     // Double-Lock Authorization
     const forwarded = (await headers()).get("x-forwarded-for");
     const publicIp = forwarded ? forwarded.split(/, /)[0] : "127.0.0.1";
-    await authorizeTenant(session.user.id, tenantId, { publicIp });
+
+    // authorizeTenant handles the superadmin bypass and membership check
+    await authorizeTenant(user?.id || "", tenantId, { publicIp });
 
     await prisma.tenantMember.create({
         data: {
@@ -115,10 +125,10 @@ export async function removeTenantMemberAction(formData: FormData) {
     const id = formData.get('id') as string;
     const tenantId = formData.get('tenantId') as string;
 
-    const session = await auth.api.getSession({ headers: await headers() });
-    if (!session?.user) throw new Error("Unauthorized");
+    const { isSuperadmin, user } = await isGlobalAdmin();
+    if (!isSuperadmin && !user) throw new Error("Unauthorized");
 
-    await authorizeTenant(session.user.id, tenantId, {});
+    await authorizeTenant(user?.id || "", tenantId, {});
 
     await prisma.tenantMember.delete({ where: { id } });
     revalidatePath('/admin/tenants');
