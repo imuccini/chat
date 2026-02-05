@@ -293,6 +293,48 @@ nextApp.prepare().then(async () => {
       }
     });
 
+    socket.on('deleteMessage', async (data) => {
+      const { messageId, roomId, tenantSlug } = data;
+      if (!messageId || !tenantSlug) return;
+
+      const user = onlineUsers.get(socket.id);
+      if (!user) return;
+
+      try {
+        // Verify permissions
+        const tenant = await prisma.tenant.findUnique({
+          where: { slug: tenantSlug },
+          include: {
+            members: {
+              where: { userId: user.id }
+            }
+          }
+        });
+
+        const membership = tenant?.members[0];
+        const canModerate = membership && (membership.role === 'ADMIN' || membership.role === 'MODERATOR' || membership.canModerate);
+
+        if (!canModerate) {
+          socket.emit('error', { message: 'Unauthorized to delete messages' });
+          return;
+        }
+
+        await prisma.message.delete({
+          where: { id: messageId }
+        });
+
+        // Broadcast deletion
+        if (roomId) {
+          io.to(roomId).emit('messageDeleted', { messageId, roomId });
+        } else {
+          io.to(`tenant:${tenantSlug}`).emit('messageDeleted', { messageId });
+        }
+      } catch (e) {
+        console.error("Error deleting message:", e);
+        socket.emit('error', { message: 'Failed to delete message' });
+      }
+    });
+
     socket.on('disconnect', () => {
       const user = onlineUsers.get(socket.id);
       if (user) {

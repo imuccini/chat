@@ -17,6 +17,9 @@ export async function GET(request: Request) {
         headers: await headers()
     });
 
+    console.log("[API Membership] Session:", session?.user?.id, "Name:", session?.user?.name);
+    console.log("[API Membership] TenantId:", tenantId);
+
     if (!session?.user) {
         return NextResponse.json({ isMember: false, isAuthorized: false });
     }
@@ -26,7 +29,7 @@ export async function GET(request: Request) {
     const publicIp = forwarded ? forwarded.split(/, /)[0] : "127.0.0.1";
 
     try {
-        const { membership } = await authorizeTenant(session.user.id, tenantId, {
+        const { membership, isSuperadmin } = await authorizeTenant(session.user.id, tenantId, {
             bssid,
             publicIp
         });
@@ -34,6 +37,7 @@ export async function GET(request: Request) {
         return NextResponse.json({
             isMember: true,
             isAuthorized: true,
+            isSuperadmin,
             membership
         });
     } catch (error: any) {

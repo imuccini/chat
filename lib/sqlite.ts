@@ -137,6 +137,17 @@ class SQLiteService {
         }
     }
 
+    async deleteMessage(id: string) {
+        if (!this.db) await this.initialize();
+        if (!this.db) return;
+
+        try {
+            await this.db.run('DELETE FROM messages WHERE id = ?;', [id]);
+        } catch (err) {
+            console.error('Error deleting message from SQLite:', err);
+        }
+    }
+
     async getPrivateChats(currentUserId: string): Promise<{ peerId: string; messages: Message[] }[]> {
         await this.purgeOldMessages();
         if (!this.db) return [];

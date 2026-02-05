@@ -1,11 +1,13 @@
 import React, { useState, useRef, useEffect, memo, useCallback } from 'react';
 import { User, Message, Gender } from '@/types';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
+import { Trash2 } from 'lucide-react';
 
 interface GlobalChatProps {
   user: User;
   messages: Message[];
   onSendMessage: (text: string) => void;
+  onRemoveMessage?: (messageId: string) => void;
   onlineCount: number;
   isOnline: boolean;
   hideHeader?: boolean;
@@ -15,6 +17,7 @@ interface GlobalChatProps {
   onInputFocusChange?: (isFocused: boolean) => void;
   isSyncing?: boolean;
   isReadOnly?: boolean;
+  canModerate?: boolean;
   onBack?: () => void;
 }
 
@@ -76,7 +79,7 @@ const ChatInput = memo(({ onSendMessage, showBottomNavPadding, onFocusChange, is
   if (isReadOnly) {
     return (
       <footer className={`px-3 py-4 md:p-4 bg-[#e5ddd5] shrink-0 text-center text-gray-500 text-sm italic ${showBottomNavPadding ? 'pb-[calc(70px+env(safe-area-inset-bottom,0px)+8px)]' : 'pb-safe'}`}>
-        Only admins can post here.
+        Solo gli amministratori possono scrivere qui.
       </footer>
     );
   }
@@ -113,6 +116,7 @@ const GlobalChat = memo<GlobalChatProps>(({
   user,
   messages,
   onSendMessage,
+  onRemoveMessage,
   onlineCount,
   isOnline,
   hideHeader,
@@ -122,6 +126,7 @@ const GlobalChat = memo<GlobalChatProps>(({
   isFocused,
   isSyncing,
   isReadOnly,
+  canModerate,
   onBack
 }) => {
   const virtuosoRef = useRef<VirtuosoHandle>(null);
@@ -158,7 +163,7 @@ const GlobalChat = memo<GlobalChatProps>(({
     const showSenderInfo = index === 0 || messages[index - 1].senderId !== msg.senderId;
 
     return (
-      <div className={`flex ${isMe ? 'justify-end' : 'justify-start'} animate-message pb-4 px-4`}>
+      <div className={`flex ${isMe ? 'justify-end' : 'justify-start'} animate-message pb-4 px-4 group/msg`}>
         <div className={`flex flex-col max-w-[85%] ${isMe ? 'items-end' : 'items-start'}`}>
           {showSenderInfo && (
             <span className={`text-[10px] font-bold mb-1 px-2 uppercase tracking-tight flex items-center gap-1.5 ${isMe ? 'text-emerald-700' : 'text-gray-600'}`}>
@@ -170,8 +175,19 @@ const GlobalChat = memo<GlobalChatProps>(({
               {isMe ? 'Tu' : msg.senderAlias}
             </span>
           )}
-          <div className={`px-3 py-2 rounded-2xl shadow-sm ${isMe ? 'bg-emerald-500 text-white rounded-tr-none' : 'bg-white text-gray-800 rounded-tl-none border border-gray-100'}`}>
-            <p className="whitespace-pre-wrap break-words leading-relaxed text-[15px]">{msg.text}</p>
+          <div className="relative">
+            <div className={`px-3 py-2 rounded-2xl shadow-sm ${isMe ? 'bg-emerald-500 text-white rounded-tr-none' : 'bg-white text-gray-800 rounded-tl-none border border-gray-100'}`}>
+              <p className="whitespace-pre-wrap break-words leading-relaxed text-[15px]">{msg.text}</p>
+            </div>
+            {canModerate && (
+              <button
+                onClick={() => onRemoveMessage?.(msg.id)}
+                className={`absolute top-0 ${isMe ? '-left-8' : '-right-8'} p-1 text-gray-400 hover:text-red-500 opacity-0 group-hover/msg:opacity-100 transition-opacity`}
+                title="Elimina messaggio"
+              >
+                <Trash2 size={16} />
+              </button>
+            )}
           </div>
           <span className="text-[9px] text-gray-400 px-1 mt-0.5 opacity-70">
             {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -179,7 +195,7 @@ const GlobalChat = memo<GlobalChatProps>(({
         </div>
       </div>
     );
-  }, [user.id, messages]);
+  }, [user.id, messages, canModerate, onRemoveMessage]);
 
   return (
     <div className="w-full h-full flex flex-col bg-white">

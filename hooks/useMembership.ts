@@ -14,12 +14,15 @@ export function useMembership(tenantId?: string) {
     const { data: session } = useSession();
     const [membership, setMembership] = useState<Membership | null>(null);
     const [isAuthorized, setIsAuthorized] = useState(false);
+    const [isSuperadmin, setIsSuperadmin] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
+        console.log("[useMembership] Hook triggered for tenant:", tenantId, "User ID:", session?.user?.id);
         if (!session?.user || !tenantId) {
             setMembership(null);
             setIsAuthorized(false);
+            setIsSuperadmin(false);
             setIsLoading(false);
             return;
         }
@@ -38,13 +41,16 @@ export function useMembership(tenantId?: string) {
 
                 const response = await fetch(url.toString());
                 const data = await response.json();
+                console.log("[useMembership] Result for tenant", tenantId, data);
 
                 if (data.isMember) {
                     setMembership(data.membership);
                     setIsAuthorized(data.isAuthorized);
+                    setIsSuperadmin(data.isSuperadmin || false);
                 } else {
                     setMembership(null);
                     setIsAuthorized(false);
+                    setIsSuperadmin(false);
                 }
             } catch (err) {
                 console.error("Failed to check membership:", err);
@@ -56,12 +62,17 @@ export function useMembership(tenantId?: string) {
         checkMembership();
     }, [session?.user?.id, tenantId]);
 
-    const isAdmin = isAuthorized && (membership?.role === 'ADMIN' || membership?.role === 'MODERATOR');
+    const isAdmin = isSuperadmin || (isAuthorized && membership?.role?.toUpperCase() === 'ADMIN');
+    const isModerator = isAuthorized && (membership?.role?.toUpperCase() === 'MODERATOR' || !!membership?.canModerate);
+    const canManageTenant = isAdmin || isModerator;
 
     return {
         membership,
         isAuthorized,
+        isSuperadmin,
         isAdmin,
+        isModerator,
+        canManageTenant,
         isLoading
     };
 }

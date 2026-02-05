@@ -92,7 +92,8 @@ export async function authorizeTenant(userId: string, tenantId: string, context:
 
     return {
         tenant,
-        membership
+        membership,
+        isSuperadmin: false
     };
 }
 

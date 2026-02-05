@@ -1,14 +1,18 @@
 import React, { useState } from 'react';
 import { User } from '@/types';
+import { useMembership } from '@/hooks/useMembership';
+import { ShieldCheck, ShieldAlert } from 'lucide-react';
 
 interface SettingsProps {
     user: User;
     onLogout: () => void;
     onUpdateAlias: (newAlias: string) => void;
     onUpdateStatus: (newStatus: string) => void;
+    tenantId?: string;
 }
 
-const Settings: React.FC<SettingsProps> = ({ user, onLogout, onUpdateAlias, onUpdateStatus }) => {
+const Settings: React.FC<SettingsProps> = ({ user, onLogout, onUpdateAlias, onUpdateStatus, tenantId }) => {
+    const { isAdmin, isModerator } = useMembership(tenantId);
     const [isEditingAlias, setIsEditingAlias] = useState(false);
     const [isEditingStatus, setIsEditingStatus] = useState(false);
     const [newAlias, setNewAlias] = useState(user.alias);
@@ -47,10 +51,26 @@ const Settings: React.FC<SettingsProps> = ({ user, onLogout, onUpdateAlias, onUp
 
                     {/* Avatar Section - Photo edit removed as requested */}
                     <div className="py-8 flex flex-col items-center bg-white border-b border-gray-100">
-                        <div className="relative group">
+                        <div className="relative group mb-4">
                             <div className="w-24 h-24 bg-emerald-500 rounded-full flex items-center justify-center text-white text-4xl font-bold shadow-sm overflow-hidden">
                                 {(user.alias || (user as any).name || '?').charAt(0).toUpperCase()}
                             </div>
+                        </div>
+
+                        {/* Role Badges */}
+                        <div className="flex flex-wrap gap-2 px-4 justify-center">
+                            {isAdmin && (
+                                <div className="flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-700 rounded-full border border-blue-100 shadow-sm animate-in fade-in slide-in-from-top-2 duration-500">
+                                    <ShieldCheck size={14} className="fill-blue-100" />
+                                    <span className="text-xs font-bold uppercase tracking-wider">Admin</span>
+                                </div>
+                            )}
+                            {isModerator && (
+                                <div className="flex items-center gap-1.5 px-3 py-1 bg-purple-50 text-purple-700 rounded-full border border-purple-100 shadow-sm animate-in fade-in slide-in-from-top-2 duration-500">
+                                    <ShieldAlert size={14} className="fill-purple-100" />
+                                    <span className="text-xs font-bold uppercase tracking-wider">Moderatore</span>
+                                </div>
+                            )}
                         </div>
                     </div>
 

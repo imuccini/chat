@@ -20,6 +20,7 @@ import ChatList from './ChatList';
 import Settings from './Settings';
 import { RoomList } from './RoomList';
 import { useSwipeBack } from '@/hooks/useSwipeBack';
+import { useMembership } from '@/hooks/useMembership';
 import { useSession, signOut } from '@/lib/auth-client';
 
 interface ChatInterfaceProps {
@@ -34,6 +35,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
     const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [socket, setSocket] = useState<Socket | null>(null);
     const { data: session, isPending: isSessionLoading } = useSession();
+    const { canManageTenant } = useMembership(tenant.id);
 
     // UI State
     const [activeTab, setActiveTab] = useState<Tab>('room');
@@ -290,6 +292,18 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
             }
         });
 
+        newSocket.on('messageDeleted', async (data: { messageId: string, roomId?: string }) => {
+            console.log("[Socket] Message deleted:", data.messageId);
+            // Remove from SQLite
+            await sqliteService.deleteMessage(data.messageId);
+
+            // Update cache
+            const queryKey = ['messages', 'global', tenant.slug, data.roomId || null];
+            queryClient.setQueryData(queryKey, (prev: Message[] | undefined) => {
+                return (prev || []).filter(m => m.id !== data.messageId);
+            });
+        });
+
         newSocket.on('privateMessage', async (msg: Message) => {
             const isMe = msg.senderId === currentUser.id;
             const peerId = isMe ? msg.recipientId! : msg.senderId;
@@ -418,6 +432,15 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
             tenantSlug: tenant.slug
         });
     }, [currentUser, socket, tenant.slug, activeRoomId, queryClient, tenant.id]);
+
+    const handleDeleteMessage = useCallback((messageId: string) => {
+        if (!socket || !activeRoomId) return;
+        socket.emit('deleteMessage', {
+            messageId,
+            roomId: activeRoomId,
+            tenantSlug: tenant.slug
+        });
+    }, [socket, activeRoomId, tenant.slug]);
 
     const handlePrivateSend = useCallback(async (text: string) => {
         if (!currentUser || !socket || !selectedChatPeerId) return;
@@ -572,6 +595,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                         user={currentUser}
                         messages={messages}
                         onSendMessage={handleRoomSend}
+                        onRemoveMessage={handleDeleteMessage}
                         onlineCount={onlineUsers.length}
                         isOnline={isConnected}
                         headerTitle={tenant.rooms?.find(r => r.id === activeRoomId)?.name || tenant.name}
@@ -579,7 +603,8 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                         isFocused={isInputFocused}
                         onInputFocusChange={handleInputFocus}
                         isSyncing={isFetchingGlobal}
-                        isReadOnly={tenant.rooms?.find(r => r.id === activeRoomId)?.type === 'ANNOUNCEMENT' /* TODO: Admin check needed later */}
+                        isReadOnly={tenant.rooms?.find(r => r.id === activeRoomId)?.type === 'ANNOUNCEMENT' && !canManageTenant}
+                        canModerate={canManageTenant}
                         onBack={() => {
                             setActiveRoomId(null);
                         }}
@@ -609,6 +634,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                         onLogout={handleLogout}
                         onUpdateAlias={handleUpdateAlias}
                         onUpdateStatus={handleUpdateStatus}
+                        tenantId={tenant.id}
                     />
                 )}
             </div>
