@@ -64,7 +64,7 @@ const ChatInput = memo(({ onSendMessage, showBottomNavPadding, onFocusChange, is
 
   // Stabilized padding calculation to prevent the input from jumping and cancelling taps
   const footerPadding = isFocused
-    ? 'pb-3 pt-2'
+    ? 'pb-5 pt-2'
     : showBottomNavPadding
       ? 'pb-[calc(70px+env(safe-area-inset-bottom,0px)+8px)] md:pb-[90px] pt-3'
       : 'py-2';
@@ -77,10 +77,8 @@ const ChatInput = memo(({ onSendMessage, showBottomNavPadding, onFocusChange, is
           type="text"
           value={text}
           onChange={(e) => setText(e.target.value)}
-          onFocus={() => onFocusChange?.(true)}
-          onBlur={() => onFocusChange?.(false)}
           placeholder="Messaggio alla stanza..."
-          className="flex-1 px-4 py-2.5 bg-white border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-sm md:text-base placeholder-gray-400"
+          className="flex-1 px-4 py-2.5 bg-white border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm md:text-base placeholder-gray-400"
           style={{ fontSize: '16px' }}
         />
         <button
@@ -88,8 +86,8 @@ const ChatInput = memo(({ onSendMessage, showBottomNavPadding, onFocusChange, is
           className="p-2 flex items-center justify-center text-emerald-600 hover:text-emerald-700 active:scale-95 transition-transform"
           onMouseDown={(e) => e.preventDefault()}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 relative left-[2px]">
-            <path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" />
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
+            <path d="M19.4999 2.00098C20.0944 2.00063 20.6989 2.15072 21.2499 2.46875C22.924 3.43525 23.4977 5.57598 22.5312 7.25001L15.0311 20.2403C14.0646 21.9142 11.9238 22.488 10.2498 21.5215C9.41372 21.0387 8.85157 20.2605 8.61994 19.3975L7.1209 13.8028L15.8905 8.73927C16.3687 8.46311 16.5327 7.85126 16.2567 7.37306C15.9805 6.89505 15.3686 6.73096 14.8905 7.00685L6.12089 12.0713L2.02515 7.97462C0.658428 6.60771 0.658787 4.39204 2.02515 3.02539C2.65731 2.39319 3.53383 2.00021 4.49978 2L19.4999 2.00098Z" />
           </svg>
         </button>
       </form>
@@ -97,7 +95,7 @@ const ChatInput = memo(({ onSendMessage, showBottomNavPadding, onFocusChange, is
   );
 });
 
-const GlobalChat: React.FC<GlobalChatProps> = ({
+const GlobalChat = memo<GlobalChatProps>(({
   user,
   messages,
   onSendMessage,
@@ -188,7 +186,7 @@ const GlobalChat: React.FC<GlobalChatProps> = ({
           data={messages}
           initialTopMostItemIndex={messages.length - 1}
           itemContent={renderMessage}
-          followOutput="smooth"
+          followOutput={true}
           className="h-full w-full"
           alignToBottom={true}
         />
@@ -197,11 +195,10 @@ const GlobalChat: React.FC<GlobalChatProps> = ({
       <ChatInput
         onSendMessage={onSendMessage}
         showBottomNavPadding={showBottomNavPadding}
-        onFocusChange={onInputFocusChange}
         isFocused={isFocused}
       />
     </div>
   );
-};
+});
 
 export default GlobalChat;

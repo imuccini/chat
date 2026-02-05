@@ -15,19 +15,9 @@ export async function generateStaticParams() {
             select: { slug: true }
         });
 
-        // Always include these as fallback in case DB is empty
-        const fallbackSlugs = ['treno-lucca-aulla', 'pisa-centrale', 'demo'];
-        const dbSlugs = tenants.map(t => t.slug);
-        const allSlugs = [...new Set([...dbSlugs, ...fallbackSlugs])];
-
-        return allSlugs.map(slug => ({ tenantSlug: slug }));
+        return tenants.map(t => ({ tenantSlug: t.slug }));
     } catch (error) {
         console.error('Error fetching tenants for static generation:', error);
-        // Fallback to hardcoded list if DB is unavailable
-        return [
-            { tenantSlug: 'treno-lucca-aulla' },
-            { tenantSlug: 'pisa-centrale' },
-            { tenantSlug: 'demo' }
-        ];
+        return [];
     }
 }

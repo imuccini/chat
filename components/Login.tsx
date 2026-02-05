@@ -197,7 +197,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, tenantName }) => {
         <div className="space-y-4">
           <button
             onClick={() => setView('anonymous')}
-            className="w-full bg-white hover:bg-gray-50 text-gray-700 font-semibold py-4 rounded-xl border border-gray-200 transition-all flex items-center justify-center gap-2"
+            className="w-full bg-white hover:bg-gray-50 text-gray-700 font-semibold py-4 rounded-xl border border-gray-200 flex items-center justify-center gap-2"
           >
             Accesso anonimo
           </button>
@@ -265,7 +265,8 @@ const Login: React.FC<LoginProps> = ({ onLogin, tenantName }) => {
               value={alias}
               onChange={(e) => setAlias(e.target.value)}
               placeholder="es. ShadowHunter"
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-gray-800"
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-gray-800"
+              style={{ fontSize: '16px' }}
             />
           </div>
           <div>
@@ -286,7 +287,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, tenantName }) => {
               ))}
             </div>
           </div>
-          <button type="submit" className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-emerald-200">
+          <button type="submit" className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 rounded-xl shadow-lg shadow-emerald-200">
             Entra nella Stanza
           </button>
         </form>
@@ -306,7 +307,8 @@ const Login: React.FC<LoginProps> = ({ onLogin, tenantName }) => {
               value={alias}
               onChange={(e) => setAlias(e.target.value)}
               placeholder="es. MarcoPass"
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-gray-800"
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-gray-800"
+              style={{ fontSize: '16px' }}
             />
           </div>
           <div>
@@ -317,7 +319,8 @@ const Login: React.FC<LoginProps> = ({ onLogin, tenantName }) => {
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               placeholder="+39 333 1234567"
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-gray-800"
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-gray-800"
+              style={{ fontSize: '16px' }}
             />
           </div>
           <button type="submit" className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-emerald-200 flex items-center justify-center gap-2">

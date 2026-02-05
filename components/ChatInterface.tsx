@@ -148,10 +148,13 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
 
             // Keyboard Configuration & Listeners
             if (Capacitor.isNativePlatform()) {
-                // Use Native resize for better compatibility
-                Keyboard.setResizeMode({ mode: KeyboardResize.Native }).catch(err => {
+                // Use Body resize for smoother layout transitions on iOS
+                Keyboard.setResizeMode({ mode: KeyboardResize.Body }).catch(err => {
                     console.error("Error setting keyboard resize mode", err);
                 });
+
+                // Show accessory bar as per research suggestions for smoother iOS behavior
+                Keyboard.setAccessoryBarVisible({ isVisible: true }).catch(() => { });
 
                 // StatusBar Configuration (Programmatic fix for white header standardization)
                 StatusBar.setOverlaysWebView({ overlay: false }).catch(err => {
@@ -482,7 +485,6 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                         isOnline={true}
                         hideHeader={true}
                         showBottomNavPadding={false}
-                        onInputFocusChange={setIsInputFocused}
                         isFocused={isInputFocused}
                         isSyncing={false} // Private chat sync is separate
                     />
@@ -507,7 +509,6 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                         isOnline={isConnected}
                         headerTitle={tenant.name}
                         showBottomNavPadding={true}
-                        onInputFocusChange={setIsInputFocused}
                         isFocused={isInputFocused}
                         isSyncing={isFetchingGlobal}
                     />
@@ -542,7 +543,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
 
             {/* Bottom Navigation - Managed via React state for visibility */}
             <div
-                className={`transition-all duration-300 ease-in-out border-t border-gray-100 bg-white z-20 overflow-hidden ${isInputFocused ? 'opacity-0 pointer-events-none h-0' : 'opacity-100 h-auto'
+                className={`border-t border-gray-100 bg-white z-20 overflow-hidden ${isInputFocused ? 'hidden' : 'block'
                     }`}
             >
                 <BottomNav
