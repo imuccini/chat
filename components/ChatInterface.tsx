@@ -35,7 +35,13 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
     const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [socket, setSocket] = useState<Socket | null>(null);
     const { data: session, isPending: isSessionLoading } = useSession();
-    const { canManageTenant } = useMembership(tenant.id);
+    const { canManageTenant, isAdmin, isModerator } = useMembership(tenant.id, currentUser?.id);
+
+    useEffect(() => {
+        if (currentUser) {
+            console.log(`[ChatInterface] User: ${currentUser.alias} (${currentUser.id}), canManage: ${canManageTenant}, isAdmin: ${isAdmin}, isModerator: ${isModerator}`);
+        }
+    }, [currentUser, canManageTenant, isAdmin, isModerator]);
 
     // UI State
     const [activeTab, setActiveTab] = useState<Tab>('room');

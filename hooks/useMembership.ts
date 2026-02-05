@@ -10,16 +10,18 @@ interface Membership {
     canViewStats: boolean;
 }
 
-export function useMembership(tenantId?: string) {
+export function useMembership(tenantId?: string, forceUserId?: string) {
     const { data: session } = useSession();
+    const effectiveUserId = forceUserId || session?.user?.id;
+
     const [membership, setMembership] = useState<Membership | null>(null);
     const [isAuthorized, setIsAuthorized] = useState(false);
     const [isSuperadmin, setIsSuperadmin] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        console.log("[useMembership] Hook triggered for tenant:", tenantId, "User ID:", session?.user?.id);
-        if (!session?.user || !tenantId) {
+        console.log("[useMembership] Hook triggered for tenant:", tenantId, "Effective User ID:", effectiveUserId);
+        if (!effectiveUserId || !tenantId) {
             setMembership(null);
             setIsAuthorized(false);
             setIsSuperadmin(false);
@@ -39,9 +41,15 @@ export function useMembership(tenantId?: string) {
                     url.searchParams.append('bssid', wifi.bssid);
                 }
 
-                const response = await fetch(url.toString());
+                const response = await fetch(url.toString(), {
+                    cache: 'no-store'
+                });
                 const data = await response.json();
                 console.log("[useMembership] Result for tenant", tenantId, data);
+
+                if (data.error || data.reason) {
+                    console.warn("[useMembership] Authorization Warning:", data.error || data.reason, data.debug);
+                }
 
                 if (data.isMember) {
                     setMembership(data.membership);
@@ -60,7 +68,7 @@ export function useMembership(tenantId?: string) {
         }
 
         checkMembership();
-    }, [session?.user?.id, tenantId]);
+    }, [effectiveUserId, tenantId]);
 
     const isAdmin = isSuperadmin || (isAuthorized && membership?.role?.toUpperCase() === 'ADMIN');
     const isModerator = isAuthorized && (membership?.role?.toUpperCase() === 'MODERATOR' || !!membership?.canModerate);

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
-import { getAuth } from '@/lib/auth'; // Using getAuth to get the correct instance or fallback
+import { getAuth, getAuthFromHeaders } from '@/lib/auth'; // Using getAuth to get the correct instance or fallback
 import { headers } from 'next/headers';
 
 export async function POST(req: Request) {
@@ -27,7 +27,7 @@ export async function POST(req: Request) {
         }
 
         // 2. Check User existence
-        let user = await prisma.user.findFirst({
+        let user = await (prisma as any).user.findFirst({
             where: { phoneNumber: cleanPhone }
         });
 
@@ -58,7 +58,7 @@ export async function POST(req: Request) {
                 return NextResponse.json({ error: "Alias mancante", isNewUser: true }, { status: 400 });
             }
 
-            user = await prisma.user.create({
+            user = await (prisma as any).user.create({
                 data: {
                     name: alias, // Map alias to name
                     phoneNumber: cleanPhone,
@@ -69,36 +69,32 @@ export async function POST(req: Request) {
             });
         }
 
-        // 4. Create Session manually using Prisma (since internal API types are tricky)
-        // Better Auth session token format usually: base64 string or uuid. 
-        // Let's generate a secure token.
+        // 4. Create Session manually using Prisma
+        // Testing: better-auth might store raw tokens, not hashed
         const crypto = require('crypto');
-        const token = crypto.randomBytes(32).toString('base64');
+        const rawToken = crypto.randomBytes(32).toString('base64');
 
-        // Session expiry (1 year - effectively "never" log out unless explicit)
+        // Session expiry (1 year)
         const expiresAt = new Date();
         expiresAt.setDate(expiresAt.getDate() + 365);
 
-        const session = await prisma.session.create({
+        await prisma.session.create({
             data: {
                 userId: user.id,
-                token: token,
+                token: rawToken, // Store RAW token (testing hypothesis)
                 expiresAt: expiresAt,
                 ipAddress: req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip'),
                 userAgent: req.headers.get('user-agent')
             }
         });
 
-        // Set cookie
+        // Set cookie with the RAW token (not the hash)
         const response = NextResponse.json({
             success: true,
-            user: user,
-            session: session
+            user: user
         });
 
-        // Set the better-auth.session_token cookie
-        // Note: In production with secure cookies, we need Secure; HttpOnly; SameSite=Lax
-        response.cookies.set('better-auth.session_token', token, {
+        response.cookies.set('better-auth.session_token', rawToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',

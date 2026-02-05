@@ -69,6 +69,17 @@ export const getAuth = (origin: string) => {
 };
 
 /**
+ * Returns the auth instance matched to the incoming request.
+ */
+export const getAuthFromHeaders = async (hList: Headers) => {
+    const host = hList.get('host') || 'localhost:3000';
+    const protocol = hList.get('x-forwarded-proto') || (host.includes('localhost') ? 'http' : 'https');
+    const origin = hList.get('origin') || `${protocol}://${host}`;
+    console.log("[getAuthFromHeaders] Host:", host, "Origin:", origin);
+    return getAuth(origin);
+};
+
+/**
  * Default auth instance for background tasks or cases where a request is not available.
  * Uses the environment variable as a fallback.
  */
