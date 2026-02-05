@@ -27,7 +27,7 @@ interface ChatInterfaceProps {
     initialMessages: Message[];
 }
 
-type Tab = 'room' | 'users' | 'chats' | 'settings';
+type Tab = 'room' | 'users' | 'chats' | 'settings' | 'admin';
 type PrivateChatsMap = Record<string, { peer: User; messages: Message[]; unread: number }>;
 
 export default function ChatInterface({ tenant, initialMessages }: ChatInterfaceProps) {
@@ -621,12 +621,18 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                 <BottomNav
                     activeTab={activeTab}
                     onTabChange={(t) => {
+                        if (t === 'admin') {
+                            // Redirect to Admin dashboard or open management
+                            window.location.href = '/admin/dashboard';
+                            return;
+                        }
                         setActiveTab(t);
                         setSelectedChatPeerId(null);
                         if (t !== 'room') setActiveRoomId(null);
                     }}
                     usersCount={onlineUsers.length}
                     unreadChatsCount={totalUnread}
+                    tenantId={tenant.id}
                 />
             </div>
         </div>

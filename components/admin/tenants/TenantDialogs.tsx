@@ -15,18 +15,25 @@ import { Label } from "@/components/ui/label"
 import { TagInput } from "@/components/ui/tag-input"
 import { createTenantAction, updateTenantAction } from "@/app/actions/adminTenant"
 import { TenantWithDevices } from "./columns" // Import type
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 
 export function CreateTenantDialog() {
     const [open, setOpen] = useState(false);
+    const [mounted, setMounted] = useState(false);
     const router = useRouter();
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     const handleSubmit = async (formData: FormData) => {
         await createTenantAction(formData);
         setOpen(false);
         router.refresh();
     }
+
+    if (!mounted) return <Button variant="outline" disabled>Create New Tenant</Button>;
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>

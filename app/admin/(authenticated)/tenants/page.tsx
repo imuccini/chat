@@ -10,7 +10,14 @@ export const dynamic = 'force-dynamic';
 export default async function TenantsPage() {
     const [tenants, kpis] = await Promise.all([
         prisma.tenant.findMany({
-            include: { devices: true },
+            include: {
+                devices: true,
+                members: {
+                    include: {
+                        user: true
+                    }
+                }
+            },
             orderBy: { createdAt: 'desc' }
         }),
         getAdminKpis()

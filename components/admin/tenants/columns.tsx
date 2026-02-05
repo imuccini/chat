@@ -14,13 +14,15 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { deleteTenantAction } from "@/app/actions/adminTenant"
 
-// Extended type to include devices and KPIs
+// Extended type to include devices, members and KPIs
 export type TenantWithDevices = Tenant & {
     devices: NasDevice[]
+    members?: any[] // Detailed memberships (any used because of complex joined type)
     activeUsersCount?: number
 }
 
 import { EditTenantDialog } from "./TenantDialogs"
+import { MemberManagement } from "./MemberManagement"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 
@@ -93,7 +95,8 @@ export const columns: ColumnDef<TenantWithDevices>[] = [
             }
 
             return (
-                <>
+                <div className="flex items-center gap-2">
+                    <MemberManagement tenant={tenant} />
                     <EditTenantDialog open={showEdit} onOpenChange={setShowEdit} tenant={tenant} />
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -105,15 +108,15 @@ export const columns: ColumnDef<TenantWithDevices>[] = [
                         <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
                             <DropdownMenuItem onClick={() => setShowEdit(true)}>
-                                <Pencil className="mr-2 h-4 w-4" /> Edit
+                                <Pencil className="mr-2 h-4 w-4" /> Edit Details
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={handleDelete} className="text-red-600">
-                                <Trash className="mr-2 h-4 w-4" /> Delete
+                                <Trash className="mr-2 h-4 w-4" /> Delete Tenant
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
-                </>
+                </div>
             )
         },
     },

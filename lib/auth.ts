@@ -53,7 +53,8 @@ export const getAuth = (origin: string) => {
             additionalFields: {
                 phoneNumber: { type: "string", required: false },
                 gender: { type: "string", required: false },
-                isAnonymous: { type: "boolean", required: false }
+                isAnonymous: { type: "boolean", required: false },
+                role: { type: "string", required: false }
             }
         },
         trustedOrigins: [

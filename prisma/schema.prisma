@@ -15,6 +15,11 @@ model Tenant {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // Hardware logic for Double-Lock security
+  bssid     String?  // Router BSSID
+  staticIp  String?  // Fixed Public IP of the location
+
+  members   TenantMember[]
   messages  Message[]
   rooms     Room[]
   logs      SystemLog[]
@@ -43,9 +48,11 @@ model User {
   phoneNumber   String?
   gender        String?
   isAnonymous   Boolean   @default(false)
+  role          GlobalRole @default(USER)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
+  memberships   TenantMember[]
   sessions      Session[]
   accounts      Account[]
   messages      Message[]
@@ -98,6 +105,37 @@ model Verification {
   updatedAt  DateTime @updatedAt
 
   @@map("verification") // Better-auth standard
+}
+
+enum GlobalRole {
+  SUPERADMIN
+  USER
+}
+
+enum TenantRole {
+  ADMIN      // Can pay, manage members, manage everything
+  MODERATOR  // Can moderate messages
+  STAFF     // Can manage orders (future)
+}
+
+model TenantMember {
+  id        String   @id @default(uuid())
+  userId    String
+  tenantId  String
+  role      TenantRole @default(MODERATOR)
+  
+  // Granular permission flags
+  canModerate     Boolean @default(false)
+  canManageOrders Boolean @default(false)
+  canViewStats    Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, tenantId])
 }
 
 enum RoomType {
