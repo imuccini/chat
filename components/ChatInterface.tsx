@@ -148,8 +148,8 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
 
             // Keyboard Configuration & Listeners
             if (Capacitor.isNativePlatform()) {
-                // Use Body resize with zero-delay native patch
-                Keyboard.setResizeMode({ mode: KeyboardResize.Body }).catch(err => {
+                // Use Native resize for better compatibility
+                Keyboard.setResizeMode({ mode: KeyboardResize.Native }).catch(err => {
                     console.error("Error setting keyboard resize mode", err);
                 });
 
