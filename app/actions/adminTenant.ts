@@ -133,3 +133,33 @@ export async function removeTenantMemberAction(formData: FormData) {
     await prisma.tenantMember.delete({ where: { id } });
     revalidatePath('/admin/tenants');
 }
+
+export async function initRoomsAction(formData: FormData) {
+    const { isSuperadmin } = await isGlobalAdmin();
+    if (!isSuperadmin) throw new Error("Unauthorized: Superadmin access required");
+
+    const tenantId = formData.get('tenantId') as string;
+
+    // Check if tenant exists and get its name
+    const tenant = await prisma.tenant.findUnique({
+        where: { id: tenantId },
+        include: { rooms: true }
+    });
+
+    if (!tenant) throw new Error("Tenant not found");
+
+    // Only init if no rooms exist
+    if (tenant.rooms.length > 0) {
+        throw new Error("Tenant already has rooms");
+    }
+
+    // Create default rooms
+    await prisma.room.createMany({
+        data: [
+            { name: 'Annunci', type: 'ANNOUNCEMENT', tenantId },
+            { name: tenant.name, type: 'GENERAL', tenantId }
+        ]
+    });
+
+    revalidatePath('/admin/tenants');
+}

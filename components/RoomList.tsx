@@ -12,7 +12,7 @@ interface RoomListProps {
 export function RoomList({ rooms, onSelectRoom, activeRoomId }: RoomListProps) {
     return (
         <div className="flex flex-col h-full bg-white dark:bg-gray-900">
-            <header className="bg-white pt-safe border-b border-gray-100 sticky top-0 z-10 dark:bg-gray-900 dark:border-gray-800">
+            <header className="bg-white pt-safe sticky top-0 z-10 dark:bg-gray-900">
                 <div className="h-[60px] px-4 flex items-center justify-between">
                     <h1 className="text-2xl font-extrabold text-gray-900 dark:text-white tracking-tight">Stanze</h1>
                 </div>

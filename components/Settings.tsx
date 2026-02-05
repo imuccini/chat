@@ -40,7 +40,7 @@ const Settings: React.FC<SettingsProps> = ({ user, onLogout, onUpdateAlias, onUp
 
     return (
         <div className="flex flex-col h-full bg-gray-50">
-            <header className="bg-white pt-safe border-b border-gray-100 sticky top-0 z-10">
+            <header className="bg-white pt-safe sticky top-0 z-10">
                 <div className="h-[60px] px-4 flex items-center">
                     <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight">Profilo</h1>
                 </div>

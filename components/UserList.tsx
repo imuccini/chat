@@ -26,7 +26,7 @@ const UserList: React.FC<UserListProps> = ({ currentUser, users, onStartChat }) 
 
     return (
         <div className="flex flex-col h-full bg-white">
-            <header className="bg-white pt-safe border-b border-gray-100 sticky top-0 z-10 transition-all">
+            <header className="bg-white pt-safe sticky top-0 z-10 transition-all">
                 <div className="h-[60px] px-4 flex items-center justify-between">
                     <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight">Utenti</h1>
                     <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full uppercase tracking-wide">

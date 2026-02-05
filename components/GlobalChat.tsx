@@ -200,7 +200,7 @@ const GlobalChat = memo<GlobalChatProps>(({
   return (
     <div className="w-full h-full flex flex-col bg-white">
       {!hideHeader && (
-        <header className="bg-white pt-safe border-b border-gray-100 sticky top-0 z-10 shrink-0">
+        <header className="bg-white pt-safe sticky top-0 z-10 shrink-0">
           <div className="h-[60px] px-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
               {onBack && (

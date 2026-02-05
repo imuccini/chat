@@ -296,9 +296,6 @@ const Login: React.FC<LoginProps> = ({ onLogin, tenantName }) => {
 
         {view === 'anonymous' && (
           <form onSubmit={handleAnonymousSubmit} className="space-y-6">
-            <button type="button" onClick={() => setView('choice')} className="text-gray-400 text-sm flex items-center gap-1 hover:text-gray-600 mb-2">
-              ← Torna indietro
-            </button>
             <div className="text-center mb-6">
               <h2 className="text-xl font-bold text-gray-800">Benvenuto</h2>
               <p className="text-sm text-gray-500">Scegli un alias per entrare subito</p>
@@ -343,16 +340,14 @@ const Login: React.FC<LoginProps> = ({ onLogin, tenantName }) => {
               Entra nella Stanza
             </button>
 
-
+            <button type="button" onClick={() => setView('choice')} className="w-full text-gray-400 text-sm flex items-center justify-center gap-1 hover:text-gray-600 mt-4">
+              ← Torna indietro
+            </button>
           </form>
         )}
 
         {view === 'phone_input' && (
           <form onSubmit={handlePhoneSubmit} className="space-y-6">
-            <button type="button" onClick={() => setView('choice')} className="text-gray-400 text-sm flex items-center gap-1 hover:text-gray-600 mb-2">
-              ← Indietro
-            </button>
-
             <div className="text-center mb-6">
               <h2 className="text-xl font-bold text-gray-800">Accedi</h2>
               <p className="text-sm text-gray-500">Inserisci il tuo numero per accedere al profilo</p>
@@ -390,6 +385,10 @@ const Login: React.FC<LoginProps> = ({ onLogin, tenantName }) => {
               ) : (
                 <span>Invia Codice Verifica</span>
               )}
+            </button>
+
+            <button type="button" onClick={() => setView('choice')} className="w-full text-gray-400 text-sm flex items-center justify-center gap-1 hover:text-gray-600 mt-4">
+              ← Torna indietro
             </button>
           </form>
         )}

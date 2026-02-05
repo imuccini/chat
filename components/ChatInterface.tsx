@@ -545,7 +545,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                     />
                 )}
 
-                <header className="bg-white border-b border-gray-100 pt-safe text-gray-800 z-10 sticky top-0">
+                <header className="bg-white pt-safe text-gray-800 z-10 sticky top-0">
                     <div className="h-[60px] px-4 flex items-center gap-3">
                         <button onClick={() => setSelectedChatPeerId(null)} className="p-2 -ml-2 rounded-full hover:bg-gray-100 text-gray-600">
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">

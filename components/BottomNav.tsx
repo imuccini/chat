@@ -15,7 +15,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange, usersCoun
     const { isAdmin } = useMembership(tenantId);
 
     return (
-        <nav className="bg-white border-t border-gray-200 fixed bottom-0 left-0 right-0 z-50 h-[calc(70px+env(safe-area-inset-bottom,0px))] md:h-[80px] flex justify-around items-start pt-3 pb-[calc(env(safe-area-inset-bottom,0px)+8px)] shadow-[0_-1px_3px_rgba(0,0,0,0.05)]">
+        <nav className="bg-white fixed bottom-0 left-0 right-0 z-50 h-[calc(70px+env(safe-area-inset-bottom,0px))] md:h-[80px] flex justify-around items-start pt-3 pb-[calc(env(safe-area-inset-bottom,0px)+8px)]">
 
             {/* Tab 1: Room */}
             <button
@@ -30,7 +30,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange, usersCoun
                         } />
                     </svg>
                 </div>
-                <span className={`text-[10px] mt-1 ${activeTab === 'room' ? 'font-bold' : 'font-semibold'}`}>Stanza</span>
+                <span className={`text-[10px] mt-1 ${activeTab === 'room' ? 'font-bold' : 'font-semibold'}`}>Stanze</span>
             </button>
 
             {/* Tab 2: Users */}
@@ -82,16 +82,8 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange, usersCoun
                 <span className={`text-[10px] mt-1 ${activeTab === 'settings' ? 'font-bold' : 'font-semibold'}`}>Profilo</span>
             </button>
 
-            {/* Tab 5: Admin (Dynamic) */}
-            {isAdmin && (
-                <button
-                    onClick={() => onTabChange('admin')}
-                    className={`flex flex-col items-center justify-center w-full relative ${activeTab === 'admin' ? 'text-blue-600' : 'text-gray-500'}`}
-                >
-                    <ShieldCheck className={`h-6 w-6 md:h-7 md:w-7 ${activeTab === 'admin' ? 'fill-blue-100' : ''}`} />
-                    <span className={`text-[10px] mt-1 ${activeTab === 'admin' ? 'font-bold' : 'font-semibold'}`}>Admin</span>
-                </button>
-            )}
+            {/* Tab 5: Admin - REMOVED (admin dashboard reserved for superadmins) */}
+
         </nav>
     );
 };

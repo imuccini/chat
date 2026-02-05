@@ -2,7 +2,7 @@
 
 import { ColumnDef } from "@tanstack/react-table"
 import { Tenant, NasDevice } from "@prisma/client"
-import { MoreHorizontal, Pencil, Trash } from "lucide-react"
+import { MoreHorizontal, Pencil, Trash, Home } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
     DropdownMenu,
@@ -12,7 +12,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { deleteTenantAction } from "@/app/actions/adminTenant"
+import { deleteTenantAction, initRoomsAction } from "@/app/actions/adminTenant"
 
 // Extended type to include devices, members and KPIs
 export type TenantWithDevices = Tenant & {
@@ -109,6 +109,19 @@ export const columns: ColumnDef<TenantWithDevices>[] = [
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
                             <DropdownMenuItem onClick={() => setShowEdit(true)}>
                                 <Pencil className="mr-2 h-4 w-4" /> Edit Details
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={async () => {
+                                const formData = new FormData();
+                                formData.append('tenantId', tenant.id);
+                                try {
+                                    await initRoomsAction(formData);
+                                    router.refresh();
+                                    alert('Rooms initialized successfully!');
+                                } catch (e: any) {
+                                    alert(e.message || 'Failed to init rooms');
+                                }
+                            }}>
+                                <Home className="mr-2 h-4 w-4" /> Init Rooms
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={handleDelete} className="text-red-600">
