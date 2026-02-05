@@ -1,0 +1,49 @@
+spec:
+  name: quickchat
+  region: fra
+  services:
+    - name: chat-app
+      github:
+        repo: YOUR_GITHUB_REPO_URL # Example: owner/repo
+        branch: main
+        deploy_on_push: true
+      http_port: 3000
+      instance_count: 1
+      instance_size_slug: basic-xxs
+      build_command: npx prisma generate && npm run build
+      run_command: npm start
+      envs:
+        - key: DATABASE_URL
+          scope: RUN_AND_BUILD_TIME
+          value: ${db.DATABASE_URL}
+        - key: NODE_ENV
+          scope: RUN_AND_BUILD_TIME
+          value: production
+      domains:
+        - domain: chat.yourdomain.com # REPLACE WITH YOUR CHAT DOMAIN
+          type: PRIMARY
+
+    - name: marketing-site
+      github:
+        repo: YOUR_GITHUB_REPO_URL # Same repo
+        branch: main
+        deploy_on_push: true
+      http_port: 3000
+      instance_count: 1
+      instance_size_slug: basic-xxs
+      build_command: npm run build:marketing
+      run_command: npm run start:marketing
+      envs:
+        - key: NODE_ENV
+          scope: RUN_AND_BUILD_TIME
+          value: production
+      domains:
+        - domain: www.yourdomain.com # REPLACE WITH YOUR MARKETING DOMAIN
+          type: PRIMARY
+
+  databases:
+    - engine: PG
+      name: db
+      num_nodes: 1
+      size_slug: db-s-dev-database
+      version: "16"

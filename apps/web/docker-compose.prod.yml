@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  app:
+    container_name: chat_app
+    build: .
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      # Override DATABASE_URL to verify internal docker network hostname 'db'
+      - DATABASE_URL=postgresql://postgres:password@db:5432/chat_db
+      - NEXT_PUBLIC_SERVER_URL=${NEXT_PUBLIC_SERVER_URL}
+      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET}
+      - BETTER_AUTH_URL=${BETTER_AUTH_URL}
+    env_file:
+      - .env
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15-alpine
+    container_name: chat_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: chat_db
+    ports:
+      # Expose to host only if you need external access (e.g. debugging)
+      # Otherwise keep it internal for security
+      - "5432:5432"
+    volumes:
+      - postgres_data_prod:/var/lib/postgresql/data
+
+volumes:
+  postgres_data_prod:

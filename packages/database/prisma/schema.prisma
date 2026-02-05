@@ -1,0 +1,206 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Tenant {
+  id        String   @id @default(uuid())
+  name      String
+  slug      String   @unique
+  metadata  Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  bssid     String?
+  staticIp  String?
+
+  members   TenantMember[]
+  messages  Message[]
+  rooms     Room[]
+  logs      SystemLog[]
+  devices   NasDevice[]
+}
+
+model NasDevice {
+  id        String   @id @default(uuid())
+  nasId     String?  @unique
+  vpnIp     String?  @unique
+  publicIp  String?  @unique
+  bssid     String?  @unique
+  name      String?
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model User {
+  id            String    @id @default(uuid())
+  name          String?
+  email         String?   @unique
+  emailVerified Boolean?
+  image         String?
+  phoneNumber   String?
+  gender        String?
+  isAnonymous   Boolean   @default(false)
+  role          GlobalRole @default(USER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  memberships   TenantMember[]
+  sessions      Session[]
+  accounts      Account[]
+  messages      Message[]
+  passkeys      Passkey[]
+
+  @@map("user")
+  @@index([createdAt])
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id @default(uuid())
+  userId                String
+  accountId             String
+  providerId            String
+  accessToken           String?
+  refreshToken          String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id @default(uuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("verification")
+}
+
+enum GlobalRole {
+  SUPERADMIN
+  USER
+}
+
+enum TenantRole {
+  ADMIN
+  MODERATOR
+  STAFF
+}
+
+model TenantMember {
+  id        String   @id @default(uuid())
+  userId    String
+  tenantId  String
+  role      TenantRole @default(MODERATOR)
+  
+  canModerate     Boolean @default(false)
+  canManageOrders Boolean @default(false)
+  canViewStats    Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, tenantId])
+}
+
+enum RoomType {
+  ANNOUNCEMENT
+  GENERAL
+}
+
+model Room {
+  id        String   @id @default(cuid())
+  name      String
+  type      RoomType @default(GENERAL)
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  messages  Message[]
+  createdAt DateTime @default(now())
+}
+
+model Message {
+  id           String   @id @default(uuid())
+  text         String
+  createdAt    DateTime @default(now())
+  
+  senderId     String
+  senderAlias  String
+  senderGender String
+  recipientId  String?
+  
+  roomId       String?
+  room         Room?    @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  userId       String?
+  user         User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  tenantId     String
+  tenant       Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([roomId])
+  @@index([recipientId])
+  @@index([senderId])
+  @@index([createdAt])
+}
+
+model SystemLog {
+  id        String   @id @default(uuid())
+  event     String
+  details   Json?
+  createdAt DateTime @default(now())
+
+  tenantId  String?
+  tenant    Tenant?  @relation(fields: [tenantId], references: [id])
+}
+
+model Passkey {
+  id           String    @id
+  name         String?
+  publicKey    String
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  credentialID String
+  counter      Int
+  deviceType   String
+  backedUp     Boolean
+  transports   String?
+  aaguid       String?
+  createdAt    DateTime?
+
+  @@map("passkey")
+}

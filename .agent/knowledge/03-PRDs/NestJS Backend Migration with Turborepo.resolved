@@ -1,0 +1,136 @@
+# NestJS Backend Migration with Turborepo
+
+## Proposed Architecture
+
+```
+chatapp/
+├── apps/
+│   ├── web/              # Next.js frontend
+│   └── api/              # NestJS backend
+├── packages/
+│   ├── database/         # Prisma client (singleton)
+│   ├── dtos/             # Shared Zod schemas
+│   ├── types/            # WS contracts + CustomSocket
+│   └── config/           # Shared configs
+├── .env                  # Shared secrets (root level)
+├── turbo.json
+└── package.json
+```
+
+---
+
+## Phase 1: Monorepo Setup
+
+- Initialize Turborepo, move `chat` → `apps/web`
+- **packages/database**: Prisma with custom output + singleton export
+- **packages/dtos**: Zod schemas for validation
+- **Root .env**: Single source for `BETTER_AUTH_SECRET`, `DATABASE_URL`
+
+---
+
+## Phase 1.5: Type Contracts
+
+**packages/types** with CustomSocket and event interfaces:
+
+```typescript
+// CustomSocket for typed socket.data
+export interface SocketData {
+  user: { id: string; alias: string; tenantId?: string };
+  tenantSlug: string;
+  rooms: string[];
+}
+
+export interface CustomSocket extends Socket {
+  data: SocketData;
+}
+
+// Event contracts
+export interface ServerToClientEvents {
+  newMessage: (msg: Message) => void;
+  presenceUpdate: (users: User[]) => void;
+}
+
+export interface ClientToServerEvents {
+  join: (data: { user: User; tenantSlug: string }) => void;
+  sendMessage: (msg: Message) => void;
+}
+```
+
+---
+
+## Phase 2: NestJS Backend
+
+### Architecture Pattern
+
+```
+ChatGateway (smista pacchetti)
+    ↓
+ChatService (logica + transazioni)
+    ↓
+PrismaService (singleton dal packages/database)
+```
+
+### handleConnection for Capacitor Reconnects
+
+```typescript
+@WebSocketGateway()
+export class ChatGateway {
+  async handleConnection(socket: CustomSocket) {
+    // Validate JWT from handshake
+    const user = this.authService.validateToken(socket.handshake.auth.token);
+    if (!user) return socket.disconnect();
+    
+    // Store user data
+    socket.data.user = user;
+    
+    // Auto-rejoin rooms from DB (critical for Capacitor reconnects)
+    const memberships = await this.tenantService.getUserRooms(user.id);
+    memberships.forEach(room => socket.join(room.id));
+    socket.data.rooms = memberships.map(r => r.id);
+  }
+}
+```
+
+### TenantInterceptor
+
+Injects `tenantContext` into all services to prevent cross-tenant leaks.
+
+---
+
+## Phase 3: Redis Adapter
+
+- Install `@socket.io/redis-adapter`
+- User on Server A can message user on Server B
+- Handles Capacitor Wi-Fi ↔ Data transitions
+
+---
+
+## Phase 4: Environment Strategy
+
+**Root [.env](file:///Users/ivanmuccini/Desktop/chatapp/chat/.env)** (shared by both apps):
+
+```env
+DATABASE_URL=postgresql://...
+BETTER_AUTH_SECRET=...
+REDIS_URL=redis://...
+```
+
+**NestJS ConfigModule**:
+```typescript
+ConfigModule.forRoot({
+  envFilePath: path.join(__dirname, '../../.env'),
+  isGlobal: true,
+})
+```
+
+---
+
+## Phase 5: Migration & Cutover
+
+1. Parallel running during transition
+2. Next.js proxies `/api/*` to NestJS
+3. Remove [server.js](file:///Users/ivanmuccini/Desktop/chatapp/chat/server.js) after validation
+
+---
+
+## Estimated Effort: 14-22 hours
