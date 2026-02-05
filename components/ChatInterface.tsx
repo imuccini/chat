@@ -51,11 +51,9 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
 
     // 1. Initial Data Fetching (Offline-First)
     // For Global/Room messages
-    const { data: messages = initialMessages, isFetching: isFetchingGlobal } = useQuery({
+    const { data: messages = (activeRoomId ? [] : initialMessages), isFetching: isFetchingGlobal } = useQuery({
         queryKey: ['messages', 'global', tenant.slug, activeRoomId],
         queryFn: async () => {
-            // Fallback to initial messages if no room selected and initialMessages provided (for SSR/first load)
-            // But usually we want room specific.
             const targetRoomId = activeRoomId; // currently selected room
 
             // First load from SQLite
@@ -81,7 +79,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
 
             return localMessages.length > 0 ? localMessages : (targetRoomId ? [] : initialMessages);
         },
-        initialData: initialMessages, // Only relevant for initial SSR if room matches
+        initialData: activeRoomId ? undefined : initialMessages, // Only apply initialData if it matches (null = general)
     });
 
     // 2. Initialize User, Keyboard and Haptics
@@ -280,26 +278,16 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
         });
 
         newSocket.on('newMessage', async (msg: Message) => {
+            console.log("[Socket] New message received:", msg.id, "Room:", msg.roomId);
             await sqliteService.saveMessage(msg, true);
-            // Invalidate the specific room query or fallback
+
+            // Invalidate the specific room query
             if (msg.roomId) {
                 queryClient.invalidateQueries({ queryKey: ['messages', 'global', tenant.slug, msg.roomId] });
             } else {
-                // Fallback for global main or if logic dictates
-                // If we receive a message without roomId (legacy), invalidate all?
-                // Or just invalidate active room if it matches?
-                // Safer to invalidate active room query if we don't know
-                // Actually, best to invalidate list. But here we use 'messages', 'global', ...
-                // If we are viewing the room, we want to see it.
-                // Let's assume server sends roomId correctly now.
-                // For now, invalidate the one that matches our activeRoomId if possible, or just all related?
-                // React Query matching is fuzzy if we just pass prefix? No, exact usually.
-                // Let's rely on exact match for efficiency.
+                // Legacy / General chat (null roomId)
+                queryClient.invalidateQueries({ queryKey: ['messages', 'global', tenant.slug, null] });
             }
-            // For now, since we put activeRoomId in query key, we need to know which one to invalidate.
-            // If the message arrives and we are viewing that room, we want to update.
-            // We can invalidate all ['messages', 'global', tenant.slug] queries?
-            queryClient.invalidateQueries({ queryKey: ['messages', 'global', tenant.slug] });
         });
 
         newSocket.on('privateMessage', async (msg: Message) => {
