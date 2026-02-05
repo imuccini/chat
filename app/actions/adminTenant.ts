@@ -33,7 +33,7 @@ export async function createTenantAction(formData: FormData) {
             },
             rooms: {
                 create: [
-                    { name: 'Announcements', type: 'ANNOUNCEMENT' },
+                    { name: 'Annunci', type: 'ANNOUNCEMENT' },
                     { name: name, type: 'GENERAL' }
                 ]
             }

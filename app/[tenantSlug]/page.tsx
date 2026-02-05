@@ -5,8 +5,8 @@ export default function TenantChatPage() {
     return <TenantChatClient />;
 }
 
-// Dynamic fallback: must be false for output: export
-export const dynamicParams = false;
+// Dynamic parameters: allows accessing slugs not present at build time
+export const dynamicParams = true;
 
 // Generate static pages for all tenants in the database at build time
 export async function generateStaticParams() {
