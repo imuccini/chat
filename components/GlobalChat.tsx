@@ -126,6 +126,25 @@ const GlobalChat = memo<GlobalChatProps>(({
 }) => {
   const virtuosoRef = useRef<VirtuosoHandle>(null);
 
+  // Synchronize scroll with keyboard opening
+  useEffect(() => {
+    if (isFocused && messages.length > 0) {
+      // Use requestAnimationFrame to align with the layout change/keyboard animation
+      const scroll = () => {
+        virtuosoRef.current?.scrollToIndex({
+          index: messages.length - 1,
+          align: 'end',
+          behavior: 'auto' // Instant to 'stick' to the rising keyboard
+        });
+      };
+
+      requestAnimationFrame(scroll);
+      // Double trigger to ensure it catches the end of the animation as well
+      const timeout = setTimeout(scroll, 100);
+      return () => clearTimeout(timeout);
+    }
+  }, [isFocused, messages.length]);
+
   const getAvatarColor = (gender: string) => {
     switch (gender) {
       case 'male': return 'bg-blue-500';
