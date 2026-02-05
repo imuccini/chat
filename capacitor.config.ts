@@ -8,19 +8,23 @@ const config: CapacitorConfig = {
   appId: 'io.trenochat.app',
   appName: 'TrenoChat',
   webDir: 'out',
+  backgroundColor: '#ffffff',
   server: {
     androidScheme: 'http',
     cleartext: true
   },
   plugins: {
     Keyboard: {
-      resize: 'body' as any
+      resize: 'native' as any
     },
     StatusBar: {
       overlaysWebView: false,
       backgroundColor: '#059669', // Brand Emerald 600
       style: 'DARK'
     }
+  },
+  ios: {
+    backgroundColor: '#ffffff'
   }
 };
 

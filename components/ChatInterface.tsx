@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { User, Message, Tenant } from '@/types';
 import { API_BASE_URL } from '@/config';
@@ -99,8 +99,20 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                 joinedAt: new Date(session.user.createdAt).getTime()
             };
             console.log("[Session] Setting authenticated user:", authUser);
-            setCurrentUser(authUser);
-            localStorage.setItem('chat_user', JSON.stringify(authUser));
+
+            // Check if user actually changed to avoid re-renders
+            setCurrentUser(prev => {
+                if (prev &&
+                    prev.id === authUser.id &&
+                    prev.alias === authUser.alias &&
+                    prev.gender === authUser.gender &&
+                    prev.status === authUser.status
+                ) {
+                    return prev;
+                }
+                localStorage.setItem('chat_user', JSON.stringify(authUser));
+                return authUser;
+            });
         }
     }, [session, isSessionLoading]);
 
@@ -142,53 +154,60 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                 }
             }
 
-            // Add platform class to body for targeted CSS
-            const platform = Capacitor.getPlatform();
-            document.documentElement.classList.add(`platform-${platform}`);
-
-            // Keyboard Configuration & Listeners
-            if (Capacitor.isNativePlatform()) {
-                // Use Body resize for smoother layout transitions on iOS
-                Keyboard.setResizeMode({ mode: KeyboardResize.Body }).catch(err => {
-                    console.error("Error setting keyboard resize mode", err);
-                });
-
-                // Show accessory bar as per research suggestions for smoother iOS behavior
-                Keyboard.setAccessoryBarVisible({ isVisible: true }).catch(() => { });
-
-                // StatusBar Configuration (Programmatic fix for white header standardization)
-                StatusBar.setOverlaysWebView({ overlay: false }).catch(err => {
-                    console.error("Error setting StatusBar overlay", err);
-                });
-                StatusBar.setBackgroundColor({ color: '#ffffff' }).catch(err => {
-                    console.warn("StatusBar background color not supported on this platform", err);
-                });
-                StatusBar.setStyle({ style: Style.Light }).catch(err => {
-                    console.error("Error setting StatusBar style", err);
-                });
-
-                let showListener: any;
-                let hideListener: any;
-
-                const setup = async () => {
-                    showListener = await Keyboard.addListener('keyboardWillShow', () => {
-                        setIsInputFocused(true);
-                    });
-
-                    hideListener = await Keyboard.addListener('keyboardWillHide', () => {
-                        setIsInputFocused(false);
-                    });
-                };
-
-                setup();
-
-                return () => {
-                    if (showListener) showListener.remove();
-                    if (hideListener) hideListener.remove();
-                };
-            }
         }
-    }, [tenant.slug]);
+
+        // Add platform class to body for targeted CSS
+        const platform = Capacitor.getPlatform();
+        document.documentElement.classList.add(`platform-${platform}`);
+
+    }, [tenant.slug]); // Removed currentUser from dependency as it caused loops
+
+    // Separate effect for Keyboard listeners to avoid re-binding loop
+    const isLoggedIn = !!currentUser;
+    useEffect(() => {
+        // Keyboard Configuration & Listeners
+        // Only attach listeners when user is logged in to avoid lag on Login screen
+        if (Capacitor.isNativePlatform() && isLoggedIn) {
+            // Use Native resize so iOS shrinks entire webview when keyboard appears
+            Keyboard.setResizeMode({ mode: KeyboardResize.Native }).catch(err => {
+                console.error("Error setting keyboard resize mode", err);
+            });
+
+            // Hide accessory bar for cleaner UI
+            Keyboard.setAccessoryBarVisible({ isVisible: false }).catch(() => { });
+
+            // StatusBar Configuration (Programmatic fix for white header standardization)
+            StatusBar.setOverlaysWebView({ overlay: false }).catch(err => {
+                console.error("Error setting StatusBar overlay", err);
+            });
+            StatusBar.setBackgroundColor({ color: '#ffffff' }).catch(err => {
+                console.warn("StatusBar background color not supported on this platform", err);
+            });
+            StatusBar.setStyle({ style: Style.Light }).catch(err => {
+                console.error("Error setting StatusBar style", err);
+            });
+
+            let showListener: any;
+            let hideListener: any;
+
+            const setup = async () => {
+                showListener = await Keyboard.addListener('keyboardDidShow', () => {
+                    setIsInputFocused(true);
+                });
+
+                hideListener = await Keyboard.addListener('keyboardDidHide', () => {
+                    setIsInputFocused(false);
+                });
+            };
+
+            setup();
+
+            return () => {
+                if (showListener) showListener.remove();
+                if (hideListener) hideListener.remove();
+            };
+        }
+    }, [isLoggedIn]);
 
     // 3. Connect Socket & Handlers
     useEffect(() => {
@@ -331,7 +350,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
         socket.emit('join', { user: updatedUser, tenantSlug: tenant.slug });
     };
 
-    const handleGlobalSend = async (text: string) => {
+    const handleGlobalSend = useCallback(async (text: string) => {
         if (!currentUser || !socket) return;
 
         const tempId = Date.now().toString();
@@ -361,9 +380,9 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
             ...optimisticMsg,
             tenantSlug: tenant.slug
         });
-    };
+    }, [currentUser, socket, tenant.slug, queryClient]);
 
-    const handlePrivateSend = async (text: string) => {
+    const handlePrivateSend = useCallback(async (text: string) => {
         if (!currentUser || !socket || !selectedChatPeerId) return;
 
         const msg: Message = {
@@ -398,7 +417,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
             tenantSlug: tenant.slug,
             isPrivate: true // Signal to server
         });
-    }
+    }, [currentUser, socket, selectedChatPeerId, tenant.slug]);
 
     const handleStartChat = (peer: User) => {
         if (!privateChats[peer.id]) {

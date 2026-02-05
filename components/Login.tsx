@@ -261,6 +261,10 @@ const Login: React.FC<LoginProps> = ({ onLogin, tenantName }) => {
             <input
               type="text"
               required
+              autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="off"
+              spellCheck={false}
               maxLength={20}
               value={alias}
               onChange={(e) => setAlias(e.target.value)}
@@ -303,6 +307,10 @@ const Login: React.FC<LoginProps> = ({ onLogin, tenantName }) => {
             <input
               type="text"
               required
+              autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="off"
+              spellCheck={false}
               maxLength={20}
               value={alias}
               onChange={(e) => setAlias(e.target.value)}

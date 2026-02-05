@@ -62,12 +62,13 @@ const ChatInput = memo(({ onSendMessage, showBottomNavPadding, onFocusChange, is
     }
   };
 
-  // Stabilized padding calculation to prevent the input from jumping and cancelling taps
+  // With native keyboard resize, viewport shrinks automatically
+  // Just need safe-area padding when keyboard is hidden (for bottom nav space)
   const footerPadding = isFocused
-    ? 'pb-5 pt-2'
+    ? 'pb-2 pt-2'
     : showBottomNavPadding
       ? 'pb-[calc(70px+env(safe-area-inset-bottom,0px)+8px)] md:pb-[90px] pt-3'
-      : 'py-2';
+      : 'pb-safe pt-2';
 
   return (
     <footer className={`px-3 py-2 md:p-4 bg-[#e5ddd5] shrink-0 ${footerPadding}`}>
