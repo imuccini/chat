@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Bot, Home, Users, Settings, LogOut } from "lucide-react"
+import { Bot, Home, Users, Settings, LogOut, Activity } from "lucide-react"
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> { }
 
@@ -21,9 +21,15 @@ export function AdminSidebar({ className }: SidebarProps) {
         },
         {
             label: "Tenants",
-            icon: Users,
+            icon: Activity,
             href: "/admin/tenants",
             active: pathname === "/admin/tenants",
+        },
+        {
+            label: "Users",
+            icon: Users,
+            href: "/admin/users",
+            active: pathname === "/admin/users",
         },
         {
             label: "Settings",

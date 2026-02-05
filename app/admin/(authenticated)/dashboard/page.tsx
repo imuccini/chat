@@ -2,9 +2,6 @@ import { prisma } from '@/lib/db';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
-import { columns } from '@/components/admin/tenants/columns';
-import { DataTable } from '@/components/admin/tenants/data-table';
-import { CreateTenantDialog } from '@/components/admin/tenants/TenantDialogs';
 import { getAdminKpis } from '@/lib/kpi';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, MessageSquare, Activity } from "lucide-react";
@@ -18,21 +15,10 @@ export default async function AdminDashboard() {
         redirect('/admin/login');
     }
 
-    const [tenants, kpis] = await Promise.all([
-        prisma.tenant.findMany({
-            include: { devices: true },
-            orderBy: { createdAt: 'desc' }
-        }),
-        getAdminKpis()
-    ]);
-
-    const tenantsWithKpis = tenants.map(t => ({
-        ...t,
-        activeUsersCount: kpis.tenantActiveCounts[t.id] || 0
-    }));
+    const kpis = await getAdminKpis();
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-12">
             <div className="grid gap-4 md:grid-cols-3">
                 <Card className="bg-white/50 backdrop-blur-sm border-emerald-100">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -69,16 +55,6 @@ export default async function AdminDashboard() {
             </div>
 
             <KpiDashboard trends={kpis.trends} split={kpis.split} />
-
-            <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                    <h2 className="text-2xl font-bold tracking-tight text-gray-800">Tenants</h2>
-                    <CreateTenantDialog />
-                </div>
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden px-1">
-                    <DataTable columns={columns} data={tenantsWithKpis} />
-                </div>
-            </div>
         </div>
     );
 }
