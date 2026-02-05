@@ -49,7 +49,7 @@ const Settings: React.FC<SettingsProps> = ({ user, onLogout, onUpdateAlias, onUp
                     <div className="py-8 flex flex-col items-center bg-white border-b border-gray-100">
                         <div className="relative group">
                             <div className="w-24 h-24 bg-emerald-500 rounded-full flex items-center justify-center text-white text-4xl font-bold shadow-sm overflow-hidden">
-                                {user.alias.charAt(0).toUpperCase()}
+                                {(user.alias || (user as any).name || '?').charAt(0).toUpperCase()}
                             </div>
                         </div>
                     </div>
@@ -111,7 +111,7 @@ const Settings: React.FC<SettingsProps> = ({ user, onLogout, onUpdateAlias, onUp
                                             />
                                         ) : (
                                             <span className="text-[17px] text-gray-900">
-                                                {user.alias}
+                                                {user.alias || (user as any).name || 'User'}
                                             </span>
                                         )}
                                     </div>

@@ -9,39 +9,177 @@ interface LoginProps {
   tenantName: string;
 }
 
-type View = 'choice' | 'anonymous' | 'passkey_reg' | 'loading';
+type View = 'phone_input' | 'otp_verification' | 'profile_completion' | 'loading' | 'choice' | 'anonymous' | 'passkey_reg' | 'continue'; // Keeping old ones for safety during transition
+
+// Local definition extending/matching expected user shape
+// In a real app this should be imported from shared types that match DB
+// Local definitions
+// We need 'User' from types, but also compatible with better-auth session user which has name/image/email
+interface AppUser extends User {
+  name?: string;
+  image?: string;
+  phoneNumber?: string;
+  email?: string;
+  // ensure alias/gender are present or optional if they come from User
+}
 
 const Login: React.FC<LoginProps> = ({ onLogin, tenantName }) => {
-  const [view, setView] = useState<View>('choice');
+  const [view, setView] = useState<View>('choice'); // Default to Choice selection
+  const [existingUser, setExistingUser] = useState<AppUser | null>(null);
   const [alias, setAlias] = useState('');
   const [gender, setGender] = useState<Gender>('male');
   const [phone, setPhone] = useState('');
+  const [otp, setOtp] = useState('');
   const [error, setError] = useState<string | null>(null);
+
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (Capacitor.isNativePlatform()) {
-      // Enforce white background
       document.body.style.backgroundColor = '#ffffff';
       document.documentElement.style.backgroundColor = '#ffffff';
-
-      // Enforce Light Keyboard
       Keyboard.setStyle({ style: KeyboardStyle.Light }).catch(() => { });
     }
   }, []);
 
-  // Feature detection for WebAuthn/Passkeys
-  const isWebAuthnSupported = typeof window !== 'undefined' &&
-    !!window.PublicKeyCredential &&
-    (window.isSecureContext || window.location.hostname === 'localhost');
+  const handlePhoneSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    if (phone.length < 9) return;
 
-  // Platform & Social visibility
-  const platform = Capacitor.getPlatform();
-  const isApple = platform === 'ios' || (typeof window !== 'undefined' && /Mac|iPhone|iPad|iPod/.test(navigator.userAgent));
-  const isAndroid = platform === 'android' || (typeof window !== 'undefined' && /Android/.test(navigator.userAgent));
+    setIsLoading(true);
+    try {
+      const res = await fetch('/api/auth/otp/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: '+39' + phone })
+      });
 
-  const showApple = isApple && !!process.env.NEXT_PUBLIC_APPLE_CLIENT_ID;
-  const showGoogle = isAndroid && !!process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-  const anySocial = showApple || showGoogle;
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Errore invio SMS");
+      }
+
+      setIsLoading(false);
+      setView('otp_verification');
+    } catch (err: any) {
+      setIsLoading(false);
+      setError(err.message);
+    }
+  };
+
+  const handleOtpSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    if (otp.length !== 6) return;
+
+    setIsLoading(true);
+    try {
+      const res = await fetch('/api/auth/otp/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: '+39' + phone, code: otp }) // Alias is optional here, we check user existence
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Codice non valido");
+      }
+
+      // Special case: New user needs alias (now returns 200)
+      if (data.isNewUser) {
+        setIsLoading(false);
+        setView('profile_completion');
+        return;
+      }
+
+      if (data.success && data.user) {
+        // Login successful
+        // Ensure user has alias (map from name if needed)
+        const appUser = {
+          ...data.user,
+          alias: data.user.alias || data.user.name || 'User'
+        };
+
+        onLogin(appUser);
+      }
+    } catch (err: any) {
+      setIsLoading(false);
+      setError(err.message);
+    }
+  };
+
+  const handleProfileSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+
+    setIsLoading(true);
+    try {
+      // Retry verify with alias to create user
+      const res = await fetch('/api/auth/otp/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phone: '+39' + phone,
+          code: otp,
+          alias: alias.trim(),
+          gender: gender
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Errore creazione profilo");
+      }
+
+      if (data.success && data.user) {
+        const appUser = {
+          ...data.user,
+          alias: data.user.alias || data.user.name || 'User'
+        };
+        onLogin(appUser);
+      }
+    } catch (err: any) {
+      setIsLoading(false);
+      setError(err.message);
+    }
+  };
+
+  useEffect(() => {
+    // Check for existing session
+    const checkSession = async () => {
+      try {
+        const { data: session } = await authClient.getSession();
+        if (session?.user) {
+          // The session.user from better-auth usually has name/email/image/id etc.
+          // We cast it to AppUser, assuming we extended User type properly or it is compatible enough
+          // We might need to fetch full user details if session user is partial
+          const user = session.user as unknown as AppUser;
+          if (!user.alias && user.name) user.alias = user.name;
+
+          setExistingUser(user);
+          setView('continue');
+        }
+      } catch (e) {
+        // No session
+      }
+    };
+    checkSession();
+  }, []);
+
+  const handleContinue = () => {
+    if (existingUser) {
+      onLogin(existingUser);
+    }
+  };
+
+  const handleDifferentUser = () => {
+    authClient.signOut().then(() => {
+      setExistingUser(null);
+      setView('phone_input');
+    });
+  };
 
   const handleAnonymousSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,120 +197,11 @@ const Login: React.FC<LoginProps> = ({ onLogin, tenantName }) => {
     });
   };
 
-  const handlePasskeyLogin = async () => {
-    setError(null);
-    setView('loading');
-    try {
-      console.log("[Passkey] Starting authentication...");
-      const { data, error } = await authClient.signIn.passkey();
-      if (error) {
-        console.error("[Passkey] Login error:", error);
-        if (error.status === 404 || (error as any).code === "PASSKEY_NOT_FOUND") {
-          setError("Nessuna Passkey trovata per questo dispositivo. Registrati prima!");
-        } else if (error.message === "auth cancelled" || error.message === "Authentication cancelled") {
-          setError("Autenticazione fallita");
-        } else {
-          setError(error.message || "Errore durante l'accesso");
-        }
-        setView('choice');
-      }
-    } catch (err: any) {
-      console.error("[Passkey] Unexpected login error:", err);
-      if (err.name === 'NotAllowedError') {
-        setError("L'operazione non è permessa in questo contesto. Assicurati di usare 'localhost' o HTTPS per accedere alla chat.");
-      } else {
-        setError(err.message || "Errore inaspettato");
-      }
-      setView('choice');
-    }
-  };
+  // Feature detection for WebAuthn/Passkeys
+  const isWebAuthnSupported = typeof window !== 'undefined' &&
+    !!window.PublicKeyCredential &&
+    (window.isSecureContext || window.location.hostname === 'localhost');
 
-  const handleSocialLogin = async (provider: 'google' | 'apple') => {
-    setError(null);
-    try {
-      await authClient.signIn.social({
-        provider,
-        callbackURL: window.location.href, // Return to current page/tenant
-      });
-    } catch (err: any) {
-      console.error(`[Social] ${provider} login error:`, err);
-      setError(`Errore durante l'accesso con ${provider}`);
-    }
-  };
-
-  const handlePasskeyRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!alias.trim() || !phone.trim()) return;
-
-    setError(null);
-    setView('loading');
-    try {
-      // Set a flag so ChatInterface doesn't redirect immediately upon anonymous session creation
-      localStorage.setItem('waiting_for_passkey', 'true');
-
-      // 1. Create anonymous session first (Passkey registration requires a session)
-      const { data: anonData, error: anonError } = await authClient.signIn.anonymous();
-      if (anonError) {
-        localStorage.removeItem('waiting_for_passkey');
-        setError(anonError.message || "Errore durante l'inizializzazione");
-        setView('passkey_reg');
-        return;
-      }
-
-      // 2. Update user profile
-      const { error: updateError } = await authClient.updateUser({
-        name: alias.trim(),
-        // @ts-ignore - custom fields
-        phoneNumber: phone.trim(),
-        gender: gender
-      });
-      if (updateError) {
-        console.warn("Profile update failed, continuing with passkey", updateError);
-      }
-
-      // 3. Register the Passkey
-      console.log("[Passkey] Starting biometric registration...");
-      const { data, error: passkeyError } = await authClient.passkey.addPasskey({
-        name: 'Passkey Principale'
-      });
-
-      if (passkeyError) {
-        console.error("[Passkey] Registration error:", passkeyError);
-        localStorage.removeItem('waiting_for_passkey');
-        if (passkeyError.message === "auth cancelled" || passkeyError.message === "Authentication cancelled") {
-          setError("Autenticazione fallita");
-        } else {
-          setError(passkeyError.message || "Errore durante la registrazione biometrica");
-        }
-        setView('passkey_reg');
-      } else {
-        console.log("[Passkey] Registration successful!");
-
-        // Final "Account Upgrade": Set isAnonymous to false
-        await authClient.updateUser({
-          // @ts-ignore
-          isAnonymous: false
-        });
-
-        localStorage.removeItem('waiting_for_passkey');
-        // Force session refresh or manually callback
-        setTimeout(() => {
-          window.location.reload();
-        }, 500);
-      }
-    } catch (err: any) {
-      console.error("[Passkey] Unexpected error:", err);
-      localStorage.removeItem('waiting_for_passkey');
-      if (err.name === 'NotAllowedError' || err.message === "auth cancelled" || err.message === "Authentication cancelled") {
-        setError(err.name === 'NotAllowedError'
-          ? "L'operazione non è permessa in questo contesto. Assicurati di usare 'localhost' o HTTPS per accedere alla chat."
-          : "Autenticazione fallita");
-      } else {
-        setError(err.message || "Errore inaspettato");
-      }
-      setView('passkey_reg');
-    }
-  };
 
   const genderLabels: Record<Gender, string> = {
     male: 'Maschio',
@@ -180,181 +209,297 @@ const Login: React.FC<LoginProps> = ({ onLogin, tenantName }) => {
     other: 'Altro'
   };
 
-  if (view === 'loading') {
-    return (
-      <div className="bg-white p-6 sm:p-8 w-full h-full sm:h-auto sm:max-w-md sm:rounded-2xl sm:shadow-xl sm:border border-gray-100 flex flex-col items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mb-4" />
-        <p className="text-gray-500">In attesa...</p>
-      </div>
-    );
-  }
+  // Removed fallback Loading view block to support inline loading state
 
   return (
-    <div className="bg-white p-6 sm:p-8 w-full h-full sm:h-auto sm:max-w-md sm:rounded-2xl sm:shadow-xl sm:border border-gray-100 flex flex-col justify-center">
-      <div className="text-center mb-8">
-        <div className="w-24 h-24 mx-auto mb-6 flex items-center justify-center">
+    <div className="bg-white p-6 sm:p-8 w-full h-full sm:h-auto sm:max-w-md sm:rounded-2xl sm:shadow-xl sm:border border-gray-100 flex flex-col min-h-screen sm:min-h-[600px] justify-between">
+      <div className={`flex flex-col items-center transition-all duration-500 ${view === 'choice' || view === 'continue' ? 'mt-4 mb-2' : 'mt-2 mb-2'}`}>
+        <div className={`transition-all duration-300 ${view === 'choice' || view === 'continue' ? 'w-24 h-24 mb-12' : 'w-16 h-16 mb-2'}`}>
           <img src="/local_logo.svg" alt="Local Logo" className="w-full h-full object-contain" />
         </div>
-        <h1 className="text-2xl font-bold text-gray-800 tracking-tight">{tenantName}</h1>
-        {view === 'choice' && <p className="text-gray-500 mt-2 text-sm">chatta in modo anonimo o crea un profilo sicuro</p>}
+
+        {(view === 'choice' || view === 'continue') && (
+          <div className="animate-in fade-in slide-in-from-top-2 duration-700 text-center">
+            <p className="text-emerald-600 font-bold text-[11px] uppercase tracking-[0.25em] mb-20 px-8 leading-relaxed">
+              Chatta con le persone intorno a te
+            </p>
+
+            <div className="space-y-2">
+              <p className="text-gray-400 text-[10px] uppercase tracking-[0.15em] font-medium">Ti trovi nello spazio:</p>
+              <h1 className="text-3xl font-black text-gray-900 tracking-tight leading-tight">
+                {tenantName}
+              </h1>
+            </div>
+          </div>
+        )}
       </div>
 
-      {error && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-100 text-red-600 text-sm rounded-xl text-center">
-          {error}
-        </div>
-      )}
+      <div className="flex-1 flex flex-col justify-center py-12">
 
-      {view === 'choice' && (
-        <div className="space-y-4">
-          <button
-            onClick={() => setView('anonymous')}
-            className="w-full bg-white hover:bg-gray-50 text-gray-700 font-semibold py-4 rounded-xl border border-gray-200 flex items-center justify-center gap-2"
-          >
-            Accesso anonimo
-          </button>
+        {view === 'choice' && (
+          <div className="space-y-4">
+            <button
+              onClick={() => setView('anonymous')}
+              className="w-full bg-white hover:bg-gray-50 text-gray-700 font-bold py-4 rounded-xl border-2 border-gray-100 hover:border-emerald-500 hover:text-emerald-600 transition-all flex items-center justify-center gap-2 group"
+            >
+              <span className="text-xl group-hover:scale-110 transition-transform">🕵️</span>
+              <span>Accedi come Anonimo</span>
+            </button>
 
-          {(anySocial || isWebAuthnSupported) && (
-            <div className="relative py-2">
-              <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-100"></div></div>
-              <div className="relative flex justify-center text-xs uppercase"><span className="bg-white px-2 text-gray-400">Oppure</span></div>
+            <button
+              onClick={() => setView('phone_input')}
+              className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 rounded-xl shadow-lg shadow-emerald-200 transition-all flex items-center justify-center gap-2"
+            >
+              <span>Accedi con Account</span>
+            </button>
+          </div>
+        )}
+
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-100 text-red-600 text-sm rounded-xl text-center animate-pulse">
+            {error}
+          </div>
+        )}
+
+        {view === 'continue' && existingUser && (
+          <div className="space-y-6 text-center">
+            <div className="mb-4">
+              <div className="w-20 h-20 bg-emerald-100 rounded-full mx-auto flex items-center justify-center text-3xl mb-4 shadow-inner">
+                {existingUser.image ? (
+                  <img src={existingUser.image} className="w-full h-full rounded-full border-2 border-white" alt={existingUser.name} />
+                ) : (
+                  <span className="opacity-80">👤</span>
+                )}
+              </div>
+              <h2 className="text-2xl font-bold text-gray-800">Ciao, {existingUser.name}!</h2>
+              <p className="text-gray-500 mt-2">Il tuo profilo è pronto. Entra subito nella chat dello spazio.</p>
             </div>
-          )}
 
-          {anySocial && (
-            <div className="flex gap-3">
-              {showApple && (
-                <button
-                  onClick={() => handleSocialLogin('apple')}
-                  className="flex-1 bg-black hover:bg-zinc-900 text-white font-semibold py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 text-sm"
-                >
-                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.78 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.88-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.53 4.02zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" /></svg>
-                  Apple
-                </button>
+            <button
+              onClick={handleContinue}
+              className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 rounded-xl shadow-lg shadow-emerald-100 transition-all flex items-center justify-center gap-2"
+            >
+              <span>Entra nella Chat</span>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+              </svg>
+            </button>
+
+            <button
+              onClick={handleDifferentUser}
+              className="text-gray-400 text-sm hover:text-gray-600 font-medium transition-colors"
+            >
+              Usa un altro account
+            </button>
+          </div>
+        )}
+
+        {view === 'anonymous' && (
+          <form onSubmit={handleAnonymousSubmit} className="space-y-6">
+            <button type="button" onClick={() => setView('choice')} className="text-gray-400 text-sm flex items-center gap-1 hover:text-gray-600 mb-2">
+              ← Torna indietro
+            </button>
+            <div className="text-center mb-6">
+              <h2 className="text-xl font-bold text-gray-800">Benvenuto</h2>
+              <p className="text-sm text-gray-500">Scegli un alias per entrare subito</p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Il tuo Alias</label>
+              <input
+                type="text"
+                required
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="off"
+                spellCheck={false}
+                maxLength={20}
+                value={alias}
+                onChange={(e) => setAlias(e.target.value)}
+                placeholder="es. ShadowHunter"
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-gray-800"
+                style={{ fontSize: '18px' }}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Identità di Genere</label>
+              <div className="grid grid-cols-3 gap-3">
+                {(['male', 'female', 'other'] as Gender[]).map((g) => (
+                  <button
+                    key={g}
+                    type="button"
+                    onClick={() => setGender(g)}
+                    className={`py-2 rounded-xl text-xs font-bold uppercase tracking-wider border transition-all ${gender === g
+                      ? 'bg-emerald-500 text-white border-emerald-500 shadow-md'
+                      : 'bg-white text-gray-500 border-gray-200 hover:border-emerald-200'
+                      }`}
+                  >
+                    {genderLabels[g]}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <button type="submit" className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 rounded-xl shadow-lg shadow-emerald-200">
+              Entra nella Stanza
+            </button>
+
+
+          </form>
+        )}
+
+        {view === 'phone_input' && (
+          <form onSubmit={handlePhoneSubmit} className="space-y-6">
+            <button type="button" onClick={() => setView('choice')} className="text-gray-400 text-sm flex items-center gap-1 hover:text-gray-600 mb-2">
+              ← Indietro
+            </button>
+
+            <div className="text-center mb-6">
+              <h2 className="text-xl font-bold text-gray-800">Accedi</h2>
+              <p className="text-sm text-gray-500">Inserisci il tuo numero per accedere al profilo</p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Numero di Telefono</label>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-medium select-none pointer-events-none">🇮🇹 +39</span>
+                <input
+                  type="tel"
+                  required
+                  autoFocus
+                  value={phone}
+                  onChange={(e) => {
+                    // Allow only numbers
+                    const val = e.target.value.replace(/\D/g, '');
+                    setPhone(val);
+                  }}
+                  disabled={isLoading}
+                  placeholder="333 1234567"
+                  className="w-full pl-20 pr-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-gray-800 font-medium tracking-wide disabled:bg-gray-50 disabled:text-gray-400"
+                  style={{ fontSize: '18px' }}
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={phone.length < 9 || isLoading}
+              className="w-full bg-emerald-500 hover:bg-emerald-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl shadow-lg shadow-emerald-100 transition-all flex items-center justify-center gap-2"
+            >
+              {isLoading ? (
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" />
+              ) : (
+                <span>Invia Codice Verifica</span>
               )}
-              {showGoogle && (
-                <button
-                  onClick={() => handleSocialLogin('google')}
-                  className="flex-1 bg-white hover:bg-gray-50 text-gray-700 font-semibold py-3.5 rounded-xl border border-gray-200 transition-all flex items-center justify-center gap-2 text-sm"
-                >
-                  <svg className="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" /><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" /><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" /><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" /></svg>
-                  Google
-                </button>
+            </button>
+          </form>
+        )}
+
+        {view === 'otp_verification' && (
+          <form onSubmit={handleOtpSubmit} className="space-y-6">
+            <button type="button" disabled={isLoading} onClick={() => setView('phone_input')} className="text-gray-400 text-sm flex items-center gap-1 hover:text-gray-600 mb-2">
+              ← Modifica numero
+            </button>
+
+            <div className="text-center mb-2">
+              <h2 className="text-xl font-bold text-gray-800">Verifica Numero</h2>
+              <p className="text-sm text-gray-500">Codice inviato a +39 {phone}</p>
+            </div>
+
+            <div>
+              <input
+                type="text"
+                required
+                autoFocus
+                maxLength={6}
+                value={otp}
+                onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                placeholder="0 0 0 0 0 0"
+                disabled={isLoading}
+                className="w-full px-4 py-4 text-center rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-gray-800 font-bold tracking-[0.5em] disabled:bg-gray-50 disabled:text-gray-400"
+                style={{ fontSize: '24px' }}
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={otp.length !== 6 || isLoading}
+              className="w-full bg-emerald-500 hover:bg-emerald-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl shadow-lg shadow-emerald-100 transition-all flex items-center justify-center"
+            >
+              {isLoading ? (
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" />
+              ) : (
+                "Verifica e Accedi"
               )}
+            </button>
+          </form>
+        )}
+
+        {view === 'profile_completion' && (
+          <form onSubmit={handleProfileSubmit} className="space-y-6">
+            <div className="text-center mb-6">
+              <h2 className="text-xl font-bold text-gray-800">Completa Profilo</h2>
+              <p className="text-sm text-gray-500">Dicci come chiamarti</p>
             </div>
-          )}
 
-          {isWebAuthnSupported && (
-            <>
-              <button
-                onClick={handlePasskeyLogin}
-                className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-emerald-200 flex items-center justify-center gap-2"
-              >
-                Accedi con Passkey
-              </button>
-              <button
-                onClick={() => setView('passkey_reg')}
-                className="w-full text-emerald-600 font-semibold text-sm hover:underline py-2"
-              >
-                Non hai un account? Registrati con Passkey
-              </button>
-            </>
-          )}
-        </div>
-      )}
-
-      {view === 'anonymous' && (
-        <form onSubmit={handleAnonymousSubmit} className="space-y-6">
-          <button onClick={() => setView('choice')} className="text-gray-400 text-sm flex items-center gap-1 hover:text-gray-600 mb-2">
-            ← Torna indietro
-          </button>
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Il tuo Alias</label>
-            <input
-              type="text"
-              required
-              autoComplete="off"
-              autoCorrect="off"
-              autoCapitalize="off"
-              spellCheck={false}
-              maxLength={20}
-              value={alias}
-              onChange={(e) => setAlias(e.target.value)}
-              placeholder="es. ShadowHunter"
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-gray-800"
-              style={{ fontSize: '16px' }}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Identità di Genere</label>
-            <div className="grid grid-cols-3 gap-3">
-              {(['male', 'female', 'other'] as Gender[]).map((g) => (
-                <button
-                  key={g}
-                  type="button"
-                  onClick={() => setGender(g)}
-                  className={`py-2 rounded-xl text-xs font-bold uppercase tracking-wider border transition-all ${gender === g
-                    ? 'bg-emerald-500 text-white border-emerald-500 shadow-md'
-                    : 'bg-white text-gray-500 border-gray-200 hover:border-emerald-200'
-                    }`}
-                >
-                  {genderLabels[g]}
-                </button>
-              ))}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Il tuo Nome (Alias)</label>
+              <input
+                type="text"
+                required
+                autoFocus
+                value={alias}
+                onChange={(e) => setAlias(e.target.value)}
+                disabled={isLoading}
+                placeholder="es. Mario Rossi"
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-gray-800 disabled:bg-gray-50"
+                style={{ fontSize: '18px' }}
+              />
             </div>
-          </div>
-          <button type="submit" className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 rounded-xl shadow-lg shadow-emerald-200">
-            Entra nella Stanza
-          </button>
-        </form>
-      )}
 
-      {isWebAuthnSupported && view === 'passkey_reg' && (
-        <form onSubmit={handlePasskeyRegister} className="space-y-6">
-          <button onClick={() => setView('choice')} className="text-gray-400 text-sm flex items-center gap-1 hover:text-gray-600 mb-2">
-            ← Torna indietro
-          </button>
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Scegli un Alias</label>
-            <input
-              type="text"
-              required
-              autoComplete="off"
-              autoCorrect="off"
-              autoCapitalize="off"
-              spellCheck={false}
-              maxLength={20}
-              value={alias}
-              onChange={(e) => setAlias(e.target.value)}
-              placeholder="es. MarcoPass"
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-gray-800"
-              style={{ fontSize: '16px' }}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Cellulare (per il recupero)</label>
-            <input
-              type="tel"
-              required
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="+39 333 1234567"
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-gray-800"
-              style={{ fontSize: '16px' }}
-            />
-          </div>
-          <button type="submit" className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-emerald-200 flex items-center justify-center gap-2">
-            Crea Account con Passkey
-          </button>
-          <p className="text-[11px] text-gray-400 leading-relaxed">
-            Il tuo numero verrà utilizzato esclusivamente per permetterti di recuperare l'accesso in caso di smarrimento del dispositivo.
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Genere</label>
+              <div className="grid grid-cols-3 gap-3">
+                {(['male', 'female', 'other'] as Gender[]).map((g) => (
+                  <button
+                    key={g}
+                    type="button"
+                    onClick={() => setGender(g)}
+                    disabled={isLoading}
+                    className={`py-3 rounded-xl text-xs font-bold uppercase tracking-wider border transition-all ${gender === g
+                      ? 'bg-emerald-500 text-white border-emerald-500 shadow-md'
+                      : 'bg-white text-gray-500 border-gray-200 hover:border-emerald-200'
+                      } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  >
+                    {genderLabels[g]}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={!alias.trim() || isLoading}
+              className="w-full bg-emerald-500 hover:bg-emerald-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl shadow-lg shadow-emerald-100 transition-all flex items-center justify-center"
+            >
+              {isLoading ? (
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" />
+              ) : (
+                "Entra nella Chat"
+              )}
+            </button>
+          </form>
+        )}
+
+        {/* Legacy/Other views removed for Phone-First enforcement */}
+
+
+
+        <div className="py-8 border-t border-gray-50/50 mt-auto">
+          <p className="text-center text-[10px] text-gray-400 uppercase tracking-[0.2em] font-medium opacity-50">
+            Powered by Local &bull; Copyright 2025
           </p>
-        </form>
-      )}
-
-      <p className="text-center text-[10px] text-gray-400 mt-8 uppercase tracking-widest">
-        Powered by Local - Copyright 2025
-      </p>
+        </div>
+      </div>
     </div>
   );
 };
