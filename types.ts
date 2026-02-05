@@ -17,6 +17,8 @@ export interface Message {
   senderGender: Gender;
   timestamp: string;
   recipientId?: string; // For private messages
+  roomId?: string; // For room messages
+  tenantId?: string; // For multitenancy context
   isSystem?: boolean;
 }
 
@@ -25,4 +27,14 @@ export interface Tenant {
   name: string;
   slug: string;
   config?: any;
+  rooms?: Room[]; // Optional populated field
+}
+
+export type RoomType = 'ANNOUNCEMENT' | 'GENERAL';
+
+export interface Room {
+  id: string;
+  name: string;
+  type: RoomType;
+  tenantId: string;
 }

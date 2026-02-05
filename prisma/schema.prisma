@@ -16,6 +16,7 @@ model Tenant {
   updatedAt DateTime @updatedAt
 
   messages  Message[]
+  rooms     Room[]
   logs      SystemLog[]
   devices   NasDevice[]
 }
@@ -99,6 +100,21 @@ model Verification {
   @@map("verification") // Better-auth standard
 }
 
+enum RoomType {
+  ANNOUNCEMENT
+  GENERAL
+}
+
+model Room {
+  id        String   @id @default(cuid())
+  name      String
+  type      RoomType @default(GENERAL)
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  messages  Message[]
+  createdAt DateTime @default(now())
+}
+
 model Message {
   id           String   @id @default(uuid())
   text         String
@@ -109,15 +125,38 @@ model Message {
   senderAlias  String
   senderGender String
   recipientId  String?  // For private messages
+  
+  // New Room Relation
+  roomId       String?  // Optional for now to ease migration/private chats? PRD says 'roomId String'. 
+  // Wait, PRD implies Messages belong to Rooms. Private messages (recipientId set) might not be in a "Room" or maybe "DirectMessage" room?
+  // Current system has "Global Chat" and "Private Chat".
+  // PRD says "Refactor the main tab to show a list of rooms".
+  // Private chats are separate tab? Or integrated?
+  // "Tab 1: Room List... Tab 2: Users... Tab 3: Chats (Private)"?
+  // PRD doesn't mention changing Private Chats structure, only "Multi-Room System & Broadcast".
+  // So Global Chat becomes Multi-Rooms. Private chats remain as is?
+  // If so, Message needs to support EITHER Room OR Recipient.
+  // schema logic: Room Message vs Private Message.
+  
+  room         Room?    @relation(fields: [roomId], references: [id], onDelete: Cascade)
 
-  // Optional link to specific authenticated user (if later integrated)
+  // Optional link to authenticated user
   userId       String?
   user         User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
 
+  // Tenant ID is still useful for security scoping/direct lookups, but room implies tenant.
+  // PRD snippet removed tenantId from Message and used Room.
+  // But Private Messages don't have a Room (unless we create DM rooms).
+  // Current 'PrivateChat' is ad-hoc based on recipientId.
+  // I will Keep tenantId for Private Messages, and make roomId optional (for private msgs) or mandatory for Group msgs.
+  // Actually, PRD snippet: "Update Message model to link to Room instead of Tenant".
+  // It might be referring only to the Room messages.
+  // I'll keep tenantId to avoid breaking Private Chats for now, but add roomId.
   tenantId     String
   tenant       Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@index([tenantId])
+  @@index([roomId])
   @@index([recipientId])
   @@index([senderId])
   @@index([createdAt])

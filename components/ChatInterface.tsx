@@ -18,6 +18,7 @@ import BottomNav from './BottomNav';
 import UserList from './UserList';
 import ChatList from './ChatList';
 import Settings from './Settings';
+import { RoomList } from './RoomList';
 import { useSwipeBack } from '@/hooks/useSwipeBack';
 import { useSession, signOut } from '@/lib/auth-client';
 
@@ -36,6 +37,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
 
     // UI State
     const [activeTab, setActiveTab] = useState<Tab>('room');
+    const [activeRoomId, setActiveRoomId] = useState<string | null>(null);
     const [selectedChatPeerId, setSelectedChatPeerId] = useState<string | null>(null);
     const [isInputFocused, setIsInputFocused] = useState(false);
 
@@ -48,19 +50,24 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
     const queryClient = useQueryClient();
 
     // 1. Initial Data Fetching (Offline-First)
+    // For Global/Room messages
     const { data: messages = initialMessages, isFetching: isFetchingGlobal } = useQuery({
-        queryKey: ['messages', 'global', tenant.slug],
+        queryKey: ['messages', 'global', tenant.slug, activeRoomId],
         queryFn: async () => {
+            // Fallback to initial messages if no room selected and initialMessages provided (for SSR/first load)
+            // But usually we want room specific.
+            const targetRoomId = activeRoomId; // currently selected room
+
             // First load from SQLite
-            const localMessages = await sqliteService.getMessages(true);
+            const localMessages = await sqliteService.getMessages(true, targetRoomId || undefined);
 
-            // In a real app, you'd fetch from API here and update SQLite
-            // For now, we simulate API fetch by returning initialMessages if SQLite is empty
-            // or just returning what we have.
-
-            // Simulate background sync from server
+            // Fetch from API
             try {
-                const response = await fetch(`${API_BASE_URL}/api/messages?tenant=${tenant.slug}`);
+                // Determine API Params
+                const params = new URLSearchParams({ tenant: tenant.slug });
+                if (targetRoomId) params.append('roomId', targetRoomId);
+
+                const response = await fetch(`${API_BASE_URL}/api/messages?${params.toString()}`);
                 if (response.ok) {
                     const serverMessages: Message[] = await response.json();
                     for (const msg of serverMessages) {
@@ -72,9 +79,9 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                 console.warn("Failed to fetch from server, using local data", e);
             }
 
-            return localMessages.length > 0 ? localMessages : initialMessages;
+            return localMessages.length > 0 ? localMessages : (targetRoomId ? [] : initialMessages);
         },
-        initialData: initialMessages,
+        initialData: initialMessages, // Only relevant for initial SSR if room matches
     });
 
     // 2. Initialize User, Keyboard and Haptics
@@ -283,6 +290,24 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
 
         newSocket.on('newMessage', async (msg: Message) => {
             await sqliteService.saveMessage(msg, true);
+            // Invalidate the specific room query or fallback
+            if (msg.roomId) {
+                queryClient.invalidateQueries({ queryKey: ['messages', 'global', tenant.slug, msg.roomId] });
+            } else {
+                // Fallback for global main or if logic dictates
+                // If we receive a message without roomId (legacy), invalidate all?
+                // Or just invalidate active room if it matches?
+                // Safer to invalidate active room query if we don't know
+                // Actually, best to invalidate list. But here we use 'messages', 'global', ...
+                // If we are viewing the room, we want to see it.
+                // Let's assume server sends roomId correctly now.
+                // For now, invalidate the one that matches our activeRoomId if possible, or just all related?
+                // React Query matching is fuzzy if we just pass prefix? No, exact usually.
+                // Let's rely on exact match for efficiency.
+            }
+            // For now, since we put activeRoomId in query key, we need to know which one to invalidate.
+            // If the message arrives and we are viewing that room, we want to update.
+            // We can invalidate all ['messages', 'global', tenant.slug] queries?
             queryClient.invalidateQueries({ queryKey: ['messages', 'global', tenant.slug] });
         });
 
@@ -384,8 +409,8 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
         socket.emit('join', { user: updatedUser, tenantSlug: tenant.slug });
     };
 
-    const handleGlobalSend = useCallback(async (text: string) => {
-        if (!currentUser || !socket) return;
+    const handleRoomSend = useCallback(async (text: string) => {
+        if (!currentUser || !socket || !activeRoomId) return;
 
         const tempId = Date.now().toString();
         const optimisticMsg: Message = {
@@ -394,19 +419,18 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
             senderId: currentUser.id,
             senderAlias: currentUser.alias,
             senderGender: currentUser.gender,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
+            roomId: activeRoomId,
+            tenantId: tenant.id
         };
 
-        // Haptic feedback for local send
         if (Capacitor.isNativePlatform()) {
             Haptics.impact({ style: ImpactStyle.Light }).catch(() => { });
         }
 
-        // Persist to local SQLite immediately
         await sqliteService.saveMessage(optimisticMsg, true);
 
-        // Update TanStack Query cache optimistically
-        queryClient.setQueryData(['messages', 'global', tenant.slug], (prev: Message[] | undefined) => {
+        queryClient.setQueryData(['messages', 'global', tenant.slug, activeRoomId], (prev: Message[] | undefined) => {
             return [...(prev || []), optimisticMsg];
         });
 
@@ -414,7 +438,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
             ...optimisticMsg,
             tenantSlug: tenant.slug
         });
-    }, [currentUser, socket, tenant.slug, queryClient]);
+    }, [currentUser, socket, tenant.slug, activeRoomId, queryClient, tenant.id]);
 
     const handlePrivateSend = useCallback(async (text: string) => {
         if (!currentUser || !socket || !selectedChatPeerId) return;
@@ -557,18 +581,29 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
             className="flex flex-col w-full h-full max-w-3xl mx-auto bg-white shadow-xl overflow-hidden relative"
         >
             <div className="flex-1 overflow-hidden relative">
-                {activeTab === 'room' && (
+                {activeTab === 'room' && !activeRoomId && (
+                    <RoomList
+                        rooms={tenant.rooms || []}
+                        onSelectRoom={setActiveRoomId}
+                        activeRoomId={activeRoomId || undefined}
+                    />
+                )}
+                {activeTab === 'room' && activeRoomId && (
                     <GlobalChat
                         user={currentUser}
                         messages={messages}
-                        onSendMessage={handleGlobalSend}
+                        onSendMessage={handleRoomSend}
                         onlineCount={onlineUsers.length}
                         isOnline={isConnected}
-                        headerTitle={tenant.name}
-                        showBottomNavPadding={true}
+                        headerTitle={tenant.rooms?.find(r => r.id === activeRoomId)?.name || tenant.name}
+                        showBottomNavPadding={false}
                         isFocused={isInputFocused}
                         onInputFocusChange={handleInputFocus}
                         isSyncing={isFetchingGlobal}
+                        isReadOnly={tenant.rooms?.find(r => r.id === activeRoomId)?.type === 'ANNOUNCEMENT' /* TODO: Admin check needed later */}
+                        onBack={() => {
+                            setActiveRoomId(null);
+                        }}
                     />
                 )}
                 {activeTab === 'users' && (
@@ -601,7 +636,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
 
             {/* Bottom Navigation - Managed via React state for visibility */}
             <div
-                className={`border-t border-gray-100 bg-white z-20 overflow-hidden ${isInputFocused ? 'hidden' : 'block'
+                className={`border-t border-gray-100 bg-white z-20 overflow-hidden ${isInputFocused || (activeTab === 'room' && activeRoomId) ? 'hidden' : 'block'
                     }`}
             >
                 <BottomNav
@@ -609,6 +644,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                     onTabChange={(t) => {
                         setActiveTab(t);
                         setSelectedChatPeerId(null);
+                        if (t !== 'room') setActiveRoomId(null);
                     }}
                     usersCount={onlineUsers.length}
                     unreadChatsCount={totalUnread}

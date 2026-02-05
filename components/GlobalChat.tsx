@@ -14,6 +14,8 @@ interface GlobalChatProps {
   isFocused?: boolean;
   onInputFocusChange?: (isFocused: boolean) => void;
   isSyncing?: boolean;
+  isReadOnly?: boolean;
+  onBack?: () => void;
 }
 
 const GenderIcon = memo(({ gender, className }: { gender: Gender; className?: string }) => {
@@ -42,11 +44,12 @@ const GenderIcon = memo(({ gender, className }: { gender: Gender; className?: st
   );
 });
 
-const ChatInput = memo(({ onSendMessage, showBottomNavPadding, onFocusChange, isFocused }: {
+const ChatInput = memo(({ onSendMessage, showBottomNavPadding, onFocusChange, isFocused, isReadOnly }: {
   onSendMessage: (text: string) => void,
   showBottomNavPadding?: boolean,
   onFocusChange?: (isFocused: boolean) => void,
-  isFocused?: boolean
+  isFocused?: boolean,
+  isReadOnly?: boolean
 }) => {
   const [text, setText] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -65,10 +68,18 @@ const ChatInput = memo(({ onSendMessage, showBottomNavPadding, onFocusChange, is
   // With native keyboard resize, viewport shrinks automatically
   // Just need safe-area padding when keyboard is hidden (for bottom nav space)
   const footerPadding = isFocused
-    ? 'pb-2 pt-2'
+    ? 'pb-3 pt-2' // Fixed 12px padding when keyboard is open
     : showBottomNavPadding
       ? 'pb-[calc(70px+env(safe-area-inset-bottom,0px)+8px)] md:pb-[90px] pt-3'
-      : 'pb-safe pt-2';
+      : 'pb-[calc(env(safe-area-inset-bottom,0px)+12px)] pt-2'; // Safe area + 12px when closed
+
+  if (isReadOnly) {
+    return (
+      <footer className={`px-3 py-4 md:p-4 bg-[#e5ddd5] shrink-0 text-center text-gray-500 text-sm italic ${showBottomNavPadding ? 'pb-[calc(70px+env(safe-area-inset-bottom,0px)+8px)]' : 'pb-safe'}`}>
+        Only admins can post here.
+      </footer>
+    );
+  }
 
   return (
     <footer className={`px-3 py-2 md:p-4 bg-[#e5ddd5] shrink-0 ${footerPadding}`}>
@@ -109,7 +120,9 @@ const GlobalChat = memo<GlobalChatProps>(({
   showBottomNavPadding,
   onInputFocusChange,
   isFocused,
-  isSyncing
+  isSyncing,
+  isReadOnly,
+  onBack
 }) => {
   const virtuosoRef = useRef<VirtuosoHandle>(null);
 
@@ -155,6 +168,13 @@ const GlobalChat = memo<GlobalChatProps>(({
         <header className="bg-white pt-safe border-b border-gray-100 sticky top-0 z-10 shrink-0">
           <div className="h-[60px] px-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
+              {onBack && (
+                <button onClick={onBack} className="p-2 -ml-2 rounded-full hover:bg-gray-100 text-gray-600">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+              )}
               <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center border border-emerald-100">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -200,6 +220,7 @@ const GlobalChat = memo<GlobalChatProps>(({
         showBottomNavPadding={showBottomNavPadding}
         isFocused={isFocused}
         onFocusChange={onInputFocusChange}
+        isReadOnly={isReadOnly}
       />
     </div>
   );

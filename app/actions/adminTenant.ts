@@ -20,6 +20,12 @@ export async function createTenantAction(formData: FormData) {
                     ...publicIps.map(ip => ({ publicIp: ip })),
                     ...bssids.map(bssid => ({ bssid }))
                 ]
+            },
+            rooms: {
+                create: [
+                    { name: 'Announcements', type: 'ANNOUNCEMENT' },
+                    { name: name, type: 'GENERAL' }
+                ]
             }
         }
     });

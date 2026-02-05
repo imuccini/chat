@@ -38,6 +38,7 @@ class SQLiteService {
                     senderGender TEXT,
                     timestamp TEXT,
                     recipientId TEXT,
+                    roomId TEXT,
                     isGlobal INTEGER DEFAULT 1
                 );
             `;
@@ -53,8 +54,8 @@ class SQLiteService {
         if (!this.db) return;
 
         const query = `
-            INSERT OR REPLACE INTO messages (id, text, senderId, senderAlias, senderGender, timestamp, recipientId, isGlobal)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+            INSERT OR REPLACE INTO messages (id, text, senderId, senderAlias, senderGender, timestamp, recipientId, roomId, isGlobal)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
         `;
         const params = [
             msg.id,
@@ -64,6 +65,7 @@ class SQLiteService {
             msg.senderGender,
             msg.timestamp,
             msg.recipientId || null,
+            msg.roomId || null,
             isGlobal ? 1 : 0
         ];
 
@@ -87,7 +89,7 @@ class SQLiteService {
         }
     }
 
-    async getMessages(isGlobal: boolean = true, recipientId?: string): Promise<Message[]> {
+    async getMessages(isGlobal: boolean = true, roomId?: string) {
         await this.purgeOldMessages();
         if (!this.db) return [];
 
@@ -96,11 +98,20 @@ class SQLiteService {
         let params: any[] = [];
 
         if (isGlobal) {
-            query = `SELECT * FROM messages WHERE isGlobal = 1 AND timestamp >= ? ORDER BY timestamp ASC LIMIT 100;`;
-            params = [threeHoursAgo];
+            if (roomId) {
+                query = `SELECT * FROM messages WHERE roomId = ? AND timestamp >= ? ORDER BY timestamp ASC LIMIT 100;`;
+                params = [roomId, threeHoursAgo];
+            } else {
+                // Fallback for legacy global messages (or default room)
+                // NOTE: We relaxed roomId check to allow legacy (null) messages for backward compatibility if needed, 
+                // but ideally we filter by room.
+                query = `SELECT * FROM messages WHERE isGlobal = 1 AND (roomId IS NULL OR roomId = "") AND timestamp >= ? ORDER BY timestamp ASC LIMIT 100;`;
+                params = [threeHoursAgo];
+            }
         } else {
-            query = `SELECT * FROM messages WHERE isGlobal = 0 AND (recipientId = ? OR senderId = ?) AND timestamp >= ? ORDER BY timestamp ASC LIMIT 100;`;
-            params = [recipientId, recipientId, threeHoursAgo];
+            // Private messages - typically fetched via getPrivateChats but kept here for fallback or specific checks
+            query = `SELECT * FROM messages WHERE isGlobal = 0 AND timestamp >= ? ORDER BY timestamp ASC LIMIT 100;`;
+            params = [threeHoursAgo];
         }
 
         try {
