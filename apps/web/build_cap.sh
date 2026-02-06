@@ -36,7 +36,8 @@ fi
 # 2. Run the build
 echo "🚀 Running Next.js Build..."
 # Load env vars but ignore comments, then run build
-export $(grep -v '^#' .env | xargs)
+# The .env is in the root of the monorepo
+export $(grep -v '^#' ../../.env | xargs)
 export NEXT_STATIC_EXPORT=true 
 
 if next build; then
