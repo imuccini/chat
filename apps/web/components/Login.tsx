@@ -4,6 +4,7 @@ import { User, Gender } from '@/types';
 import { SERVER_URL } from '@/config';
 import { Capacitor } from '@capacitor/core';
 import { Keyboard, KeyboardStyle } from '@capacitor/keyboard';
+import { useKeyboardAnimation } from '@/hooks/useKeyboardAnimation';
 
 interface LoginProps {
   onLogin: (user: User) => void;
@@ -34,6 +35,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, tenantName }) => {
   const [error, setError] = useState<string | null>(null);
 
   const [isLoading, setIsLoading] = useState(false);
+  const { keyboardHeight } = useKeyboardAnimation();
 
   useEffect(() => {
     if (Capacitor.isNativePlatform()) {
@@ -413,7 +415,10 @@ const Login: React.FC<LoginProps> = ({ onLogin, tenantName }) => {
   // Removed fallback Loading view block to support inline loading state
 
   return (
-    <div className="bg-white p-6 sm:p-8 w-full h-full sm:h-auto sm:max-w-md sm:rounded-2xl sm:shadow-xl sm:border border-gray-100 flex flex-col min-h-screen sm:min-h-[600px] justify-between">
+    <div
+      className="bg-white px-6 pb-6 pt-[calc(1.5rem+env(safe-area-inset-top))] sm:p-8 w-full h-full sm:h-auto sm:max-w-md sm:rounded-2xl sm:shadow-xl sm:border border-gray-100 flex flex-col min-h-screen sm:min-h-[600px] justify-between overflow-y-auto"
+      style={{ paddingBottom: `${keyboardHeight > 0 ? keyboardHeight + 24 : 24}px` }}
+    >
       <div className={`flex flex-col items-center transition-all duration-500 ${view === 'choice' || view === 'continue' ? 'mt-4 mb-2' : 'mt-2 mb-2'}`}>
         <div className={`transition-all duration-300 ${view === 'choice' || view === 'continue' ? 'w-24 h-24 mb-12' : 'w-16 h-16 mb-2'}`}>
           <img src="/local_logo.svg" alt="Local Logo" className="w-full h-full object-contain" />
@@ -444,7 +449,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, tenantName }) => {
               className="w-full bg-white hover:bg-gray-50 text-gray-700 font-bold py-4 rounded-xl border-2 border-gray-100 hover:border-emerald-500 hover:text-emerald-600 transition-all flex items-center justify-center gap-2 group"
             >
               <span className="text-xl group-hover:scale-110 transition-transform">🕵️</span>
-              <span>Accedi come Anonimo</span>
+              <span>Accesso anonimo</span>
             </button>
 
             <button
