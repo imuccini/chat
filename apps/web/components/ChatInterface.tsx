@@ -531,7 +531,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                                 </div>
                             </header>
                             <div className="flex-1 overflow-hidden relative">
-                                <GlobalChat user={currentUser} messages={privateChats[selectedChatPeerId!].messages} onSendMessage={handlePrivateSend} onlineCount={0} isOnline={true} hideHeader={true} showBottomNavPadding={false} isFocused={isInputFocused} isSyncing={false} />
+                                <GlobalChat user={currentUser} messages={privateChats[selectedChatPeerId!].messages} onSendMessage={handlePrivateSend} onlineCount={0} isOnline={true} hideHeader={true} showBottomNavPadding={false} isFocused={isInputFocused} onInputFocusChange={setIsInputFocused} isSyncing={false} />
                             </div>
                         </>
                     ) : isRoomChatOpen ? (
