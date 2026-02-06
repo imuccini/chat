@@ -1,4 +1,4 @@
-import * as pkg from '../generated/client/index';
+import * as pkg from '../generated/client/index.js';
 
 // gestisco l'interop ESM/CJS esplicitamente
 const PrismaLib = (pkg as any).default || pkg;

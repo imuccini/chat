@@ -270,7 +270,14 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                         messages: [], unread: 0
                     };
                     if (existing.messages.some(m => m.id === msg.id)) return prev;
-                    return { ...prev, [peerId]: { ...existing, messages: [...existing.messages, msg], unread: existing.unread + 1 } };
+                    return {
+                        ...prev,
+                        [peerId]: {
+                            ...existing,
+                            messages: [...existing.messages, msg],
+                            unread: isMe ? existing.unread : existing.unread + 1
+                        }
+                    };
                 });
             });
 
@@ -327,7 +334,8 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
     const handleRoomSend = useCallback(async (text: string) => {
         if (!currentUser || !socket || !activeRoomId) return;
         const msg: Message = {
-            id: Date.now().toString(), text, senderId: currentUser.id, senderAlias: currentUser.alias,
+            id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(),
+            text, senderId: currentUser.id, senderAlias: currentUser.alias,
             senderGender: currentUser.gender, timestamp: new Date().toISOString(), roomId: activeRoomId, tenantId: tenant.id
         };
         if (Capacitor.isNativePlatform()) Haptics.impact({ style: ImpactStyle.Light }).catch(() => { });
@@ -344,8 +352,10 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
     const handlePrivateSend = useCallback(async (text: string) => {
         if (!currentUser || !socket || !selectedChatPeerId) return;
         const msg: Message = {
-            id: Date.now().toString(), text, senderId: currentUser.id, senderAlias: currentUser.alias,
-            senderGender: currentUser.gender, timestamp: new Date().toISOString(), recipientId: selectedChatPeerId
+            id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(),
+            text, senderId: currentUser.id, senderAlias: currentUser.alias,
+            senderGender: currentUser.gender, timestamp: new Date().toISOString(), recipientId: selectedChatPeerId,
+            tenantId: tenant.id
         };
         if (Capacitor.isNativePlatform()) Haptics.impact({ style: ImpactStyle.Light }).catch(() => { });
         await sqliteService.saveMessage(msg, false);

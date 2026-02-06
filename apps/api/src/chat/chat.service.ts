@@ -31,13 +31,13 @@ export class ChatService {
     /**
      * Get messages for a room with 3-hour retention
      */
-    async getMessagesForRoom(roomId: string, tenantId: string, limit = 100): Promise<any[]> {
+    async getMessagesForRoom(roomId: string | undefined, tenantId: string, limit = 100): Promise<any[]> {
         const threeHoursAgo = new Date(Date.now() - 3 * 60 * 60 * 1000);
 
         return this.prisma.message.findMany({
             where: {
                 tenantId,
-                roomId,
+                ...(roomId ? { roomId } : { roomId: null }),
                 createdAt: { gte: threeHoursAgo },
             },
             orderBy: { createdAt: 'asc' },

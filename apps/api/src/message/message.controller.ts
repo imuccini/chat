@@ -1,21 +1,32 @@
-import { Controller, Get, Query, Delete, Param, ForbiddenException, Headers, UnauthorizedException } from '@nestjs/common';
+import { Controller, Get, Query, Delete, Param, ForbiddenException, Headers, UnauthorizedException, Inject } from '@nestjs/common';
 import { ChatService } from '../chat/chat.service.js';
+import { TenantService } from '../tenant/tenant.service.js';
 import { JwtService } from '@nestjs/jwt';
 
 @Controller('messages')
 export class MessageController {
     constructor(
-        private readonly chatService: ChatService,
-        private readonly jwtService: JwtService,
+        @Inject(ChatService) private readonly chatService: ChatService,
+        @Inject(TenantService) private readonly tenantService: TenantService,
+        @Inject(JwtService) private readonly jwtService: JwtService,
     ) { }
 
     @Get()
     async getMessages(
         @Query('roomId') roomId: string,
         @Query('tenantId') tenantId: string,
+        @Query('tenant') tenantSlug: string,
         @Headers('authorization') auth: string,
     ) {
-        if (!roomId || !tenantId) return [];
+        let effectiveTenantId: string | undefined = tenantId;
+
+        // If no tenantId provided, try to find it by slug
+        if (!effectiveTenantId && tenantSlug) {
+            const tenant = await this.tenantService.findBySlug(tenantSlug);
+            effectiveTenantId = tenant?.id;
+        }
+
+        if (!effectiveTenantId) return [];
 
         // Optional: Validate user session from Bearer token
         // const token = auth?.replace('Bearer ', '');
@@ -25,7 +36,7 @@ export class MessageController {
         //   throw new UnauthorizedException('Invalid token');
         // }
 
-        return this.chatService.getMessagesForRoom(roomId, tenantId);
+        return this.chatService.getMessagesForRoom(roomId, effectiveTenantId);
     }
 
     @Delete(':id')

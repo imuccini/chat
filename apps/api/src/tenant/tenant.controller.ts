@@ -1,5 +1,5 @@
-import { Controller, Get, Param, Post, Body, NotFoundException, UseInterceptors, Inject } from '@nestjs/common';
-import { TenantService } from './tenant.service';
+import { Controller, Get, Param, Post, Body, Query, NotFoundException, UseInterceptors, Inject } from '@nestjs/common';
+import { TenantService } from './tenant.service.js';
 import { TenantInterceptor } from './tenant.interceptor.js';
 
 @Controller('tenants')
@@ -16,6 +16,24 @@ export class TenantController {
         return tenant;
     }
 
+    @Get('validate-nas')
+    async validateNasGet(
+        @Query('nas_id') nasId: string,
+        @Query('nasId') nasIdAlt: string,
+        @Query('bssid') bssid: string,
+        @Query('publicIp') publicIp: string,
+    ): Promise<any> {
+        const device = await this.tenantService.validateNas(
+            nasId || nasIdAlt,
+            bssid,
+            publicIp,
+        );
+        if (!device) {
+            return { valid: false };
+        }
+        return { valid: true, tenantSlug: device.tenant.slug, tenant: device.tenant };
+    }
+
     @Post('validate-nas')
     async validateNas(
         @Body() body: { nasId: string; bssid: string; publicIp: string },
@@ -28,6 +46,6 @@ export class TenantController {
         if (!device) {
             return { valid: false };
         }
-        return { valid: true, tenant: device.tenant };
+        return { valid: true, tenantSlug: device.tenant.slug, tenant: device.tenant };
     }
 }

@@ -19,15 +19,22 @@ const nextConfig = {
     },
 
     async rewrites() {
+        const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000';
+        // In local dev, we swap 3000 for 3001. In prod, we use the same URL but let
+        // the infrastructure handle routing or use port 3001 if specified.
+        const apiUrl = serverUrl.includes(':3000')
+            ? serverUrl.replace(':3000', ':3001')
+            : (serverUrl.includes('localhost') ? 'http://localhost:3001' : serverUrl);
+
         return [
             // Tenant API is now handled by Next.js API route at /app/api/tenants/[slug]/route.ts
             {
                 source: '/api/messages/:path*',
-                destination: `${process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3001'}/api/messages/:path*`,
+                destination: `${apiUrl}/api/messages/:path*`,
             },
             {
                 source: '/api/validate-nas',
-                destination: `${process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3001'}/api/tenants/validate-nas`,
+                destination: `${apiUrl}/api/tenants/validate-nas`,
             },
         ];
     },

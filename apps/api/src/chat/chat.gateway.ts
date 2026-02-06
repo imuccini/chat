@@ -301,11 +301,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
 
     private broadcastPresence(tenantSlug: string) {
-        const users = Array.from(this.onlineUsers.values())
-            .filter(u => u.tenantSlug === tenantSlug)
-            .map(u => u.user);
+        const usersWithSocketId = Array.from(this.onlineUsers.entries())
+            .filter(([_, data]) => data.tenantSlug === tenantSlug)
+            .map(([socketId, data]) => ({
+                ...data.user,
+                socketId,
+            }));
 
-        this.server.to(`tenant:${tenantSlug}`).emit('presenceUpdate', users);
+        this.server.to(`tenant:${tenantSlug}`).emit('presenceUpdate', usersWithSocketId as any);
     }
 
     private sanitizeText(text: string): string {

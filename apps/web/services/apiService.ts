@@ -19,8 +19,12 @@ export const clientGetTenantBySlug = async (slug: string) => {
     return await res.json();
 };
 
-export const clientGetMessages = async (tenantSlug: string): Promise<Message[]> => {
-    const res = await fetch(`${API_BASE_URL}/api/messages?tenant=${tenantSlug}`);
+export const clientGetMessages = async (tenantSlug: string, tenantId?: string, roomId?: string): Promise<Message[]> => {
+    const params = new URLSearchParams({ tenant: tenantSlug });
+    if (tenantId) params.append('tenantId', tenantId);
+    if (roomId) params.append('roomId', roomId);
+
+    const res = await fetch(`${API_BASE_URL}/api/messages?${params.toString()}`);
     if (!res.ok) return [];
     return await res.json();
 };
