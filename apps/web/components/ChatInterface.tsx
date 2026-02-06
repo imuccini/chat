@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { User, Message, Tenant } from '@/types';
-import { API_BASE_URL, SOCKET_URL } from '@/config';
+import { API_BASE_URL, SOCKET_URL, SERVER_URL } from '@/config';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { sqliteService } from '@/lib/sqlite';
 import { Keyboard, KeyboardResize, KeyboardStyle } from '@capacitor/keyboard';
@@ -119,7 +119,11 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
             // This handles the case where useSession returns null but server has session (incognito/refresh issues)
             try {
                 console.log("[ChatInterface] Checking backup session...");
-                const res = await fetch('/api/debug-session');
+                const url = Capacitor.isNativePlatform()
+                    ? `${SERVER_URL}/api/debug-session`
+                    : '/api/debug-session';
+
+                const res = await fetch(url, { credentials: 'include' });
                 const data = await res.json();
 
                 if (data?.user) {

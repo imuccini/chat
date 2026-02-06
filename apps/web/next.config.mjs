@@ -18,6 +18,21 @@ const nextConfig = {
         ignoreBuildErrors: true,
     },
 
+    async headers() {
+        return [
+            {
+                // Apply CORS headers to all API routes
+                source: "/api/:path*",
+                headers: [
+                    { key: "Access-Control-Allow-Credentials", value: "true" },
+                    { key: "Access-Control-Allow-Origin", value: "capacitor://localhost" },
+                    { key: "Access-Control-Allow-Methods", value: "GET, POST, PUT, DELETE, OPTIONS" },
+                    { key: "Access-Control-Allow-Headers", value: "Content-Type, Authorization, Cookie, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Date, X-Api-Version" },
+                ],
+            },
+        ];
+    },
+
     async rewrites() {
         return [
             // Tenant API is now handled by Next.js API route at /app/api/tenants/[slug]/route.ts

@@ -3,12 +3,30 @@ import { prisma } from '@/lib/db';
 import { getAuth, getAuthFromHeaders } from '@/lib/auth'; // Using getAuth to get the correct instance or fallback
 import { headers } from 'next/headers';
 
+const getCorsHeaders = (requestOrigin: string | null) => {
+    const allowedOrigins = ["capacitor://localhost", "http://localhost:3000", "http://192.168.1.111:3000"];
+    const origin = requestOrigin && (allowedOrigins.includes(requestOrigin) || requestOrigin.startsWith('capacitor://'))
+        ? requestOrigin : allowedOrigins[0];
+    return {
+        'Access-Control-Allow-Origin': origin,
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, Cookie',
+        'Access-Control-Allow-Credentials': 'true',
+    };
+};
+
+export async function OPTIONS(req: Request) {
+    return new NextResponse(null, { status: 200, headers: getCorsHeaders(req.headers.get('origin')) });
+}
+
 export async function POST(req: Request) {
+    const corsHeaders = getCorsHeaders(req.headers.get('origin'));
+
     try {
         const { phone, code, alias, gender } = await req.json();
 
         if (!phone || !code) {
-            return NextResponse.json({ error: "Dati mancanti" }, { status: 400 });
+            return NextResponse.json({ error: "Dati mancanti" }, { status: 400, headers: corsHeaders });
         }
 
         const cleanPhone = phone.replace(/\s/g, '');
@@ -23,7 +41,7 @@ export async function POST(req: Request) {
         });
 
         if (!verification) {
-            return NextResponse.json({ error: "Codice non valido o scaduto" }, { status: 400 });
+            return NextResponse.json({ error: "Codice non valido o scaduto" }, { status: 400, headers: corsHeaders });
         }
 
         // 2. Check User existence
@@ -41,7 +59,7 @@ export async function POST(req: Request) {
                 success: false,
                 isNewUser: true,
                 message: "Alias richiesto per nuovi utenti"
-            }, { status: 200 });
+            }, { status: 200, headers: corsHeaders });
         }
 
         // 4. Consume OTP (Delete it) - Now safe to delete as we either have a user or are creating one
@@ -55,7 +73,7 @@ export async function POST(req: Request) {
         if (!user) {
             // Create new user (Alias is guaranteed here due to check above)
             if (!alias) {
-                return NextResponse.json({ error: "Alias mancante", isNewUser: true }, { status: 400 });
+                return NextResponse.json({ error: "Alias mancante", isNewUser: true }, { status: 400, headers: corsHeaders });
             }
 
             user = await (prisma as any).user.create({
@@ -92,7 +110,7 @@ export async function POST(req: Request) {
         const response = NextResponse.json({
             success: true,
             user: user
-        });
+        }, { headers: corsHeaders });
 
         response.cookies.set('better-auth.session_token', rawToken, {
             httpOnly: true,
@@ -106,6 +124,6 @@ export async function POST(req: Request) {
 
     } catch (e: any) {
         console.error("OTP Verify Error:", e);
-        return NextResponse.json({ error: "Errore interno del server" }, { status: 500 });
+        return NextResponse.json({ error: "Errore interno del server" }, { status: 500, headers: corsHeaders });
     }
 }

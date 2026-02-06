@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { authClient, signIn, signUp } from '@/lib/auth-client';
 import { User, Gender } from '@/types';
+import { SERVER_URL } from '@/config';
 import { Capacitor } from '@capacitor/core';
 import { Keyboard, KeyboardStyle } from '@capacitor/keyboard';
 
@@ -47,12 +48,21 @@ const Login: React.FC<LoginProps> = ({ onLogin, tenantName }) => {
     setError(null);
     if (phone.length < 9) return;
 
+    const formattedPhone = phone.replace(/ /g, '');
+    const fullPhone = '+39' + formattedPhone;
+
     setIsLoading(true);
+    const url = Capacitor.isNativePlatform() ? `${SERVER_URL}/api/auth/otp/send` : '/api/auth/otp/send';
+
+    // DEBUG: Alert to check URL on device
+    // alert(`Sending OTP to: ${url}`);
+
     try {
-      const res = await fetch('/api/auth/otp/send', {
+      const res = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: '+39' + phone })
+        credentials: 'include',
+        body: JSON.stringify({ phone: fullPhone })
       });
 
       if (!res.ok) {
@@ -75,9 +85,11 @@ const Login: React.FC<LoginProps> = ({ onLogin, tenantName }) => {
 
     setIsLoading(true);
     try {
-      const res = await fetch('/api/auth/otp/verify', {
+      const url = Capacitor.isNativePlatform() ? `${SERVER_URL}/api/auth/otp/verify` : '/api/auth/otp/verify';
+      const res = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ phone: '+39' + phone, code: otp }) // Alias is optional here, we check user existence
       });
 
@@ -117,9 +129,11 @@ const Login: React.FC<LoginProps> = ({ onLogin, tenantName }) => {
     setIsLoading(true);
     try {
       // Retry verify with alias to create user
-      const res = await fetch('/api/auth/otp/verify', {
+      const url = Capacitor.isNativePlatform() ? `${SERVER_URL}/api/auth/otp/verify` : '/api/auth/otp/verify';
+      const res = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           phone: '+39' + phone,
           code: otp,
@@ -162,7 +176,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, tenantName }) => {
           setView('continue');
         }
       } catch (e) {
-        // No session
+        console.warn("[Login] Initial session check failed:", e);
       }
     };
     checkSession();
@@ -191,10 +205,21 @@ const Login: React.FC<LoginProps> = ({ onLogin, tenantName }) => {
 
     setIsLoading(true);
     try {
-      // Check if user already has a session
-      const { data: existingSession } = await authClient.getSession();
+      // DEBUG: Log the URL being used for auth requests
+      console.log("[Login] DEBUG - Capacitor.isNativePlatform():", Capacitor.isNativePlatform());
+      console.log("[Login] DEBUG - SERVER_URL:", SERVER_URL);
+      console.log("[Login] DEBUG - authClient baseURL:", (authClient as any).$fetch?.baseURL || 'using relative URLs');
 
-      console.log("[Login] Existing session check:", JSON.stringify(existingSession, null, 2));
+      // Check if user already has a session
+      let existingSession = null;
+      try {
+        const result = await authClient.getSession();
+        existingSession = result.data;
+        console.log("[Login] Existing session check:", JSON.stringify(existingSession, null, 2));
+      } catch (sessionErr) {
+        console.warn("[Login] Failed to check existing session (expected on first native run if relative URLs used):", sessionErr);
+        // Continue as if no session exists
+      }
 
       if (existingSession?.user?.isAnonymous) {
         // User already has an anonymous session, just update their info
@@ -214,16 +239,77 @@ const Login: React.FC<LoginProps> = ({ onLogin, tenantName }) => {
         onLogin(user);
       } else {
         // Create new anonymous session
-        const { data: signInData, error } = await authClient.signIn.anonymous();
+        console.log("[Login] DEBUG - Calling authClient.signIn.anonymous()...");
+        let signInData, error;
+        try {
+          const result = await authClient.signIn.anonymous();
+          signInData = result.data;
+          error = result.error;
+          console.log("[Login] DEBUG - signIn.anonymous result:", JSON.stringify(result, null, 2));
+        } catch (signInError: any) {
+          console.error("[Login] DEBUG - signIn.anonymous failed, trying manual fallback:", signInError);
+
+          // FALLBACK 3: Manual Direct Fetch
+          // This bypasses the better-auth client entirely to strictly control the request
+          try {
+            const baseUrl = Capacitor.isNativePlatform()
+              ? (SERVER_URL || 'http://192.168.1.111:3000')
+              : '';
+            const fallbackUrl = `${baseUrl}/api/auth/sign-in/anonymous`;
+
+            console.log("[Login] DEBUG - Attempting manual fetch to:", fallbackUrl);
+
+            const res = await fetch(fallbackUrl, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              credentials: 'include' // This is critical for setting the session cookie
+            });
+
+            if (!res.ok) {
+              const errorText = await res.text();
+              throw new Error(`Manual fetch failed: ${res.status} ${errorText}`);
+            }
+
+            const data = await res.json();
+            console.log("[Login] DEBUG - Manual fallback success:", data);
+
+            // Manual fetch succeeded, update state manually
+            if (data?.user) {
+              signInData = { user: data.user };
+              // Clear error since we recovered
+              error = null;
+            } else {
+              throw new Error("Manual fetch succeeded but returned no user");
+            }
+
+          } catch (manualErr: any) {
+            console.error("[Login] DEBUG - Manual fallback ALSO failed:", manualErr);
+            // Throw original error to show in alert/UI, or combine them
+
+            // Extract more info if available
+            let detailedError = manualErr.message;
+            if (manualErr.cause) detailedError += ` Cause: ${manualErr.cause}`;
+            if (manualErr.stack) console.error(manualErr.stack);
+
+            throw new Error(`Fallback Failed: ${detailedError}`);
+          }
+        }
 
         if (error) throw new Error(error.message || "Errore accesso anonimo");
 
         // Update user with alias and gender
-        // Update user with alias and gender
-        await authClient.updateUser({
-          name: alias.trim(),
-          gender: gender
-        } as any);
+        try {
+          // Try to update user using client first (might work if session cookie was set by manual fetch)
+          await authClient.updateUser({
+            name: alias.trim(),
+            gender: gender
+          } as any);
+        } catch (updateErr) {
+          console.warn("[Login] updateUser failed after login, user might need to retry profile update later", updateErr);
+          // Don't block login if just profile update fails, we have the user
+        }
 
         // Use signIn user data with manual updates
         const createdUserRaw = signInData?.user;
@@ -283,7 +369,8 @@ const Login: React.FC<LoginProps> = ({ onLogin, tenantName }) => {
 
         // Fallback 2: Custom debug endpoint (Bypass better-auth client)
         try {
-          const res = await fetch('/api/debug-session');
+          const url = Capacitor.isNativePlatform() ? `${SERVER_URL}/api/debug-session` : '/api/debug-session';
+          const res = await fetch(url, { credentials: 'include' });
           const debugData = await res.json();
 
           if (debugData?.user) {
@@ -299,6 +386,11 @@ const Login: React.FC<LoginProps> = ({ onLogin, tenantName }) => {
         } catch (e) {
           // Silently fail on fallback 2
         }
+      }
+
+      // TEMPORARY DEBUG: Show alert with error details for native debugging
+      if (Capacitor.isNativePlatform()) {
+        alert(`DEBUG ERROR:\n${err.name}: ${err.message}`);
       }
 
       setError(err.message);

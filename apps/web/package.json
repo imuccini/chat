@@ -3,7 +3,7 @@
   "version": "1.2.0",
   "type": "module",
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -H 0.0.0.0",
     "dev:marketing": "next dev marketing -p 3001",
     "build": "next build",
     "build:marketing": "next build marketing",
