@@ -1,4 +1,6 @@
+// Force restart - 1
 import 'reflect-metadata';
+
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module.js';
 import { IoAdapter } from '@nestjs/platform-socket.io';

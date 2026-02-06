@@ -7,9 +7,10 @@ interface RoomListProps {
     rooms: Room[];
     onSelectRoom: (roomId: string) => void;
     activeRoomId?: string;
+    roomOnlineCounts: Record<string, number>;
 }
 
-export function RoomList({ rooms, onSelectRoom, activeRoomId }: RoomListProps) {
+export function RoomList({ rooms, onSelectRoom, activeRoomId, roomOnlineCounts }: RoomListProps) {
     return (
         <div className="flex flex-col h-full bg-white dark:bg-gray-900">
             <header className="bg-white pt-safe sticky top-0 z-10 dark:bg-gray-900">
@@ -42,9 +43,18 @@ export function RoomList({ rooms, onSelectRoom, activeRoomId }: RoomListProps) {
                             <div className="flex-1 text-left">
                                 <h3 className="font-semibold text-base">{room.name}</h3>
                                 <p className="text-xs text-opacity-70 opacity-70 truncate max-w-[200px]">
-                                    {isAnnouncement ? 'Annunci e messaggi ufficiali' : 'Discussione generale e chat pubblica'}
+                                    {room.description || (isAnnouncement ? 'Annunci e messaggi ufficiali' : 'Discussione generale e chat pubblica')}
                                 </p>
                             </div>
+
+                            {!isAnnouncement && (
+                                <div className={`mr-2 px-2 py-0.5 rounded-full text-[10px] font-bold ${isActive
+                                    ? 'bg-blue-200 text-blue-700'
+                                    : 'bg-gray-100 text-gray-500'}`}>
+                                    {roomOnlineCounts[room.id] > 99 ? '99+' : (roomOnlineCounts[room.id] || 0)}
+                                </div>
+                            )}
+
                             <ChevronRight size={16} className="text-gray-400" />
                         </button>
                     );

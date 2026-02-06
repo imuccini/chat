@@ -1,11 +1,12 @@
-import { Controller, Get, Query, Delete, Param, ForbiddenException, Headers, UnauthorizedException } from '@nestjs/common';
+import { Controller, Get, Query, Delete, Param, ForbiddenException, Headers, UnauthorizedException, Inject } from '@nestjs/common';
 import { ChatService } from '../chat/chat.service.js';
 import { JwtService } from '@nestjs/jwt';
+import fs from 'fs';
 
 @Controller('messages')
 export class MessageController {
     constructor(
-        private readonly chatService: ChatService,
+        @Inject(ChatService) private readonly chatService: ChatService,
         private readonly jwtService: JwtService,
     ) { }
 
@@ -15,17 +16,15 @@ export class MessageController {
         @Query('tenantId') tenantId: string,
         @Headers('authorization') auth: string,
     ) {
+        fs.appendFileSync('trace.log', `[MessageController] GET /messages roomId=${roomId} tenantId=${tenantId}\n`);
         if (!roomId || !tenantId) return [];
 
-        // Optional: Validate user session from Bearer token
-        // const token = auth?.replace('Bearer ', '');
-        // try {
-        //   this.jwtService.verify(token, { secret: process.env.BETTER_AUTH_SECRET });
-        // } catch {
-        //   throw new UnauthorizedException('Invalid token');
-        // }
-
-        return this.chatService.getMessagesForRoom(roomId, tenantId);
+        try {
+            return await this.chatService.getMessagesForRoom(roomId, tenantId);
+        } catch (err: any) {
+            fs.appendFileSync('trace.log', `[MessageController ERROR] ${err.message}\n`);
+            throw err;
+        }
     }
 
     @Delete(':id')

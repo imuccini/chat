@@ -1,5 +1,6 @@
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { prisma } from '@local/database';
+import fs from 'fs';
 
 @Injectable()
 export class PrismaService implements OnModuleInit, OnModuleDestroy {
@@ -22,11 +23,14 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
     get systemLog() { return prisma.systemLog; }
 
     async onModuleInit() {
+        fs.appendFileSync('trace.log', `[PrismaService] onModuleInit. prisma instance: ${typeof prisma}\n`);
         try {
             await prisma.$connect();
             console.log('[DEBUG] Prisma connected successfully');
-        } catch (err) {
+            fs.appendFileSync('trace.log', `[PrismaService] Connected to DB\n`);
+        } catch (err: any) {
             console.error('[ERROR] Prisma connection failed:', err);
+            fs.appendFileSync('trace.log', `[PrismaService ERROR] Connection failed: ${err.message}\n`);
         }
     }
 

@@ -31,6 +31,7 @@ export type RoomType = 'ANNOUNCEMENT' | 'GENERAL';
 export interface Room {
     id: string;
     name: string;
+    description?: string;
     type: RoomType;
     tenantId: string;
 }
@@ -59,7 +60,11 @@ export interface CustomSocket extends Socket {
 // ============ WebSocket Events ============
 export interface ServerToClientEvents {
     newMessage: (msg: Message) => void;
-    presenceUpdate: (users: User[]) => void;
+    presenceUpdate: (data: {
+        users: User[];
+        onlineIds: string[];
+        roomCounts: Record<string, number>
+    }) => void;
     messageDeleted: (data: { messageId: string; roomId?: string }) => void;
     privateMessage: (msg: Message) => void;
     rateLimited: (data: { retryAfter: number }) => void;

@@ -11,9 +11,10 @@ interface ChatListProps {
     chats: PrivateChatSession[];
     onSelectChat: (peerId: string) => void;
     onDeleteChat: (peerId: string) => void;
+    onlineUserIds: string[];
 }
 
-const ChatList: React.FC<ChatListProps> = ({ chats, onSelectChat, onDeleteChat }) => {
+const ChatList: React.FC<ChatListProps> = ({ chats, onSelectChat, onDeleteChat, onlineUserIds }) => {
     const getAvatarColor = (gender: Gender) => {
         switch (gender) {
             case 'male': return 'bg-blue-500';
@@ -66,6 +67,7 @@ const ChatList: React.FC<ChatListProps> = ({ chats, onSelectChat, onDeleteChat }
                             >
                                 <div className={`w-14 h-14 rounded-full ${getAvatarColor(chat.peer.gender)} flex items-center justify-center text-white shrink-0 shadow-sm relative`}>
                                     <span className="font-bold text-xl uppercase">{chat.peer.alias.charAt(0)}</span>
+                                    <div className={`absolute bottom-0 right-0 w-4 h-4 rounded-full border-2 border-white ${onlineUserIds.includes(chat.peer.id) ? 'bg-emerald-500' : 'bg-red-400'}`} />
                                 </div>
 
                                 <div className="flex-1 min-w-0">

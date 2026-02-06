@@ -16,11 +16,13 @@ export const API_BASE_URL = isNative
     : ''; // Same-origin on web - Next.js rewrites will proxy to port 3001
 
 // For Socket.IO Specifically
-// On Web: Use network IP so it works from any device on the network
-// On Native: Connect directly to the API server
+// On Web: Connect to the same host but port 3001
+// On Native: Connect directly to the API server defined in env
 export const SOCKET_URL = isNative
     ? (process.env.NEXT_PUBLIC_SERVER_URL?.replace(':3000', ':3001') || 'http://localhost:3001')
-    : (process.env.NEXT_PUBLIC_SERVER_URL?.replace(':3000', ':3001') || 'http://localhost:3001');
+    : (typeof window !== 'undefined'
+        ? `${window.location.protocol}//${window.location.hostname}:3001`
+        : (process.env.NEXT_PUBLIC_SERVER_URL?.replace(':3000', ':3001') || 'http://localhost:3001'));
 
 if (isNative) {
     console.log("[ChatConfig] Native Platform Detected. SOCKET_URL:", SOCKET_URL);

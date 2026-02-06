@@ -209,6 +209,7 @@ exports.Prisma.TenantMemberScalarFieldEnum = {
 exports.Prisma.RoomScalarFieldEnum = {
   id: 'id',
   name: 'name',
+  description: 'description',
   type: 'type',
   tenantId: 'tenantId',
   createdAt: 'createdAt'

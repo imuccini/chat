@@ -43,6 +43,33 @@ async function main() {
             }
         });
 
+        // Seed default rooms
+        const roomsToSeed = [
+            { name: 'Annunci', type: 'ANNOUNCEMENT' as const, description: `Messaggi da ${t.name}` },
+            { name: t.name, type: 'GENERAL' as const, description: 'Discussione generale e chat pubblica' }
+        ];
+
+        for (const roomData of roomsToSeed) {
+            await prisma.room.upsert({
+                where: {
+                    // We don't have a unique constraint on room name per tenant in schema yet,
+                    // so we just find and update or create.
+                    id: `${t.slug}-${roomData.type}`
+                },
+                update: {
+                    name: roomData.name,
+                    description: roomData.description,
+                },
+                create: {
+                    id: `${t.slug}-${roomData.type}`,
+                    name: roomData.name,
+                    description: roomData.description,
+                    type: roomData.type,
+                    tenantId: tenant.id,
+                }
+            });
+        }
+
         console.log(`- Seeded ${t.slug}`);
     }
 

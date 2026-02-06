@@ -10,6 +10,7 @@ import {
 import { Server } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 import { Logger, Inject } from '@nestjs/common';
+import fs from 'fs';
 import type { CustomSocket, User, Message, ServerToClientEvents, ClientToServerEvents } from '@local/types';
 import { ChatService } from './chat.service.js';
 import { TenantService } from '../tenant/tenant.service.js';
@@ -17,27 +18,17 @@ import { PrismaService } from '../prisma/prisma.service.js';
 
 @WebSocketGateway({
     cors: {
-        origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-            const allowed = [
-                'capacitor://localhost',
-                'http://localhost',
-                'http://localhost:3000',
-            ];
-            const isAllowed = !origin || allowed.includes(origin) ||
-                origin?.startsWith('http://192.168.') ||
-                origin?.startsWith('http://10.') ||
-                origin?.startsWith('http://172.');
-            callback(null, isAllowed);
-        },
+        origin: '*',
         credentials: true,
     },
+    transports: ['websocket', 'polling'],
 })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @WebSocketServer()
     server: Server<ClientToServerEvents, ServerToClientEvents>;
 
     private logger = new Logger('ChatGateway');
-    private onlineUsers = new Map<string, { user: User; tenantSlug: string; rooms: string[] }>();
+    private onlineUsers = new Map<string, { user: User; tenantId: string; tenantSlug: string; rooms: string[] }>();
     private lastMessageTime = new Map<string, number>();
     private readonly RATE_LIMIT_MS = 500;
 
@@ -49,6 +40,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     ) { }
 
     async handleConnection(socket: CustomSocket) {
+        this.logger.log(`NEW CONNECTION: ${socket.id}`);
+
         // BetterAuth sessions are often passed as the token
         const token = socket.handshake.auth?.token || socket.handshake.query?.token;
         const tenantSlug = socket.handshake.query?.tenantSlug as string;
@@ -188,9 +181,20 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         const { user, tenantSlug } = data;
         if (!user || !tenantSlug) return;
 
-        // Initialize with empty rooms, will be updated below
-        const userEntry = { user, tenantSlug, rooms: [] as string[] };
+        // Fetch tenant to get ID and rooms
+        const tenant = await this.tenantService.findBySlug(tenantSlug);
+        if (!tenant) return;
+
+        // Initialize with tenant data
+        const userEntry = { user, tenantId: tenant.id, tenantSlug, rooms: [] as string[] };
         this.onlineUsers.set(socket.id, userEntry);
+
+        // Update socket data for saving messages
+        if (socket.data.user) {
+            socket.data.user.tenantId = tenant.id;
+        } else {
+            socket.data.user = { id: user.id, alias: user.alias, tenantId: tenant.id };
+        }
 
         // Join tenant lobby
         socket.join(`tenant:${tenantSlug}`);
@@ -200,7 +204,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         socket.join(user.id);
 
         // Join all tenant rooms to ensure receiving broadcasts
-        const tenant = await this.tenantService.findBySlug(tenantSlug);
         if (tenant && tenant.rooms) {
             const roomIds = tenant.rooms.map((r: any) => r.id);
             roomIds.forEach((roomId: string) => socket.join(roomId));
@@ -209,6 +212,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
             userEntry.rooms = roomIds;
         }
 
+        const logMsg = `[ChatGateway] handleJoin user=${user.id} tenant=${tenantSlug} tenantId=${tenant?.id} rooms=${Array.from(socket.rooms).join(',')}\n`;
+        this.logger.log(logMsg.trim());
+        fs.appendFileSync('/tmp/antigravity_chat.log', logMsg);
         this.broadcastPresence(tenantSlug);
     }
 
@@ -217,6 +223,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         @ConnectedSocket() socket: CustomSocket,
         @MessageBody() message: Message,
     ) {
+        console.error(`[ChatGateway] RECEIVED MESSAGE: ${message?.text?.substring(0, 20)} from ${socket.id}`);
+        fs.appendFileSync('/tmp/chat_debug.log', `[${new Date().toISOString()}] Message from ${socket.id}: ${JSON.stringify(message)}\n`);
+
         this.logger.log(`[handleMessage] Received message: ${JSON.stringify(message)}`);
 
         if (!message?.text) {
@@ -230,7 +239,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
             return;
         }
 
-        this.logger.log(`[handleMessage] User data: ${JSON.stringify(userData)}`);
+        this.logger.log(`[handleMessage] User data (onlineUsers): ${JSON.stringify(userData)}`);
+        this.logger.log(`[handleMessage] Socket data (user): ${JSON.stringify(socket.data.user)}`);
+        this.logger.log(`[handleMessage] Socket rooms: ${Array.from(socket.rooms).join(', ')}`);
+
+        const logMsg = `[handleMessage TRACE] text="${message.text}" roomId=${message.roomId} recipientId=${message.recipientId} socketUser=${JSON.stringify(socket.data.user)} rooms=${Array.from(socket.rooms).join(',')}`;
+        this.logger.error(logMsg);
+        fs.appendFileSync('/tmp/antigravity_chat.log', logMsg + '\n');
+        fs.appendFileSync('/tmp/chat_debug.log', `[${new Date().toISOString()}] TRACE: ${logMsg}\n`);
 
         // Rate limiting
         const now = Date.now();
@@ -243,28 +259,39 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
         // Sanitize text
         const sanitizedText = this.sanitizeText(message.text);
-        if (!sanitizedText) return;
+        if (!sanitizedText) {
+            this.logger.warn(`[handleMessage] Message rejected: sanitized text is empty`);
+            return;
+        }
 
         message.text = sanitizedText;
         message.timestamp = new Date().toISOString();
 
         // Save to DB via ChatService
-        if (socket.data.user?.tenantId) {
-            this.logger.log(`[handleMessage] Saving message to DB for tenant ${socket.data.user.tenantId}`);
-            await this.chatService.saveMessage(message, socket.data.user.tenantId);
+        const targetTenantId = socket.data.user?.tenantId || userData.tenantId;
+        if (targetTenantId) {
+            this.logger.log(`[handleMessage] Saving message to DB for tenant ${targetTenantId}`);
+            await this.chatService.saveMessage(message, targetTenantId);
         } else {
-            this.logger.warn(`[handleMessage] No tenantId, message not saved to DB`);
+            this.logger.warn(`[handleMessage] No tenantId found in socket.data or userData, message not saved to DB`);
+            fs.appendFileSync('/tmp/antigravity_chat.log', `[ChatGateway Error] No tenantId for message text="${message.text}"\n`);
         }
 
         // Route message
         if (message.recipientId) {
             // Private message
-            this.logger.log(`[handleMessage] Sending private message to ${message.recipientId}`);
+            const recipientRoomSize = this.server.sockets.adapter.rooms.get(message.recipientId)?.size || 0;
+            const senderRoomSize = this.server.sockets.adapter.rooms.get(message.senderId)?.size || 0;
+
+            this.logger.log(`[handleMessage] Private: ${message.senderId} -> ${message.recipientId} (Recip Sockets: ${recipientRoomSize}, Sender Sockets: ${senderRoomSize})`);
+
+            // Emit to recipient's personal room
             this.server.to(message.recipientId).emit('privateMessage', message);
-            socket.emit('privateMessage', message);
+            // Emit back to sender's own personal room (handles multiple sessions/tabs for the same user)
+            this.server.to(message.senderId).emit('privateMessage', message);
         } else if (message.roomId) {
             // Room message
-            this.logger.log(`[handleMessage] Broadcasting to room ${message.roomId}`);
+            this.logger.log(`[handleMessage] Broadcasting to room ${message.roomId} (rooms in socket: ${Array.from(this.server.sockets.adapter.rooms.get(message.roomId) || []).join(', ')})`);
             this.server.to(message.roomId).emit('newMessage', message);
         } else {
             // Fallback global
@@ -300,12 +327,42 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         }
     }
 
-    private broadcastPresence(tenantSlug: string) {
-        const users = Array.from(this.onlineUsers.values())
-            .filter(u => u.tenantSlug === tenantSlug)
-            .map(u => u.user);
+    private async broadcastPresence(tenantSlug: string) {
+        const tenantUsers = Array.from(this.onlineUsers.values())
+            .filter(u => u.tenantSlug === tenantSlug);
 
-        this.server.to(`tenant:${tenantSlug}`).emit('presenceUpdate', users);
+        const users = tenantUsers.map(u => u.user);
+        const onlineIds = Array.from(new Set(tenantUsers.map(u => u.user.id)));
+
+        // Calculate counts for each room in this tenant
+        const roomCounts: Record<string, number> = {};
+
+        // Get tenant to know which rooms to check
+        const tenant = await this.chatService.getTenantBySlug(tenantSlug);
+        if (tenant && tenant.rooms) {
+            for (const room of tenant.rooms) {
+                const roomObj = this.server.sockets.adapter.rooms.get(room.id);
+                if (roomObj) {
+                    // We want unique USERS, not sockets.
+                    // This is slightly complex since adapter only gives socket IDs.
+                    const socketIdsInRoom = Array.from(roomObj);
+                    const uniqueUserIds = new Set();
+                    for (const sId of socketIdsInRoom) {
+                        const uData = this.onlineUsers.get(sId);
+                        if (uData) uniqueUserIds.add(uData.user.id);
+                    }
+                    roomCounts[room.id] = uniqueUserIds.size;
+                } else {
+                    roomCounts[room.id] = 0;
+                }
+            }
+        }
+
+        this.server.to(`tenant:${tenantSlug}`).emit('presenceUpdate', {
+            users,
+            onlineIds,
+            roomCounts
+        });
     }
 
     private sanitizeText(text: string): string {

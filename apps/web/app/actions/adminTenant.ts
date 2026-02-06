@@ -33,8 +33,8 @@ export async function createTenantAction(formData: FormData) {
             },
             rooms: {
                 create: [
-                    { name: 'Annunci', type: 'ANNOUNCEMENT' },
-                    { name: name, type: 'GENERAL' }
+                    { name: 'Annunci', type: 'ANNOUNCEMENT', description: `Messaggi da ${name}` },
+                    { name: name, type: 'GENERAL', description: 'Discussione generale e chat pubblica' }
                 ]
             }
         }
@@ -156,8 +156,8 @@ export async function initRoomsAction(formData: FormData) {
     // Create default rooms
     await prisma.room.createMany({
         data: [
-            { name: 'Annunci', type: 'ANNOUNCEMENT', tenantId },
-            { name: tenant.name, type: 'GENERAL', tenantId }
+            { name: 'Annunci', type: 'ANNOUNCEMENT', tenantId, description: `Messaggi da ${tenant.name}` },
+            { name: tenant.name, type: 'GENERAL', tenantId, description: 'Discussione generale e chat pubblica' }
         ]
     });
 

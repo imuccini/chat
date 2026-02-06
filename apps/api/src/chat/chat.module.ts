@@ -4,6 +4,9 @@ import { ChatGateway } from './chat.gateway.js';
 import { ChatService } from './chat.service.js';
 
 import { TenantModule } from '../tenant/tenant.module.js';
+import { TenantService } from '../tenant/tenant.service.js';
+
+console.error('[ChatModule] FILE EVALUATED');
 
 @Module({
     imports: [

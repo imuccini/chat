@@ -1,0 +1,18 @@
+{
+	"appId": "io.trenochat.app",
+	"appName": "TrenoChat",
+	"webDir": "out",
+	"backgroundColor": "#ffffff",
+	"server": {
+		"androidScheme": "http",
+		"cleartext": true
+	},
+	"plugins": {
+		"Keyboard": {
+			"resize": "body"
+		}
+	},
+	"ios": {
+		"backgroundColor": "#ffffff"
+	}
+}

@@ -34,7 +34,8 @@ export default function TenantChatClient() {
                 }
                 setTenant(tenantData);
 
-                const dbMessages = await clientGetMessages(tenantSlug);
+                const defaultRoomId = tenantData.rooms?.[0]?.id;
+                const dbMessages = await clientGetMessages(tenantSlug, defaultRoomId, tenantData.id);
                 const mappedMessages: Message[] = dbMessages.map((msg: any) => ({
                     id: msg.id,
                     text: msg.text,

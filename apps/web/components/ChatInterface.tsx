@@ -45,6 +45,8 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
 
     // Data State
     const [onlineUsers, setOnlineUsers] = useState<(User & { socketId: string })[]>([]);
+    const [onlineUserIds, setOnlineUserIds] = useState<string[]>([]);
+    const [roomOnlineCounts, setRoomOnlineCounts] = useState<Record<string, number>>({});
     const [privateChats, setPrivateChats] = useState<PrivateChatsMap>({});
     const [isConnected, setIsConnected] = useState(false);
 
@@ -98,22 +100,21 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                 joinedAt: new Date(session.user.createdAt).getTime()
             };
 
-            setCurrentUser(prev => {
-                if (prev && prev.id === authUser.id && prev.alias === authUser.alias) return prev;
-                localStorage.setItem('chat_user', JSON.stringify(authUser));
-                return authUser;
-            });
+            setCurrentUser(authUser);
+            localStorage.setItem('chat_user', JSON.stringify(authUser));
         }
     }, [session, isSessionLoading]);
 
-    // Restore data on mount
+    // Restore data on mount & whenever session state changes
     useEffect(() => {
-        if (typeof window !== 'undefined') {
+        if (typeof window !== 'undefined' && !isSessionLoading) {
             const savedUser = localStorage.getItem('chat_user');
-            if (savedUser && !session && !isSessionLoading) {
+            if (savedUser && !session) {
                 try {
                     const user = JSON.parse(savedUser);
+                    console.log("[ChatInterface] Restoring guest user from localStorage:", user.alias);
                     setCurrentUser(user);
+
                     if (Capacitor.isNativePlatform()) {
                         sqliteService.getPrivateChats(user.id).then(chats => {
                             if (chats.length > 0) {
@@ -135,11 +136,13 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                             }
                         });
                     }
-                } catch (e) { }
+                } catch (e) {
+                    console.error("[ChatInterface] Failed to restore user:", e);
+                }
             }
         }
         document.documentElement.classList.add(`platform-${Capacitor.getPlatform()}`);
-    }, [tenant.slug]);
+    }, [tenant.slug, isSessionLoading, session]);
 
     // Dynamic background for native
     useEffect(() => {
@@ -189,6 +192,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
             const sessionData = await authClient.getSession();
             const token = sessionData?.data?.session?.id;
 
+            console.log("[Socket] Attempting connection to:", SOCKET_URL, "for tenant:", tenant.slug);
             newSocket = io(SOCKET_URL, {
                 auth: { token },
                 query: {
@@ -196,8 +200,9 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                     userId: currentUser.id,
                     userAlias: currentUser.alias  // Pass alias so server uses it
                 },
-                transports: ['websocket'],
-                reconnectionAttempts: 5
+                transports: ['websocket', 'polling'], // Added polling for better compatibility
+                reconnectionAttempts: 10,
+                reconnectionDelay: 1000
             });
 
             newSocket.on('connect', () => {
@@ -205,6 +210,18 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                 setIsConnected(true);
                 socketInitializedRef.current = true;
                 userIdRef.current = currentUser.id;
+
+                // CRITICAL: Re-join on reconnection to restore server-side state (onlineUsers)
+                console.log("[Socket] Connected! Socket ID:", newSocket.id, "emitting join...");
+                newSocket.emit('join', { user: currentUser, tenantSlug: tenant.slug });
+            });
+
+            newSocket.on('connect_error', (err) => {
+                console.error("[Socket] Connection error details:", err.message, err);
+            });
+
+            newSocket.on('reconnect_attempt', (num) => {
+                console.log("[Socket] Reconnection attempt #", num);
             });
 
             // Listen for user creation (for NEW anonymous users only)
@@ -235,9 +252,14 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                 setIsConnected(false);
             });
 
-            newSocket.on('presenceUpdate', (users: (User & { socketId: string })[]) => setOnlineUsers(users));
+            newSocket.on('presenceUpdate', (data: { users: User[], onlineIds: string[], roomCounts: Record<string, number> }) => {
+                setOnlineUsers(data.users as any);
+                setOnlineUserIds(data.onlineIds);
+                setRoomOnlineCounts(data.roomCounts);
+            });
 
             newSocket.on('newMessage', async (msg: Message) => {
+                console.log("[Socket] Received newMessage:", msg);
                 await sqliteService.saveMessage(msg, true);
                 // Directly update cache for instant display (no HTTP refetch needed)
                 const queryKey = ['messages', 'global', tenant.slug, msg.roomId || null];
@@ -330,6 +352,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
             id: Date.now().toString(), text, senderId: currentUser.id, senderAlias: currentUser.alias,
             senderGender: currentUser.gender, timestamp: new Date().toISOString(), roomId: activeRoomId, tenantId: tenant.id
         };
+        console.log("[ChatInterface] Sending room message:", msg);
         if (Capacitor.isNativePlatform()) Haptics.impact({ style: ImpactStyle.Light }).catch(() => { });
         await sqliteService.saveMessage(msg, true);
         queryClient.setQueryData(['messages', 'global', tenant.slug, activeRoomId], (prev: Message[] | undefined) => [...(prev || []), msg]);
@@ -395,7 +418,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
     return (
         <div className="flex flex-col w-full h-full max-w-3xl mx-auto bg-white shadow-xl overflow-hidden relative">
             <div className="flex-1 overflow-hidden relative">
-                {activeTab === 'room' && !activeRoomId && <RoomList rooms={tenant.rooms || []} onSelectRoom={setActiveRoomId} activeRoomId={activeRoomId || undefined} />}
+                {activeTab === 'room' && !activeRoomId && <RoomList rooms={tenant.rooms || []} onSelectRoom={setActiveRoomId} activeRoomId={activeRoomId || undefined} roomOnlineCounts={roomOnlineCounts} />}
                 {activeTab === 'room' && activeRoomId && (
                     <GlobalChat
                         user={currentUser} messages={messages} onSendMessage={handleRoomSend} onRemoveMessage={handleDeleteMessage}
@@ -406,7 +429,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                     />
                 )}
                 {activeTab === 'users' && <UserList currentUser={currentUser} users={onlineUsers} onStartChat={handleStartChat} />}
-                {activeTab === 'chats' && <ChatList chats={Object.values(privateChats).map(c => ({ ...c, unreadCount: c.unread })).sort((a, b) => (b.messages.length ? new Date(b.messages[b.messages.length - 1].timestamp).getTime() : 0) - (a.messages.length ? new Date(a.messages[a.messages.length - 1].timestamp).getTime() : 0))} onSelectChat={setSelectedChatPeerId} onDeleteChat={handleDeleteChat} />}
+                {activeTab === 'chats' && <ChatList chats={Object.values(privateChats).map(c => ({ ...c, unreadCount: c.unread })).sort((a, b) => (b.messages.length ? new Date(b.messages[b.messages.length - 1].timestamp).getTime() : 0) - (a.messages.length ? new Date(a.messages[a.messages.length - 1].timestamp).getTime() : 0))} onSelectChat={setSelectedChatPeerId} onDeleteChat={handleDeleteChat} onlineUserIds={onlineUserIds} />}
                 {activeTab === 'settings' && <Settings user={currentUser} onLogout={handleLogout} onUpdateAlias={handleUpdateAlias} onUpdateStatus={handleUpdateStatus} tenantId={tenant.id} />}
             </div>
             <div className={`border-t border-gray-100 bg-white z-20 overflow-hidden ${isInputFocused || (activeTab === 'room' && activeRoomId) ? 'hidden' : 'block'}`}>

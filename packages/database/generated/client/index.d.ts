@@ -8958,6 +8958,7 @@ export namespace Prisma {
   export type RoomMinAggregateOutputType = {
     id: string | null
     name: string | null
+    description: string | null
     type: $Enums.RoomType | null
     tenantId: string | null
     createdAt: Date | null
@@ -8966,6 +8967,7 @@ export namespace Prisma {
   export type RoomMaxAggregateOutputType = {
     id: string | null
     name: string | null
+    description: string | null
     type: $Enums.RoomType | null
     tenantId: string | null
     createdAt: Date | null
@@ -8974,6 +8976,7 @@ export namespace Prisma {
   export type RoomCountAggregateOutputType = {
     id: number
     name: number
+    description: number
     type: number
     tenantId: number
     createdAt: number
@@ -8984,6 +8987,7 @@ export namespace Prisma {
   export type RoomMinAggregateInputType = {
     id?: true
     name?: true
+    description?: true
     type?: true
     tenantId?: true
     createdAt?: true
@@ -8992,6 +8996,7 @@ export namespace Prisma {
   export type RoomMaxAggregateInputType = {
     id?: true
     name?: true
+    description?: true
     type?: true
     tenantId?: true
     createdAt?: true
@@ -9000,6 +9005,7 @@ export namespace Prisma {
   export type RoomCountAggregateInputType = {
     id?: true
     name?: true
+    description?: true
     type?: true
     tenantId?: true
     createdAt?: true
@@ -9081,6 +9087,7 @@ export namespace Prisma {
   export type RoomGroupByOutputType = {
     id: string
     name: string
+    description: string | null
     type: $Enums.RoomType
     tenantId: string
     createdAt: Date
@@ -9106,6 +9113,7 @@ export namespace Prisma {
   export type RoomSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     name?: boolean
+    description?: boolean
     type?: boolean
     tenantId?: boolean
     createdAt?: boolean
@@ -9117,6 +9125,7 @@ export namespace Prisma {
   export type RoomSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     name?: boolean
+    description?: boolean
     type?: boolean
     tenantId?: boolean
     createdAt?: boolean
@@ -9126,6 +9135,7 @@ export namespace Prisma {
   export type RoomSelectScalar = {
     id?: boolean
     name?: boolean
+    description?: boolean
     type?: boolean
     tenantId?: boolean
     createdAt?: boolean
@@ -9149,6 +9159,7 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: string
       name: string
+      description: string | null
       type: $Enums.RoomType
       tenantId: string
       createdAt: Date
@@ -9549,6 +9560,7 @@ export namespace Prisma {
   interface RoomFieldRefs {
     readonly id: FieldRef<"Room", 'String'>
     readonly name: FieldRef<"Room", 'String'>
+    readonly description: FieldRef<"Room", 'String'>
     readonly type: FieldRef<"Room", 'RoomType'>
     readonly tenantId: FieldRef<"Room", 'String'>
     readonly createdAt: FieldRef<"Room", 'DateTime'>
@@ -13044,6 +13056,7 @@ export namespace Prisma {
   export const RoomScalarFieldEnum: {
     id: 'id',
     name: 'name',
+    description: 'description',
     type: 'type',
     tenantId: 'tenantId',
     createdAt: 'createdAt'
@@ -13813,6 +13826,7 @@ export namespace Prisma {
     NOT?: RoomWhereInput | RoomWhereInput[]
     id?: StringFilter<"Room"> | string
     name?: StringFilter<"Room"> | string
+    description?: StringNullableFilter<"Room"> | string | null
     type?: EnumRoomTypeFilter<"Room"> | $Enums.RoomType
     tenantId?: StringFilter<"Room"> | string
     createdAt?: DateTimeFilter<"Room"> | Date | string
@@ -13823,6 +13837,7 @@ export namespace Prisma {
   export type RoomOrderByWithRelationInput = {
     id?: SortOrder
     name?: SortOrder
+    description?: SortOrderInput | SortOrder
     type?: SortOrder
     tenantId?: SortOrder
     createdAt?: SortOrder
@@ -13836,6 +13851,7 @@ export namespace Prisma {
     OR?: RoomWhereInput[]
     NOT?: RoomWhereInput | RoomWhereInput[]
     name?: StringFilter<"Room"> | string
+    description?: StringNullableFilter<"Room"> | string | null
     type?: EnumRoomTypeFilter<"Room"> | $Enums.RoomType
     tenantId?: StringFilter<"Room"> | string
     createdAt?: DateTimeFilter<"Room"> | Date | string
@@ -13846,6 +13862,7 @@ export namespace Prisma {
   export type RoomOrderByWithAggregationInput = {
     id?: SortOrder
     name?: SortOrder
+    description?: SortOrderInput | SortOrder
     type?: SortOrder
     tenantId?: SortOrder
     createdAt?: SortOrder
@@ -13860,6 +13877,7 @@ export namespace Prisma {
     NOT?: RoomScalarWhereWithAggregatesInput | RoomScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Room"> | string
     name?: StringWithAggregatesFilter<"Room"> | string
+    description?: StringNullableWithAggregatesFilter<"Room"> | string | null
     type?: EnumRoomTypeWithAggregatesFilter<"Room"> | $Enums.RoomType
     tenantId?: StringWithAggregatesFilter<"Room"> | string
     createdAt?: DateTimeWithAggregatesFilter<"Room"> | Date | string
@@ -14719,6 +14737,7 @@ export namespace Prisma {
   export type RoomCreateInput = {
     id?: string
     name: string
+    description?: string | null
     type?: $Enums.RoomType
     createdAt?: Date | string
     tenant: TenantCreateNestedOneWithoutRoomsInput
@@ -14728,6 +14747,7 @@ export namespace Prisma {
   export type RoomUncheckedCreateInput = {
     id?: string
     name: string
+    description?: string | null
     type?: $Enums.RoomType
     tenantId: string
     createdAt?: Date | string
@@ -14737,6 +14757,7 @@ export namespace Prisma {
   export type RoomUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
     type?: EnumRoomTypeFieldUpdateOperationsInput | $Enums.RoomType
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: TenantUpdateOneRequiredWithoutRoomsNestedInput
@@ -14746,6 +14767,7 @@ export namespace Prisma {
   export type RoomUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
     type?: EnumRoomTypeFieldUpdateOperationsInput | $Enums.RoomType
     tenantId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -14755,6 +14777,7 @@ export namespace Prisma {
   export type RoomCreateManyInput = {
     id?: string
     name: string
+    description?: string | null
     type?: $Enums.RoomType
     tenantId: string
     createdAt?: Date | string
@@ -14763,6 +14786,7 @@ export namespace Prisma {
   export type RoomUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
     type?: EnumRoomTypeFieldUpdateOperationsInput | $Enums.RoomType
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -14770,6 +14794,7 @@ export namespace Prisma {
   export type RoomUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
     type?: EnumRoomTypeFieldUpdateOperationsInput | $Enums.RoomType
     tenantId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -15598,6 +15623,7 @@ export namespace Prisma {
   export type RoomCountOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
+    description?: SortOrder
     type?: SortOrder
     tenantId?: SortOrder
     createdAt?: SortOrder
@@ -15606,6 +15632,7 @@ export namespace Prisma {
   export type RoomMaxOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
+    description?: SortOrder
     type?: SortOrder
     tenantId?: SortOrder
     createdAt?: SortOrder
@@ -15614,6 +15641,7 @@ export namespace Prisma {
   export type RoomMinOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
+    description?: SortOrder
     type?: SortOrder
     tenantId?: SortOrder
     createdAt?: SortOrder
@@ -16777,6 +16805,7 @@ export namespace Prisma {
   export type RoomCreateWithoutTenantInput = {
     id?: string
     name: string
+    description?: string | null
     type?: $Enums.RoomType
     createdAt?: Date | string
     messages?: MessageCreateNestedManyWithoutRoomInput
@@ -16785,6 +16814,7 @@ export namespace Prisma {
   export type RoomUncheckedCreateWithoutTenantInput = {
     id?: string
     name: string
+    description?: string | null
     type?: $Enums.RoomType
     createdAt?: Date | string
     messages?: MessageUncheckedCreateNestedManyWithoutRoomInput
@@ -16941,6 +16971,7 @@ export namespace Prisma {
     NOT?: RoomScalarWhereInput | RoomScalarWhereInput[]
     id?: StringFilter<"Room"> | string
     name?: StringFilter<"Room"> | string
+    description?: StringNullableFilter<"Room"> | string | null
     type?: EnumRoomTypeFilter<"Room"> | $Enums.RoomType
     tenantId?: StringFilter<"Room"> | string
     createdAt?: DateTimeFilter<"Room"> | Date | string
@@ -17848,6 +17879,7 @@ export namespace Prisma {
   export type RoomCreateWithoutMessagesInput = {
     id?: string
     name: string
+    description?: string | null
     type?: $Enums.RoomType
     createdAt?: Date | string
     tenant: TenantCreateNestedOneWithoutRoomsInput
@@ -17856,6 +17888,7 @@ export namespace Prisma {
   export type RoomUncheckedCreateWithoutMessagesInput = {
     id?: string
     name: string
+    description?: string | null
     type?: $Enums.RoomType
     tenantId: string
     createdAt?: Date | string
@@ -17956,6 +17989,7 @@ export namespace Prisma {
   export type RoomUpdateWithoutMessagesInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
     type?: EnumRoomTypeFieldUpdateOperationsInput | $Enums.RoomType
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: TenantUpdateOneRequiredWithoutRoomsNestedInput
@@ -17964,6 +17998,7 @@ export namespace Prisma {
   export type RoomUncheckedUpdateWithoutMessagesInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
     type?: EnumRoomTypeFieldUpdateOperationsInput | $Enums.RoomType
     tenantId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -18247,6 +18282,7 @@ export namespace Prisma {
   export type RoomCreateManyTenantInput = {
     id?: string
     name: string
+    description?: string | null
     type?: $Enums.RoomType
     createdAt?: Date | string
   }
@@ -18341,6 +18377,7 @@ export namespace Prisma {
   export type RoomUpdateWithoutTenantInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
     type?: EnumRoomTypeFieldUpdateOperationsInput | $Enums.RoomType
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     messages?: MessageUpdateManyWithoutRoomNestedInput
@@ -18349,6 +18386,7 @@ export namespace Prisma {
   export type RoomUncheckedUpdateWithoutTenantInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
     type?: EnumRoomTypeFieldUpdateOperationsInput | $Enums.RoomType
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     messages?: MessageUncheckedUpdateManyWithoutRoomNestedInput
@@ -18357,6 +18395,7 @@ export namespace Prisma {
   export type RoomUncheckedUpdateManyWithoutTenantInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
     type?: EnumRoomTypeFieldUpdateOperationsInput | $Enums.RoomType
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

@@ -181,7 +181,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, tenantName }) => {
     });
   };
 
-  const handleAnonymousSubmit = (e: React.FormEvent) => {
+  const handleAnonymousSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!alias.trim()) return;
 
@@ -189,12 +189,35 @@ const Login: React.FC<LoginProps> = ({ onLogin, tenantName }) => {
       document.activeElement.blur();
     }
 
-    onLogin({
-      id: `guest_${Math.random().toString(36).substr(2, 9)}`,
-      alias: alias.trim(),
-      gender,
-      joinedAt: Date.now(),
-    });
+    setIsLoading(true);
+    try {
+      // Use Better-auth anonymous plugin to create a real session
+      const { data, error } = await authClient.signIn.anonymous();
+
+      if (error) throw new Error(error.message || "Errore accesso anonimo");
+
+      // Update user with alias and gender
+      await authClient.updateUser({
+        name: alias.trim(),
+        // @ts-ignore - custom fields supported in auth.ts
+        gender: gender
+      });
+
+      const { data: sessionData } = await authClient.getSession();
+      if (sessionData?.user) {
+        const user = {
+          ...sessionData.user,
+          alias: alias.trim(),
+          gender: gender,
+          joinedAt: Date.now()
+        } as unknown as AppUser;
+
+        onLogin(user);
+      }
+    } catch (err: any) {
+      setError(err.message);
+      setIsLoading(false);
+    }
   };
 
   // Feature detection for WebAuthn/Passkeys

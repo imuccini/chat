@@ -2,6 +2,9 @@ import { Injectable, Logger, Inject } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { Prisma } from '@local/database/generated/client/index.js';
 import type { Message } from '@local/types';
+import fs from 'fs';
+
+console.error('[ChatService] FILE EVALUATED - TIMESTAMP: ' + Date.now());
 
 @Injectable()
 export class ChatService {
@@ -13,19 +16,27 @@ export class ChatService {
      * Save a message to the database
      */
     async saveMessage(message: Message, tenantId: string): Promise<any> {
-        return this.prisma.message.create({
-            data: {
-                id: message.id,
-                text: message.text,
-                senderId: message.senderId,
-                senderAlias: message.senderAlias,
-                senderGender: message.senderGender,
-                recipientId: message.recipientId || null,
-                roomId: message.roomId || null,
-                tenantId: tenantId,
-                userId: message.senderId,
-            },
-        });
+        this.logger.debug(`[saveMessage] Attempting to save message ${message.id} to room ${message.roomId} for tenant ${tenantId}`);
+        try {
+            const saved = await this.prisma.message.create({
+                data: {
+                    id: message.id,
+                    text: message.text,
+                    senderId: message.senderId,
+                    senderAlias: message.senderAlias,
+                    senderGender: message.senderGender,
+                    recipientId: message.recipientId || null,
+                    roomId: message.roomId || null,
+                    tenantId: tenantId,
+                    userId: message.senderId,
+                },
+            });
+            this.logger.debug(`[saveMessage] Success: saved message ${saved.id}`);
+            return saved;
+        } catch (error: any) {
+            this.logger.error(`[saveMessage] Failed: ${error.message}`);
+            throw error;
+        }
     }
 
     /**
@@ -33,16 +44,25 @@ export class ChatService {
      */
     async getMessagesForRoom(roomId: string, tenantId: string, limit = 100): Promise<any[]> {
         const threeHoursAgo = new Date(Date.now() - 3 * 60 * 60 * 1000);
+        this.logger.debug(`Fetching messages for room ${roomId} in tenant ${tenantId}`);
 
-        return this.prisma.message.findMany({
-            where: {
-                tenantId,
-                roomId,
-                createdAt: { gte: threeHoursAgo },
-            },
-            orderBy: { createdAt: 'asc' },
-            take: limit,
-        });
+        try {
+            const messages = await this.prisma.message.findMany({
+                where: {
+                    tenantId,
+                    roomId,
+                    createdAt: { gte: threeHoursAgo },
+                },
+                orderBy: { createdAt: 'asc' },
+                take: limit,
+            });
+            this.logger.debug(`Found ${messages.length} messages`);
+            return messages;
+        } catch (error) {
+            this.logger.error(`Failed to fetch messages: ${error.message}`, error.stack);
+            fs.appendFileSync('trace.log', `[ChatService ERROR] ${error.message}\n${error.stack}\n`);
+            throw error;
+        }
     }
 
     /**

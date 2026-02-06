@@ -1,15 +1,8 @@
-import * as pkg from '../generated/client/index';
 
-// gestisco l'interop ESM/CJS esplicitamente per mappare le classi e i valori
-const PrismaLib = (pkg as any).default || pkg;
+import { db } from './db';
 
-// Esportazioni esplicite di VALORI per evitare shadowing o mancate risoluzioni in ESM
-export const PrismaClient = PrismaLib.PrismaClient;
-export const Prisma = PrismaLib.Prisma;
-export const $Enums = PrismaLib.$Enums;
+// Re-export specific values from the singleton file for global use
+export { db as prisma, db };
 
-// Istanza Singleton importata dal file dedicato
-export { db as prisma } from './db';
-
-// Esportazioni esplicite di TIPI
+// Re-export types from the generated client for TypeScript support
 export type * from '../generated/client/index.js';

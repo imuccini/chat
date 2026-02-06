@@ -35,6 +35,7 @@ export type RoomType = 'ANNOUNCEMENT' | 'GENERAL';
 export interface Room {
   id: string;
   name: string;
+  description?: string;
   type: RoomType;
   tenantId: string;
 }

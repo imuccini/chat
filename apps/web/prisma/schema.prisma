@@ -144,13 +144,14 @@ enum RoomType {
 }
 
 model Room {
-  id        String   @id @default(cuid())
-  name      String
-  type      RoomType @default(GENERAL)
-  tenantId  String
-  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  messages  Message[]
-  createdAt DateTime @default(now())
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  type        RoomType @default(GENERAL)
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  messages    Message[]
+  createdAt   DateTime @default(now())
 }
 
 model Message {

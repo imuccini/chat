@@ -22,10 +22,6 @@ const nextConfig = {
         return [
             // Tenant API is now handled by Next.js API route at /app/api/tenants/[slug]/route.ts
             {
-                source: '/api/messages/:path*',
-                destination: `${process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3001'}/api/messages/:path*`,
-            },
-            {
                 source: '/api/validate-nas',
                 destination: `${process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3001'}/api/tenants/validate-nas`,
             },

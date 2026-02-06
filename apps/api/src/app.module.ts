@@ -12,6 +12,8 @@ import { PrismaModule } from './prisma/prisma.module.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+import { DiagController } from './diag.controller.js';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -23,7 +25,7 @@ const __dirname = dirname(__filename);
     ChatModule,
     MessageModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, DiagController],
   providers: [AppService],
 })
 export class AppModule { }
