@@ -76,7 +76,11 @@ const UserList: React.FC<UserListProps> = ({ currentUser, users, onStartChat }) 
                 ) : (
                     <ul className="space-y-4">
                         {otherUsers.map(user => (
-                            <li key={user.id} className="flex items-center gap-4 p-3 bg-white rounded-xl active:bg-gray-50 transition-colors border-b border-gray-50 last:border-0">
+                            <li
+                                key={user.id}
+                                onClick={() => onStartChat(user)}
+                                className="flex items-center gap-4 p-3 bg-white rounded-xl hover:bg-gray-50 active:bg-gray-100 transition-colors border-b border-gray-50 last:border-0 cursor-pointer group"
+                            >
                                 <div className={`w-12 h-12 rounded-full ${getAvatarColor(user.gender)} flex items-center justify-center text-white shrink-0 shadow-sm relative`}>
                                     <span className="font-bold text-lg uppercase">{user.alias.charAt(0)}</span>
                                     <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full"></div>
@@ -87,14 +91,11 @@ const UserList: React.FC<UserListProps> = ({ currentUser, users, onStartChat }) 
                                         {user.status || <span className="capitalize">{user.gender}</span>}
                                     </p>
                                 </div>
-                                <button
-                                    onClick={() => onStartChat(user)}
-                                    className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-full transition-colors"
-                                >
+                                <div className="p-2 text-gray-300 group-hover:text-emerald-500 transition-colors">
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                                     </svg>
-                                </button>
+                                </div>
                             </li>
                         ))}
                     </ul>

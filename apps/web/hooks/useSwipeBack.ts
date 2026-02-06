@@ -115,6 +115,9 @@ export function useSwipeBack({
         swipeHandlers,
         swipeStyle,
         isDragging: state.isDragging,
-        translateX: state.translateX
+        translateX: state.translateX,
+        progress: typeof window !== 'undefined' ? state.translateX / window.innerWidth : 0,
+        handlers: swipeHandlers, // Alias for cleaner usage
+        style: swipeStyle // Alias for cleaner usage
     };
 }

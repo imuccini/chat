@@ -48,9 +48,7 @@ export function RoomList({ rooms, onSelectRoom, activeRoomId, roomOnlineCounts }
                             </div>
 
                             {!isAnnouncement && (
-                                <div className={`mr-2 px-2 py-0.5 rounded-full text-[10px] font-bold ${isActive
-                                    ? 'bg-blue-200 text-blue-700'
-                                    : 'bg-gray-100 text-gray-500'}`}>
+                                <div className={`mr-2 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500 text-white shadow-sm`}>
                                     {roomOnlineCounts[room.id] > 99 ? '99+' : (roomOnlineCounts[room.id] || 0)}
                                 </div>
                             )}

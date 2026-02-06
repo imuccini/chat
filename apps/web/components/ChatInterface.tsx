@@ -431,9 +431,24 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
         if (selectedChatPeerId === peerId) setSelectedChatPeerId(null);
     };
 
-    const { swipeHandlers, swipeStyle, isDragging } = useSwipeBack({
-        onSwipeBack: () => setSelectedChatPeerId(null),
-        enabled: Capacitor.isNativePlatform() && selectedChatPeerId !== null
+    // 4. Swipe Back Logic (Native Only)
+    const isRoomChatOpen = !!activeRoomId && activeTab === 'room';
+    const isPrivateChatOpen = !!selectedChatPeerId; // Simplified as 'chats' tab check implied if id is set? Actually id can be set even if tab switched, but usually we define open state.
+    // Actually original logic:
+    // Private chat only showed if activeTab === 'chats' ??
+    // Line 451: if (selectedChatPeerId && activeTab === 'chats')
+    // Line 476: {activeTab === 'room' && activeRoomId && ...}
+    // So yes, strictly tied to tabs.
+    const isChatOpen = (isRoomChatOpen || (isPrivateChatOpen && activeTab === 'chats'));
+
+    const handleSwipeComplete = useCallback(() => {
+        if (selectedChatPeerId) setSelectedChatPeerId(null);
+        if (activeRoomId) setActiveRoomId(null);
+    }, [selectedChatPeerId, activeRoomId]);
+
+    const { handlers, style: swipeStyle, isDragging, progress } = useSwipeBack({
+        onSwipeBack: handleSwipeComplete,
+        enabled: Capacitor.isNativePlatform() && isChatOpen
     });
 
     if (!currentUser) {
@@ -448,47 +463,73 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
         return <div className="h-full w-full flex items-center justify-center bg-white sm:bg-gray-50 flex-col"><Login onLogin={handleLogin} tenantName={tenant.name} /></div>;
     }
 
-    if (selectedChatPeerId && activeTab === 'chats') {
-        const chat = privateChats[selectedChatPeerId];
-        if (!chat) return null;
-        return (
-            <div className="flex flex-col w-full h-full max-w-3xl mx-auto bg-white shadow-xl overflow-hidden relative" style={swipeStyle} {...swipeHandlers}>
-                {isDragging && <div className="absolute inset-y-0 -left-8 w-8 bg-gradient-to-r from-black/10 to-transparent z-50 pointer-events-none" />}
-                <header className="bg-white pt-safe text-gray-800 z-10 sticky top-0">
-                    <div className="h-[60px] px-4 flex items-center gap-3">
-                        <button onClick={() => setSelectedChatPeerId(null)} className="p-2 -ml-2 rounded-full hover:bg-gray-100 text-gray-600"><svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg></button>
-                        <div className="flex flex-col"><h2 className="font-bold text-lg leading-tight">{chat.peer.alias}</h2>{onlineUsers.some(u => u.id === selectedChatPeerId) && <span className="text-xs text-emerald-500 font-medium">Online</span>}</div>
-                    </div>
-                </header>
-                <div className="flex-1 overflow-hidden relative">
-                    <GlobalChat user={currentUser} messages={chat.messages} onSendMessage={handlePrivateSend} onlineCount={0} isOnline={true} hideHeader={true} showBottomNavPadding={false} isFocused={isInputFocused} isSyncing={false} />
-                </div>
-            </div>
-        );
-    }
-
     const totalUnread = Object.values(privateChats).reduce((acc, chat) => acc + chat.unread, 0);
 
     return (
-        <div className="flex flex-col w-full h-full max-w-3xl mx-auto bg-white shadow-xl overflow-hidden relative">
-            <div className="flex-1 overflow-hidden relative">
-                {activeTab === 'room' && !activeRoomId && <RoomList rooms={tenant.rooms || []} onSelectRoom={setActiveRoomId} activeRoomId={activeRoomId || undefined} roomOnlineCounts={roomOnlineCounts} />}
-                {activeTab === 'room' && activeRoomId && (
-                    <GlobalChat
-                        user={currentUser} messages={messages} onSendMessage={handleRoomSend} onRemoveMessage={handleDeleteMessage}
-                        onlineCount={onlineUsers.length} isOnline={isConnected} headerTitle={tenant.rooms?.find(r => r.id === activeRoomId)?.name || tenant.name}
-                        showBottomNavPadding={false} isFocused={isInputFocused} onInputFocusChange={setIsInputFocused} isSyncing={isFetchingGlobal}
-                        isReadOnly={tenant.rooms?.find(r => r.id === activeRoomId)?.type === 'ANNOUNCEMENT' && !canManageTenant}
-                        canModerate={canManageTenant} onBack={() => setActiveRoomId(null)}
+        <div className="relative w-full h-full max-w-3xl mx-auto bg-white shadow-xl overflow-hidden">
+
+            {/* BASE LAYER: LIST VARIANTS */}
+            {/* Always rendered to support transparent swipe reveal, but hidden from SR/Interactions when covered if needed. */}
+            <div className="absolute inset-0 z-0">
+                <div className="flex flex-col w-full h-full">
+                    <div className="flex-1 overflow-hidden relative">
+                        {activeTab === 'room' && <RoomList rooms={tenant.rooms || []} onSelectRoom={setActiveRoomId} activeRoomId={activeRoomId || undefined} roomOnlineCounts={roomOnlineCounts} />}
+                        {activeTab === 'users' && <UserList currentUser={currentUser} users={onlineUsers} onStartChat={handleStartChat} />}
+                        {activeTab === 'chats' && <ChatList chats={Object.values(privateChats).map(c => ({ ...c, unreadCount: c.unread })).sort((a, b) => (b.messages.length ? new Date(b.messages[b.messages.length - 1].timestamp).getTime() : 0) - (a.messages.length ? new Date(a.messages[b.messages.length - 1].timestamp).getTime() : 0))} onSelectChat={setSelectedChatPeerId} onDeleteChat={handleDeleteChat} onlineUserIds={onlineUserIds} />}
+                        {activeTab === 'settings' && <Settings user={currentUser} onLogout={handleLogout} onUpdateAlias={handleUpdateAlias} onUpdateStatus={handleUpdateStatus} tenantId={tenant.id} />}
+                    </div>
+
+                    {/* Bottom Nav - Part of Base Layer */}
+                    <div className={`border-t border-gray-100 bg-white z-20 overflow-hidden`}>
+                        <BottomNav activeTab={activeTab} onTabChange={(t) => { if (t === 'admin') { window.location.href = '/admin/dashboard'; return; } setActiveTab(t); setSelectedChatPeerId(null); if (t !== 'room') setActiveRoomId(null); }} usersCount={onlineUsers.length} unreadChatsCount={totalUnread} tenantId={tenant.id} />
+                    </div>
+                </div>
+
+                {/* Dark Overlay for Depth Effect during Swipe */}
+                {isChatOpen && (
+                    <div
+                        className="absolute inset-0 bg-black pointer-events-none transition-opacity duration-200"
+                        style={{ opacity: 0.3 * (1 - progress) }}
                     />
                 )}
-                {activeTab === 'users' && <UserList currentUser={currentUser} users={onlineUsers} onStartChat={handleStartChat} />}
-                {activeTab === 'chats' && <ChatList chats={Object.values(privateChats).map(c => ({ ...c, unreadCount: c.unread })).sort((a, b) => (b.messages.length ? new Date(b.messages[b.messages.length - 1].timestamp).getTime() : 0) - (a.messages.length ? new Date(a.messages[a.messages.length - 1].timestamp).getTime() : 0))} onSelectChat={setSelectedChatPeerId} onDeleteChat={handleDeleteChat} onlineUserIds={onlineUserIds} />}
-                {activeTab === 'settings' && <Settings user={currentUser} onLogout={handleLogout} onUpdateAlias={handleUpdateAlias} onUpdateStatus={handleUpdateStatus} tenantId={tenant.id} />}
             </div>
-            <div className={`border-t border-gray-100 bg-white z-20 overflow-hidden ${isInputFocused || (activeTab === 'room' && activeRoomId) ? 'hidden' : 'block'}`}>
-                <BottomNav activeTab={activeTab} onTabChange={(t) => { if (t === 'admin') { window.location.href = '/admin/dashboard'; return; } setActiveTab(t); setSelectedChatPeerId(null); if (t !== 'room') setActiveRoomId(null); }} usersCount={onlineUsers.length} unreadChatsCount={totalUnread} tenantId={tenant.id} />
-            </div>
+
+            {/* TOP LAYER: CHAT DETAIL (Conditional Overlay) */}
+            {isChatOpen && (
+                <div
+                    className="absolute inset-0 z-30 bg-white flex flex-col"
+                    style={Capacitor.isNativePlatform() ? { ...swipeStyle, opacity: 1 } : {}} // Override opacity to keep top card solid, assuming useSwipeBack reduces it. If useSwipeBack opacity logic meant "fade out card", we disable it here to mimic iOS "Slide". Or we can keep it if we like the "fade away" effect. Let's force opacity 1 for "Solid Card Slide" feel. NOTE: useSwipeBack.ts changes opacity from 1 to 0.7 maybe? Let's assume we want solid slide.
+                    {...(Capacitor.isNativePlatform() ? handlers : {})}
+                >
+                    {isDragging && <div className="absolute inset-y-0 -left-8 w-8 bg-gradient-to-r from-black/10 to-transparent z-50 pointer-events-none" />}
+
+                    {/* Render Content based on which chat is open */}
+                    {isPrivateChatOpen && activeTab === 'chats' && privateChats[selectedChatPeerId!] ? (
+                        <>
+                            <header className="bg-white pt-safe text-gray-800 z-10 sticky top-0 border-b border-gray-100">
+                                <div className="h-[60px] px-4 flex items-center gap-3">
+                                    <button onClick={() => setSelectedChatPeerId(null)} className="p-2 -ml-2 rounded-full hover:bg-gray-100 text-gray-600"><svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg></button>
+                                    <div className="flex flex-col"><h2 className="font-bold text-lg leading-tight">{privateChats[selectedChatPeerId!].peer.alias}</h2>{onlineUsers.some(u => u.id === selectedChatPeerId) && <span className="text-xs text-emerald-500 font-medium">Online</span>}</div>
+                                </div>
+                            </header>
+                            <div className="flex-1 overflow-hidden relative">
+                                <GlobalChat user={currentUser} messages={privateChats[selectedChatPeerId!].messages} onSendMessage={handlePrivateSend} onlineCount={0} isOnline={true} hideHeader={true} showBottomNavPadding={false} isFocused={isInputFocused} isSyncing={false} />
+                            </div>
+                        </>
+                    ) : isRoomChatOpen ? (
+                        <div className="flex-1 flex flex-col h-full bg-[#e5ddd5]">
+                            <GlobalChat
+                                user={currentUser} messages={messages} onSendMessage={handleRoomSend} onRemoveMessage={handleDeleteMessage}
+                                onlineCount={onlineUsers.length} isOnline={isConnected} headerTitle={tenant.rooms?.find(r => r.id === activeRoomId)?.name || tenant.name}
+                                showBottomNavPadding={false} isFocused={isInputFocused} onInputFocusChange={setIsInputFocused} isSyncing={isFetchingGlobal}
+                                isReadOnly={tenant.rooms?.find(r => r.id === activeRoomId)?.type === 'ANNOUNCEMENT' && !canManageTenant}
+                                canModerate={canManageTenant} onBack={() => setActiveRoomId(null)}
+                                showOnlineCount={tenant.rooms?.find(r => r.id === activeRoomId)?.type !== 'ANNOUNCEMENT'}
+                            />
+                        </div>
+                    ) : null}
+                </div>
+            )}
         </div>
     );
 }

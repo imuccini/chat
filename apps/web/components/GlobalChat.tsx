@@ -19,6 +19,7 @@ interface GlobalChatProps {
   isReadOnly?: boolean;
   canModerate?: boolean;
   onBack?: () => void;
+  showOnlineCount?: boolean;
 }
 
 const GenderIcon = memo(({ gender, className }: { gender: Gender; className?: string }) => {
@@ -127,7 +128,8 @@ const GlobalChat = memo<GlobalChatProps>(({
   isSyncing,
   isReadOnly,
   canModerate,
-  onBack
+  onBack,
+  showOnlineCount = true
 }) => {
   const virtuosoRef = useRef<VirtuosoHandle>(null);
 
@@ -217,12 +219,14 @@ const GlobalChat = memo<GlobalChatProps>(({
               </div>
               <div>
                 <h2 className="font-extrabold text-2xl text-gray-900 leading-tight tracking-tight">{headerTitle || 'Stanza'}</h2>
-                <div className="flex items-center gap-1.5">
-                  <span className={`w-2 h-2 rounded-full ${isOnline ? 'bg-emerald-500' : 'bg-red-500'}`}></span>
-                  <p className="text-[11px] font-bold text-emerald-600 uppercase tracking-wide">
-                    {isOnline ? `${onlineCount} persone qui` : 'Disconnesso'}
-                  </p>
-                </div>
+                {showOnlineCount && (
+                  <div className="flex items-center gap-1.5">
+                    <span className={`w-2 h-2 rounded-full ${isOnline ? 'bg-emerald-500' : 'bg-red-500'}`}></span>
+                    <p className="text-[11px] font-bold text-emerald-600 uppercase tracking-wide">
+                      {isOnline ? `${onlineCount} persone qui` : 'Disconnesso'}
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
             {isSyncing && (
