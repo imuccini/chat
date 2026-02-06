@@ -2,15 +2,38 @@ import { API_BASE_URL } from "@/config";
 import { Message } from "@/types";
 
 export const clientResolveTenant = async (urlNasId?: string, bssid?: string): Promise<string | null> => {
-    const params = new URLSearchParams();
-    if (bssid) params.append('bssid', bssid);
-    if (urlNasId) params.append('nas_id', urlNasId);
+    try {
+        const payload = {
+            nasId: urlNasId || null,
+            bssid: bssid || null,
+            // Note: publicIp will be detected by the server from the request headers
+        };
 
-    const query = params.toString() ? `?${params.toString()}` : '';
-    const res = await fetch(`${API_BASE_URL}/api/validate-nas${query}`);
-    if (!res.ok) return null;
-    const data = await res.json();
-    return data.valid ? data.tenantSlug : null;
+        const url = `${API_BASE_URL}/api/tenants/validate-nas`;
+        console.log(`[apiService] Resolving tenant via ${url}`, payload);
+
+        const res = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+        });
+
+        if (!res.ok) {
+            console.error(`[apiService] Resolve tenant failed: ${res.status}`);
+            return null;
+        }
+
+        const data = await res.json();
+        console.log(`[apiService] Resolve tenant result:`, data);
+
+        // NestJS returns { valid: boolean, tenant: { slug: string } }
+        return data.valid ? data.tenant.slug : null;
+    } catch (e) {
+        console.error("[apiService] Network error during tenant resolution:", e);
+        return null;
+    }
 };
 
 export const clientGetTenantBySlug = async (slug: string) => {

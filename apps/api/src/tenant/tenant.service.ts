@@ -60,15 +60,23 @@ export class TenantService {
 
     /**
      * Validate NAS device connection for a tenant
+     * Matches by any of the provided identifiers: nasId, bssid, or publicIp
      */
-    async validateNas(nasId: string, bssid: string, publicIp: string): Promise<any> {
+    async validateNas(nasId?: string, bssid?: string, publicIp?: string): Promise<any> {
+        this.logger.log(`Validating NAS: nasId=${nasId}, bssid=${bssid}, publicIp=${publicIp}`);
+
+        const criteria: Prisma.NasDeviceWhereInput[] = [];
+        if (nasId) criteria.push({ nasId });
+        if (bssid) criteria.push({ bssid });
+        if (publicIp) criteria.push({ publicIp });
+
+        if (criteria.length === 0) {
+            return null;
+        }
+
         return this.prisma.nasDevice.findFirst({
             where: {
-                nasId,
-                OR: [
-                    { bssid },
-                    { publicIp }
-                ],
+                OR: criteria
             },
             include: { tenant: true },
         });

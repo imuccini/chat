@@ -35,6 +35,8 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
     const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [socket, setSocket] = useState<Socket | null>(null);
     const { data: session, isPending: isSessionLoading } = useSession();
+    // New state to block UI until we have definitively checked both main and backup session sources
+    const [isRestoringSession, setIsRestoringSession] = useState(true);
     const { canManageTenant, isAdmin, isModerator } = useMembership(tenant.id, currentUser?.id);
 
     // UI State
@@ -85,24 +87,62 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
         initialData: activeRoomId ? undefined : initialMessages,
     });
 
-    // 2. Initialize User from Session
+    // 2. Initialize User from Session (Robust Logic)
     useEffect(() => {
-        if (!isSessionLoading && session?.user) {
-            const isWaiting = localStorage.getItem('waiting_for_passkey') === 'true';
-            if (isWaiting) return;
+        if (isSessionLoading) return;
 
-            const authUser: User = {
-                id: session.user.id,
-                alias: session.user.name || "User",
-                gender: (session.user as any).gender || "other",
-                status: (session.user as any).status || "",
-                phoneNumber: (session.user as any).phoneNumber,
-                joinedAt: new Date(session.user.createdAt).getTime()
-            };
+        const restoreUser = async () => {
+            // 1. Check Standard Session
+            if (session?.user) {
+                const isWaiting = localStorage.getItem('waiting_for_passkey') === 'true';
+                if (isWaiting) {
+                    setIsRestoringSession(false);
+                    return;
+                }
 
-            setCurrentUser(authUser);
-            localStorage.setItem('chat_user', JSON.stringify(authUser));
-        }
+                const authUser: User = {
+                    id: session.user.id,
+                    alias: session.user.name || "User",
+                    gender: (session.user as any).gender || "other",
+                    status: (session.user as any).status || "",
+                    phoneNumber: (session.user as any).phoneNumber,
+                    joinedAt: new Date(session.user.createdAt).getTime()
+                };
+
+                setCurrentUser(authUser);
+                localStorage.setItem('chat_user', JSON.stringify(authUser));
+                setIsRestoringSession(false);
+                return;
+            }
+
+            // 2. Check Backup Session (if standard failed)
+            // This handles the case where useSession returns null but server has session (incognito/refresh issues)
+            try {
+                console.log("[ChatInterface] Checking backup session...");
+                const res = await fetch('/api/debug-session');
+                const data = await res.json();
+
+                if (data?.user) {
+                    console.log("[ChatInterface] Restored from backup session!", data.user);
+                    const authUser: User = {
+                        id: data.user.id,
+                        alias: data.user.name || "User",
+                        gender: data.user.gender || "other",
+                        status: data.user.status || "",
+                        phoneNumber: data.user.phoneNumber,
+                        joinedAt: new Date(data.user.createdAt).getTime()
+                    };
+                    setCurrentUser(authUser);
+                    localStorage.setItem('chat_user', JSON.stringify(authUser));
+                }
+            } catch (e) {
+                console.warn("[ChatInterface] Backup session check failed", e);
+            } finally {
+                setIsRestoringSession(false);
+            }
+        };
+
+        restoreUser();
     }, [session, isSessionLoading]);
 
     // Restore data on mount & whenever session state changes
@@ -392,7 +432,17 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
         enabled: Capacitor.isNativePlatform() && selectedChatPeerId !== null
     });
 
-    if (!currentUser) return <div className="h-full w-full flex items-center justify-center bg-white sm:bg-gray-50 flex-col"><Login onLogin={handleLogin} tenantName={tenant.name} /></div>;
+    if (!currentUser) {
+        // Show loading spinner while we are determining session state
+        if (isSessionLoading || isRestoringSession) {
+            return (
+                <div className="h-full w-full flex items-center justify-center bg-white sm:bg-gray-50 flex-col">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
+                </div>
+            );
+        }
+        return <div className="h-full w-full flex items-center justify-center bg-white sm:bg-gray-50 flex-col"><Login onLogin={handleLogin} tenantName={tenant.name} /></div>;
+    }
 
     if (selectedChatPeerId && activeTab === 'chats') {
         const chat = privateChats[selectedChatPeerId];

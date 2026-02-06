@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { clientResolveTenant } from "@/services/apiService";
 import { Capacitor } from "@capacitor/core";
 import { checkAndRequestLocationPermissions, getConnectedWifiInfo } from "@/lib/wifi";
-import { API_BASE_URL } from "@/config";
+import TenantChatClient from "@/app/[...slug]/TenantChatClient";
 
 type InitState = 'loading' | 'permission_denied' | 'wifi_disconnected' | 'tenant_not_found' | 'error';
 
@@ -14,6 +14,7 @@ function HomeContent() {
     const searchParams = useSearchParams();
     const [state, setState] = useState<InitState>('loading');
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [resolvedSlug, setResolvedSlug] = useState<string | null>(null);
 
     useEffect(() => {
         async function init() {
@@ -51,7 +52,13 @@ function HomeContent() {
                 const tenantSlug = await clientResolveTenant(nasId, bssid);
 
                 if (tenantSlug) {
-                    router.replace(`/${tenantSlug}`);
+                    if (isNative) {
+                        // On native, render TenantChatClient directly to avoid routing loop
+                        setResolvedSlug(tenantSlug);
+                    } else {
+                        // On web, use normal Next.js routing
+                        router.replace(`/${tenantSlug}`);
+                    }
                 } else {
                     setState('tenant_not_found');
                 }
@@ -63,6 +70,11 @@ function HomeContent() {
         }
         init();
     }, [router, searchParams]);
+
+    // If tenant is resolved on native, render TenantChatClient directly
+    if (resolvedSlug) {
+        return <TenantChatClient overrideSlug={resolvedSlug} />;
+    }
 
     // Loading state
     if (state === 'loading') {

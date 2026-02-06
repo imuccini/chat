@@ -191,30 +191,116 @@ const Login: React.FC<LoginProps> = ({ onLogin, tenantName }) => {
 
     setIsLoading(true);
     try {
-      // Use Better-auth anonymous plugin to create a real session
-      const { data, error } = await authClient.signIn.anonymous();
+      // Check if user already has a session
+      const { data: existingSession } = await authClient.getSession();
 
-      if (error) throw new Error(error.message || "Errore accesso anonimo");
+      console.log("[Login] Existing session check:", JSON.stringify(existingSession, null, 2));
 
-      // Update user with alias and gender
-      await authClient.updateUser({
-        name: alias.trim(),
-        // @ts-ignore - custom fields supported in auth.ts
-        gender: gender
-      });
+      if (existingSession?.user?.isAnonymous) {
+        // User already has an anonymous session, just update their info
+        await authClient.updateUser({
+          name: alias.trim(),
+          // @ts-ignore - custom fields supported in auth.ts
+          gender: gender
+        });
 
-      const { data: sessionData } = await authClient.getSession();
-      if (sessionData?.user) {
         const user = {
-          ...sessionData.user,
+          ...existingSession.user,
           alias: alias.trim(),
           gender: gender,
           joinedAt: Date.now()
         } as unknown as AppUser;
 
         onLogin(user);
+      } else {
+        // Create new anonymous session
+        const { data: signInData, error } = await authClient.signIn.anonymous();
+
+        if (error) throw new Error(error.message || "Errore accesso anonimo");
+
+        // Update user with alias and gender
+        // Update user with alias and gender
+        await authClient.updateUser({
+          name: alias.trim(),
+          gender: gender
+        } as any);
+
+        // Use signIn user data with manual updates
+        const createdUserRaw = signInData?.user;
+
+        if (createdUserRaw) {
+          const user = {
+            ...createdUserRaw,
+            alias: alias.trim(),
+            gender: gender,
+            joinedAt: Date.now()
+          } as unknown as AppUser;
+
+          onLogin(user);
+        } else {
+          // Fallback to getSession only if absolutely necessary
+          const { data: sessionData } = await authClient.getSession();
+          if (sessionData?.user) {
+            const user = {
+              ...sessionData.user,
+              alias: alias.trim(),
+              gender: gender,
+              joinedAt: Date.now()
+            } as unknown as AppUser;
+
+            onLogin(user);
+          }
+        }
       }
     } catch (err: any) {
+      // Special handling: if server says we are already logged in anonymously but client doesn't know
+      if (err.message && err.message.includes("Anonymous users cannot sign in again")) {
+        console.log("[Login] Recovering from 'already signed in' state...");
+
+        // Force update regardless of session state since we know we have a valid session token
+        // Catch result directly
+        await authClient.updateUser({
+          name: alias.trim(),
+          gender: gender
+        } as any);
+
+        // Note: updateUser returns { status: true } on success, NOT the user object.
+        // So we cannot use it for immediate login. We MUST use one of the fallbacks.
+
+        // Fallback 1: Force fetch session again (standard)
+        const sessionResult = await authClient.getSession();
+
+        if (sessionResult.data?.user) {
+          const user = {
+            ...sessionResult.data.user,
+            alias: alias.trim(),
+            gender: gender,
+            joinedAt: Date.now()
+          } as unknown as AppUser;
+          onLogin(user);
+          return;
+        }
+
+        // Fallback 2: Custom debug endpoint (Bypass better-auth client)
+        try {
+          const res = await fetch('/api/debug-session');
+          const debugData = await res.json();
+
+          if (debugData?.user) {
+            const user = {
+              ...debugData.user,
+              alias: alias.trim(),
+              gender: gender,
+              joinedAt: Date.now()
+            } as unknown as AppUser;
+            onLogin(user);
+            return;
+          }
+        } catch (e) {
+          // Silently fail on fallback 2
+        }
+      }
+
       setError(err.message);
       setIsLoading(false);
     }

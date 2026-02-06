@@ -6,10 +6,14 @@ import ChatInterface from "@/components/ChatInterface";
 import { clientGetTenantBySlug, clientGetMessages } from "@/services/apiService";
 import { Tenant, Message } from "@/types";
 
-export default function TenantChatClient() {
+interface TenantChatClientProps {
+    overrideSlug?: string;
+}
+
+export default function TenantChatClient({ overrideSlug }: TenantChatClientProps) {
     const pathname = usePathname();
-    // Extract tenant slug from pathname (e.g., "/treno-lucca-aulla" -> "treno-lucca-aulla")
-    const tenantSlug = pathname?.replace(/^\//, '') || '';
+    // Use overrideSlug if provided (native platforms), otherwise extract from pathname
+    const tenantSlug = overrideSlug || pathname?.replace(/^\//, '') || '';
 
     const [tenant, setTenant] = useState<Tenant | null>(null);
     const [initialMessages, setInitialMessages] = useState<Message[]>([]);

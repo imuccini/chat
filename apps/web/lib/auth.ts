@@ -12,12 +12,26 @@ export const getAuth = (origin: string) => {
     // BetterAuth requires baseURL to be http/https.
     // If the origin is capacitor:// (iOS/Android), use the configured server URL as valid base
     // but keep the original origin in trustedOrigins and for RP ID derivation.
+    // Fix for when origin comes from host header without protocol (e.g. "localhost:3000" or "192.168.1.111:3000")
+    if (origin && !origin.startsWith("http") && !origin.startsWith("capacitor")) {
+        origin = `http://${origin}`;
+    }
+
+    // BetterAuth requires baseURL to be http/https.
+    // If the origin is capacitor:// (iOS/Android), use the configured server URL as valid base
+    // but keep the original origin in trustedOrigins and for RP ID derivation.
     const isCapacitor = origin.startsWith("capacitor://");
     const baseURL = isCapacitor
         ? (process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:3000")
         : origin;
 
-    const url = new URL(origin);
+    let url: URL;
+    try {
+        url = new URL(origin);
+    } catch (e) {
+        console.warn("[getAuth] Invalid origin:", origin, "Using localhost fallback");
+        url = new URL("http://localhost:3000");
+    }
     const rpID = url.hostname;
 
     return betterAuth({

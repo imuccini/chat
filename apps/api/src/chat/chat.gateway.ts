@@ -244,9 +244,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         this.logger.log(`[handleMessage] Socket rooms: ${Array.from(socket.rooms).join(', ')}`);
 
         const logMsg = `[handleMessage TRACE] text="${message.text}" roomId=${message.roomId} recipientId=${message.recipientId} socketUser=${JSON.stringify(socket.data.user)} rooms=${Array.from(socket.rooms).join(',')}`;
-        this.logger.error(logMsg);
-        fs.appendFileSync('/tmp/antigravity_chat.log', logMsg + '\n');
-        fs.appendFileSync('/tmp/chat_debug.log', `[${new Date().toISOString()}] TRACE: ${logMsg}\n`);
+        this.logger.debug(logMsg);
+        // fs.appendFileSync('/tmp/antigravity_chat.log', logMsg + '\n');
+        // fs.appendFileSync('/tmp/chat_debug.log', `[${new Date().toISOString()}] TRACE: ${logMsg}\n`);
 
         // Rate limiting
         const now = Date.now();
