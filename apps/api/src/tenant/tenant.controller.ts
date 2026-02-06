@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Post, Body, NotFoundException, UseInterceptors, Inject, Req } from '@nestjs/common';
+import { Controller, Get, Param, Post, Body, NotFoundException, UseInterceptors, Inject, Req, Query } from '@nestjs/common';
 import { TenantService } from './tenant.service.js';
 import { TenantInterceptor } from './tenant.interceptor.js';
 
@@ -16,21 +16,33 @@ export class TenantController {
         return tenant;
     }
 
+    @Get('validate-nas')
+    async validateNasGet(
+        @Req() request: any,
+        @Query() query: { nasId?: string; bssid?: string; publicIp?: string },
+    ): Promise<any> {
+        return this.handleValidateNas(request, query);
+    }
+
     @Post('validate-nas')
-    async validateNas(
+    async validateNasPost(
         @Req() request: any,
         @Body() body: { nasId?: string; bssid?: string; publicIp?: string },
     ): Promise<any> {
+        return this.handleValidateNas(request, body);
+    }
+
+    private async handleValidateNas(request: any, data: { nasId?: string; bssid?: string; publicIp?: string }) {
         // Get IP from body or headers
         const forwarded = request.headers['x-forwarded-for'];
-        const remoteIp = forwarded ? forwarded.split(',')[0].trim() : request.socket.remoteAddress;
-        const publicIp = body.publicIp || remoteIp;
+        const remoteIp = forwarded ? forwarded.split(',')[0].trim() : request.socket?.remoteAddress;
+        const publicIp = data.publicIp || remoteIp;
 
-        console.log(`[TenantController] Validating NAS: nasId=${body.nasId}, bssid=${body.bssid}, IP=${publicIp}`);
+        console.log(`[TenantController] Validating NAS: nasId=${data.nasId}, bssid=${data.bssid}, IP=${publicIp}`);
 
         const device = await this.tenantService.validateNas(
-            body.nasId || undefined,
-            body.bssid || undefined,
+            data.nasId || undefined,
+            data.bssid || undefined,
             publicIp,
         );
 

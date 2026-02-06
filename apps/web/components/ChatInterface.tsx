@@ -31,6 +31,17 @@ interface ChatInterfaceProps {
 type Tab = 'room' | 'users' | 'chats' | 'settings' | 'admin';
 type PrivateChatsMap = Record<string, { peer: User; messages: Message[]; unread: number }>;
 
+// Helper for generating unique IDs (fallback for non-secure contexts)
+const generateId = () => {
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+        return crypto.randomUUID();
+    }
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
+};
+
 export default function ChatInterface({ tenant, initialMessages }: ChatInterfaceProps) {
     const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [socket, setSocket] = useState<Socket | null>(null);
@@ -336,7 +347,13 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                         messages: [], unread: 0
                     };
                     if (existing.messages.some(m => m.id === msg.id)) return prev;
-                    return { ...prev, [peerId]: { ...existing, messages: [...existing.messages, msg], unread: existing.unread + 1 } };
+
+                    // Only increment unread if message is from someone else
+                    // Also check if we are currently looking at this chat (optional, but good practice if simple)
+                    // For now, adhering to strict request: don't increment for self.
+                    const newUnread = isMe ? existing.unread : existing.unread + 1;
+
+                    return { ...prev, [peerId]: { ...existing, messages: [...existing.messages, msg], unread: newUnread } };
                 });
             });
 
@@ -392,8 +409,9 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
 
     const handleRoomSend = useCallback(async (text: string) => {
         if (!currentUser || !socket || !activeRoomId) return;
+        // Use crypto.randomUUID() for cleaner IDs
         const msg: Message = {
-            id: Date.now().toString(), text, senderId: currentUser.id, senderAlias: currentUser.alias,
+            id: generateId(), text, senderId: currentUser.id, senderAlias: currentUser.alias,
             senderGender: currentUser.gender, timestamp: new Date().toISOString(), roomId: activeRoomId, tenantId: tenant.id
         };
         console.log("[ChatInterface] Sending room message:", msg);
@@ -411,14 +429,14 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
     const handlePrivateSend = useCallback(async (text: string) => {
         if (!currentUser || !socket || !selectedChatPeerId) return;
         const msg: Message = {
-            id: Date.now().toString(), text, senderId: currentUser.id, senderAlias: currentUser.alias,
-            senderGender: currentUser.gender, timestamp: new Date().toISOString(), recipientId: selectedChatPeerId
+            id: generateId(), text, senderId: currentUser.id, senderAlias: currentUser.alias,
+            senderGender: currentUser.gender, timestamp: new Date().toISOString(), recipientId: selectedChatPeerId, tenantId: tenant.id
         };
         if (Capacitor.isNativePlatform()) Haptics.impact({ style: ImpactStyle.Light }).catch(() => { });
         await sqliteService.saveMessage(msg, false);
         setPrivateChats(prev => ({ ...prev, [selectedChatPeerId]: { ...prev[selectedChatPeerId], messages: [...prev[selectedChatPeerId].messages, msg] } }));
         socket.emit('sendMessage', { ...msg, tenantSlug: tenant.slug });
-    }, [currentUser, socket, selectedChatPeerId, tenant.slug]);
+    }, [currentUser, socket, selectedChatPeerId, tenant.slug, tenant.id]);
 
     const handleStartChat = (peer: User) => {
         if (!privateChats[peer.id]) setPrivateChats(prev => ({ ...prev, [peer.id]: { peer, messages: [], unread: 0 } }));

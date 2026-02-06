@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 
 /**
+ * @deprecated This service is likely unused as we use WebSocket and API routing.
  * Creates a new message in the database.
  * Used by server actions for persisting chat messages.
  */

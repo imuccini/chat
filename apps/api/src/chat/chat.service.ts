@@ -42,17 +42,34 @@ export class ChatService {
     /**
      * Get messages for a room with 3-hour retention
      */
-    async getMessagesForRoom(roomId: string, tenantId: string, limit = 100): Promise<any[]> {
-        const threeHoursAgo = new Date(Date.now() - 3 * 60 * 60 * 1000);
-        this.logger.debug(`Fetching messages for room ${roomId} in tenant ${tenantId}`);
+    /**
+     * Get messages for a tenant, optionally filtered by room, with 48-hour retention
+     */
+    async getMessagesForRoom(tenantId: string, roomId?: string, limit = 100): Promise<any[]> {
+        // Increased retention to 48h for better UX
+        const retentionTime = new Date(Date.now() - 48 * 60 * 60 * 1000);
+        this.logger.debug(`Fetching messages for tenant ${tenantId} ${roomId ? `room ${roomId}` : '(global/all)'}`);
 
         try {
+            const where: any = {
+                tenantId,
+                createdAt: { gte: retentionTime },
+            };
+
+            if (roomId) {
+                where.roomId = roomId;
+            } else {
+                // If no room specified, maybe fetch messages with NO room (global)?
+                // Or fetch ALL messages? 
+                // Usually for "Main" chat we use a specific room ID. 
+                // If roomId is undefined, let's assume we want messages that have roomID = null (Global Tenant Chat if exists)
+                // OR we just return empty if strict.
+                // Let's assume strict filtering: if roomId provided, filter by it. If not, only get global messages (roomId: null)
+                where.roomId = null;
+            }
+
             const messages = await this.prisma.message.findMany({
-                where: {
-                    tenantId,
-                    roomId,
-                    createdAt: { gte: threeHoursAgo },
-                },
+                where,
                 orderBy: { createdAt: 'asc' },
                 take: limit,
             });

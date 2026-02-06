@@ -214,7 +214,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
         const logMsg = `[ChatGateway] handleJoin user=${user.id} tenant=${tenantSlug} tenantId=${tenant?.id} rooms=${Array.from(socket.rooms).join(',')}\n`;
         this.logger.log(logMsg.trim());
-        fs.appendFileSync('/tmp/antigravity_chat.log', logMsg);
         this.broadcastPresence(tenantSlug);
     }
 
@@ -224,7 +223,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         @MessageBody() message: Message,
     ) {
         console.error(`[ChatGateway] RECEIVED MESSAGE: ${message?.text?.substring(0, 20)} from ${socket.id}`);
-        fs.appendFileSync('/tmp/chat_debug.log', `[${new Date().toISOString()}] Message from ${socket.id}: ${JSON.stringify(message)}\n`);
 
         this.logger.log(`[handleMessage] Received message: ${JSON.stringify(message)}`);
 
@@ -274,7 +272,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
             await this.chatService.saveMessage(message, targetTenantId);
         } else {
             this.logger.warn(`[handleMessage] No tenantId found in socket.data or userData, message not saved to DB`);
-            fs.appendFileSync('/tmp/antigravity_chat.log', `[ChatGateway Error] No tenantId for message text="${message.text}"\n`);
         }
 
         // Route message
@@ -328,11 +325,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
 
     private async broadcastPresence(tenantSlug: string) {
-        const tenantUsers = Array.from(this.onlineUsers.values())
-            .filter(u => u.tenantSlug === tenantSlug);
+        const tenantUsers = Array.from(this.onlineUsers.entries())
+            .filter(([_, data]) => data.tenantSlug === tenantSlug)
+            .map(([socketId, data]) => ({
+                ...data.user,
+                socketId // Include socketId for frontend to potentially handle multiple sessions
+            }));
 
-        const users = tenantUsers.map(u => u.user);
-        const onlineIds = Array.from(new Set(tenantUsers.map(u => u.user.id)));
+        const onlineIds = Array.from(new Set(tenantUsers.map(u => u.id)));
 
         // Calculate counts for each room in this tenant
         const roomCounts: Record<string, number> = {};
@@ -359,7 +359,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         }
 
         this.server.to(`tenant:${tenantSlug}`).emit('presenceUpdate', {
-            users,
+            users: tenantUsers,
             onlineIds,
             roomCounts
         });

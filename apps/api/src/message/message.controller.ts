@@ -12,17 +12,30 @@ export class MessageController {
 
     @Get()
     async getMessages(
-        @Query('roomId') roomId: string,
-        @Query('tenantId') tenantId: string,
+        @Query('roomId') roomId: string | undefined,
+        @Query('tenant') tenantSlug: string, // Changed to match frontend 'tenant' param which is slug
+        @Query('tenantId') tenantId: string | undefined,
         @Headers('authorization') auth: string,
     ) {
-        fs.appendFileSync('trace.log', `[MessageController] GET /messages roomId=${roomId} tenantId=${tenantId}\n`);
-        if (!roomId || !tenantId) return [];
+
+
+        let targetTenantId = tenantId;
+
+        // If we only have slug, resolve the ID
+        if (!targetTenantId && tenantSlug) {
+            const tenant = await this.chatService.getTenantBySlug(tenantSlug);
+            if (tenant) targetTenantId = tenant.id;
+        }
+
+        if (!targetTenantId) {
+            // If we still don't have a specific tenant, we can't return messages safely
+            return [];
+        }
 
         try {
-            return await this.chatService.getMessagesForRoom(roomId, tenantId);
+            return await this.chatService.getMessagesForRoom(targetTenantId, roomId);
         } catch (err: any) {
-            fs.appendFileSync('trace.log', `[MessageController ERROR] ${err.message}\n`);
+
             throw err;
         }
     }
@@ -30,7 +43,7 @@ export class MessageController {
     @Delete(':id')
     async deleteMessage(
         @Param('id') messageId: string,
-        @Query('tenantId') tenantId: string,
+        @Query('tenantId') tenantId: string | undefined,
         @Headers('x-tenant-slug') tenantSlug: string, // Web passes slug
         @Headers('authorization') auth: string,
     ) {
@@ -54,7 +67,17 @@ export class MessageController {
             throw new ForbiddenException('Not authorized to delete messages');
         }
 
-        const deleted = await this.chatService.deleteMessage(messageId, tenantId);
+        let targetTenantId = tenantId;
+        if (!targetTenantId && tenantSlug) {
+            const tenant = await this.chatService.getTenantBySlug(tenantSlug);
+            if (tenant) targetTenantId = tenant.id;
+        }
+
+        if (!targetTenantId) {
+            throw new ForbiddenException('Tenant ID required');
+        }
+
+        const deleted = await this.chatService.deleteMessage(messageId, targetTenantId);
         return { success: deleted };
     }
 }
