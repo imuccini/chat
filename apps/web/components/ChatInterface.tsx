@@ -6,7 +6,7 @@ import { User, Message, Tenant } from '@/types';
 import { API_BASE_URL, SOCKET_URL, SERVER_URL } from '@/config';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { sqliteService } from '@/lib/sqlite';
-import { Keyboard, KeyboardResize, KeyboardStyle } from '@capacitor/keyboard';
+import { Keyboard, KeyboardStyle } from '@capacitor/keyboard';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 
 import { Capacitor } from '@capacitor/core';
@@ -21,6 +21,7 @@ import Settings from './Settings';
 import { RoomList } from './RoomList';
 import { useSwipeBack } from '@/hooks/useSwipeBack';
 import { useMembership } from '@/hooks/useMembership';
+import { useKeyboardAnimation } from '@/hooks/useKeyboardAnimation';
 import { useSession, signOut, authClient } from '@/lib/auth-client';
 
 interface ChatInterfaceProps {
@@ -50,11 +51,17 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
     const [isRestoringSession, setIsRestoringSession] = useState(true);
     const { canManageTenant, isAdmin, isModerator } = useMembership(tenant.id, currentUser?.id);
 
+    // Smooth keyboard animation (native only) - contentStyle goes on content area, NOT header
+    const { isKeyboardVisible, contentStyle: keyboardContentStyle } = useKeyboardAnimation();
+
     // UI State
     const [activeTab, setActiveTab] = useState<Tab>('room');
     const [activeRoomId, setActiveRoomId] = useState<string | null>(null);
     const [selectedChatPeerId, setSelectedChatPeerId] = useState<string | null>(null);
-    const [isInputFocused, setIsInputFocused] = useState(false);
+    // isInputFocused is now driven by keyboard visibility for native, or input focus for web
+    const [isInputFocusedLocal, setIsInputFocusedLocal] = useState(false);
+    const isInputFocused = Capacitor.isNativePlatform() ? isKeyboardVisible : isInputFocusedLocal;
+    const setIsInputFocused = setIsInputFocusedLocal; // Keep setter for web compatibility
 
     // Data State
     const [onlineUsers, setOnlineUsers] = useState<(User & { socketId: string })[]>([]);
@@ -207,22 +214,8 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
         document.documentElement.style.backgroundColor = color;
     }, [activeTab, selectedChatPeerId, currentUser]);
 
-    // Keyboard listeners
-    useEffect(() => {
-        if (Capacitor.isNativePlatform() && !!currentUser) {
-            Keyboard.setResizeMode({ mode: KeyboardResize.Body });
-            let showListener: any, hideListener: any;
-            const setup = async () => {
-                showListener = await Keyboard.addListener('keyboardDidShow', () => setIsInputFocused(true));
-                hideListener = await Keyboard.addListener('keyboardDidHide', () => setIsInputFocused(false));
-            };
-            setup();
-            return () => {
-                if (showListener) showListener.remove();
-                if (hideListener) hideListener.remove();
-            };
-        }
-    }, [!!currentUser]);
+    // Keyboard listeners - now handled by useKeyboardAnimation hook
+    // The hook sets KeyboardResize.None and uses keyboardWillShow/Hide for smooth animations
 
     // 3. Socket Lifecycle - prevent reconnection loops for anonymous users
     useEffect(() => {
@@ -513,10 +506,11 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
             </div>
 
             {/* TOP LAYER: CHAT DETAIL (Conditional Overlay) */}
+            {/* Background is beige (#e5ddd5) to match input bar - visible behind iOS keyboard rounded corners */}
             {isChatOpen && (
                 <div
-                    className="absolute inset-0 z-30 bg-white flex flex-col"
-                    style={Capacitor.isNativePlatform() ? { ...swipeStyle, opacity: 1 } : {}} // Override opacity to keep top card solid, assuming useSwipeBack reduces it. If useSwipeBack opacity logic meant "fade out card", we disable it here to mimic iOS "Slide". Or we can keep it if we like the "fade away" effect. Let's force opacity 1 for "Solid Card Slide" feel. NOTE: useSwipeBack.ts changes opacity from 1 to 0.7 maybe? Let's assume we want solid slide.
+                    className="absolute inset-0 z-30 flex flex-col bg-[#e5ddd5]"
+                    style={Capacitor.isNativePlatform() ? { ...swipeStyle, opacity: 1 } : {}}
                     {...(Capacitor.isNativePlatform() ? handlers : {})}
                 >
                     {isDragging && <div className="absolute inset-y-0 -left-8 w-8 bg-gradient-to-r from-black/10 to-transparent z-50 pointer-events-none" />}
@@ -530,7 +524,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                                     <div className="flex flex-col"><h2 className="font-bold text-lg leading-tight">{privateChats[selectedChatPeerId!].peer.alias}</h2>{onlineUsers.some(u => u.id === selectedChatPeerId) && <span className="text-xs text-emerald-500 font-medium">Online</span>}</div>
                                 </div>
                             </header>
-                            <div className="flex-1 overflow-hidden relative">
+                            <div className="flex-1 overflow-hidden relative" style={keyboardContentStyle}>
                                 <GlobalChat user={currentUser} messages={privateChats[selectedChatPeerId!].messages} onSendMessage={handlePrivateSend} onlineCount={0} isOnline={true} hideHeader={true} showBottomNavPadding={false} isFocused={isInputFocused} onInputFocusChange={setIsInputFocused} isSyncing={false} />
                             </div>
                         </>
@@ -543,6 +537,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                                 isReadOnly={tenant.rooms?.find(r => r.id === activeRoomId)?.type === 'ANNOUNCEMENT' && !canManageTenant}
                                 canModerate={canManageTenant} onBack={() => setActiveRoomId(null)}
                                 showOnlineCount={tenant.rooms?.find(r => r.id === activeRoomId)?.type !== 'ANNOUNCEMENT'}
+                                keyboardContentStyle={keyboardContentStyle}
                             />
                         </div>
                     ) : null}

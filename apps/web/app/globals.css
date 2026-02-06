@@ -77,7 +77,7 @@ body {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  background-color: white;
+  background-color: #e5ddd5; /* Beige - matches input bar, visible behind iOS keyboard corners */
   touch-action: manipulation;
 }
 

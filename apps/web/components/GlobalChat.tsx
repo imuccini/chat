@@ -20,6 +20,7 @@ interface GlobalChatProps {
   canModerate?: boolean;
   onBack?: () => void;
   showOnlineCount?: boolean;
+  keyboardContentStyle?: React.CSSProperties;  // Applied to content area, NOT header
 }
 
 const GenderIcon = memo(({ gender, className }: { gender: Gender; className?: string }) => {
@@ -48,11 +49,10 @@ const GenderIcon = memo(({ gender, className }: { gender: Gender; className?: st
   );
 });
 
-const ChatInput = memo(({ onSendMessage, showBottomNavPadding, onFocusChange, isFocused, isReadOnly }: {
+const ChatInput = memo(({ onSendMessage, showBottomNavPadding, onFocusChange, isReadOnly }: {
   onSendMessage: (text: string) => void,
   showBottomNavPadding?: boolean,
   onFocusChange?: (isFocused: boolean) => void,
-  isFocused?: boolean,
   isReadOnly?: boolean
 }) => {
   const [text, setText] = useState('');
@@ -69,13 +69,11 @@ const ChatInput = memo(({ onSendMessage, showBottomNavPadding, onFocusChange, is
     }
   };
 
-  // With native keyboard resize, viewport shrinks automatically
-  // Just need safe-area padding when keyboard is hidden (for bottom nav space)
-  const footerPadding = isFocused
-    ? 'pb-3 pt-2' // Fixed 12px padding when keyboard is open
-    : showBottomNavPadding
-      ? 'pb-[calc(70px+env(safe-area-inset-bottom,0px)+8px)] md:pb-[90px] pt-3'
-      : 'pb-[calc(env(safe-area-inset-bottom,0px)+12px)] pt-2'; // Safe area + 12px when closed
+  // With KeyboardResize.None, padding should be CONSTANT - transform handles keyboard
+  // No padding changes = no flicker. Always include safe-area for home indicator.
+  const footerPadding = showBottomNavPadding
+    ? 'pb-[calc(70px+env(safe-area-inset-bottom,0px)+8px)] md:pb-[90px] pt-3'
+    : 'pb-[calc(env(safe-area-inset-bottom,0px)+12px)] pt-2';
 
   if (isReadOnly) {
     return (
@@ -129,7 +127,8 @@ const GlobalChat = memo<GlobalChatProps>(({
   isReadOnly,
   canModerate,
   onBack,
-  showOnlineCount = true
+  showOnlineCount = true,
+  keyboardContentStyle
 }) => {
   const virtuosoRef = useRef<VirtuosoHandle>(null);
 
@@ -200,7 +199,7 @@ const GlobalChat = memo<GlobalChatProps>(({
   }, [user.id, messages, canModerate, onRemoveMessage]);
 
   return (
-    <div className="w-full h-full flex flex-col bg-white">
+    <div className="w-full h-full flex flex-col bg-[#e5ddd5]">
       {!hideHeader && (
         <header className="bg-white pt-safe sticky top-0 z-10 shrink-0">
           <div className="h-[60px] px-4 flex items-center justify-between">
@@ -242,25 +241,27 @@ const GlobalChat = memo<GlobalChatProps>(({
         </header>
       )}
 
-      <div className="flex-1 overflow-hidden relative chat-bg">
-        <Virtuoso
-          ref={virtuosoRef}
-          data={messages}
-          initialTopMostItemIndex={messages.length - 1}
-          itemContent={renderMessage}
-          followOutput={true}
-          className="h-full w-full"
-          alignToBottom={true}
+      {/* Content wrapper - this moves with keyboard, header stays fixed */}
+      <div className="flex-1 flex flex-col overflow-hidden" style={keyboardContentStyle}>
+        <div className="flex-1 overflow-hidden relative chat-bg">
+          <Virtuoso
+            ref={virtuosoRef}
+            data={messages}
+            initialTopMostItemIndex={messages.length - 1}
+            itemContent={renderMessage}
+            followOutput={true}
+            className="h-full w-full"
+            alignToBottom={true}
+          />
+        </div>
+
+        <ChatInput
+          onSendMessage={onSendMessage}
+          showBottomNavPadding={showBottomNavPadding}
+          onFocusChange={onInputFocusChange}
+          isReadOnly={isReadOnly}
         />
       </div>
-
-      <ChatInput
-        onSendMessage={onSendMessage}
-        showBottomNavPadding={showBottomNavPadding}
-        isFocused={isFocused}
-        onFocusChange={onInputFocusChange}
-        isReadOnly={isReadOnly}
-      />
     </div>
   );
 });

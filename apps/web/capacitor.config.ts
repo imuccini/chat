@@ -8,19 +8,19 @@ const config: CapacitorConfig = {
   appId: 'io.trenochat.app',
   appName: 'TrenoChat',
   webDir: 'out',
-  backgroundColor: '#ffffff',
+  backgroundColor: '#e5ddd5',  // Beige - matches input bar, visible behind keyboard corners
   server: {
     androidScheme: 'http',
     cleartext: true
   },
   plugins: {
     Keyboard: {
-      resize: 'body' as any
+      // Resize is handled manually via useKeyboardAnimation hook
+      // Do NOT set resize here - it conflicts with KeyboardResize.None
     },
-
   },
   ios: {
-    backgroundColor: '#ffffff'
+    backgroundColor: '#e5ddd5'  // Beige - matches input bar
   }
 };
 
