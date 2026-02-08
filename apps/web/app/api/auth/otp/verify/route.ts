@@ -1,35 +1,22 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
-import { getAuth, getAuthFromHeaders } from '@/lib/auth'; // Using getAuth to get the correct instance or fallback
-import { headers } from 'next/headers';
-
-const getCorsHeaders = (requestOrigin: string | null) => {
-    const allowedOrigins = ["capacitor://localhost", "http://localhost:3000", "http://192.168.1.111:3000"];
-    const origin = requestOrigin && (allowedOrigins.includes(requestOrigin) || requestOrigin.startsWith('capacitor://'))
-        ? requestOrigin : allowedOrigins[0];
-    return {
-        'Access-Control-Allow-Origin': origin,
-        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization, Cookie',
-        'Access-Control-Allow-Credentials': 'true',
-    };
-};
+import { getCorsHeaders, handleOptions } from '@/lib/cors';
 
 export async function OPTIONS(req: Request) {
-    return new NextResponse(null, { status: 200, headers: getCorsHeaders(req.headers.get('origin')) });
+    return handleOptions(req);
 }
 
 export async function POST(req: Request) {
-    const corsHeaders = getCorsHeaders(req.headers.get('origin'));
+    const origin = req.headers.get('origin');
+    const corsHeaders = getCorsHeaders(origin);
 
     try {
         const { phone, code, alias, gender } = await req.json();
+        const cleanPhone = phone?.replace(/\s/g, '');
 
-        if (!phone || !code) {
-            return NextResponse.json({ error: "Dati mancanti" }, { status: 400, headers: corsHeaders });
+        if (!cleanPhone || !code) {
+            return NextResponse.json({ error: "Telefono o codice mancante" }, { status: 400, headers: corsHeaders });
         }
-
-        const cleanPhone = phone.replace(/\s/g, '');
 
         // 1. Verify OTP
         const verification = await prisma.verification.findFirst({
@@ -37,15 +24,16 @@ export async function POST(req: Request) {
                 identifier: cleanPhone,
                 value: code,
                 expiresAt: { gt: new Date() }
-            }
+            },
+            orderBy: { createdAt: 'desc' }
         });
 
         if (!verification) {
             return NextResponse.json({ error: "Codice non valido o scaduto" }, { status: 400, headers: corsHeaders });
         }
 
-        // 2. Check User existence
-        let user = await (prisma as any).user.findFirst({
+        // 2. Lookup user
+        let user = await prisma.user.findFirst({
             where: { phoneNumber: cleanPhone }
         });
 
@@ -66,7 +54,7 @@ export async function POST(req: Request) {
         try {
             await prisma.verification.delete({ where: { id: verification.id } });
         } catch (e) {
-            console.warn("Failed to delete OTP (might be already deleted)", e);
+            // Safe to ignore if already gone
         }
 
         // 5. Create User if needed
@@ -87,8 +75,7 @@ export async function POST(req: Request) {
             });
         }
 
-        // 4. Create Session manually using Prisma
-        // Testing: better-auth might store raw tokens, not hashed
+        // 6. Create Session manually using Prisma
         const crypto = require('crypto');
         const rawToken = crypto.randomBytes(32).toString('base64');
 
@@ -99,14 +86,14 @@ export async function POST(req: Request) {
         await prisma.session.create({
             data: {
                 userId: user.id,
-                token: rawToken, // Store RAW token (testing hypothesis)
+                token: rawToken, // Store RAW token
                 expiresAt: expiresAt,
                 ipAddress: req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip'),
                 userAgent: req.headers.get('user-agent')
             }
         });
 
-        // Set cookie with the RAW token (not the hash)
+        // Set cookie with the RAW token
         const response = NextResponse.json({
             success: true,
             user: user
@@ -116,7 +103,7 @@ export async function POST(req: Request) {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',
-            expires: expiresAt,
+            maxAge: 365 * 24 * 60 * 60,
             path: '/'
         });
 

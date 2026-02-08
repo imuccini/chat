@@ -1,11 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getCorsHeaders, handleOptions } from '@/lib/cors';
+
+export async function OPTIONS(req: Request) {
+    return handleOptions(req);
+}
 
 export async function POST(request: NextRequest) {
+    const origin = request.headers.get('origin');
     try {
         const body = await request.json();
         const { nas_id, bssid } = body;
 
-        // Pass mapping to NestJS API
         const apiUrl = 'http://localhost:3001';
         const fullUrl = `${apiUrl}/api/tenants/validate-nas`;
 
@@ -26,26 +31,23 @@ export async function POST(request: NextRequest) {
         const data = await response.json();
         console.log(`[Next.js Proxy] Response: ${response.status}`, data);
 
-        if (!response.ok) {
-            return NextResponse.json(data, { status: response.status });
-        }
-
-        // Return format expected by apiService.ts: { valid: boolean, tenantSlug: string }
-        return NextResponse.json({
+        const res = NextResponse.json(response.ok ? {
             valid: data.valid,
             tenantSlug: data.tenant?.slug || null
-        });
+        } : data, { status: response.ok ? 200 : response.status });
+
+        return withCors(res, origin);
     } catch (error: any) {
         console.error('[Next.js Proxy] Error in validate-nas:', error);
-        return NextResponse.json(
+        return withCors(NextResponse.json(
             { error: 'Failed to validate NAS', details: error.message },
             { status: 500 }
-        );
+        ), origin);
     }
 }
 
-// Support GET for older versions or simple checks
 export async function GET(request: NextRequest) {
+    const origin = request.headers.get('origin');
     const { searchParams } = new URL(request.url);
     const nas_id = searchParams.get('nas_id');
     const bssid = searchParams.get('bssid');
@@ -67,13 +69,21 @@ export async function GET(request: NextRequest) {
         });
 
         const data = await response.json();
-        if (!response.ok) return NextResponse.json(data, { status: response.status });
-
-        return NextResponse.json({
+        const res = NextResponse.json(response.ok ? {
             valid: data.valid,
             tenantSlug: data.tenant?.slug || null
-        });
+        } : data, { status: response.ok ? 200 : response.status });
+
+        return withCors(res, origin);
     } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        return withCors(NextResponse.json({ error: error.message }, { status: 500 }), origin);
     }
+}
+
+function withCors(res: NextResponse, origin: string | null) {
+    const corsHeaders = getCorsHeaders(origin);
+    Object.entries(corsHeaders).forEach(([key, value]) => {
+        res.headers.set(key, value);
+    });
+    return res;
 }

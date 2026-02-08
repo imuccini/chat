@@ -1,29 +1,18 @@
 import { NextResponse } from 'next/server';
 import { sendSMS } from '@/lib/bulkgate';
 import { prisma } from '@/lib/db';
-
-const getCorsHeaders = (requestOrigin: string | null) => {
-    const allowedOrigins = ["capacitor://localhost", "http://localhost:3000", "http://192.168.1.111:3000"];
-    const origin = requestOrigin && (allowedOrigins.includes(requestOrigin) || requestOrigin.startsWith('capacitor://'))
-        ? requestOrigin : allowedOrigins[0];
-    return {
-        'Access-Control-Allow-Origin': origin,
-        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization, Cookie',
-        'Access-Control-Allow-Credentials': 'true',
-    };
-};
+import { getCorsHeaders, handleOptions } from '@/lib/cors';
 
 export async function OPTIONS(req: Request) {
-    return new NextResponse(null, { status: 200, headers: getCorsHeaders(req.headers.get('origin')) });
+    return handleOptions(req);
 }
 
 export async function POST(req: Request) {
-    const corsHeaders = getCorsHeaders(req.headers.get('origin'));
+    const origin = req.headers.get('origin');
+    const corsHeaders = getCorsHeaders(origin);
 
     try {
         const { phone } = await req.json();
-
         if (!phone) {
             return NextResponse.json({ error: "Numero di telefono mancante" }, { status: 400, headers: corsHeaders });
         }
@@ -37,8 +26,6 @@ export async function POST(req: Request) {
 
         // Generate 6 digit OTP
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
-        // Expire in 5 minutes
         const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
 
         // Save to Verification table
@@ -51,7 +38,7 @@ export async function POST(req: Request) {
             }
         });
 
-        // Send SMS
+        // Send via BulkGate
         const result = await sendSMS(cleanPhone, `Il tuo codice di verifica è: ${otp}`);
 
         if (result.success) {
@@ -61,7 +48,7 @@ export async function POST(req: Request) {
         }
 
     } catch (e) {
-        console.error("OTP Send Error:", e);
+        console.error("OTP send error:", e);
         return NextResponse.json({ error: "Errore interno del server" }, { status: 500, headers: corsHeaders });
     }
 }

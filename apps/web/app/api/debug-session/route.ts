@@ -1,17 +1,10 @@
 import { getAuth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
+import { getCorsHeaders, handleOptions } from "@/lib/cors";
 
-export async function OPTIONS(req: NextRequest) {
-    return new NextResponse(null, {
-        status: 200,
-        headers: {
-            'Access-Control-Allow-Origin': req.headers.get('origin') || '*',
-            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization, Cookie',
-            'Access-Control-Allow-Credentials': 'true',
-        },
-    });
+export async function OPTIONS(req: Request) {
+    return handleOptions(req);
 }
 
 export async function GET(req: NextRequest) {
@@ -28,10 +21,10 @@ export async function GET(req: NextRequest) {
 
         // Add CORS headers to response
         const reqOrigin = req.headers.get('origin');
-        if (reqOrigin) {
-            response.headers.set('Access-Control-Allow-Origin', reqOrigin);
-            response.headers.set('Access-Control-Allow-Credentials', 'true');
-        }
+        const corsHeaders = getCorsHeaders(reqOrigin);
+        Object.entries(corsHeaders).forEach(([key, value]) => {
+            response.headers.set(key, value);
+        });
 
         return response;
     } catch (e: any) {

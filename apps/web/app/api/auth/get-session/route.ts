@@ -1,7 +1,13 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
+import { getCorsHeaders, handleOptions } from '@/lib/cors';
+
+export async function OPTIONS(req: Request) {
+    return handleOptions(req);
+}
 
 export async function GET(req: Request) {
+    const origin = req.headers.get('origin');
     const cookieHeader = req.headers.get("cookie") || "";
 
     // Extract better-auth.session_token from cookie manually
@@ -9,7 +15,8 @@ export async function GET(req: Request) {
     const sessionToken = sessionTokenMatch ? decodeURIComponent(sessionTokenMatch[1]) : null;
 
     if (!sessionToken) {
-        return NextResponse.json({ session: null, user: null });
+        const res = NextResponse.json({ session: null, user: null });
+        return applyCors(res, origin);
     }
 
     // Query session directly with Prisma
@@ -19,11 +26,12 @@ export async function GET(req: Request) {
     });
 
     if (!dbSession || dbSession.expiresAt < new Date()) {
-        return NextResponse.json({ session: null, user: null });
+        const res = NextResponse.json({ session: null, user: null });
+        return applyCors(res, origin);
     }
 
     // Return in the format expected by better-auth client
-    return NextResponse.json({
+    const res = NextResponse.json({
         session: {
             id: dbSession.id,
             userId: dbSession.userId,
@@ -45,4 +53,14 @@ export async function GET(req: Request) {
             updatedAt: dbSession.user.updatedAt.toISOString()
         }
     });
+
+    return applyCors(res, origin);
+}
+
+function applyCors(res: NextResponse, origin: string | null) {
+    const corsHeaders = getCorsHeaders(origin);
+    Object.entries(corsHeaders).forEach(([key, value]) => {
+        res.headers.set(key, value);
+    });
+    return res;
 }

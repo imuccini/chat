@@ -21,7 +21,8 @@ export const getAuth = (origin: string) => {
     // If the origin is capacitor:// (iOS/Android), use the configured server URL as valid base
     // but keep the original origin in trustedOrigins and for RP ID derivation.
     const isCapacitor = origin.startsWith("capacitor://");
-    const baseURL = isCapacitor
+    const isAndroidLocal = origin === "http://localhost";
+    const baseURL = (isCapacitor || isAndroidLocal)
         ? (process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:3000")
         : origin;
 

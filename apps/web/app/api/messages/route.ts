@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getCorsHeaders, handleOptions } from '@/lib/cors';
+
+export async function OPTIONS(req: Request) {
+    return handleOptions(req);
+}
 
 export async function GET(request: NextRequest) {
+    const origin = request.headers.get('origin');
     const { searchParams } = new URL(request.url);
     const queryString = searchParams.toString();
 
@@ -8,7 +14,7 @@ export async function GET(request: NextRequest) {
     const apiUrl = 'http://localhost:3001';
     const fullUrl = `${apiUrl}/api/messages${queryString ? `?${queryString}` : ''}`;
 
-    console.log(`[Next.js Proxy] GET /api/messages -> ${fullUrl}`);
+    console.log(`[Next.js Proxy] GET /api/messages -> ${fullUrl} | Origin: ${origin}`);
 
     try {
         const response = await fetch(fullUrl, {
@@ -29,26 +35,21 @@ export async function GET(request: NextRequest) {
             data = { error: 'Invalid JSON response from backend', details: text };
         }
 
-        if (!response.ok) {
-            return NextResponse.json(data, { status: response.status });
-        }
-
-        return NextResponse.json(data);
+        const res = NextResponse.json(data, { status: response.ok ? 200 : response.status });
+        return withCors(res, origin);
     } catch (error) {
         console.error('[Next.js Proxy] Error:', error);
-        return NextResponse.json(
+        return withCors(NextResponse.json(
             { error: 'Failed to fetch messages', details: error.message },
             { status: 500 }
-        );
+        ), origin);
     }
 }
 
-export async function DELETE(
-    request: NextRequest,
-    { params }: { params: Promise<{ id: string }> }
-) {
-    // Note: path-based params need to be handled if the URL is /api/messages/:id
-    // But since this file is at /api/messages/route.ts, it only matches /api/messages
-    // We might need a [id]/route.ts if we want to proxy DELETE /api/messages/:id
-    return NextResponse.json({ error: 'Method not implemented in proxy' }, { status: 501 });
+function withCors(res: NextResponse, origin: string | null) {
+    const corsHeaders = getCorsHeaders(origin);
+    Object.entries(corsHeaders).forEach(([key, value]) => {
+        res.headers.set(key, value);
+    });
+    return res;
 }
