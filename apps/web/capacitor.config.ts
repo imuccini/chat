@@ -8,7 +8,7 @@ const config: CapacitorConfig = {
   appId: 'io.trenochat.app',
   appName: 'TrenoChat',
   webDir: 'out',
-  backgroundColor: '#e5ddd5',  // Beige - matches input bar, visible behind keyboard corners
+  backgroundColor: '#ffffff',
   server: {
     androidScheme: 'http',
     cleartext: true
@@ -20,7 +20,7 @@ const config: CapacitorConfig = {
     },
   },
   ios: {
-    backgroundColor: '#e5ddd5'  // Beige - matches input bar
+    backgroundColor: '#ffffff'
   }
 };
 
