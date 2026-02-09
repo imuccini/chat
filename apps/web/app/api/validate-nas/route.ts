@@ -11,7 +11,8 @@ export async function POST(request: NextRequest) {
         const body = await request.json();
         const { nas_id, bssid } = body;
 
-        const apiUrl = 'http://localhost:3001';
+        const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000';
+        const apiUrl = serverUrl.replace(':3000', ':3001');
         const fullUrl = `${apiUrl}/api/tenants/validate-nas`;
 
         console.log(`[Next.js Proxy] POST /api/validate-nas -> ${fullUrl}`, body);
@@ -52,7 +53,8 @@ export async function GET(request: NextRequest) {
     const nas_id = searchParams.get('nas_id');
     const bssid = searchParams.get('bssid');
 
-    const apiUrl = 'http://localhost:3001';
+    const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000';
+    const apiUrl = serverUrl.replace(':3000', ':3001');
     const fullUrl = `${apiUrl}/api/tenants/validate-nas`;
 
     try {

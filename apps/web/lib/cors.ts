@@ -1,12 +1,27 @@
 import { NextResponse } from 'next/server';
 
+const getServerOrigins = () => {
+    const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL;
+    if (!serverUrl) return [];
+
+    // Add both the 3000 (web) and 3001 (api) versions of the server URL
+    const origins = [serverUrl];
+    if (serverUrl.includes(':3000')) {
+        origins.push(serverUrl.replace(':3000', ':3001'));
+    } else if (!serverUrl.includes(':')) {
+        // If no port specified, assume standard ones for local dev if they aren't localhost
+        origins.push(`${serverUrl}:3000`);
+        origins.push(`${serverUrl}:3001`);
+    }
+    return origins;
+};
+
 export const ALLOWED_ORIGINS = [
     "capacitor://localhost",
     "http://localhost",
     "http://localhost:3000",
     "http://localhost:3001",
-    "http://192.168.1.111:3000",
-    "http://192.168.1.111:3001",
+    ...getServerOrigins(),
 ];
 
 export const getCorsHeaders = (requestOrigin: string | null) => {

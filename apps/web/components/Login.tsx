@@ -256,7 +256,7 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
           // This bypasses the better-auth client entirely to strictly control the request
           try {
             const baseUrl = Capacitor.isNativePlatform()
-              ? (SERVER_URL || 'http://192.168.1.111:3000')
+              ? (SERVER_URL || 'http://localhost:3000')
               : '';
             const fallbackUrl = `${baseUrl}/api/auth/sign-in/anonymous`;
 
