@@ -25,6 +25,7 @@ export class ChatService {
                     senderId: message.senderId,
                     senderAlias: message.senderAlias,
                     senderGender: message.senderGender,
+                    imageUrl: (message as any).imageUrl || null,
                     recipientId: message.recipientId || null,
                     roomId: message.roomId || null,
                     tenantId: tenantId,

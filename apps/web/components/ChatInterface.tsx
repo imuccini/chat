@@ -320,7 +320,11 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
 
             newSocket.on('newMessage', async (msg: Message) => {
                 console.log("[Socket] Received newMessage:", msg);
-                await sqliteService.saveMessage(msg, true);
+                try {
+                    await sqliteService.saveMessage(msg, true);
+                } catch (e) {
+                    console.error("[Socket] Failed to save message to SQLite:", e);
+                }
                 // Directly update cache for instant display (no HTTP refetch needed)
                 const queryKey = ['messages', 'global', tenant.slug, msg.roomId || null];
                 queryClient.setQueryData(queryKey, (prev: Message[] | undefined) => {
@@ -349,7 +353,11 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
             newSocket.on('privateMessage', async (msg: Message) => {
                 const isMe = msg.senderId === currentUser.id;
                 const peerId = isMe ? msg.recipientId! : msg.senderId;
-                await sqliteService.saveMessage(msg, false);
+                try {
+                    await sqliteService.saveMessage(msg, false);
+                } catch (e) {
+                    console.error("[Socket] Failed to save individual message to SQLite:", e);
+                }
 
                 if (!isMe && Capacitor.isNativePlatform()) {
                     Haptics.impact({ style: ImpactStyle.Light }).catch(() => { });
@@ -421,11 +429,11 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
         socket.emit('join', { user: updatedUser, tenantSlug: tenant.slug });
     };
 
-    const handleRoomSend = useCallback(async (text: string) => {
+    const handleRoomSend = useCallback(async (text: string, imageUrl?: string) => {
         if (!currentUser || !socket || !activeRoomId) return;
         // Use crypto.randomUUID() for cleaner IDs
         const msg: Message = {
-            id: generateId(), text, senderId: currentUser.id, senderAlias: currentUser.alias,
+            id: generateId(), text, imageUrl, senderId: currentUser.id, senderAlias: currentUser.alias,
             senderGender: currentUser.gender, timestamp: new Date().toISOString(), roomId: activeRoomId, tenantId: tenant.id
         };
         console.log("[ChatInterface] Sending room message:", msg);
@@ -442,10 +450,10 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
         socket.emit('deleteMessage', { messageId, roomId: activeRoomId, tenantSlug: tenant.slug });
     }, [socket, activeRoomId, tenant.slug]);
 
-    const handlePrivateSend = useCallback(async (text: string) => {
+    const handlePrivateSend = useCallback(async (text: string, imageUrl?: string) => {
         if (!currentUser || !socket || !selectedChatPeerId) return;
         const msg: Message = {
-            id: generateId(), text, senderId: currentUser.id, senderAlias: currentUser.alias,
+            id: generateId(), text, imageUrl, senderId: currentUser.id, senderAlias: currentUser.alias,
             senderGender: currentUser.gender, timestamp: new Date().toISOString(), recipientId: selectedChatPeerId, tenantId: tenant.id
         };
         if (Capacitor.isNativePlatform()) Haptics.impact({ style: ImpactStyle.Light }).catch(() => { });

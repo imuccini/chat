@@ -47,6 +47,7 @@ export default function TenantChatClient({ overrideSlug }: TenantChatClientProps
                     senderAlias: msg.senderAlias || msg.user?.name || "Anonymous",
                     senderGender: msg.senderGender || "other",
                     timestamp: new Date(msg.timestamp || msg.createdAt).toISOString(),
+                    imageUrl: msg.imageUrl
                 }));
                 setInitialMessages(mappedMessages);
                 setLoading(false);

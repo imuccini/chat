@@ -9941,6 +9941,7 @@ export namespace Prisma {
   export type MessageMinAggregateOutputType = {
     id: string | null
     text: string | null
+    imageUrl: string | null
     createdAt: Date | null
     senderId: string | null
     senderAlias: string | null
@@ -9954,6 +9955,7 @@ export namespace Prisma {
   export type MessageMaxAggregateOutputType = {
     id: string | null
     text: string | null
+    imageUrl: string | null
     createdAt: Date | null
     senderId: string | null
     senderAlias: string | null
@@ -9967,6 +9969,7 @@ export namespace Prisma {
   export type MessageCountAggregateOutputType = {
     id: number
     text: number
+    imageUrl: number
     createdAt: number
     senderId: number
     senderAlias: number
@@ -9982,6 +9985,7 @@ export namespace Prisma {
   export type MessageMinAggregateInputType = {
     id?: true
     text?: true
+    imageUrl?: true
     createdAt?: true
     senderId?: true
     senderAlias?: true
@@ -9995,6 +9999,7 @@ export namespace Prisma {
   export type MessageMaxAggregateInputType = {
     id?: true
     text?: true
+    imageUrl?: true
     createdAt?: true
     senderId?: true
     senderAlias?: true
@@ -10008,6 +10013,7 @@ export namespace Prisma {
   export type MessageCountAggregateInputType = {
     id?: true
     text?: true
+    imageUrl?: true
     createdAt?: true
     senderId?: true
     senderAlias?: true
@@ -10094,6 +10100,7 @@ export namespace Prisma {
   export type MessageGroupByOutputType = {
     id: string
     text: string
+    imageUrl: string | null
     createdAt: Date
     senderId: string
     senderAlias: string
@@ -10124,6 +10131,7 @@ export namespace Prisma {
   export type MessageSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     text?: boolean
+    imageUrl?: boolean
     createdAt?: boolean
     senderId?: boolean
     senderAlias?: boolean
@@ -10140,6 +10148,7 @@ export namespace Prisma {
   export type MessageSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     text?: boolean
+    imageUrl?: boolean
     createdAt?: boolean
     senderId?: boolean
     senderAlias?: boolean
@@ -10156,6 +10165,7 @@ export namespace Prisma {
   export type MessageSelectScalar = {
     id?: boolean
     text?: boolean
+    imageUrl?: boolean
     createdAt?: boolean
     senderId?: boolean
     senderAlias?: boolean
@@ -10187,6 +10197,7 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: string
       text: string
+      imageUrl: string | null
       createdAt: Date
       senderId: string
       senderAlias: string
@@ -10593,6 +10604,7 @@ export namespace Prisma {
   interface MessageFieldRefs {
     readonly id: FieldRef<"Message", 'String'>
     readonly text: FieldRef<"Message", 'String'>
+    readonly imageUrl: FieldRef<"Message", 'String'>
     readonly createdAt: FieldRef<"Message", 'DateTime'>
     readonly senderId: FieldRef<"Message", 'String'>
     readonly senderAlias: FieldRef<"Message", 'String'>
@@ -13081,6 +13093,7 @@ export namespace Prisma {
   export const MessageScalarFieldEnum: {
     id: 'id',
     text: 'text',
+    imageUrl: 'imageUrl',
     createdAt: 'createdAt',
     senderId: 'senderId',
     senderAlias: 'senderAlias',
@@ -13907,6 +13920,7 @@ export namespace Prisma {
     NOT?: MessageWhereInput | MessageWhereInput[]
     id?: StringFilter<"Message"> | string
     text?: StringFilter<"Message"> | string
+    imageUrl?: StringNullableFilter<"Message"> | string | null
     createdAt?: DateTimeFilter<"Message"> | Date | string
     senderId?: StringFilter<"Message"> | string
     senderAlias?: StringFilter<"Message"> | string
@@ -13923,6 +13937,7 @@ export namespace Prisma {
   export type MessageOrderByWithRelationInput = {
     id?: SortOrder
     text?: SortOrder
+    imageUrl?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     senderId?: SortOrder
     senderAlias?: SortOrder
@@ -13942,6 +13957,7 @@ export namespace Prisma {
     OR?: MessageWhereInput[]
     NOT?: MessageWhereInput | MessageWhereInput[]
     text?: StringFilter<"Message"> | string
+    imageUrl?: StringNullableFilter<"Message"> | string | null
     createdAt?: DateTimeFilter<"Message"> | Date | string
     senderId?: StringFilter<"Message"> | string
     senderAlias?: StringFilter<"Message"> | string
@@ -13958,6 +13974,7 @@ export namespace Prisma {
   export type MessageOrderByWithAggregationInput = {
     id?: SortOrder
     text?: SortOrder
+    imageUrl?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     senderId?: SortOrder
     senderAlias?: SortOrder
@@ -13977,6 +13994,7 @@ export namespace Prisma {
     NOT?: MessageScalarWhereWithAggregatesInput | MessageScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Message"> | string
     text?: StringWithAggregatesFilter<"Message"> | string
+    imageUrl?: StringNullableWithAggregatesFilter<"Message"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Message"> | Date | string
     senderId?: StringWithAggregatesFilter<"Message"> | string
     senderAlias?: StringWithAggregatesFilter<"Message"> | string
@@ -14828,6 +14846,7 @@ export namespace Prisma {
   export type MessageCreateInput = {
     id?: string
     text: string
+    imageUrl?: string | null
     createdAt?: Date | string
     senderId: string
     senderAlias: string
@@ -14841,6 +14860,7 @@ export namespace Prisma {
   export type MessageUncheckedCreateInput = {
     id?: string
     text: string
+    imageUrl?: string | null
     createdAt?: Date | string
     senderId: string
     senderAlias: string
@@ -14854,6 +14874,7 @@ export namespace Prisma {
   export type MessageUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     text?: StringFieldUpdateOperationsInput | string
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     senderId?: StringFieldUpdateOperationsInput | string
     senderAlias?: StringFieldUpdateOperationsInput | string
@@ -14867,6 +14888,7 @@ export namespace Prisma {
   export type MessageUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     text?: StringFieldUpdateOperationsInput | string
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     senderId?: StringFieldUpdateOperationsInput | string
     senderAlias?: StringFieldUpdateOperationsInput | string
@@ -14880,6 +14902,7 @@ export namespace Prisma {
   export type MessageCreateManyInput = {
     id?: string
     text: string
+    imageUrl?: string | null
     createdAt?: Date | string
     senderId: string
     senderAlias: string
@@ -14893,6 +14916,7 @@ export namespace Prisma {
   export type MessageUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     text?: StringFieldUpdateOperationsInput | string
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     senderId?: StringFieldUpdateOperationsInput | string
     senderAlias?: StringFieldUpdateOperationsInput | string
@@ -14903,6 +14927,7 @@ export namespace Prisma {
   export type MessageUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     text?: StringFieldUpdateOperationsInput | string
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     senderId?: StringFieldUpdateOperationsInput | string
     senderAlias?: StringFieldUpdateOperationsInput | string
@@ -15698,6 +15723,7 @@ export namespace Prisma {
   export type MessageCountOrderByAggregateInput = {
     id?: SortOrder
     text?: SortOrder
+    imageUrl?: SortOrder
     createdAt?: SortOrder
     senderId?: SortOrder
     senderAlias?: SortOrder
@@ -15711,6 +15737,7 @@ export namespace Prisma {
   export type MessageMaxOrderByAggregateInput = {
     id?: SortOrder
     text?: SortOrder
+    imageUrl?: SortOrder
     createdAt?: SortOrder
     senderId?: SortOrder
     senderAlias?: SortOrder
@@ -15724,6 +15751,7 @@ export namespace Prisma {
   export type MessageMinOrderByAggregateInput = {
     id?: SortOrder
     text?: SortOrder
+    imageUrl?: SortOrder
     createdAt?: SortOrder
     senderId?: SortOrder
     senderAlias?: SortOrder
@@ -16799,6 +16827,7 @@ export namespace Prisma {
   export type MessageCreateWithoutTenantInput = {
     id?: string
     text: string
+    imageUrl?: string | null
     createdAt?: Date | string
     senderId: string
     senderAlias: string
@@ -16811,6 +16840,7 @@ export namespace Prisma {
   export type MessageUncheckedCreateWithoutTenantInput = {
     id?: string
     text: string
+    imageUrl?: string | null
     createdAt?: Date | string
     senderId: string
     senderAlias: string
@@ -16967,6 +16997,7 @@ export namespace Prisma {
     NOT?: MessageScalarWhereInput | MessageScalarWhereInput[]
     id?: StringFilter<"Message"> | string
     text?: StringFilter<"Message"> | string
+    imageUrl?: StringNullableFilter<"Message"> | string | null
     createdAt?: DateTimeFilter<"Message"> | Date | string
     senderId?: StringFilter<"Message"> | string
     senderAlias?: StringFilter<"Message"> | string
@@ -17246,6 +17277,7 @@ export namespace Prisma {
   export type MessageCreateWithoutUserInput = {
     id?: string
     text: string
+    imageUrl?: string | null
     createdAt?: Date | string
     senderId: string
     senderAlias: string
@@ -17258,6 +17290,7 @@ export namespace Prisma {
   export type MessageUncheckedCreateWithoutUserInput = {
     id?: string
     text: string
+    imageUrl?: string | null
     createdAt?: Date | string
     senderId: string
     senderAlias: string
@@ -17826,6 +17859,7 @@ export namespace Prisma {
   export type MessageCreateWithoutRoomInput = {
     id?: string
     text: string
+    imageUrl?: string | null
     createdAt?: Date | string
     senderId: string
     senderAlias: string
@@ -17838,6 +17872,7 @@ export namespace Prisma {
   export type MessageUncheckedCreateWithoutRoomInput = {
     id?: string
     text: string
+    imageUrl?: string | null
     createdAt?: Date | string
     senderId: string
     senderAlias: string
@@ -18318,6 +18353,7 @@ export namespace Prisma {
   export type MessageCreateManyTenantInput = {
     id?: string
     text: string
+    imageUrl?: string | null
     createdAt?: Date | string
     senderId: string
     senderAlias: string
@@ -18389,6 +18425,7 @@ export namespace Prisma {
   export type MessageUpdateWithoutTenantInput = {
     id?: StringFieldUpdateOperationsInput | string
     text?: StringFieldUpdateOperationsInput | string
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     senderId?: StringFieldUpdateOperationsInput | string
     senderAlias?: StringFieldUpdateOperationsInput | string
@@ -18401,6 +18438,7 @@ export namespace Prisma {
   export type MessageUncheckedUpdateWithoutTenantInput = {
     id?: StringFieldUpdateOperationsInput | string
     text?: StringFieldUpdateOperationsInput | string
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     senderId?: StringFieldUpdateOperationsInput | string
     senderAlias?: StringFieldUpdateOperationsInput | string
@@ -18413,6 +18451,7 @@ export namespace Prisma {
   export type MessageUncheckedUpdateManyWithoutTenantInput = {
     id?: StringFieldUpdateOperationsInput | string
     text?: StringFieldUpdateOperationsInput | string
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     senderId?: StringFieldUpdateOperationsInput | string
     senderAlias?: StringFieldUpdateOperationsInput | string
@@ -18540,6 +18579,7 @@ export namespace Prisma {
   export type MessageCreateManyUserInput = {
     id?: string
     text: string
+    imageUrl?: string | null
     createdAt?: Date | string
     senderId: string
     senderAlias: string
@@ -18670,6 +18710,7 @@ export namespace Prisma {
   export type MessageUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     text?: StringFieldUpdateOperationsInput | string
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     senderId?: StringFieldUpdateOperationsInput | string
     senderAlias?: StringFieldUpdateOperationsInput | string
@@ -18682,6 +18723,7 @@ export namespace Prisma {
   export type MessageUncheckedUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     text?: StringFieldUpdateOperationsInput | string
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     senderId?: StringFieldUpdateOperationsInput | string
     senderAlias?: StringFieldUpdateOperationsInput | string
@@ -18694,6 +18736,7 @@ export namespace Prisma {
   export type MessageUncheckedUpdateManyWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     text?: StringFieldUpdateOperationsInput | string
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     senderId?: StringFieldUpdateOperationsInput | string
     senderAlias?: StringFieldUpdateOperationsInput | string
@@ -18745,6 +18788,7 @@ export namespace Prisma {
   export type MessageCreateManyRoomInput = {
     id?: string
     text: string
+    imageUrl?: string | null
     createdAt?: Date | string
     senderId: string
     senderAlias: string
@@ -18757,6 +18801,7 @@ export namespace Prisma {
   export type MessageUpdateWithoutRoomInput = {
     id?: StringFieldUpdateOperationsInput | string
     text?: StringFieldUpdateOperationsInput | string
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     senderId?: StringFieldUpdateOperationsInput | string
     senderAlias?: StringFieldUpdateOperationsInput | string
@@ -18769,6 +18814,7 @@ export namespace Prisma {
   export type MessageUncheckedUpdateWithoutRoomInput = {
     id?: StringFieldUpdateOperationsInput | string
     text?: StringFieldUpdateOperationsInput | string
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     senderId?: StringFieldUpdateOperationsInput | string
     senderAlias?: StringFieldUpdateOperationsInput | string
@@ -18781,6 +18827,7 @@ export namespace Prisma {
   export type MessageUncheckedUpdateManyWithoutRoomInput = {
     id?: StringFieldUpdateOperationsInput | string
     text?: StringFieldUpdateOperationsInput | string
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     senderId?: StringFieldUpdateOperationsInput | string
     senderAlias?: StringFieldUpdateOperationsInput | string

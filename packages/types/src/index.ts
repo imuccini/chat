@@ -19,6 +19,7 @@ export interface Message {
     senderAlias: string;
     senderGender: Gender;
     timestamp: string;
+    imageUrl?: string;
     recipientId?: string;
     roomId?: string;
     tenantId?: string;

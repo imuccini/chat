@@ -219,6 +219,7 @@ exports.Prisma.RoomScalarFieldEnum = {
 exports.Prisma.MessageScalarFieldEnum = {
   id: 'id',
   text: 'text',
+  imageUrl: 'imageUrl',
   createdAt: 'createdAt',
   senderId: 'senderId',
   senderAlias: 'senderAlias',

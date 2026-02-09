@@ -177,7 +177,7 @@ export function UnifiedChatList({
                                         </div>
                                         <p className="text-sm text-gray-500 truncate dark:text-gray-400">
                                             {room.lastMessage ? (
-                                                room.lastMessage.text
+                                                room.lastMessage.text || (room.lastMessage.imageUrl ? '📷 Foto' : '')
                                             ) : isAnnouncement ? (
                                                 <>Messaggi da <span className="font-bold">{tenantName}</span></>
                                             ) : (

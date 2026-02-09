@@ -6,7 +6,7 @@ import { Trash2 } from 'lucide-react';
 interface GlobalChatProps {
   user: User;
   messages: Message[];
-  onSendMessage: (text: string) => void;
+  onSendMessage: (text: string, imageUrl?: string) => void;
   onRemoveMessage?: (messageId: string) => void;
   onlineCount: number;
   isOnline: boolean;
@@ -50,23 +50,38 @@ const GenderIcon = memo(({ gender, className }: { gender: Gender; className?: st
   );
 });
 
-const ChatInput = memo(({ onSendMessage, showBottomNavPadding, onFocusChange, isReadOnly }: {
-  onSendMessage: (text: string) => void,
+const ChatInput = memo(({ onSendMessage, showBottomNavPadding, onFocusChange, isReadOnly, canUploadImage }: {
+  onSendMessage: (text: string, imageUrl?: string) => void,
   showBottomNavPadding?: boolean,
   onFocusChange?: (isFocused: boolean) => void,
-  isReadOnly?: boolean
+  isReadOnly?: boolean,
+  canUploadImage?: boolean
 }) => {
   const [text, setText] = useState('');
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Removed unnecessary blur on mount that could interfere with initial user interaction
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (text.trim()) {
-      onSendMessage(text.trim());
+    if (text.trim() || selectedImage) {
+      onSendMessage(text.trim(), selectedImage || undefined);
       setText('');
+      setSelectedImage(null);
       inputRef.current?.blur();
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setSelectedImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -86,7 +101,42 @@ const ChatInput = memo(({ onSendMessage, showBottomNavPadding, onFocusChange, is
 
   return (
     <footer className={`px-3 py-2 md:p-4 bg-white/80 backdrop-blur-md shrink-0 ${footerPadding} z-20`}>
+      {selectedImage && (
+        <div className="max-w-5xl mx-auto mb-2 relative">
+          <div className="relative w-20 h-20 rounded-lg overflow-hidden border border-gray-200 shadow-sm">
+            <img src={selectedImage} alt="Preview" className="w-full h-full object-cover" />
+            <button
+              onClick={() => setSelectedImage(null)}
+              className="absolute top-1 right-1 bg-black/50 text-white rounded-full p-1"
+            >
+              <Trash2 className="w-3 h-3" />
+            </button>
+          </div>
+        </div>
+      )}
       <form onSubmit={handleSubmit} className="flex items-center gap-2 md:gap-3 max-w-5xl mx-auto">
+        {canUploadImage && (
+          <>
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              accept="image/*"
+              className="hidden"
+            />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="p-2 text-gray-400 hover:text-primary active:scale-95 transition-all"
+            >
+              <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                <circle cx="8.5" cy="8.5" r="1.5" />
+                <polyline points="21 15 16 10 5 21" />
+              </svg>
+            </button>
+          </>
+        )}
         <input
           ref={inputRef}
           type="text"
@@ -179,8 +229,21 @@ const GlobalChat = memo<GlobalChatProps>(({
             </span>
           )}
           <div className="relative">
-            <div className={`px-3 py-2 rounded-2xl shadow-sm ${isMe ? 'bg-primary text-white rounded-tr-none' : 'bg-gray-100 text-gray-900 rounded-tl-none'}`}>
-              <p className="whitespace-pre-wrap break-words leading-relaxed text-[15px]">{msg.text}</p>
+            <div className={`p-4 rounded-3xl ${isMe ? 'bg-primary text-white rounded-tr-lg shadow-sm shadow-primary/10' : 'bg-gray-100 text-gray-900 rounded-tl-lg'}`}>
+              {msg.imageUrl && (
+                <div className="mb-2 rounded-2xl overflow-hidden border border-white/10 bg-gray-200/50 min-h-[100px] flex items-center justify-center">
+                  <img
+                    src={msg.imageUrl}
+                    alt="Messaggio"
+                    className="w-full max-h-80 object-cover"
+                    onError={(e) => {
+                      console.error("[GlobalChat] Image load error:", msg.imageUrl?.substring(0, 50));
+                      e.currentTarget.style.display = 'none';
+                    }}
+                  />
+                </div>
+              )}
+              <p className="text-sm md:text-base font-medium leading-relaxed whitespace-pre-wrap">{msg.text}</p>
             </div>
             {canModerate && (
               <button
@@ -288,6 +351,7 @@ const GlobalChat = memo<GlobalChatProps>(({
           showBottomNavPadding={showBottomNavPadding}
           onFocusChange={onInputFocusChange}
           isReadOnly={isReadOnly}
+          canUploadImage={roomType === 'ANNOUNCEMENT' && canModerate}
         />
       </div>
     </div>

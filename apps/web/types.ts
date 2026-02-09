@@ -16,6 +16,7 @@ export interface Message {
   senderAlias: string;
   senderGender: Gender;
   timestamp: string;
+  imageUrl?: string;
   recipientId?: string; // For private messages
   roomId?: string; // For room messages
   tenantId?: string; // For multitenancy context

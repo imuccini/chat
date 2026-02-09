@@ -8,9 +8,6 @@ class SQLiteService {
     private dbName: string = 'chat_cache';
 
     async initialize() {
-        console.log("SQLite: Disabled for debugging.");
-        return;
-
         if (!Capacitor.isNativePlatform()) {
             console.log("SQLite: Skipping initialization on non-native platform (Web).");
             return;
@@ -23,27 +20,43 @@ class SQLiteService {
             // Check if connection exists and close it if necessary (for hot-reload)
             const isConn = await this.sqlite.isConnection(this.dbName, false);
             if (isConn.result) {
+                console.log(`SQLite: Connection to ${this.dbName} already exists, retrieving it.`);
                 await this.sqlite.retrieveConnection(this.dbName, false);
             }
 
             this.db = await this.sqlite.createConnection(this.dbName, false, 'no-encryption', 1, false);
             await this.db.open();
 
+            // 1. Ensure table exists
             const schema = `
                 CREATE TABLE IF NOT EXISTS messages (
-                    id TEXT PRIMARY KEY,
-                    text TEXT,
-                    senderId TEXT,
-                    senderAlias TEXT,
-                    senderGender TEXT,
-                    timestamp TEXT,
-                    recipientId TEXT,
-                    roomId TEXT,
-                    isGlobal INTEGER DEFAULT 1
+                    "id" TEXT PRIMARY KEY,
+                    "text" TEXT,
+                    "senderId" TEXT,
+                    "senderAlias" TEXT,
+                    "senderGender" TEXT,
+                    "timestamp" TEXT,
+                    "recipientId" TEXT,
+                    "roomId" TEXT,
+                    "imageUrl" TEXT,
+                    "isGlobal" INTEGER DEFAULT 1
                 );
             `;
             await this.db.execute(schema);
-            console.log("SQLite DB Initialized with schema");
+
+            // 2. Migration: Add imageUrl if it doesn't exist
+            try {
+                const tableInfo = await this.db.query("PRAGMA table_info(messages);");
+                const hasImageUrl = tableInfo.values?.some((col: any) => col.name.toLowerCase() === 'imageurl');
+                if (!hasImageUrl) {
+                    console.log("SQLite: Migrating messages table to add imageUrl column...");
+                    await this.db.execute("ALTER TABLE messages ADD COLUMN imageUrl TEXT;");
+                }
+            } catch (migrationErr) {
+                console.error("SQLite Migration Error:", migrationErr);
+            }
+
+            console.log("SQLite DB Initialized and Migrated");
         } catch (err) {
             console.error('SQLite initialization error:', err);
         }
@@ -54,8 +67,8 @@ class SQLiteService {
         if (!this.db) return;
 
         const query = `
-            INSERT OR REPLACE INTO messages (id, text, senderId, senderAlias, senderGender, timestamp, recipientId, roomId, isGlobal)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+            INSERT OR REPLACE INTO messages ("id", "text", "senderId", "senderAlias", "senderGender", "timestamp", "recipientId", "roomId", "imageUrl", "isGlobal")
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
         `;
         const params = [
             msg.id,
@@ -66,6 +79,7 @@ class SQLiteService {
             msg.timestamp,
             msg.recipientId || null,
             msg.roomId || null,
+            msg.imageUrl || null,
             isGlobal ? 1 : 0
         ];
 
@@ -117,7 +131,15 @@ class SQLiteService {
         try {
             const res = await this.db.query(query, params);
             return (res.values || []).map((m: any) => ({
-                ...m,
+                id: m.id || m.ID,
+                text: m.text || m.TEXT,
+                senderId: m.senderId || m.senderid || m.SENDERID,
+                senderAlias: m.senderAlias || m.senderalias || m.SENDERALIAS,
+                senderGender: m.senderGender || m.sendergender || m.SENDERGENDER,
+                timestamp: m.timestamp || m.TIMESTAMP,
+                recipientId: m.recipientId || m.recipientid || m.RECIPIENTID,
+                roomId: m.roomId || m.roomid || m.ROOMID,
+                imageUrl: m.imageUrl || m.imageurl || m.IMAGEURL || null,
                 isGlobal: undefined // Clean up type for app
             }));
         } catch (err) {
@@ -160,13 +182,14 @@ class SQLiteService {
             );
 
             const messages = (res.values || []).map((m: any) => ({
-                id: m.id,
-                text: m.text,
-                senderId: m.senderId,
-                senderAlias: m.senderAlias,
-                senderGender: m.senderGender,
-                timestamp: m.timestamp,
-                recipientId: m.recipientId
+                id: m.id || m.ID,
+                text: m.text || m.TEXT,
+                senderId: m.senderId || m.senderid || m.SENDERID,
+                senderAlias: m.senderAlias || m.senderalias || m.SENDERALIAS,
+                senderGender: m.senderGender || m.sendergender || m.SENDERGENDER,
+                timestamp: m.timestamp || m.TIMESTAMP,
+                recipientId: m.recipientId || m.recipientid || m.RECIPIENTID,
+                imageUrl: m.imageUrl || m.imageurl || m.IMAGEURL || null
             })) as Message[];
 
             // Group by peer ID

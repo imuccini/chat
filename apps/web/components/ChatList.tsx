@@ -25,7 +25,8 @@ const ChatList: React.FC<ChatListProps> = ({ chats, onSelectChat, onDeleteChat, 
 
     const getLastMessage = (msgs: Message[]) => {
         if (msgs.length === 0) return 'Inizia la conversazione...';
-        return msgs[msgs.length - 1].text;
+        const last = msgs[msgs.length - 1];
+        return last.text || (last.imageUrl ? '📷 Foto' : '');
     };
 
     const getLastTime = (msgs: Message[]) => {

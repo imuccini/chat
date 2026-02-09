@@ -226,8 +226,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
         this.logger.log(`[handleMessage] Received message: ${JSON.stringify(message)}`);
 
-        if (!message?.text) {
-            this.logger.warn('[handleMessage] No message text provided');
+        if (!message?.text && !message?.imageUrl) {
+            this.logger.warn('[handleMessage] No message text or image provided');
             return;
         }
 
@@ -268,10 +268,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
             }
         }
 
-        // Sanitize text
-        const sanitizedText = this.sanitizeText(message.text);
-        if (!sanitizedText) {
-            this.logger.warn(`[handleMessage] Message rejected: sanitized text is empty`);
+        // Sanitize text if present
+        const sanitizedText = message.text ? this.sanitizeText(message.text) : '';
+
+        // Final check: message must have text OR an image
+        if (!sanitizedText && !message.imageUrl) {
+            this.logger.warn(`[handleMessage] Message rejected: no text and no image`);
             return;
         }
 
