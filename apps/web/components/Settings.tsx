@@ -52,7 +52,7 @@ const Settings: React.FC<SettingsProps> = ({ user, onLogout, onUpdateAlias, onUp
                     {/* Avatar Section - Photo edit removed as requested */}
                     <div className="py-8 flex flex-col items-center bg-white border-b border-gray-100">
                         <div className="relative group mb-4">
-                            <div className="w-24 h-24 bg-emerald-500 rounded-full flex items-center justify-center text-white text-4xl font-bold shadow-sm overflow-hidden">
+                            <div className="w-24 h-24 bg-primary rounded-full flex items-center justify-center text-white text-4xl font-bold shadow-sm overflow-hidden">
                                 {(user.alias || (user as any).name || '?').charAt(0).toUpperCase()}
                             </div>
                         </div>

@@ -15,8 +15,8 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 240 93.1% 65.3%;
+    --primary-foreground: 0 0% 100%;
 
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
@@ -49,8 +49,8 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 240 93.1% 65.3%;
+    --primary-foreground: 0 0% 100%;
 
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
@@ -77,7 +77,8 @@ body {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  background-color: #e5ddd5; /* Beige - matches input bar, visible behind iOS keyboard corners */
+  background-color: #e5ddd5;
+  /* Beige - matches input bar, visible behind iOS keyboard corners */
   touch-action: manipulation;
 }
 
@@ -89,6 +90,17 @@ body {
   body {
     @apply text-foreground antialiased;
     font-family: var(--font-sans);
+  }
+
+  input,
+  textarea {
+    @apply bg-gray-50 border-none transition-all !important;
+  }
+
+  input:focus,
+  textarea:focus {
+    @apply ring-0 ring-offset-0 focus:ring-0 focus:ring-offset-0 !important;
+    outline: none !important;
   }
 }
 
@@ -125,11 +137,7 @@ body {
 
 /* WhatsApp-style chat background */
 .chat-bg {
-  background-color: #e5ddd5;
-  background-image:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80' width='80' height='80'%3E%3Cg fill='%23d6cec6' fill-opacity='0.4'%3E%3Ccircle cx='40' cy='20' r='2'/%3E%3Ccircle cx='60' cy='40' r='1.5'/%3E%3Ccircle cx='20' cy='60' r='2'/%3E%3Cpath d='M10 10L15 5M70 70L75 65M25 75L30 70M75 25L70 30' stroke='%23d6cec6' stroke-width='1' fill='none'/%3E%3C/g%3E%3C/svg%3E");
-  background-repeat: repeat;
-  background-size: 80px 80px;
+  background-color: #ffffff;
 }
 
 /* Keyboard behavior fixes */

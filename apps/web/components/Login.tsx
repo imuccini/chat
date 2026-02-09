@@ -426,7 +426,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, tenantName }) => {
 
         {(view === 'choice' || view === 'continue') && (
           <div className="animate-in fade-in slide-in-from-top-2 duration-700 text-center">
-            <p className="text-emerald-600 font-bold text-[11px] uppercase tracking-[0.25em] mb-20 px-8 leading-relaxed">
+            <p className="text-primary font-bold text-[11px] uppercase tracking-[0.25em] mb-20 px-8 leading-relaxed">
               Chatta con le persone intorno a te
             </p>
 
@@ -446,7 +446,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, tenantName }) => {
           <div className="space-y-4">
             <button
               onClick={() => setView('anonymous')}
-              className="w-full bg-white hover:bg-gray-50 text-gray-700 font-bold py-4 rounded-xl border-2 border-gray-100 hover:border-emerald-500 hover:text-emerald-600 transition-all flex items-center justify-center gap-2 group"
+              className="w-full bg-white hover:bg-gray-50 text-gray-700 font-bold py-4 rounded-xl border-2 border-gray-100 hover:border-primary hover:text-primary transition-all flex items-center justify-center gap-2 group"
             >
               <span className="text-xl group-hover:scale-110 transition-transform">🕵️</span>
               <span>Accesso anonimo</span>
@@ -454,7 +454,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, tenantName }) => {
 
             <button
               onClick={() => setView('phone_input')}
-              className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 rounded-xl shadow-lg shadow-emerald-200 transition-all flex items-center justify-center gap-2"
+              className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2"
             >
               <span>Accedi con Account</span>
             </button>
@@ -470,7 +470,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, tenantName }) => {
         {view === 'continue' && existingUser && (
           <div className="space-y-6 text-center">
             <div className="mb-4">
-              <div className="w-20 h-20 bg-emerald-100 rounded-full mx-auto flex items-center justify-center text-3xl mb-4 shadow-inner">
+              <div className="w-20 h-20 bg-primary/10 rounded-full mx-auto flex items-center justify-center text-3xl mb-4 shadow-inner">
                 {existingUser.image ? (
                   <img src={existingUser.image} className="w-full h-full rounded-full border-2 border-white" alt={existingUser.name} />
                 ) : (
@@ -483,7 +483,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, tenantName }) => {
 
             <button
               onClick={handleContinue}
-              className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 rounded-xl shadow-lg shadow-emerald-100 transition-all flex items-center justify-center gap-2"
+              className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2"
             >
               <span>Entra nella Chat</span>
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -517,10 +517,11 @@ const Login: React.FC<LoginProps> = ({ onLogin, tenantName }) => {
                 autoCapitalize="off"
                 spellCheck={false}
                 maxLength={20}
+                // Removed duplicate maxLength prop which was causing conflict in previous chunk
                 value={alias}
                 onChange={(e) => setAlias(e.target.value)}
                 placeholder="es. ShadowHunter"
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-gray-800"
+                className="w-full px-4 py-3 rounded-xl focus:outline-none text-gray-800"
                 style={{ fontSize: '18px' }}
               />
             </div>
@@ -533,8 +534,8 @@ const Login: React.FC<LoginProps> = ({ onLogin, tenantName }) => {
                     type="button"
                     onClick={() => setGender(g)}
                     className={`py-2 rounded-xl text-xs font-bold uppercase tracking-wider border transition-all ${gender === g
-                      ? 'bg-emerald-500 text-white border-emerald-500 shadow-md'
-                      : 'bg-white text-gray-500 border-gray-200 hover:border-emerald-200'
+                      ? 'bg-primary/10 text-primary border-primary shadow-sm'
+                      : 'bg-white text-gray-500 border-gray-200 hover:border-primary/50'
                       }`}
                   >
                     {genderLabels[g]}
@@ -542,7 +543,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, tenantName }) => {
                 ))}
               </div>
             </div>
-            <button type="submit" className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 rounded-xl shadow-lg shadow-emerald-200">
+            <button type="submit" className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/20">
               Entra nella Stanza
             </button>
 
@@ -575,7 +576,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, tenantName }) => {
                   }}
                   disabled={isLoading}
                   placeholder="333 1234567"
-                  className="w-full pl-20 pr-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-gray-800 font-medium tracking-wide disabled:bg-gray-50 disabled:text-gray-400"
+                  className="w-full pl-20 pr-4 py-3 rounded-xl focus:outline-none text-gray-800 font-medium tracking-wide disabled:bg-gray-50 disabled:text-gray-400"
                   style={{ fontSize: '18px' }}
                 />
               </div>
@@ -584,7 +585,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, tenantName }) => {
             <button
               type="submit"
               disabled={phone.length < 9 || isLoading}
-              className="w-full bg-emerald-500 hover:bg-emerald-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl shadow-lg shadow-emerald-100 transition-all flex items-center justify-center gap-2"
+              className="w-full bg-primary hover:bg-primary/90 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2"
             >
               {isLoading ? (
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" />
@@ -620,7 +621,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, tenantName }) => {
                 onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
                 placeholder="0 0 0 0 0 0"
                 disabled={isLoading}
-                className="w-full px-4 py-4 text-center rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-gray-800 font-bold tracking-[0.5em] disabled:bg-gray-50 disabled:text-gray-400"
+                className="w-full px-4 py-4 text-center rounded-xl focus:outline-none text-gray-800 font-bold tracking-[0.5em] disabled:bg-gray-50 disabled:text-gray-400"
                 style={{ fontSize: '24px' }}
               />
             </div>
@@ -628,7 +629,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, tenantName }) => {
             <button
               type="submit"
               disabled={otp.length !== 6 || isLoading}
-              className="w-full bg-emerald-500 hover:bg-emerald-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl shadow-lg shadow-emerald-100 transition-all flex items-center justify-center"
+              className="w-full bg-primary hover:bg-primary/90 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/20 transition-all flex items-center justify-center"
             >
               {isLoading ? (
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" />
@@ -656,7 +657,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, tenantName }) => {
                 onChange={(e) => setAlias(e.target.value)}
                 disabled={isLoading}
                 placeholder="es. Mario Rossi"
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-gray-800 disabled:bg-gray-50"
+                className="w-full px-4 py-3 rounded-xl focus:outline-none text-gray-800 disabled:bg-gray-50"
                 style={{ fontSize: '18px' }}
               />
             </div>
@@ -671,8 +672,8 @@ const Login: React.FC<LoginProps> = ({ onLogin, tenantName }) => {
                     onClick={() => setGender(g)}
                     disabled={isLoading}
                     className={`py-3 rounded-xl text-xs font-bold uppercase tracking-wider border transition-all ${gender === g
-                      ? 'bg-emerald-500 text-white border-emerald-500 shadow-md'
-                      : 'bg-white text-gray-500 border-gray-200 hover:border-emerald-200'
+                      ? 'bg-primary/10 text-primary border-primary shadow-sm'
+                      : 'bg-white text-gray-500 border-gray-200 hover:border-primary/50'
                       } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     {genderLabels[g]}
@@ -684,7 +685,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, tenantName }) => {
             <button
               type="submit"
               disabled={!alias.trim() || isLoading}
-              className="w-full bg-emerald-500 hover:bg-emerald-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl shadow-lg shadow-emerald-100 transition-all flex items-center justify-center"
+              className="w-full bg-primary hover:bg-primary/90 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/20 transition-all flex items-center justify-center"
             >
               {isLoading ? (
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" />

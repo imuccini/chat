@@ -462,7 +462,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
         if (isSessionLoading || isRestoringSession) {
             return (
                 <div className="h-full w-full flex items-center justify-center bg-white sm:bg-gray-50 flex-col">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
                 </div>
             );
         }
@@ -482,7 +482,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                         {activeTab === 'chats' && (
                             <UnifiedChatList
                                 rooms={tenant.rooms || []}
-                                privateChats={Object.values(privateChats).map(c => ({ ...c, unreadCount: c.unread })).sort((a, b) => (b.messages.length ? new Date(b.messages[b.messages.length - 1].timestamp).getTime() : 0) - (a.messages.length ? new Date(a.messages[b.messages.length - 1].timestamp).getTime() : 0))}
+                                privateChats={Object.values(privateChats).map(c => ({ ...c, unreadCount: c.unread })).sort((a, b) => (b.messages.length ? new Date(b.messages[b.messages.length - 1].timestamp).getTime() : 0) - (a.messages.length ? new Date(a.messages[a.messages.length - 1].timestamp).getTime() : 0))}
                                 activeRoomId={activeRoomId || undefined}
                                 selectedChatPeerId={selectedChatPeerId || null}
                                 roomOnlineCounts={roomOnlineCounts}
@@ -515,7 +515,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
             {/* Background is beige (#e5ddd5) to match input bar - visible behind iOS keyboard rounded corners */}
             {isChatOpen && (
                 <div
-                    className="absolute inset-0 z-30 flex flex-col bg-[#e5ddd5]"
+                    className="absolute inset-0 z-30 flex flex-col bg-white"
                     style={Capacitor.isNativePlatform() ? { ...swipeStyle, opacity: 1 } : {}}
                     {...(Capacitor.isNativePlatform() ? handlers : {})}
                 >
@@ -524,10 +524,22 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                     {/* Render Content based on which chat is open */}
                     {isPrivateChatOpen && activeTab === 'chats' && privateChats[selectedChatPeerId!] ? (
                         <>
-                            <header className="bg-white pt-safe text-gray-800 z-10 sticky top-0 border-b border-gray-100">
+                            <header className="bg-white pt-safe text-gray-800 z-10 sticky top-0">
                                 <div className="h-[60px] px-4 flex items-center gap-3">
-                                    <button onClick={() => setSelectedChatPeerId(null)} className="p-2 -ml-2 rounded-full hover:bg-gray-100 text-gray-600"><svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg></button>
-                                    <div className="flex flex-col"><h2 className="font-bold text-lg leading-tight">{privateChats[selectedChatPeerId!].peer.alias}</h2>{onlineUsers.some(u => u.id === selectedChatPeerId) && <span className="text-xs text-emerald-500 font-medium">Online</span>}</div>
+                                    <button onClick={() => setSelectedChatPeerId(null)} className="p-2 -ml-2 rounded-full hover:bg-gray-100 text-gray-600">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                                        </svg>
+                                    </button>
+                                    <div className="flex flex-col">
+                                        <h2 className="font-bold text-lg leading-tight">{privateChats[selectedChatPeerId!].peer.alias}</h2>
+                                        <div className="flex items-center gap-1.5">
+                                            <span className={`w-2 h-2 rounded-full ${onlineUsers.some(u => u.id === selectedChatPeerId) ? 'bg-primary' : 'bg-red-400'}`}></span>
+                                            <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wide">
+                                                {onlineUsers.some(u => u.id === selectedChatPeerId) ? 'Online' : 'Offline'}
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
                             </header>
                             <div className="flex-1 overflow-hidden relative" style={keyboardContentStyle}>
@@ -535,7 +547,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                             </div>
                         </>
                     ) : isRoomChatOpen ? (
-                        <div className="flex-1 flex flex-col h-full bg-[#e5ddd5]">
+                        <div className="flex-1 flex flex-col h-full bg-white">
                             <GlobalChat
                                 user={currentUser} messages={messages} onSendMessage={handleRoomSend} onRemoveMessage={handleDeleteMessage}
                                 onlineCount={onlineUsers.length} isOnline={isConnected} headerTitle={tenant.rooms?.find(r => r.id === activeRoomId)?.name || tenant.name}

@@ -84,7 +84,7 @@ const ChatInput = memo(({ onSendMessage, showBottomNavPadding, onFocusChange, is
   }
 
   return (
-    <footer className={`px-3 py-2 md:p-4 bg-[#e5ddd5] shrink-0 ${footerPadding}`}>
+    <footer className={`px-3 py-2 md:p-4 bg-white/80 backdrop-blur-md shrink-0 ${footerPadding} z-20`}>
       <form onSubmit={handleSubmit} className="flex items-center gap-2 md:gap-3 max-w-5xl mx-auto">
         <input
           ref={inputRef}
@@ -94,12 +94,12 @@ const ChatInput = memo(({ onSendMessage, showBottomNavPadding, onFocusChange, is
           onFocus={() => onFocusChange?.(true)}
           onBlur={() => onFocusChange?.(false)}
           placeholder="Messaggio alla stanza..."
-          className="flex-1 px-4 py-2.5 bg-white border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm md:text-base placeholder-gray-400"
+          className="flex-1 px-4 py-2.5 rounded-full focus:outline-none text-sm md:text-base placeholder-gray-400"
           style={{ fontSize: '16px' }}
         />
         <button
           type="submit"
-          className="p-2 flex items-center justify-center text-emerald-600 hover:text-emerald-700 active:scale-95 transition-transform"
+          className="p-2 flex items-center justify-center text-primary hover:text-primary/80 active:scale-95 transition-transform"
           onMouseDown={(e) => e.preventDefault()}
         >
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
@@ -167,7 +167,7 @@ const GlobalChat = memo<GlobalChatProps>(({
       <div className={`flex ${isMe ? 'justify-end' : 'justify-start'} animate-message pb-4 px-4 group/msg`}>
         <div className={`flex flex-col max-w-[85%] ${isMe ? 'items-end' : 'items-start'}`}>
           {showSenderInfo && (
-            <span className={`text-[10px] font-bold mb-1 px-2 uppercase tracking-tight flex items-center gap-1.5 ${isMe ? 'text-emerald-700' : 'text-gray-600'}`}>
+            <span className={`text-[10px] font-bold mb-1 px-2 uppercase tracking-tight flex items-center gap-1.5 ${isMe ? 'text-primary' : 'text-gray-600'}`}>
               {!isMe && (
                 <div className={`w-3.5 h-3.5 rounded-full flex items-center justify-center ${getAvatarColor(msg.senderGender)}`}>
                   <GenderIcon gender={msg.senderGender} className="w-2 h-2 text-white" />
@@ -177,7 +177,7 @@ const GlobalChat = memo<GlobalChatProps>(({
             </span>
           )}
           <div className="relative">
-            <div className={`px-3 py-2 rounded-2xl shadow-sm ${isMe ? 'bg-emerald-500 text-white rounded-tr-none' : 'bg-white text-gray-800 rounded-tl-none border border-gray-100'}`}>
+            <div className={`px-3 py-2 rounded-2xl shadow-sm ${isMe ? 'bg-primary text-white rounded-tr-none' : 'bg-gray-100 text-gray-900 rounded-tl-none'}`}>
               <p className="whitespace-pre-wrap break-words leading-relaxed text-[15px]">{msg.text}</p>
             </div>
             {canModerate && (
@@ -199,7 +199,7 @@ const GlobalChat = memo<GlobalChatProps>(({
   }, [user.id, messages, canModerate, onRemoveMessage]);
 
   return (
-    <div className="w-full h-full flex flex-col bg-[#e5ddd5]">
+    <div className="w-full h-full flex flex-col bg-white">
       {!hideHeader && (
         <header className="bg-white pt-safe sticky top-0 z-10 shrink-0">
           <div className="h-[60px] px-4 flex items-center justify-between">
@@ -211,8 +211,8 @@ const GlobalChat = memo<GlobalChatProps>(({
                   </svg>
                 </button>
               )}
-              <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center border border-emerald-100">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
               </div>
@@ -220,8 +220,8 @@ const GlobalChat = memo<GlobalChatProps>(({
                 <h2 className="font-extrabold text-2xl text-gray-900 leading-tight tracking-tight">{headerTitle || 'Stanza'}</h2>
                 {showOnlineCount && (
                   <div className="flex items-center gap-1.5">
-                    <span className={`w-2 h-2 rounded-full ${isOnline ? 'bg-emerald-500' : 'bg-red-500'}`}></span>
-                    <p className="text-[11px] font-bold text-emerald-600 uppercase tracking-wide">
+                    <span className={`w-2 h-2 rounded-full ${isOnline ? 'bg-primary' : 'bg-red-500'}`}></span>
+                    <p className="text-[11px] font-bold text-primary uppercase tracking-wide">
                       {isOnline ? `${onlineCount} persone qui` : 'Disconnesso'}
                     </p>
                   </div>
@@ -229,12 +229,12 @@ const GlobalChat = memo<GlobalChatProps>(({
               </div>
             </div>
             {isSyncing && (
-              <div className="flex items-center gap-1.5 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-100 animate-pulse">
-                <svg className="animate-spin h-3 w-3 text-emerald-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <div className="flex items-center gap-1.5 bg-primary/10 px-2.5 py-1 rounded-full border border-primary/20 animate-pulse">
+                <svg className="animate-spin h-3 w-3 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                <span className="text-[10px] font-bold text-emerald-700 tracking-wide uppercase">Sincronizzazione</span>
+                <span className="text-[10px] font-bold text-primary tracking-wide uppercase">Sincronizzazione</span>
               </div>
             )}
           </div>

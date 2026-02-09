@@ -2,7 +2,7 @@
 import React, { useState, useMemo } from 'react';
 import { User, Message, Room } from '@/types';
 import { Megaphone, Hash } from 'lucide-react';
-import { Icon } from './Icon';
+import Icon from './Icon';
 
 interface PrivateChatSession {
     peer: User;
@@ -103,7 +103,7 @@ export function UnifiedChatList({
                         <input
                             type="text"
                             placeholder="Cerca chat e stanze..."
-                            className="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-xl leading-5 bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent sm:text-sm transition-all"
+                            className="block w-full pl-10 pr-3 py-2 rounded-xl leading-5 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-transparent sm:text-sm transition-all"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
@@ -123,7 +123,7 @@ export function UnifiedChatList({
                                 key={filter.id}
                                 onClick={() => setActiveFilter(filter.id as FilterType)}
                                 className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${activeFilter === filter.id
-                                    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+                                    ? 'bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary'
                                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-400'
                                     }`}
                             >
@@ -154,12 +154,12 @@ export function UnifiedChatList({
                                     key={room.id}
                                     onClick={() => onSelectRoom(room.id)}
                                     className={`w-full flex items-center p-3 rounded-xl transition-all ${isActive
-                                        ? 'bg-emerald-50 text-gray-900 dark:bg-emerald-900/20 dark:text-gray-100'
+                                        ? 'bg-primary/5 text-gray-900 dark:bg-primary/10 dark:text-gray-100'
                                         : 'hover:bg-gray-50 text-gray-900 dark:hover:bg-gray-800 dark:text-gray-300'
                                         }`}
                                 >
                                     <div className={`w-12 h-12 rounded-full mr-3 shrink-0 flex items-center justify-center ${isActive
-                                        ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400'
+                                        ? 'bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary'
                                         : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'
                                         }`}>
                                         <RoomIcon size={20} />
@@ -172,8 +172,8 @@ export function UnifiedChatList({
                                     </div>
 
                                     {!isAnnouncement && (roomOnlineCounts[room.id] > 0) && (
-                                        <div className="ml-2 min-w-[20px] h-5 px-1.5 bg-emerald-500 rounded-full flex items-center justify-center shrink-0">
-                                            <span className="text-[10px] font-bold text-white leading-none">
+                                        <div className="ml-2 min-w-[20px] h-5 px-1.5 bg-primary/10 text-primary rounded-full flex items-center justify-center shrink-0">
+                                            <span className="text-[10px] font-bold leading-none">
                                                 {roomOnlineCounts[room.id] > 99 ? '99+' : roomOnlineCounts[room.id]}
                                             </span>
                                         </div>
@@ -202,13 +202,13 @@ export function UnifiedChatList({
                                     key={chat.peer.id}
                                     onClick={() => onSelectChat(chat.peer.id)}
                                     className={`w-full flex items-center p-3 rounded-xl transition-all ${isActive
-                                        ? 'bg-emerald-50 text-gray-900'
+                                        ? 'bg-primary/5 text-gray-900'
                                         : 'hover:bg-gray-50 text-gray-900'
                                         }`}
                                 >
                                     <div className={`w-12 h-12 rounded-full ${getAvatarColor(chat.peer.gender)} flex items-center justify-center text-white shrink-0 mr-3 relative shadow-sm`}>
                                         <span className="font-bold text-lg uppercase">{chat.peer.alias.charAt(0)}</span>
-                                        <div className={`absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-white ${onlineUserIds.includes(chat.peer.id) ? 'bg-emerald-500' : 'bg-red-400'}`} />
+                                        <div className={`absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-white ${onlineUserIds.includes(chat.peer.id) ? 'bg-primary' : 'bg-red-400'}`} />
                                     </div>
 
                                     <div className="flex-1 text-left min-w-0">
@@ -219,7 +219,7 @@ export function UnifiedChatList({
                                         <div className="flex justify-between items-center">
                                             <p className="text-sm text-gray-500 truncate flex-1 pr-2">{getLastMessage(chat.messages)}</p>
                                             {chat.unreadCount > 0 && (
-                                                <div className="min-w-[20px] h-5 px-1.5 bg-emerald-500 rounded-full flex items-center justify-center shrink-0">
+                                                <div className="min-w-[20px] h-5 px-1.5 bg-primary rounded-full flex items-center justify-center shrink-0">
                                                     <span className="text-[10px] font-bold text-white leading-none">{chat.unreadCount}</span>
                                                 </div>
                                             )}
