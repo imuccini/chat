@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { User, Gender } from '@/types';
+import { Icon } from './Icon';
 
 interface UserListProps {
     currentUser: User;
@@ -36,18 +37,16 @@ const UserList: React.FC<UserListProps> = ({ currentUser, users, onStartChat }) 
 
                 {/* Search Bar */}
                 <div className="px-4 pb-3">
-                    <div className="relative group">
+                    <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-400 group-focus-within:text-emerald-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
+                            <Icon name="Search_Magnifying_Glass" className="h-4 w-4 text-gray-400" />
                         </div>
                         <input
                             type="text"
                             placeholder="Cerca utente per nome..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full pl-9 pr-10 py-2 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all text-sm"
+                            className="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-xl leading-5 bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent sm:text-sm transition-all"
                         />
                         {searchQuery && (
                             <button

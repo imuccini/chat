@@ -16,9 +16,8 @@ import Login from './Login';
 import GlobalChat from './GlobalChat';
 import BottomNav from './BottomNav';
 import UserList from './UserList';
-import ChatList from './ChatList';
 import Settings from './Settings';
-import { RoomList } from './RoomList';
+import { UnifiedChatList } from './UnifiedChatList';
 import { useSwipeBack } from '@/hooks/useSwipeBack';
 import { useMembership } from '@/hooks/useMembership';
 import { useKeyboardAnimation } from '@/hooks/useKeyboardAnimation';
@@ -29,7 +28,7 @@ interface ChatInterfaceProps {
     initialMessages: Message[];
 }
 
-type Tab = 'room' | 'users' | 'chats' | 'settings' | 'admin';
+type Tab = 'chats' | 'users' | 'settings' | 'admin';
 type PrivateChatsMap = Record<string, { peer: User; messages: Message[]; unread: number }>;
 
 // Helper for generating unique IDs (fallback for non-secure contexts)
@@ -55,7 +54,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
     const { isKeyboardVisible, contentStyle: keyboardContentStyle } = useKeyboardAnimation();
 
     // UI State
-    const [activeTab, setActiveTab] = useState<Tab>('room');
+    const [activeTab, setActiveTab] = useState<Tab>('chats');
     const [activeRoomId, setActiveRoomId] = useState<string | null>(null);
     const [selectedChatPeerId, setSelectedChatPeerId] = useState<string | null>(null);
     // isInputFocused is now driven by keyboard visibility for native, or input focus for web
@@ -209,7 +208,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
     // Dynamic background for native
     useEffect(() => {
         if (!Capacitor.isNativePlatform()) return;
-        const color = (activeTab === 'room' || !!selectedChatPeerId) ? '#e5ddd5' : '#ffffff';
+        const color = (activeTab === 'chats' && (!!activeRoomId || !!selectedChatPeerId)) ? '#e5ddd5' : '#ffffff';
         document.body.style.backgroundColor = color;
         document.documentElement.style.backgroundColor = color;
     }, [activeTab, selectedChatPeerId, currentUser]);
@@ -381,7 +380,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
         sqliteService.clearMessages();
         queryClient.setQueryData(['messages', 'global', tenant.slug], initialMessages);
         setSelectedChatPeerId(null);
-        setActiveTab('room');
+        setActiveTab('chats');
     };
 
     const handleUpdateAlias = (newAlias: string) => {
@@ -434,6 +433,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
     const handleStartChat = (peer: User) => {
         if (!privateChats[peer.id]) setPrivateChats(prev => ({ ...prev, [peer.id]: { peer, messages: [], unread: 0 } }));
         setSelectedChatPeerId(peer.id);
+        setActiveRoomId(null);
         setActiveTab('chats');
     };
 
@@ -443,14 +443,9 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
     };
 
     // 4. Swipe Back Logic (Native Only)
-    const isRoomChatOpen = !!activeRoomId && activeTab === 'room';
-    const isPrivateChatOpen = !!selectedChatPeerId; // Simplified as 'chats' tab check implied if id is set? Actually id can be set even if tab switched, but usually we define open state.
-    // Actually original logic:
-    // Private chat only showed if activeTab === 'chats' ??
-    // Line 451: if (selectedChatPeerId && activeTab === 'chats')
-    // Line 476: {activeTab === 'room' && activeRoomId && ...}
-    // So yes, strictly tied to tabs.
-    const isChatOpen = (isRoomChatOpen || (isPrivateChatOpen && activeTab === 'chats'));
+    const isRoomChatOpen = !!activeRoomId && activeTab === 'chats';
+    const isPrivateChatOpen = !!selectedChatPeerId && activeTab === 'chats';
+    const isChatOpen = isRoomChatOpen || isPrivateChatOpen;
 
     const handleSwipeComplete = useCallback(() => {
         if (selectedChatPeerId) setSelectedChatPeerId(null);
@@ -484,15 +479,26 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
             <div className="absolute inset-0 z-0">
                 <div className="flex flex-col w-full h-full">
                     <div className="flex-1 overflow-hidden relative">
-                        {activeTab === 'room' && <RoomList rooms={tenant.rooms || []} onSelectRoom={setActiveRoomId} activeRoomId={activeRoomId || undefined} roomOnlineCounts={roomOnlineCounts} />}
+                        {activeTab === 'chats' && (
+                            <UnifiedChatList
+                                rooms={tenant.rooms || []}
+                                privateChats={Object.values(privateChats).map(c => ({ ...c, unreadCount: c.unread })).sort((a, b) => (b.messages.length ? new Date(b.messages[b.messages.length - 1].timestamp).getTime() : 0) - (a.messages.length ? new Date(a.messages[b.messages.length - 1].timestamp).getTime() : 0))}
+                                activeRoomId={activeRoomId || undefined}
+                                selectedChatPeerId={selectedChatPeerId || null}
+                                roomOnlineCounts={roomOnlineCounts}
+                                onlineUserIds={onlineUserIds}
+                                onSelectRoom={(id) => { setActiveRoomId(id); setSelectedChatPeerId(null); }}
+                                onSelectChat={(id) => { setSelectedChatPeerId(id); setActiveRoomId(null); }}
+                                onDeleteChat={handleDeleteChat}
+                            />
+                        )}
                         {activeTab === 'users' && <UserList currentUser={currentUser} users={onlineUsers} onStartChat={handleStartChat} />}
-                        {activeTab === 'chats' && <ChatList chats={Object.values(privateChats).map(c => ({ ...c, unreadCount: c.unread })).sort((a, b) => (b.messages.length ? new Date(b.messages[b.messages.length - 1].timestamp).getTime() : 0) - (a.messages.length ? new Date(a.messages[b.messages.length - 1].timestamp).getTime() : 0))} onSelectChat={setSelectedChatPeerId} onDeleteChat={handleDeleteChat} onlineUserIds={onlineUserIds} />}
                         {activeTab === 'settings' && <Settings user={currentUser} onLogout={handleLogout} onUpdateAlias={handleUpdateAlias} onUpdateStatus={handleUpdateStatus} tenantId={tenant.id} />}
                     </div>
 
                     {/* Bottom Nav - Part of Base Layer */}
                     <div className={`border-t border-gray-100 bg-white z-20 overflow-hidden`}>
-                        <BottomNav activeTab={activeTab} onTabChange={(t) => { if (t === 'admin') { window.location.href = '/admin/dashboard'; return; } setActiveTab(t); setSelectedChatPeerId(null); if (t !== 'room') setActiveRoomId(null); }} usersCount={onlineUsers.length} unreadChatsCount={totalUnread} tenantId={tenant.id} />
+                        <BottomNav activeTab={activeTab} onTabChange={(t) => { if (t === 'admin') { window.location.href = '/admin/dashboard'; return; } setActiveTab(t); if (t !== 'chats') { setSelectedChatPeerId(null); setActiveRoomId(null); } }} usersCount={onlineUsers.length} unreadChatsCount={totalUnread} tenantId={tenant.id} />
                     </div>
                 </div>
 
