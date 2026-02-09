@@ -81,9 +81,9 @@ export function RoomManagement({ tenantId, tenantName }: RoomManagementProps) {
             if (val) loadRooms();
         }}>
             <DialogTrigger asChild>
-                <Button variant="ghost" size="sm" className="w-full justify-start font-normal">
-                    <MessageSquare className="mr-2 h-4 w-4" />
-                    Manage Rooms
+                <Button variant="ghost" size="icon" className="h-8 w-8 p-0">
+                    <span className="sr-only">Manage Rooms</span>
+                    <MessageSquare className="h-4 w-4" />
                 </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[500px]">

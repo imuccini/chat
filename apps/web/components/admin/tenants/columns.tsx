@@ -23,6 +23,7 @@ export type TenantWithDevices = Tenant & {
 
 import { EditTenantDialog } from "./TenantDialogs"
 import { MemberManagement } from "./MemberManagement"
+import { RoomManagement } from "./RoomManagement"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 
@@ -97,6 +98,7 @@ export const columns: ColumnDef<TenantWithDevices>[] = [
             return (
                 <div className="flex items-center gap-2">
                     <MemberManagement tenant={tenant} />
+                    <RoomManagement tenantId={tenant.id} tenantName={tenant.name} />
                     <EditTenantDialog open={showEdit} onOpenChange={setShowEdit} tenant={tenant} />
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
