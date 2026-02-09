@@ -17,8 +17,10 @@ model Tenant {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  bssid    String?
-  staticIp String?
+  bssid     String?
+  staticIp  String?
+  latitude  Float?
+  longitude Float?
 
   members  TenantMember[]
   messages Message[]

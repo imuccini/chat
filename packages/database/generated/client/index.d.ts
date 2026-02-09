@@ -1915,8 +1915,20 @@ export namespace Prisma {
 
   export type AggregateTenant = {
     _count: TenantCountAggregateOutputType | null
+    _avg: TenantAvgAggregateOutputType | null
+    _sum: TenantSumAggregateOutputType | null
     _min: TenantMinAggregateOutputType | null
     _max: TenantMaxAggregateOutputType | null
+  }
+
+  export type TenantAvgAggregateOutputType = {
+    latitude: number | null
+    longitude: number | null
+  }
+
+  export type TenantSumAggregateOutputType = {
+    latitude: number | null
+    longitude: number | null
   }
 
   export type TenantMinAggregateOutputType = {
@@ -1928,6 +1940,8 @@ export namespace Prisma {
     updatedAt: Date | null
     bssid: string | null
     staticIp: string | null
+    latitude: number | null
+    longitude: number | null
   }
 
   export type TenantMaxAggregateOutputType = {
@@ -1939,6 +1953,8 @@ export namespace Prisma {
     updatedAt: Date | null
     bssid: string | null
     staticIp: string | null
+    latitude: number | null
+    longitude: number | null
   }
 
   export type TenantCountAggregateOutputType = {
@@ -1951,9 +1967,21 @@ export namespace Prisma {
     updatedAt: number
     bssid: number
     staticIp: number
+    latitude: number
+    longitude: number
     _all: number
   }
 
+
+  export type TenantAvgAggregateInputType = {
+    latitude?: true
+    longitude?: true
+  }
+
+  export type TenantSumAggregateInputType = {
+    latitude?: true
+    longitude?: true
+  }
 
   export type TenantMinAggregateInputType = {
     id?: true
@@ -1964,6 +1992,8 @@ export namespace Prisma {
     updatedAt?: true
     bssid?: true
     staticIp?: true
+    latitude?: true
+    longitude?: true
   }
 
   export type TenantMaxAggregateInputType = {
@@ -1975,6 +2005,8 @@ export namespace Prisma {
     updatedAt?: true
     bssid?: true
     staticIp?: true
+    latitude?: true
+    longitude?: true
   }
 
   export type TenantCountAggregateInputType = {
@@ -1987,6 +2019,8 @@ export namespace Prisma {
     updatedAt?: true
     bssid?: true
     staticIp?: true
+    latitude?: true
+    longitude?: true
     _all?: true
   }
 
@@ -2028,6 +2062,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: TenantAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: TenantSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: TenantMinAggregateInputType
@@ -2058,6 +2104,8 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: TenantCountAggregateInputType | true
+    _avg?: TenantAvgAggregateInputType
+    _sum?: TenantSumAggregateInputType
     _min?: TenantMinAggregateInputType
     _max?: TenantMaxAggregateInputType
   }
@@ -2072,7 +2120,11 @@ export namespace Prisma {
     updatedAt: Date
     bssid: string | null
     staticIp: string | null
+    latitude: number | null
+    longitude: number | null
     _count: TenantCountAggregateOutputType | null
+    _avg: TenantAvgAggregateOutputType | null
+    _sum: TenantSumAggregateOutputType | null
     _min: TenantMinAggregateOutputType | null
     _max: TenantMaxAggregateOutputType | null
   }
@@ -2101,6 +2153,8 @@ export namespace Prisma {
     updatedAt?: boolean
     bssid?: boolean
     staticIp?: boolean
+    latitude?: boolean
+    longitude?: boolean
     members?: boolean | Tenant$membersArgs<ExtArgs>
     messages?: boolean | Tenant$messagesArgs<ExtArgs>
     rooms?: boolean | Tenant$roomsArgs<ExtArgs>
@@ -2119,6 +2173,8 @@ export namespace Prisma {
     updatedAt?: boolean
     bssid?: boolean
     staticIp?: boolean
+    latitude?: boolean
+    longitude?: boolean
   }, ExtArgs["result"]["tenant"]>
 
   export type TenantSelectScalar = {
@@ -2131,6 +2187,8 @@ export namespace Prisma {
     updatedAt?: boolean
     bssid?: boolean
     staticIp?: boolean
+    latitude?: boolean
+    longitude?: boolean
   }
 
   export type TenantInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2162,6 +2220,8 @@ export namespace Prisma {
       updatedAt: Date
       bssid: string | null
       staticIp: string | null
+      latitude: number | null
+      longitude: number | null
     }, ExtArgs["result"]["tenant"]>
     composites: {}
   }
@@ -2569,6 +2629,8 @@ export namespace Prisma {
     readonly updatedAt: FieldRef<"Tenant", 'DateTime'>
     readonly bssid: FieldRef<"Tenant", 'String'>
     readonly staticIp: FieldRef<"Tenant", 'String'>
+    readonly latitude: FieldRef<"Tenant", 'Float'>
+    readonly longitude: FieldRef<"Tenant", 'Float'>
   }
     
 
@@ -12981,7 +13043,9 @@ export namespace Prisma {
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
     bssid: 'bssid',
-    staticIp: 'staticIp'
+    staticIp: 'staticIp',
+    latitude: 'latitude',
+    longitude: 'longitude'
   };
 
   export type TenantScalarFieldEnum = (typeof TenantScalarFieldEnum)[keyof typeof TenantScalarFieldEnum]
@@ -13217,6 +13281,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Float'
+   */
+  export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+    
+
+
+  /**
+   * Reference to a field of type 'Float[]'
+   */
+  export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
+    
+
+
+  /**
    * Reference to a field of type 'Boolean'
    */
   export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
@@ -13277,20 +13355,6 @@ export namespace Prisma {
    */
   export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
     
-
-
-  /**
-   * Reference to a field of type 'Float'
-   */
-  export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
-    
-
-
-  /**
-   * Reference to a field of type 'Float[]'
-   */
-  export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
-    
   /**
    * Deep Input Types
    */
@@ -13309,6 +13373,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Tenant"> | Date | string
     bssid?: StringNullableFilter<"Tenant"> | string | null
     staticIp?: StringNullableFilter<"Tenant"> | string | null
+    latitude?: FloatNullableFilter<"Tenant"> | number | null
+    longitude?: FloatNullableFilter<"Tenant"> | number | null
     members?: TenantMemberListRelationFilter
     messages?: MessageListRelationFilter
     rooms?: RoomListRelationFilter
@@ -13326,6 +13392,8 @@ export namespace Prisma {
     updatedAt?: SortOrder
     bssid?: SortOrderInput | SortOrder
     staticIp?: SortOrderInput | SortOrder
+    latitude?: SortOrderInput | SortOrder
+    longitude?: SortOrderInput | SortOrder
     members?: TenantMemberOrderByRelationAggregateInput
     messages?: MessageOrderByRelationAggregateInput
     rooms?: RoomOrderByRelationAggregateInput
@@ -13346,6 +13414,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Tenant"> | Date | string
     bssid?: StringNullableFilter<"Tenant"> | string | null
     staticIp?: StringNullableFilter<"Tenant"> | string | null
+    latitude?: FloatNullableFilter<"Tenant"> | number | null
+    longitude?: FloatNullableFilter<"Tenant"> | number | null
     members?: TenantMemberListRelationFilter
     messages?: MessageListRelationFilter
     rooms?: RoomListRelationFilter
@@ -13363,9 +13433,13 @@ export namespace Prisma {
     updatedAt?: SortOrder
     bssid?: SortOrderInput | SortOrder
     staticIp?: SortOrderInput | SortOrder
+    latitude?: SortOrderInput | SortOrder
+    longitude?: SortOrderInput | SortOrder
     _count?: TenantCountOrderByAggregateInput
+    _avg?: TenantAvgOrderByAggregateInput
     _max?: TenantMaxOrderByAggregateInput
     _min?: TenantMinOrderByAggregateInput
+    _sum?: TenantSumOrderByAggregateInput
   }
 
   export type TenantScalarWhereWithAggregatesInput = {
@@ -13381,6 +13455,8 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"Tenant"> | Date | string
     bssid?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
     staticIp?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
+    latitude?: FloatNullableWithAggregatesFilter<"Tenant"> | number | null
+    longitude?: FloatNullableWithAggregatesFilter<"Tenant"> | number | null
   }
 
   export type NasDeviceWhereInput = {
@@ -14157,6 +14233,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     bssid?: string | null
     staticIp?: string | null
+    latitude?: number | null
+    longitude?: number | null
     members?: TenantMemberCreateNestedManyWithoutTenantInput
     messages?: MessageCreateNestedManyWithoutTenantInput
     rooms?: RoomCreateNestedManyWithoutTenantInput
@@ -14174,6 +14252,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     bssid?: string | null
     staticIp?: string | null
+    latitude?: number | null
+    longitude?: number | null
     members?: TenantMemberUncheckedCreateNestedManyWithoutTenantInput
     messages?: MessageUncheckedCreateNestedManyWithoutTenantInput
     rooms?: RoomUncheckedCreateNestedManyWithoutTenantInput
@@ -14191,6 +14271,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bssid?: NullableStringFieldUpdateOperationsInput | string | null
     staticIp?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     members?: TenantMemberUpdateManyWithoutTenantNestedInput
     messages?: MessageUpdateManyWithoutTenantNestedInput
     rooms?: RoomUpdateManyWithoutTenantNestedInput
@@ -14208,6 +14290,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bssid?: NullableStringFieldUpdateOperationsInput | string | null
     staticIp?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     members?: TenantMemberUncheckedUpdateManyWithoutTenantNestedInput
     messages?: MessageUncheckedUpdateManyWithoutTenantNestedInput
     rooms?: RoomUncheckedUpdateManyWithoutTenantNestedInput
@@ -14225,6 +14309,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     bssid?: string | null
     staticIp?: string | null
+    latitude?: number | null
+    longitude?: number | null
   }
 
   export type TenantUpdateManyMutationInput = {
@@ -14237,6 +14323,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bssid?: NullableStringFieldUpdateOperationsInput | string | null
     staticIp?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
   }
 
   export type TenantUncheckedUpdateManyInput = {
@@ -14249,6 +14337,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bssid?: NullableStringFieldUpdateOperationsInput | string | null
     staticIp?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
   }
 
   export type NasDeviceCreateInput = {
@@ -15153,6 +15243,17 @@ export namespace Prisma {
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
 
+  export type FloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
   export type TenantMemberListRelationFilter = {
     every?: TenantMemberWhereInput
     some?: TenantMemberWhereInput
@@ -15218,6 +15319,13 @@ export namespace Prisma {
     updatedAt?: SortOrder
     bssid?: SortOrder
     staticIp?: SortOrder
+    latitude?: SortOrder
+    longitude?: SortOrder
+  }
+
+  export type TenantAvgOrderByAggregateInput = {
+    latitude?: SortOrder
+    longitude?: SortOrder
   }
 
   export type TenantMaxOrderByAggregateInput = {
@@ -15229,6 +15337,8 @@ export namespace Prisma {
     updatedAt?: SortOrder
     bssid?: SortOrder
     staticIp?: SortOrder
+    latitude?: SortOrder
+    longitude?: SortOrder
   }
 
   export type TenantMinOrderByAggregateInput = {
@@ -15240,6 +15350,13 @@ export namespace Prisma {
     updatedAt?: SortOrder
     bssid?: SortOrder
     staticIp?: SortOrder
+    latitude?: SortOrder
+    longitude?: SortOrder
+  }
+
+  export type TenantSumOrderByAggregateInput = {
+    latitude?: SortOrder
+    longitude?: SortOrder
   }
 
   export type StringWithAggregatesFilter<$PrismaModel = never> = {
@@ -15315,6 +15432,22 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedDateTimeFilter<$PrismaModel>
     _max?: NestedDateTimeFilter<$PrismaModel>
+  }
+
+  export type FloatNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedFloatNullableFilter<$PrismaModel>
+    _min?: NestedFloatNullableFilter<$PrismaModel>
+    _max?: NestedFloatNullableFilter<$PrismaModel>
   }
 
   export type TenantRelationFilter = {
@@ -15948,6 +16081,14 @@ export namespace Prisma {
     set?: Date | string
   }
 
+  export type NullableFloatFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
   export type TenantMemberUpdateManyWithoutTenantNestedInput = {
     create?: XOR<TenantMemberCreateWithoutTenantInput, TenantMemberUncheckedCreateWithoutTenantInput> | TenantMemberCreateWithoutTenantInput[] | TenantMemberUncheckedCreateWithoutTenantInput[]
     connectOrCreate?: TenantMemberCreateOrConnectWithoutTenantInput | TenantMemberCreateOrConnectWithoutTenantInput[]
@@ -16571,6 +16712,17 @@ export namespace Prisma {
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
 
+  export type NestedFloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
   export type NestedStringWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -16661,6 +16813,22 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedDateTimeFilter<$PrismaModel>
     _max?: NestedDateTimeFilter<$PrismaModel>
+  }
+
+  export type NestedFloatNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedFloatNullableFilter<$PrismaModel>
+    _min?: NestedFloatNullableFilter<$PrismaModel>
+    _max?: NestedFloatNullableFilter<$PrismaModel>
   }
 
   export type NestedBoolNullableFilter<$PrismaModel = never> = {
@@ -17104,6 +17272,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     bssid?: string | null
     staticIp?: string | null
+    latitude?: number | null
+    longitude?: number | null
     members?: TenantMemberCreateNestedManyWithoutTenantInput
     messages?: MessageCreateNestedManyWithoutTenantInput
     rooms?: RoomCreateNestedManyWithoutTenantInput
@@ -17120,6 +17290,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     bssid?: string | null
     staticIp?: string | null
+    latitude?: number | null
+    longitude?: number | null
     members?: TenantMemberUncheckedCreateNestedManyWithoutTenantInput
     messages?: MessageUncheckedCreateNestedManyWithoutTenantInput
     rooms?: RoomUncheckedCreateNestedManyWithoutTenantInput
@@ -17152,6 +17324,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bssid?: NullableStringFieldUpdateOperationsInput | string | null
     staticIp?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     members?: TenantMemberUpdateManyWithoutTenantNestedInput
     messages?: MessageUpdateManyWithoutTenantNestedInput
     rooms?: RoomUpdateManyWithoutTenantNestedInput
@@ -17168,6 +17342,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bssid?: NullableStringFieldUpdateOperationsInput | string | null
     staticIp?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     members?: TenantMemberUncheckedUpdateManyWithoutTenantNestedInput
     messages?: MessageUncheckedUpdateManyWithoutTenantNestedInput
     rooms?: RoomUncheckedUpdateManyWithoutTenantNestedInput
@@ -17702,6 +17878,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     bssid?: string | null
     staticIp?: string | null
+    latitude?: number | null
+    longitude?: number | null
     messages?: MessageCreateNestedManyWithoutTenantInput
     rooms?: RoomCreateNestedManyWithoutTenantInput
     logs?: SystemLogCreateNestedManyWithoutTenantInput
@@ -17718,6 +17896,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     bssid?: string | null
     staticIp?: string | null
+    latitude?: number | null
+    longitude?: number | null
     messages?: MessageUncheckedCreateNestedManyWithoutTenantInput
     rooms?: RoomUncheckedCreateNestedManyWithoutTenantInput
     logs?: SystemLogUncheckedCreateNestedManyWithoutTenantInput
@@ -17797,6 +17977,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bssid?: NullableStringFieldUpdateOperationsInput | string | null
     staticIp?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     messages?: MessageUpdateManyWithoutTenantNestedInput
     rooms?: RoomUpdateManyWithoutTenantNestedInput
     logs?: SystemLogUpdateManyWithoutTenantNestedInput
@@ -17813,6 +17995,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bssid?: NullableStringFieldUpdateOperationsInput | string | null
     staticIp?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     messages?: MessageUncheckedUpdateManyWithoutTenantNestedInput
     rooms?: RoomUncheckedUpdateManyWithoutTenantNestedInput
     logs?: SystemLogUncheckedUpdateManyWithoutTenantNestedInput
@@ -17829,6 +18013,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     bssid?: string | null
     staticIp?: string | null
+    latitude?: number | null
+    longitude?: number | null
     members?: TenantMemberCreateNestedManyWithoutTenantInput
     messages?: MessageCreateNestedManyWithoutTenantInput
     logs?: SystemLogCreateNestedManyWithoutTenantInput
@@ -17845,6 +18031,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     bssid?: string | null
     staticIp?: string | null
+    latitude?: number | null
+    longitude?: number | null
     members?: TenantMemberUncheckedCreateNestedManyWithoutTenantInput
     messages?: MessageUncheckedCreateNestedManyWithoutTenantInput
     logs?: SystemLogUncheckedCreateNestedManyWithoutTenantInput
@@ -17913,6 +18101,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bssid?: NullableStringFieldUpdateOperationsInput | string | null
     staticIp?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     members?: TenantMemberUpdateManyWithoutTenantNestedInput
     messages?: MessageUpdateManyWithoutTenantNestedInput
     logs?: SystemLogUpdateManyWithoutTenantNestedInput
@@ -17929,6 +18119,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bssid?: NullableStringFieldUpdateOperationsInput | string | null
     staticIp?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     members?: TenantMemberUncheckedUpdateManyWithoutTenantNestedInput
     messages?: MessageUncheckedUpdateManyWithoutTenantNestedInput
     logs?: SystemLogUncheckedUpdateManyWithoutTenantNestedInput
@@ -18025,6 +18217,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     bssid?: string | null
     staticIp?: string | null
+    latitude?: number | null
+    longitude?: number | null
     members?: TenantMemberCreateNestedManyWithoutTenantInput
     rooms?: RoomCreateNestedManyWithoutTenantInput
     logs?: SystemLogCreateNestedManyWithoutTenantInput
@@ -18041,6 +18235,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     bssid?: string | null
     staticIp?: string | null
+    latitude?: number | null
+    longitude?: number | null
     members?: TenantMemberUncheckedCreateNestedManyWithoutTenantInput
     rooms?: RoomUncheckedCreateNestedManyWithoutTenantInput
     logs?: SystemLogUncheckedCreateNestedManyWithoutTenantInput
@@ -18149,6 +18345,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bssid?: NullableStringFieldUpdateOperationsInput | string | null
     staticIp?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     members?: TenantMemberUpdateManyWithoutTenantNestedInput
     rooms?: RoomUpdateManyWithoutTenantNestedInput
     logs?: SystemLogUpdateManyWithoutTenantNestedInput
@@ -18165,6 +18363,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bssid?: NullableStringFieldUpdateOperationsInput | string | null
     staticIp?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     members?: TenantMemberUncheckedUpdateManyWithoutTenantNestedInput
     rooms?: RoomUncheckedUpdateManyWithoutTenantNestedInput
     logs?: SystemLogUncheckedUpdateManyWithoutTenantNestedInput
@@ -18181,6 +18381,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     bssid?: string | null
     staticIp?: string | null
+    latitude?: number | null
+    longitude?: number | null
     members?: TenantMemberCreateNestedManyWithoutTenantInput
     messages?: MessageCreateNestedManyWithoutTenantInput
     rooms?: RoomCreateNestedManyWithoutTenantInput
@@ -18197,6 +18399,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     bssid?: string | null
     staticIp?: string | null
+    latitude?: number | null
+    longitude?: number | null
     members?: TenantMemberUncheckedCreateNestedManyWithoutTenantInput
     messages?: MessageUncheckedCreateNestedManyWithoutTenantInput
     rooms?: RoomUncheckedCreateNestedManyWithoutTenantInput
@@ -18229,6 +18433,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bssid?: NullableStringFieldUpdateOperationsInput | string | null
     staticIp?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     members?: TenantMemberUpdateManyWithoutTenantNestedInput
     messages?: MessageUpdateManyWithoutTenantNestedInput
     rooms?: RoomUpdateManyWithoutTenantNestedInput
@@ -18245,6 +18451,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bssid?: NullableStringFieldUpdateOperationsInput | string | null
     staticIp?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
     members?: TenantMemberUncheckedUpdateManyWithoutTenantNestedInput
     messages?: MessageUncheckedUpdateManyWithoutTenantNestedInput
     rooms?: RoomUncheckedUpdateManyWithoutTenantNestedInput

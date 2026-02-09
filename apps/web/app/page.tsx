@@ -4,9 +4,13 @@ import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { clientResolveTenant } from "@/services/apiService";
 import { Capacitor } from "@capacitor/core";
+import { CapacitorWifi } from '@capgo/capacitor-wifi';
 import { checkAndRequestLocationPermissions, getConnectedWifiInfo } from "@/lib/wifi";
 import TenantChatClient from "@/app/[...slug]/TenantChatClient";
 import { DiscoveryScreen } from "@/components/DiscoveryScreen";
+import { SearchSpacesScreen } from "@/components/SearchSpacesScreen";
+import { AutoConnectScreen } from "@/components/AutoConnectScreen";
+import { Wifi, MapPin, ChevronRight, BellRing, Sparkles } from "lucide-react";
 
 type InitState = 'loading' | 'permission_denied' | 'wifi_disconnected' | 'tenant_not_found' | 'error';
 
@@ -16,67 +20,96 @@ function HomeContent() {
     const [state, setState] = useState<InitState>('loading');
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [resolvedSlug, setResolvedSlug] = useState<string | null>(null);
+    const [showMap, setShowMap] = useState(false);
+    const [showAutoConnect, setShowAutoConnect] = useState(false);
 
     useEffect(() => {
+        let isCancelled = false;
+
         async function init() {
             try {
                 const startTime = Date.now();
                 const isNative = Capacitor.isNativePlatform();
-
                 const nasId = searchParams.get('nas_id') || undefined;
-                let bssid: string | undefined = undefined;
 
-                // Native app: attempt to get BSSID, but don't block if failed
-                if (isNative) {
-                    try {
-                        const wifiCheckPromise = async () => {
-                            const hasPermission = await checkAndRequestLocationPermissions();
-                            if (hasPermission) {
-                                const wifiInfo = await getConnectedWifiInfo();
-                                if (wifiInfo.isConnected && wifiInfo.bssid) {
-                                    bssid = wifiInfo.bssid;
+                // 1. Definition of the polling/initialization logic
+                const performPolling = async (): Promise<string | null> => {
+                    const pollInterval = 2000;
+                    const maxDuration = 10000;
+
+                    while (Date.now() - startTime < maxDuration && !isCancelled) {
+                        let bssid: string | undefined = undefined;
+
+                        if (isNative) {
+                            try {
+                                // Passive attempt: attempt connection but with short timeout
+                                await Promise.race([
+                                    CapacitorWifi.connect({
+                                        ssid: "Local - WiFi",
+                                        password: "localwifisicuro",
+                                    }),
+                                    new Promise((_, reject) => setTimeout(() => reject('timeout'), 2000))
+                                ]).catch(() => { });
+
+                                // Get BSSID
+                                const hasPermission = await checkAndRequestLocationPermissions();
+                                if (hasPermission) {
+                                    const wifiInfo = await getConnectedWifiInfo();
+                                    if (wifiInfo.isConnected && wifiInfo.bssid) {
+                                        bssid = wifiInfo.bssid;
+                                    }
                                 }
+                            } catch (e) {
+                                console.warn("[page] Native poll step failed:", e);
                             }
-                        };
+                        }
 
-                        const timeoutPromise = new Promise((_, reject) =>
-                            setTimeout(() => reject(new Error("Timeout")), 1500)
-                        );
+                        // Resolve tenant
+                        const slug = await clientResolveTenant(nasId, bssid);
+                        if (slug) return slug;
 
-                        await Promise.race([wifiCheckPromise(), timeoutPromise]);
-
-                    } catch (e) {
-                        console.warn("WiFi detection skipped or failed:", e);
+                        // Wait for next poll
+                        await new Promise(resolve => setTimeout(resolve, pollInterval));
                     }
-                }
+                    return null;
+                };
 
-                // Resolve tenant
-                const tenantSlug = await clientResolveTenant(nasId, bssid);
+                // 2. Guaranteed hard safety timeout (10.5 seconds to be safe)
+                const safetyTimeout = new Promise<null>((resolve) =>
+                    setTimeout(() => {
+                        console.warn("[page] Safety timeout reached. Breaking out.");
+                        resolve(null);
+                    }, 10500)
+                );
 
-                // Artificial delay to show the "Discovery" animation (min 2 seconds total)
-                const elapsed = Date.now() - startTime;
-                if (elapsed < 2000) {
-                    await new Promise(resolve => setTimeout(resolve, 2000 - elapsed));
-                }
+                // Race for the result
+                const resolvedSlug = await Promise.race([performPolling(), safetyTimeout]);
 
-                if (tenantSlug) {
+                if (isCancelled) return;
+
+                if (resolvedSlug) {
+                    // Artificial delay to show the "Discovery" animation (min 2 seconds total)
+                    const elapsed = Date.now() - startTime;
+                    if (elapsed < 2000) {
+                        await new Promise(resolve => setTimeout(resolve, 2000 - elapsed));
+                    }
+
                     if (isNative) {
-                        // On native, render TenantChatClient directly to avoid routing loop
-                        setResolvedSlug(tenantSlug);
+                        setResolvedSlug(resolvedSlug);
                     } else {
-                        // On web, use normal Next.js routing
-                        router.replace(`/${tenantSlug}`);
+                        router.replace(`/${resolvedSlug}`);
                     }
                 } else {
                     setState('tenant_not_found');
                 }
             } catch (err: any) {
                 console.error("Failed to resolve tenant", err);
-                setErrorMessage("Errore durante l'identificazione dello spazio chat.");
-                setState('error');
+                setState('tenant_not_found');
             }
         }
+
         init();
+        return () => { isCancelled = true; };
     }, [router, searchParams]);
 
     // If tenant is resolved on native, render TenantChatClient directly
@@ -89,79 +122,73 @@ function HomeContent() {
         return <DiscoveryScreen />;
     }
 
-    // Error states
+    if (showMap) {
+        return <SearchSpacesScreen onBack={() => setShowMap(false)} />;
+    }
+
+    if (showAutoConnect) {
+        return <AutoConnectScreen onBack={() => setShowAutoConnect(false)} />;
+    }
+
+    // Error states (Instruction Screen)
     return (
-        <div className="h-screen w-full flex flex-col bg-white overflow-y-auto">
+        <div className="h-screen w-full flex flex-col bg-white overflow-hidden">
             {/* Header Content */}
-            <div className="flex-1 flex flex-col items-center justify-center p-6 pt-12 pb-8">
-                <div className="w-20 h-20 mb-8 rounded-full overflow-hidden flex items-center justify-center bg-white shadow-sm ring-4 ring-white">
+            <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
+                <div className="w-24 h-24 mb-6 rounded-3xl overflow-hidden flex items-center justify-center bg-white shadow-sm ring-1 ring-gray-100">
                     <img src="/local_logo.svg" alt="Local Logo" className="w-full h-full object-contain p-4" />
                 </div>
 
-                <h1 className="text-3xl font-extrabold text-gray-900 mb-3 text-center">
+                <h1 className="text-3xl font-black text-gray-900 mb-2">
                     Sei quasi dei nostri!
                 </h1>
-                <p className="text-gray-500 text-center max-w-[280px] mb-10 font-medium leading-relaxed">
-                    Per entrare nella chat, devi trovarti in uno dei nostri spazi partner.
+                <p className="text-gray-500 font-medium max-w-[280px] mb-12">
+                    Per entrare in Local devi trovarti in uno degli spazi aderenti.
                 </p>
 
                 {/* Instruction Card */}
-                <div className="w-full max-w-sm bg-gray-50 rounded-3xl p-6 border border-gray-100 shadow-sm mb-8">
-                    <div className="flex items-start gap-4 mb-6">
-                        <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
-                            <svg className="w-6 h-6 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M5 12.55a11 11 0 0 1 14.08 0" />
-                                <path d="M1.42 9a16 16 0 0 1 21.16 0" />
-                                <path d="M8.59 16.11a6 6 0 0 1 6.82 0" />
-                                <line x1="12" y1="20" x2="12.01" y2="20" />
-                            </svg>
+                <div className="w-full max-w-sm px-4">
+                    <div className="flex flex-col items-center gap-4 py-8 px-6 bg-gray-50 rounded-[40px] border border-gray-100/50">
+                        <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
+                            <Wifi className="w-8 h-8 text-primary" strokeWidth={2.5} />
                         </div>
-                        <div className="flex flex-col gap-4 text-[0.95rem] text-gray-700 leading-snug">
-                            <div className="flex gap-3">
-                                <span className="font-bold text-primary shrink-0">1.</span>
-                                <span>Assicurati che il Wi-Fi del tuo dispositivo sia attivo.</span>
-                            </div>
-                            <div className="flex gap-3">
-                                <span className="font-bold text-primary shrink-0">2.</span>
-                                <span>Cerca e connettiti alla rete: <span className="font-bold text-gray-900">"Local - [Nome del locale]"</span>.</span>
-                            </div>
-                            <div className="flex gap-3">
-                                <span className="font-bold text-primary shrink-0">3.</span>
-                                <span>Una volta connesso clicca su "riprova" se non entri in automatico!</span>
-                            </div>
+                        <p className="text-gray-900 font-bold leading-snug">
+                            Cerca e connettiti ad una rete WiFi <span className="text-primary">"Local - WiFi"</span>
+                        </p>
+
+                        <div className="pt-2">
+                            <button
+                                onClick={() => setShowAutoConnect(true)}
+                                className="bg-primary text-white px-6 py-2 rounded-full text-sm font-bold flex items-center gap-2 hover:bg-primary/90 transition-all shadow-md active:scale-95"
+                            >
+                                <Sparkles className="w-4 h-4" />
+                                Connettimi in automatico
+                            </button>
                         </div>
                     </div>
-
-                    <button
-                        onClick={() => window.location.reload()}
-                        className="w-full py-4 bg-primary text-white rounded-2xl font-bold hover:bg-primary/90 transition-all shadow-lg active:scale-[0.98]"
-                    >
-                        Riprova
-                    </button>
                 </div>
             </div>
 
-            {/* Branded Footer Card */}
-            <div className="p-4 safe-bottom">
-                <div className="relative h-32 w-full rounded-3xl overflow-hidden shadow-md group border border-gray-100">
-                    {/* Map Background */}
-                    <div
-                        className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
-                        style={{ backgroundImage: 'url("/map_footer.png")' }}
-                    />
-                    {/* Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-white/90 via-white/40 to-transparent" />
+            {/* Branded Footer Banner */}
+            <div className="p-6 pt-2 safe-bottom">
+                <button
+                    onClick={() => setShowMap(true)}
+                    className="w-full h-24 bg-gray-900 rounded-[32px] p-4 flex items-center gap-4 relative overflow-hidden group active:scale-[0.98] transition-transform"
+                >
+                    {/* Abstract background hints */}
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 blur-3xl -mr-16 -mt-16" />
 
-                    {/* Content */}
-                    <div className="absolute inset-0 flex flex-col items-center justify-center">
-                        <span className="text-[0.65rem] text-gray-400 uppercase tracking-[0.2em] font-bold mb-0.5">
-                            Localy di
-                        </span>
-                        <span className="text-xl font-black text-gray-900 tracking-tight">
-                            Local
-                        </span>
+                    <div className="w-14 h-14 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center shrink-0 border border-white/10">
+                        <MapPin className="w-7 h-7 text-white" />
                     </div>
-                </div>
+
+                    <div className="flex-1 text-left">
+                        <h3 className="text-white font-bold text-lg">Scopri le location</h3>
+                        <p className="text-white/50 text-sm font-medium">Trova tutti gli spazi Local</p>
+                    </div>
+
+                    <ChevronRight className="w-6 h-6 text-white/30 group-hover:text-white/60 transition-colors mr-2" />
+                </button>
             </div>
         </div>
     );

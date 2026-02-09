@@ -19,6 +19,8 @@ model Tenant {
 
   bssid     String?
   staticIp  String?
+  latitude  Float?
+  longitude Float?
 
   members   TenantMember[]
   messages  Message[]

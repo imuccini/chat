@@ -131,7 +131,9 @@ exports.Prisma.TenantScalarFieldEnum = {
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   bssid: 'bssid',
-  staticIp: 'staticIp'
+  staticIp: 'staticIp',
+  latitude: 'latitude',
+  longitude: 'longitude'
 };
 
 exports.Prisma.NasDeviceScalarFieldEnum = {

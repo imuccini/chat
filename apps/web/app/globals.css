@@ -186,3 +186,12 @@ header {
     transform: translateY(0);
   }
 }
+
+@keyframes progress-fill {
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: 100%;
+  }
+}

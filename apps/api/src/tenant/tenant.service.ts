@@ -113,4 +113,20 @@ export class TenantService {
         });
         return session?.userId || null;
     }
+
+    /**
+     * Get all tenants with public info for discovery map
+     */
+    async findAllPublic(): Promise<any[]> {
+        return this.prisma.tenant.findMany({
+            select: {
+                id: true,
+                name: true,
+                slug: true,
+                logoUrl: true,
+                latitude: true,
+                longitude: true,
+            },
+        });
+    }
 }

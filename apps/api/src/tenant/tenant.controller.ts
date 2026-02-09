@@ -11,6 +11,11 @@ export class TenantController {
         private readonly jwtService: JwtService,
     ) { }
 
+    @Get()
+    async listTenants(): Promise<any[]> {
+        return this.tenantService.findAllPublic();
+    }
+
     @Get(':slug')
     async getTenant(@Param('slug') slug: string): Promise<any> {
         const tenant = await this.tenantService.findBySlug(slug);

@@ -7,17 +7,23 @@ async function main() {
         {
             name: "Treno Lucca-Aulla",
             slug: "treno-lucca-aulla",
-            nasId: "ae:b6:ac:f9:6e:1e"
+            nasId: "ae:b6:ac:f9:6e:1e",
+            latitude: 43.8429,
+            longitude: 10.5027
         },
         {
             name: "Pisa Centrale",
             slug: "pisa-centrale",
-            nasId: "pisa-router-01"
+            nasId: "pisa-router-01",
+            latitude: 43.7228,
+            longitude: 10.3956
         },
         {
             name: "Demo Environment",
             slug: "demo",
-            nasId: "demo-nas-id"
+            nasId: "demo-nas-id",
+            latitude: 43.7696,
+            longitude: 11.2558
         }
     ];
 
@@ -30,6 +36,8 @@ async function main() {
             create: {
                 name: t.name,
                 slug: t.slug,
+                latitude: t.latitude,
+                longitude: t.longitude,
             },
         });
 

@@ -19,6 +19,8 @@ model Tenant {
   // Hardware logic for Double-Lock security
   bssid     String?  // Router BSSID
   staticIp  String?  // Fixed Public IP of the location
+  latitude  Float?
+  longitude Float?
 
   members   TenantMember[]
   messages  Message[]
