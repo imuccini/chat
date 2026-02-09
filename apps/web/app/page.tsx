@@ -172,20 +172,18 @@ function HomeContent() {
         <div className="h-screen w-full flex flex-col bg-white overflow-hidden">
             {/* Header Content */}
             <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
-                <div className="w-24 h-24 mb-6 rounded-3xl overflow-hidden flex items-center justify-center bg-white shadow-sm ring-1 ring-gray-100">
-                    <img src="/local_logo.svg" alt="Local Logo" className="w-full h-full object-contain p-4" />
-                </div>
+                <img src="/local_logo.svg" alt="Local Logo" className="w-20 h-20 mb-4 object-contain" />
 
                 <h1 className="text-3xl font-black text-gray-900 mb-2">
                     Sei quasi dei nostri!
                 </h1>
-                <p className="text-gray-500 font-medium max-w-[280px] mb-12">
+                <p className="text-gray-500 font-medium max-w-[280px] mb-8">
                     Per entrare in Local devi trovarti in uno degli spazi aderenti.
                 </p>
 
                 {/* Instruction Card */}
-                <div className="w-full max-w-sm px-4">
-                    <div className="flex flex-col items-center gap-4 py-8 px-6 bg-gray-50 rounded-[40px] border border-gray-100/50">
+                <div className="w-full max-w-sm px-4 mx-auto">
+                    <div className="flex flex-col items-center gap-4 py-6 px-6 bg-gray-50 rounded-[40px] border border-gray-100/50">
                         <button
                             onClick={() => {
                                 Haptics.impact({ style: ImpactStyle.Medium });
@@ -221,7 +219,7 @@ function HomeContent() {
             </div>
 
             {/* Branded Footer Banner */}
-            <div className="p-6 pt-2 safe-bottom">
+            <div className="w-full max-w-sm mx-auto px-4 pb-12 pt-0 safe-bottom">
                 <button
                     onClick={() => setShowMap(true)}
                     className="w-full h-24 bg-gray-900 rounded-[32px] p-4 flex items-center gap-4 relative overflow-hidden group active:scale-[0.98] transition-transform"

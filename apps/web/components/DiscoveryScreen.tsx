@@ -34,7 +34,7 @@ export function DiscoveryScreen() {
                     </div>
 
                     {/* Centered Logo Circle */}
-                    <div className="relative z-10 w-32 h-32 rounded-full overflow-hidden flex items-center justify-center animate-fade-slide-up bg-white shadow-xl ring-4 ring-white">
+                    <div className="relative z-10 w-32 h-32 rounded-full overflow-hidden flex items-center justify-center animate-fade-slide-up bg-white/70">
                         <div className="relative w-full h-full">
                             <Image
                                 src="/local_logo.svg"
