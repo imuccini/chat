@@ -12,7 +12,7 @@ interface SettingsProps {
 }
 
 const Settings: React.FC<SettingsProps> = ({ user, onLogout, onUpdateAlias, onUpdateStatus, tenantId }) => {
-    const { isAdmin, isModerator } = useMembership(tenantId);
+    const { isAdmin, isModerator } = useMembership(tenantId, user.id);
     const [isEditingAlias, setIsEditingAlias] = useState(false);
     const [isEditingStatus, setIsEditingStatus] = useState(false);
     const [newAlias, setNewAlias] = useState(user.alias);

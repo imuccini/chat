@@ -47,23 +47,20 @@ export async function POST(
     const origin = request.headers.get('origin');
 
     try {
-        // 1. Authorize User
-        // We import dynamically to avoid issues with edge runtime if used, though this is node runtime
-        const { authorizeTenant, isGlobalAdmin } = await import('@/lib/authorize');
-        const { getAuthFromHeaders } = await import('@/lib/auth');
+        // 1. Resolve session (handles both BetterAuth and OTP-created sessions)
+        const { resolveSession } = await import('@/lib/session');
+        const { authorizeTenant } = await import('@/lib/authorize');
         const { headers } = await import('next/headers');
 
         const hList = await headers();
-        const dynamicAuth = await getAuthFromHeaders(hList);
-        const session = await dynamicAuth.api.getSession({ headers: hList });
-        const user = session?.user;
+        const resolved = await resolveSession(hList);
+        const user = resolved?.user;
 
         if (!user) {
             return withCors(NextResponse.json({ error: 'Unauthorized' }, { status: 401 }), origin);
         }
 
-        // Get tenant ID from slug (we might need to fetch it first or trust if passed in body, 
-        // but authorizeTenant takes ID. Let's fetch tenant by slug first using prisma directly strictly for Auth check)
+        // 2. Fetch tenant and check admin authorization
         const { prisma } = await import('@/lib/db');
         const tenant = await prisma.tenant.findUnique({ where: { slug } });
 
@@ -80,23 +77,18 @@ export async function POST(
             return withCors(NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 }), origin);
         }
 
-        // 2. Forward Request to Backend
-        // Always use localhost for server-side API calls
-        const apiUrl = 'http://localhost:3001';
-        const fullUrl = `${apiUrl}/api/tenants/${slug}`;
-
+        // 3. Perform update directly via Prisma (avoids NestJS auth round-trip)
         const body = await request.json();
+        const updateData: { name?: string; logoUrl?: string } = {};
+        if (body.name) updateData.name = body.name;
+        if (body.logoUrl !== undefined) updateData.logoUrl = body.logoUrl;
 
-        const response = await fetch(fullUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ ...body, id: tenant.id }), // Ensure ID is passed
+        const updated = await prisma.tenant.update({
+            where: { id: tenant.id },
+            data: updateData,
         });
 
-        const data = await response.json();
-        const res = NextResponse.json(data, { status: response.ok ? 200 : response.status });
+        const res = NextResponse.json(updated);
         return withCors(res, origin);
 
     } catch (error) {

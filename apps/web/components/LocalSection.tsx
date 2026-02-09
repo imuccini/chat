@@ -159,13 +159,20 @@ function EditTenantDialog({ tenant, open, onOpenChange, token }: { tenant: Tenan
                 });
             }
 
-            // Direct fetch to Backend API
+            // On web: uses Next.js proxy (same-origin, auth via cookies)
+            // On native: uses NestJS directly (auth via session token in header)
+            const isNative = typeof window !== 'undefined' && window.location.protocol === 'capacitor:';
+            const fetchHeaders: Record<string, string> = {
+                'Content-Type': 'application/json',
+            };
+            if (isNative && token) {
+                fetchHeaders['Authorization'] = `Bearer ${token}`;
+            }
+
             const response = await fetch(`${API_BASE_URL}/api/tenants/${tenant.slug}`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
+                headers: fetchHeaders,
+                credentials: 'include',
                 body: JSON.stringify({
                     id: tenant.id,
                     name,

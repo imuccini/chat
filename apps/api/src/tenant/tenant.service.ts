@@ -95,12 +95,22 @@ export class TenantService {
     async isTenantAdmin(userId: string, tenantId: string): Promise<boolean> {
         const member = await this.prisma.tenantMember.findUnique({
             where: {
-                tenantId_userId: {
-                    tenantId,
+                userId_tenantId: {
                     userId,
+                    tenantId,
                 },
             },
         });
         return member?.role === 'ADMIN' || member?.role === 'OWNER';
+    }
+
+    /**
+     * Resolve a user ID from a session token (for auth without JWT)
+     */
+    async resolveUserFromToken(token: string): Promise<string | null> {
+        const session = await this.prisma.session.findFirst({
+            where: { token, expiresAt: { gt: new Date() } },
+        });
+        return session?.userId || null;
     }
 }

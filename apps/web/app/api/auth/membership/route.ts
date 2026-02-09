@@ -3,7 +3,7 @@ import { authorizeTenant } from "@/lib/authorize";
 import { NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { getCorsHeaders, handleOptions } from "@/lib/cors";
-import { getAuthFromHeaders } from "@/lib/auth";
+import { resolveSession } from "@/lib/session";
 
 export async function OPTIONS(req: Request) {
     return handleOptions(req);
@@ -22,15 +22,12 @@ export async function GET(request: Request) {
     const h = request.headers;
     const cookieHeader = h.get("cookie") || "";
 
-    // Use Better Auth to get session (robust against cookie names/prefixes)
-    const auth = await getAuthFromHeaders(h);
-    const session = await auth.api.getSession({
-        headers: h
-    });
+    // Resolve session: tries BetterAuth first, then falls back to direct cookie+Prisma lookup
+    const resolved = await resolveSession(h);
 
-    console.log("[API Membership] TenantId:", tenantId);
+    console.log("[API Membership] TenantId:", tenantId, "User:", resolved?.user?.id);
 
-    if (!session?.user) {
+    if (!resolved?.user) {
         return withCors(NextResponse.json({
             isMember: false,
             isAuthorized: false,
@@ -40,6 +37,8 @@ export async function GET(request: Request) {
             }
         }), origin);
     }
+
+    const session = { user: resolved.user };
 
 
     // Get public IP for Double-Lock

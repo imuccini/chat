@@ -45,16 +45,25 @@ export class TenantController {
     ): Promise<any> {
         if (!auth) throw new UnauthorizedException();
         const token = auth.replace('Bearer ', '');
-        let payload: any;
+
+        // Try JWT first, then fall back to session token lookup
+        let userId: string | undefined;
         try {
-            payload = this.jwtService.verify(token, {
+            const payload = this.jwtService.verify(token, {
                 secret: process.env.BETTER_AUTH_SECRET,
             });
+            userId = payload.sub || payload.id;
         } catch {
-            throw new UnauthorizedException('Invalid token');
+            // Not a JWT — try as a session token
+            const resolvedUserId = await this.tenantService.resolveUserFromToken(token);
+            if (resolvedUserId) {
+                userId = resolvedUserId;
+            }
         }
 
-        const userId = payload.sub || payload.id;
+        if (!userId) {
+            throw new UnauthorizedException('Invalid token');
+        }
 
         let tenantId = body.id;
         if (!tenantId) {
