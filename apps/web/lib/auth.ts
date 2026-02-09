@@ -42,6 +42,14 @@ export const getAuth = (origin: string) => {
         secret: process.env.BETTER_AUTH_SECRET,
         baseURL: baseURL,
         debug: true,
+        session: {
+            expiresIn: 60 * 60 * 24 * 30, // 30 days
+            updateAge: 60 * 60 * 24, // Refresh session expiry every 24 hours
+            cookieCache: {
+                enabled: true,
+                maxAge: 60 * 5 // 5 min client-side cache for instant reads
+            }
+        },
         plugins: [
             passkey({
                 rpID,

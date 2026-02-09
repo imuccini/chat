@@ -73,6 +73,19 @@ export async function authorizeTenant(userId: string, tenantId: string, context:
 
     // 2. Hardware-Context Validation (Double-Lock)
     // If tenant has BSSID or staticIp configured, we MUST match at least one if provided
+    // BUT: Tenant Admins/Owners can bypass this check (remote management)
+
+    const isTenantAdmin = membership?.role === 'ADMIN' || membership?.role === 'OWNER'; // Assuming OWNER exists in enum or logic, strictly generic logic here confirms ADMIN
+
+    if (isTenantAdmin) {
+        console.log("[authorizeTenant] Hardware check bypassed for Tenant Admin:", userId);
+        return {
+            tenant,
+            membership,
+            isSuperadmin: false
+        };
+    }
+
     const hasHardwareConstraints = !!((tenant as any).bssid || (tenant as any).staticIp);
     console.log("[authorizeTenant] Has constraints:", hasHardwareConstraints);
 

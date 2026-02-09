@@ -81,4 +81,26 @@ export class TenantService {
             include: { tenant: true },
         });
     }
+
+    /**
+     * Update tenant details
+     */
+    async update(id: string, data: { name?: string; logoUrl?: string }): Promise<Prisma.TenantGetPayload<{}>> {
+        return this.prisma.tenant.update({
+            where: { id },
+            data,
+        });
+    }
+
+    async isTenantAdmin(userId: string, tenantId: string): Promise<boolean> {
+        const member = await this.prisma.tenantMember.findUnique({
+            where: {
+                tenantId_userId: {
+                    tenantId,
+                    userId,
+                },
+            },
+        });
+        return member?.role === 'ADMIN' || member?.role === 'OWNER';
+    }
 }

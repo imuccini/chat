@@ -255,6 +255,19 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         }
         this.lastMessageTime.set(socket.id, now);
 
+        // Security: Check for Announcement Room restrictions
+        if (message.roomId) {
+            const room = await this.prisma.room.findUnique({ where: { id: message.roomId } });
+            if (room?.type === 'ANNOUNCEMENT') {
+                const canModerate = await this.tenantService.canModerate(socket.data.user.id, userData.tenantSlug);
+                if (!canModerate) {
+                    this.logger.warn(`[handleMessage] Unauthorized attempt to post to ANNOUNCEMENT room ${message.roomId} by user ${socket.data.user.id}`);
+                    socket.emit('error', { message: 'Only admins can post in this room' });
+                    return;
+                }
+            }
+        }
+
         // Sanitize text
         const sanitizedText = this.sanitizeText(message.text);
         if (!sanitizedText) {

@@ -3,6 +3,7 @@ import { authorizeTenant } from "@/lib/authorize";
 import { NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { getCorsHeaders, handleOptions } from "@/lib/cors";
+import { getAuthFromHeaders } from "@/lib/auth";
 
 export async function OPTIONS(req: Request) {
     return handleOptions(req);
@@ -21,27 +22,11 @@ export async function GET(request: Request) {
     const h = request.headers;
     const cookieHeader = h.get("cookie") || "";
 
-    // Extract better-auth.session_token from cookie manually
-    const sessionTokenMatch = cookieHeader.match(/better-auth\.session_token=([^;]+)/);
-    const sessionToken = sessionTokenMatch ? decodeURIComponent(sessionTokenMatch[1]) : null;
-
-    console.log("[API Membership] Raw Cookie:", cookieHeader.substring(0, 100) + "...");
-    console.log("[API Membership] Extracted Token:", sessionToken?.substring(0, 30) + "...");
-
-    // Query session directly with Prisma (bypassing better-auth)
-    let session: any = null;
-    if (sessionToken) {
-        const dbSession = await prisma.session.findFirst({
-            where: { token: sessionToken },
-            include: { user: true }
-        });
-        if (dbSession && dbSession.expiresAt > new Date()) {
-            session = { user: dbSession.user, session: dbSession };
-            console.log("[API Membership] Session found via Prisma:", dbSession.user?.id);
-        } else {
-            console.log("[API Membership] Session not found or expired");
-        }
-    }
+    // Use Better Auth to get session (robust against cookie names/prefixes)
+    const auth = await getAuthFromHeaders(h);
+    const session = await auth.api.getSession({
+        headers: h
+    });
 
     console.log("[API Membership] TenantId:", tenantId);
 
@@ -51,7 +36,6 @@ export async function GET(request: Request) {
             isAuthorized: false,
             debug: {
                 hasCookie: !!cookieHeader,
-                hasToken: !!sessionToken,
                 host: h.get("host")
             }
         }), origin);

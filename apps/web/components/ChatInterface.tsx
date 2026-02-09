@@ -44,7 +44,15 @@ const generateId = () => {
 };
 
 export default function ChatInterface({ tenant, initialMessages }: ChatInterfaceProps) {
-    const [currentUser, setCurrentUser] = useState<User | null>(null);
+    const [currentUser, setCurrentUser] = useState<User | null>(() => {
+        if (typeof window !== 'undefined') {
+            try {
+                const saved = localStorage.getItem('chat_user');
+                if (saved) return JSON.parse(saved);
+            } catch {}
+        }
+        return null;
+    });
     const [socket, setSocket] = useState<Socket | null>(null);
     const { data: session, isPending: isSessionLoading } = useSession();
     // New state to block UI until we have definitively checked both main and backup session sources
@@ -105,12 +113,12 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
         initialData: activeRoomId ? undefined : initialMessages,
     });
 
-    // 2. Initialize User from Session (Robust Logic)
+    // 2. Sync user data from BetterAuth session (updates localStorage user with fresh server data)
     useEffect(() => {
         if (isSessionLoading) return;
 
-        const restoreUser = async () => {
-            // 1. Check Standard Session
+        const syncSession = async () => {
+            // 1. If BetterAuth session is valid, use it as the source of truth
             if (session?.user) {
                 const isWaiting = localStorage.getItem('waiting_for_passkey') === 'true';
                 if (isWaiting) {
@@ -133,10 +141,16 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                 return;
             }
 
-            // 2. Check Backup Session (if standard failed)
-            // This handles the case where useSession returns null but server has session (incognito/refresh issues)
+            // 2. No BetterAuth session — if we already have a user from localStorage, keep them
+            const savedUser = localStorage.getItem('chat_user');
+            if (savedUser) {
+                setIsRestoringSession(false);
+                return;
+            }
+
+            // 3. No session AND no localStorage — try backup endpoint as last resort
             try {
-                console.log("[ChatInterface] Checking backup session...");
+                console.log("[ChatInterface] No session or localStorage user, checking backup...");
                 const url = Capacitor.isNativePlatform()
                     ? `${SERVER_URL}/api/debug-session`
                     : '/api/debug-session';
@@ -164,47 +178,35 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
             }
         };
 
-        restoreUser();
+        syncSession();
     }, [session, isSessionLoading]);
 
-    // Restore data on mount & whenever session state changes
+    // Restore private chats from SQLite on native + set platform class
     useEffect(() => {
-        if (typeof window !== 'undefined' && !isSessionLoading) {
-            const savedUser = localStorage.getItem('chat_user');
-            if (savedUser && !session) {
-                try {
-                    const user = JSON.parse(savedUser);
-                    console.log("[ChatInterface] Restoring guest user from localStorage:", user.alias);
-                    setCurrentUser(user);
-
-                    if (Capacitor.isNativePlatform()) {
-                        sqliteService.getPrivateChats(user.id).then(chats => {
-                            if (chats.length > 0) {
-                                const restoredChats: PrivateChatsMap = {};
-                                for (const chat of chats) {
-                                    const lastMsg = chat.messages[chat.messages.length - 1];
-                                    restoredChats[chat.peerId] = {
-                                        peer: {
-                                            id: chat.peerId,
-                                            alias: lastMsg.senderId === user.id ? 'Chat' : lastMsg.senderAlias,
-                                            gender: lastMsg.senderId === user.id ? 'other' : lastMsg.senderGender,
-                                            joinedAt: Date.now()
-                                        },
-                                        messages: chat.messages,
-                                        unread: 0
-                                    };
-                                }
-                                setPrivateChats(restoredChats);
-                            }
-                        });
-                    }
-                } catch (e) {
-                    console.error("[ChatInterface] Failed to restore user:", e);
-                }
-            }
-        }
         document.documentElement.classList.add(`platform-${Capacitor.getPlatform()}`);
-    }, [tenant.slug, isSessionLoading, session]);
+
+        if (currentUser && Capacitor.isNativePlatform()) {
+            sqliteService.getPrivateChats(currentUser.id).then(chats => {
+                if (chats.length > 0) {
+                    const restoredChats: PrivateChatsMap = {};
+                    for (const chat of chats) {
+                        const lastMsg = chat.messages[chat.messages.length - 1];
+                        restoredChats[chat.peerId] = {
+                            peer: {
+                                id: chat.peerId,
+                                alias: lastMsg.senderId === currentUser.id ? 'Chat' : lastMsg.senderAlias,
+                                gender: lastMsg.senderId === currentUser.id ? 'other' : lastMsg.senderGender,
+                                joinedAt: Date.now()
+                            },
+                            messages: chat.messages,
+                            unread: 0
+                        };
+                    }
+                    setPrivateChats(restoredChats);
+                }
+            });
+        }
+    }, [tenant.slug, currentUser?.id]);
 
     // Dynamic background for native
     useEffect(() => {
@@ -495,7 +497,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                             />
                         )}
                         {activeTab === 'users' && <UserList currentUser={currentUser} users={onlineUsers} onStartChat={handleStartChat} />}
-                        {activeTab === 'local' && <LocalSection tenant={tenant} />}
+                        {activeTab === 'local' && <LocalSection tenant={tenant} isAdmin={isAdmin} token={session?.session?.id} />}
                         {activeTab === 'settings' && <Settings user={currentUser} onLogout={handleLogout} onUpdateAlias={handleUpdateAlias} onUpdateStatus={handleUpdateStatus} tenantId={tenant.id} />}
                     </div>
 
