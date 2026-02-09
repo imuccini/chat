@@ -37,7 +37,8 @@ export const clientResolveTenant = async (urlNasId?: string, bssid?: string): Pr
 };
 
 export const clientGetTenantBySlug = async (slug: string) => {
-    const res = await fetch(`${API_BASE_URL}/api/tenants/${slug}`);
+    // Add cache: 'no-store' to prevent iOS/Capacitor from caching the GET request aggressively
+    const res = await fetch(`${API_BASE_URL}/api/tenants/${slug}`, { cache: 'no-store' });
     if (!res.ok) return null;
     return await res.json();
 };
@@ -47,7 +48,8 @@ export const clientGetMessages = async (tenantSlug: string, roomId?: string, ten
     if (roomId) params.append('roomId', roomId);
     if (tenantId) params.append('tenantId', tenantId);
 
-    const res = await fetch(`${API_BASE_URL}/api/messages?${params.toString()}`);
+    // Add cache: 'no-store' to ensure we always get the latest messages
+    const res = await fetch(`${API_BASE_URL}/api/messages?${params.toString()}`, { cache: 'no-store' });
     if (!res.ok) return [];
     return await res.json();
 };

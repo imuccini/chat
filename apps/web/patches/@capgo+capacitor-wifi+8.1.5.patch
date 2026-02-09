@@ -1,0 +1,19 @@
+diff --git a/node_modules/@capgo/capacitor-wifi/android/build.gradle b/node_modules/@capgo/capacitor-wifi/android/build.gradle
+index 8e45856..7f56432 100644
+--- a/node_modules/@capgo/capacitor-wifi/android/build.gradle
++++ b/node_modules/@capgo/capacitor-wifi/android/build.gradle
+@@ -33,7 +33,7 @@
+     buildTypes {
+         release {
+             minifyEnabled false
+-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
++            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+         }
+     }
+     lintOptions {
+@@ -45,5 +45,4 @@
+ repositories {
+     google()
+-    jcenter()
+     mavenCentral()
+ }

@@ -41,3 +41,16 @@ index 29c0708..704b1cf 100644
    [self resetScrollView];
  
    NSString * data = [NSString stringWithFormat:@"{ 'keyboardHeight': %d }", (int)height];
+diff --git a/node_modules/@capacitor/keyboard/android/build.gradle b/node_modules/@capacitor/keyboard/android/build.gradle
+index e69de29..d69de29 100644
+--- a/node_modules/@capacitor/keyboard/android/build.gradle
++++ b/node_modules/@capacitor/keyboard/android/build.gradle
+@@ -42,7 +42,7 @@
+     buildTypes {
+         release {
+             minifyEnabled false
+-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
++            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+         }
+     }
+     lintOptions {
