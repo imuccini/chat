@@ -20,6 +20,7 @@ interface UnifiedChatListProps {
     onSelectRoom: (roomId: string) => void;
     onSelectChat: (peerId: string) => void;
     onDeleteChat: (peerId: string) => void;
+    tenantName: string;
 }
 
 type FilterType = 'all' | 'rooms' | 'private' | 'unread';
@@ -33,7 +34,8 @@ export function UnifiedChatList({
     onlineUserIds,
     onSelectRoom,
     onSelectChat,
-    onDeleteChat
+    onDeleteChat,
+    tenantName
 }: UnifiedChatListProps) {
     const [searchQuery, setSearchQuery] = useState('');
     const [activeFilter, setActiveFilter] = useState<FilterType>('all');
@@ -167,7 +169,11 @@ export function UnifiedChatList({
                                     <div className="flex-1 text-left min-w-0">
                                         <h3 className="font-bold text-base truncate">{room.name}</h3>
                                         <p className="text-sm text-gray-500 truncate dark:text-gray-400">
-                                            {room.description || (isAnnouncement ? 'Chat ufficiale' : 'Chat pubblica')}
+                                            {isAnnouncement ? (
+                                                <>Messaggi da <span className="font-bold">{tenantName}</span></>
+                                            ) : (
+                                                room.description || 'Chat pubblica'
+                                            )}
                                         </p>
                                     </div>
 

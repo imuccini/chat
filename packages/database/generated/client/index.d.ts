@@ -1923,6 +1923,7 @@ export namespace Prisma {
     id: string | null
     name: string | null
     slug: string | null
+    logoUrl: string | null
     createdAt: Date | null
     updatedAt: Date | null
     bssid: string | null
@@ -1933,6 +1934,7 @@ export namespace Prisma {
     id: string | null
     name: string | null
     slug: string | null
+    logoUrl: string | null
     createdAt: Date | null
     updatedAt: Date | null
     bssid: string | null
@@ -1944,6 +1946,7 @@ export namespace Prisma {
     name: number
     slug: number
     metadata: number
+    logoUrl: number
     createdAt: number
     updatedAt: number
     bssid: number
@@ -1956,6 +1959,7 @@ export namespace Prisma {
     id?: true
     name?: true
     slug?: true
+    logoUrl?: true
     createdAt?: true
     updatedAt?: true
     bssid?: true
@@ -1966,6 +1970,7 @@ export namespace Prisma {
     id?: true
     name?: true
     slug?: true
+    logoUrl?: true
     createdAt?: true
     updatedAt?: true
     bssid?: true
@@ -1977,6 +1982,7 @@ export namespace Prisma {
     name?: true
     slug?: true
     metadata?: true
+    logoUrl?: true
     createdAt?: true
     updatedAt?: true
     bssid?: true
@@ -2061,6 +2067,7 @@ export namespace Prisma {
     name: string
     slug: string
     metadata: JsonValue | null
+    logoUrl: string | null
     createdAt: Date
     updatedAt: Date
     bssid: string | null
@@ -2089,6 +2096,7 @@ export namespace Prisma {
     name?: boolean
     slug?: boolean
     metadata?: boolean
+    logoUrl?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     bssid?: boolean
@@ -2106,6 +2114,7 @@ export namespace Prisma {
     name?: boolean
     slug?: boolean
     metadata?: boolean
+    logoUrl?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     bssid?: boolean
@@ -2117,6 +2126,7 @@ export namespace Prisma {
     name?: boolean
     slug?: boolean
     metadata?: boolean
+    logoUrl?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     bssid?: boolean
@@ -2147,6 +2157,7 @@ export namespace Prisma {
       name: string
       slug: string
       metadata: Prisma.JsonValue | null
+      logoUrl: string | null
       createdAt: Date
       updatedAt: Date
       bssid: string | null
@@ -2553,6 +2564,7 @@ export namespace Prisma {
     readonly name: FieldRef<"Tenant", 'String'>
     readonly slug: FieldRef<"Tenant", 'String'>
     readonly metadata: FieldRef<"Tenant", 'Json'>
+    readonly logoUrl: FieldRef<"Tenant", 'String'>
     readonly createdAt: FieldRef<"Tenant", 'DateTime'>
     readonly updatedAt: FieldRef<"Tenant", 'DateTime'>
     readonly bssid: FieldRef<"Tenant", 'String'>
@@ -12953,6 +12965,7 @@ export namespace Prisma {
     name: 'name',
     slug: 'slug',
     metadata: 'metadata',
+    logoUrl: 'logoUrl',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
     bssid: 'bssid',
@@ -13278,6 +13291,7 @@ export namespace Prisma {
     name?: StringFilter<"Tenant"> | string
     slug?: StringFilter<"Tenant"> | string
     metadata?: JsonNullableFilter<"Tenant">
+    logoUrl?: StringNullableFilter<"Tenant"> | string | null
     createdAt?: DateTimeFilter<"Tenant"> | Date | string
     updatedAt?: DateTimeFilter<"Tenant"> | Date | string
     bssid?: StringNullableFilter<"Tenant"> | string | null
@@ -13294,6 +13308,7 @@ export namespace Prisma {
     name?: SortOrder
     slug?: SortOrder
     metadata?: SortOrderInput | SortOrder
+    logoUrl?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     bssid?: SortOrderInput | SortOrder
@@ -13313,6 +13328,7 @@ export namespace Prisma {
     NOT?: TenantWhereInput | TenantWhereInput[]
     name?: StringFilter<"Tenant"> | string
     metadata?: JsonNullableFilter<"Tenant">
+    logoUrl?: StringNullableFilter<"Tenant"> | string | null
     createdAt?: DateTimeFilter<"Tenant"> | Date | string
     updatedAt?: DateTimeFilter<"Tenant"> | Date | string
     bssid?: StringNullableFilter<"Tenant"> | string | null
@@ -13329,6 +13345,7 @@ export namespace Prisma {
     name?: SortOrder
     slug?: SortOrder
     metadata?: SortOrderInput | SortOrder
+    logoUrl?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     bssid?: SortOrderInput | SortOrder
@@ -13346,6 +13363,7 @@ export namespace Prisma {
     name?: StringWithAggregatesFilter<"Tenant"> | string
     slug?: StringWithAggregatesFilter<"Tenant"> | string
     metadata?: JsonNullableWithAggregatesFilter<"Tenant">
+    logoUrl?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Tenant"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Tenant"> | Date | string
     bssid?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
@@ -14116,6 +14134,7 @@ export namespace Prisma {
     name: string
     slug: string
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    logoUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     bssid?: string | null
@@ -14132,6 +14151,7 @@ export namespace Prisma {
     name: string
     slug: string
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    logoUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     bssid?: string | null
@@ -14148,6 +14168,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bssid?: NullableStringFieldUpdateOperationsInput | string | null
@@ -14164,6 +14185,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bssid?: NullableStringFieldUpdateOperationsInput | string | null
@@ -14180,6 +14202,7 @@ export namespace Prisma {
     name: string
     slug: string
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    logoUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     bssid?: string | null
@@ -14191,6 +14214,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bssid?: NullableStringFieldUpdateOperationsInput | string | null
@@ -14202,6 +14226,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bssid?: NullableStringFieldUpdateOperationsInput | string | null
@@ -15077,17 +15102,6 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
-  export type DateTimeFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeFilter<$PrismaModel> | Date | string
-  }
-
   export type StringNullableFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
     in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
@@ -15101,6 +15115,17 @@ export namespace Prisma {
     endsWith?: string | StringFieldRefInput<$PrismaModel>
     mode?: QueryMode
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
+  export type DateTimeFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
 
   export type TenantMemberListRelationFilter = {
@@ -15163,6 +15188,7 @@ export namespace Prisma {
     name?: SortOrder
     slug?: SortOrder
     metadata?: SortOrder
+    logoUrl?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     bssid?: SortOrder
@@ -15173,6 +15199,7 @@ export namespace Prisma {
     id?: SortOrder
     name?: SortOrder
     slug?: SortOrder
+    logoUrl?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     bssid?: SortOrder
@@ -15183,6 +15210,7 @@ export namespace Prisma {
     id?: SortOrder
     name?: SortOrder
     slug?: SortOrder
+    logoUrl?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     bssid?: SortOrder
@@ -15232,20 +15260,6 @@ export namespace Prisma {
     _max?: NestedJsonNullableFilter<$PrismaModel>
   }
 
-  export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedDateTimeFilter<$PrismaModel>
-    _max?: NestedDateTimeFilter<$PrismaModel>
-  }
-
   export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
     in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
@@ -15262,6 +15276,20 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedStringNullableFilter<$PrismaModel>
     _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
+  export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedDateTimeFilter<$PrismaModel>
+    _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
   export type TenantRelationFilter = {
@@ -15884,12 +15912,12 @@ export namespace Prisma {
     set?: string
   }
 
-  export type DateTimeFieldUpdateOperationsInput = {
-    set?: Date | string
-  }
-
   export type NullableStringFieldUpdateOperationsInput = {
     set?: string | null
+  }
+
+  export type DateTimeFieldUpdateOperationsInput = {
+    set?: Date | string
   }
 
   export type TenantMemberUpdateManyWithoutTenantNestedInput = {
@@ -16490,17 +16518,6 @@ export namespace Prisma {
     not?: NestedStringFilter<$PrismaModel> | string
   }
 
-  export type NestedDateTimeFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeFilter<$PrismaModel> | Date | string
-  }
-
   export type NestedStringNullableFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
     in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
@@ -16513,6 +16530,17 @@ export namespace Prisma {
     startsWith?: string | StringFieldRefInput<$PrismaModel>
     endsWith?: string | StringFieldRefInput<$PrismaModel>
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
+  export type NestedDateTimeFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
 
   export type NestedStringWithAggregatesFilter<$PrismaModel = never> = {
@@ -16576,20 +16604,6 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
-  export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedDateTimeFilter<$PrismaModel>
-    _max?: NestedDateTimeFilter<$PrismaModel>
-  }
-
   export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
     in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
@@ -16605,6 +16619,20 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedStringNullableFilter<$PrismaModel>
     _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
+  export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedDateTimeFilter<$PrismaModel>
+    _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
   export type NestedBoolNullableFilter<$PrismaModel = never> = {
@@ -17040,6 +17068,7 @@ export namespace Prisma {
     name: string
     slug: string
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    logoUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     bssid?: string | null
@@ -17055,6 +17084,7 @@ export namespace Prisma {
     name: string
     slug: string
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    logoUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     bssid?: string | null
@@ -17086,6 +17116,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bssid?: NullableStringFieldUpdateOperationsInput | string | null
@@ -17101,6 +17132,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bssid?: NullableStringFieldUpdateOperationsInput | string | null
@@ -17632,6 +17664,7 @@ export namespace Prisma {
     name: string
     slug: string
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    logoUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     bssid?: string | null
@@ -17647,6 +17680,7 @@ export namespace Prisma {
     name: string
     slug: string
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    logoUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     bssid?: string | null
@@ -17725,6 +17759,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bssid?: NullableStringFieldUpdateOperationsInput | string | null
@@ -17740,6 +17775,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bssid?: NullableStringFieldUpdateOperationsInput | string | null
@@ -17755,6 +17791,7 @@ export namespace Prisma {
     name: string
     slug: string
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    logoUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     bssid?: string | null
@@ -17770,6 +17807,7 @@ export namespace Prisma {
     name: string
     slug: string
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    logoUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     bssid?: string | null
@@ -17835,6 +17873,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bssid?: NullableStringFieldUpdateOperationsInput | string | null
@@ -17850,6 +17889,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bssid?: NullableStringFieldUpdateOperationsInput | string | null
@@ -17945,6 +17985,7 @@ export namespace Prisma {
     name: string
     slug: string
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    logoUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     bssid?: string | null
@@ -17960,6 +18001,7 @@ export namespace Prisma {
     name: string
     slug: string
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    logoUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     bssid?: string | null
@@ -18067,6 +18109,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bssid?: NullableStringFieldUpdateOperationsInput | string | null
@@ -18082,6 +18125,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bssid?: NullableStringFieldUpdateOperationsInput | string | null
@@ -18097,6 +18141,7 @@ export namespace Prisma {
     name: string
     slug: string
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    logoUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     bssid?: string | null
@@ -18112,6 +18157,7 @@ export namespace Prisma {
     name: string
     slug: string
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    logoUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     bssid?: string | null
@@ -18143,6 +18189,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bssid?: NullableStringFieldUpdateOperationsInput | string | null
@@ -18158,6 +18205,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bssid?: NullableStringFieldUpdateOperationsInput | string | null

@@ -9,6 +9,7 @@ lerna-debug.log*
 
 # Next.js
 .next/
+.turbo/
 out/
 build/
 

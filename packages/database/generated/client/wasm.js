@@ -127,6 +127,7 @@ exports.Prisma.TenantScalarFieldEnum = {
   name: 'name',
   slug: 'slug',
   metadata: 'metadata',
+  logoUrl: 'logoUrl',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   bssid: 'bssid',

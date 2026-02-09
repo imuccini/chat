@@ -1,7 +1,7 @@
 import { Icon } from './Icon';
 import { useMembership } from '@/hooks/useMembership';
 
-type Tab = 'chats' | 'users' | 'settings' | 'admin';
+type Tab = 'chats' | 'users' | 'local' | 'settings' | 'admin';
 
 interface BottomNavProps {
     activeTab: Tab;
@@ -42,6 +42,14 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange, usersCoun
                 <span className={`text-[10px] mt-1 ${activeTab === 'users' ? 'font-bold' : 'font-semibold'}`}>Utenti</span>
             </button>
 
+            {/* Tab 3: Local */}
+            <button
+                onClick={() => onTabChange('local')}
+                className={`flex flex-col items-center justify-center w-full relative ${activeTab === 'local' ? 'text-primary' : 'text-black'}`}
+            >
+                <Icon name="Building_01" className="h-6 w-6 md:h-7 md:w-7" />
+                <span className={`text-[10px] mt-1 ${activeTab === 'local' ? 'font-bold' : 'font-semibold'}`}>Local</span>
+            </button>
 
 
             {/* Tab 4: Settings */}

@@ -26,6 +26,7 @@ export interface Tenant {
   id: string;
   name: string;
   slug: string;
+  logoUrl?: string | null;
   config?: any;
   rooms?: Room[]; // Optional populated field
 }

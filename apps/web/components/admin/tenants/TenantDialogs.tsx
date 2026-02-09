@@ -60,6 +60,12 @@ export function CreateTenantDialog() {
                         </Label>
                         <Input id="slug" name="slug" className="col-span-3" required />
                     </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="logo" className="text-right">
+                            Logo
+                        </Label>
+                        <Input id="logo" name="logo" type="file" accept="image/*" className="col-span-3" />
+                    </div>
                     <div className="grid grid-cols-4 items-start gap-4">
                         <Label className="text-right pt-2">
                             NAS IDs
@@ -140,6 +146,10 @@ export function EditTenantDialog({ tenant, open, onOpenChange }: EditTenantProps
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="edit-slug" className="text-right">Slug</Label>
                         <Input id="edit-slug" name="slug" defaultValue={tenant.slug} className="col-span-3" />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="edit-logo" className="text-right">Logo</Label>
+                        <Input id="edit-logo" name="logo" type="file" accept="image/*" className="col-span-3" />
                     </div>
                     <div className="grid grid-cols-4 items-start gap-4">
                         <Label className="text-right pt-2">NAS IDs</Label>

@@ -6,6 +6,7 @@ import { clientResolveTenant } from "@/services/apiService";
 import { Capacitor } from "@capacitor/core";
 import { checkAndRequestLocationPermissions, getConnectedWifiInfo } from "@/lib/wifi";
 import TenantChatClient from "@/app/[...slug]/TenantChatClient";
+import { DiscoveryScreen } from "@/components/DiscoveryScreen";
 
 type InitState = 'loading' | 'permission_denied' | 'wifi_disconnected' | 'tenant_not_found' | 'error';
 
@@ -19,6 +20,7 @@ function HomeContent() {
     useEffect(() => {
         async function init() {
             try {
+                const startTime = Date.now();
                 const isNative = Capacitor.isNativePlatform();
 
                 const nasId = searchParams.get('nas_id') || undefined;
@@ -51,6 +53,12 @@ function HomeContent() {
                 // Resolve tenant
                 const tenantSlug = await clientResolveTenant(nasId, bssid);
 
+                // Artificial delay to show the "Discovery" animation (min 2 seconds total)
+                const elapsed = Date.now() - startTime;
+                if (elapsed < 2000) {
+                    await new Promise(resolve => setTimeout(resolve, 2000 - elapsed));
+                }
+
                 if (tenantSlug) {
                     if (isNative) {
                         // On native, render TenantChatClient directly to avoid routing loop
@@ -78,82 +86,90 @@ function HomeContent() {
 
     // Loading state
     if (state === 'loading') {
-        return (
-            <div className="h-screen w-full flex flex-col items-center justify-center bg-gray-50 p-4">
-                <div className="w-24 h-24 mb-6 flex items-center justify-center">
-                    <img src="/local_logo.svg" alt="Local Logo" className="w-full h-full object-contain animate-pulse" />
-                </div>
-                <div className="text-gray-400 font-medium">Inizializzazione in corso...</div>
-
-                <footer className="absolute bottom-6 w-full text-center">
-                    <p className="text-gray-400 text-xs font-medium">
-                        Powered by Local - Copyright 2025
-                    </p>
-                </footer>
-            </div>
-        );
+        return <DiscoveryScreen />;
     }
 
     // Error states
-    const errorConfig = {
-        permission_denied: {
-            title: "Permessi Richiesti",
-            message: "Per identificare la tua posizione, l'app ha bisogno del permesso di localizzazione.",
-            hint: "Vai nelle Impostazioni del telefono e abilita i permessi di localizzazione per TrenoChat."
-        },
-        wifi_disconnected: {
-            title: "WiFi Non Connesso",
-            message: "Devi essere connesso alla rete WiFi del locale per accedere alla chat.",
-            hint: "Connettiti al WiFi del treno o del locale e riprova."
-        },
-        tenant_not_found: {
-            title: "Accesso Negato",
-            message: "Impossibile identificare lo spazio chat.",
-            hint: "Assicurati di essere connesso al WiFi corretto (es. Treno WiFi)."
-        },
-        error: {
-            title: "Errore",
-            message: errorMessage || "Si è verificato un errore imprevisto.",
-            hint: "Riprova più tardi."
-        }
-    };
-
-    const config = errorConfig[state];
-
     return (
-        <div className="h-screen w-full flex items-center justify-center bg-gray-100 p-4">
-            <div className="text-center p-8 bg-white rounded-2xl shadow-lg max-w-md">
-                <div className="w-24 h-24 mx-auto mb-6 flex items-center justify-center">
-                    <img src="/local_logo.svg" alt="Local Logo" className="w-full h-full object-contain" />
+        <div className="h-screen w-full flex flex-col bg-white overflow-y-auto">
+            {/* Header Content */}
+            <div className="flex-1 flex flex-col items-center justify-center p-6 pt-12 pb-8">
+                <div className="w-20 h-20 mb-8 rounded-full overflow-hidden flex items-center justify-center bg-white shadow-sm ring-4 ring-white">
+                    <img src="/local_logo.svg" alt="Local Logo" className="w-full h-full object-contain p-4" />
                 </div>
-                <h1 className="text-2xl font-bold text-gray-800 mb-2">{config.title}</h1>
-                <p className="text-gray-600 mb-2">{config.message}</p>
-                <p className="text-gray-400 text-sm">{config.hint}</p>
 
-                <button
-                    onClick={() => window.location.reload()}
-                    className="mt-6 px-6 py-2.5 bg-emerald-500 text-white rounded-full font-medium hover:bg-emerald-600 transition-colors"
-                >
-                    Riprova
-                </button>
+                <h1 className="text-3xl font-extrabold text-gray-900 mb-3 text-center">
+                    Sei quasi dei nostri!
+                </h1>
+                <p className="text-gray-500 text-center max-w-[280px] mb-10 font-medium leading-relaxed">
+                    Per entrare nella chat, devi trovarti in uno dei nostri spazi partner.
+                </p>
+
+                {/* Instruction Card */}
+                <div className="w-full max-w-sm bg-gray-50 rounded-3xl p-6 border border-gray-100 shadow-sm mb-8">
+                    <div className="flex items-start gap-4 mb-6">
+                        <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
+                            <svg className="w-6 h-6 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M5 12.55a11 11 0 0 1 14.08 0" />
+                                <path d="M1.42 9a16 16 0 0 1 21.16 0" />
+                                <path d="M8.59 16.11a6 6 0 0 1 6.82 0" />
+                                <line x1="12" y1="20" x2="12.01" y2="20" />
+                            </svg>
+                        </div>
+                        <div className="flex flex-col gap-4 text-[0.95rem] text-gray-700 leading-snug">
+                            <div className="flex gap-3">
+                                <span className="font-bold text-primary shrink-0">1.</span>
+                                <span>Assicurati che il Wi-Fi del tuo dispositivo sia attivo.</span>
+                            </div>
+                            <div className="flex gap-3">
+                                <span className="font-bold text-primary shrink-0">2.</span>
+                                <span>Cerca e connettiti alla rete: <span className="font-bold text-gray-900">"Local - [Nome del locale]"</span>.</span>
+                            </div>
+                            <div className="flex gap-3">
+                                <span className="font-bold text-primary shrink-0">3.</span>
+                                <span>Una volta connesso clicca su "riprova" se non entri in automatico!</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button
+                        onClick={() => window.location.reload()}
+                        className="w-full py-4 bg-primary text-white rounded-2xl font-bold hover:bg-primary/90 transition-all shadow-lg active:scale-[0.98]"
+                    >
+                        Riprova
+                    </button>
+                </div>
             </div>
 
-            <footer className="absolute bottom-6 w-full text-center">
-                <p className="text-gray-400 text-xs font-medium">
-                    Powered by Local - Copyright 2025
-                </p>
-            </footer>
+            {/* Branded Footer Card */}
+            <div className="p-4 safe-bottom">
+                <div className="relative h-32 w-full rounded-3xl overflow-hidden shadow-md group border border-gray-100">
+                    {/* Map Background */}
+                    <div
+                        className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
+                        style={{ backgroundImage: 'url("/map_footer.png")' }}
+                    />
+                    {/* Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-white/90 via-white/40 to-transparent" />
+
+                    {/* Content */}
+                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                        <span className="text-[0.65rem] text-gray-400 uppercase tracking-[0.2em] font-bold mb-0.5">
+                            Localy di
+                        </span>
+                        <span className="text-xl font-black text-gray-900 tracking-tight">
+                            Local
+                        </span>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }
 
 export default function Home() {
     return (
-        <Suspense fallback={
-            <div className="h-screen w-full flex items-center justify-center bg-gray-50">
-                <div className="animate-pulse text-gray-400 font-medium">Inizializzazione in corso...</div>
-            </div>
-        }>
+        <Suspense fallback={<DiscoveryScreen />}>
             <HomeContent />
         </Suspense>
     );

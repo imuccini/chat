@@ -18,12 +18,22 @@ export async function createTenantAction(formData: FormData) {
     const bssid = bssids[0] || null;
     const staticIp = publicIps[0] || null;
 
+    // Handle logo upload
+    const logoFile = formData.get('logo') as File | null;
+    let logoUrl = null;
+    if (logoFile && logoFile.size > 0) {
+        const bytes = await logoFile.arrayBuffer();
+        const buffer = Buffer.from(bytes);
+        logoUrl = `data:${logoFile.type};base64,${buffer.toString('base64')}`;
+    }
+
     await prisma.tenant.create({
         data: {
             name,
             slug,
             bssid,
             staticIp,
+            logoUrl,
             devices: {
                 create: [
                     ...nasIds.map(nasId => ({ nasId, publicIp: null, bssid: null, vpnIp: null })),
@@ -56,10 +66,26 @@ export async function updateTenantAction(formData: FormData) {
     const bssid = bssids[0] || null;
     const staticIp = publicIps[0] || null;
 
+    // Handle logo upload
+    const logoFile = formData.get('logo') as File | null;
+    let logoUrl: string | undefined = undefined; // undefined means don't update
+
+    if (logoFile && logoFile.size > 0) {
+        const bytes = await logoFile.arrayBuffer();
+        const buffer = Buffer.from(bytes);
+        logoUrl = `data:${logoFile.type};base64,${buffer.toString('base64')}`;
+    }
+
     // Update basic info
     await prisma.tenant.update({
         where: { id },
-        data: { name, slug, bssid, staticIp }
+        data: {
+            name,
+            slug,
+            bssid,
+            staticIp,
+            ...(logoUrl !== undefined ? { logoUrl } : {})
+        }
     });
 
     // Sync devices: Delete all and recreate

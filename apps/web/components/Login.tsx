@@ -9,6 +9,7 @@ import { useKeyboardAnimation } from '@/hooks/useKeyboardAnimation';
 interface LoginProps {
   onLogin: (user: User) => void;
   tenantName: string;
+  tenantLogo?: string;
 }
 
 type View = 'phone_input' | 'otp_verification' | 'profile_completion' | 'loading' | 'choice' | 'anonymous' | 'passkey_reg' | 'continue'; // Keeping old ones for safety during transition
@@ -25,7 +26,7 @@ interface AppUser extends User {
   // ensure alias/gender are present or optional if they come from User
 }
 
-const Login: React.FC<LoginProps> = ({ onLogin, tenantName }) => {
+export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
   const [view, setView] = useState<View>('choice'); // Default to Choice selection
   const [existingUser, setExistingUser] = useState<AppUser | null>(null);
   const [alias, setAlias] = useState('');
@@ -421,7 +422,13 @@ const Login: React.FC<LoginProps> = ({ onLogin, tenantName }) => {
     >
       <div className={`flex flex-col items-center transition-all duration-500 ${view === 'choice' || view === 'continue' ? 'mt-4 mb-2' : 'mt-2 mb-2'}`}>
         <div className={`transition-all duration-300 ${view === 'choice' || view === 'continue' ? 'w-24 h-24 mb-12' : 'w-16 h-16 mb-2'}`}>
-          <img src="/local_logo.svg" alt="Local Logo" className="w-full h-full object-contain" />
+          {tenantLogo ? (
+            <div className="w-full h-full rounded-full overflow-hidden flex items-center justify-center bg-transparent">
+              <img src={tenantLogo} alt={tenantName} className="w-full h-full object-cover" />
+            </div>
+          ) : (
+            <img src="/local_logo.svg" alt="Local Logo" className="w-full h-full object-contain" />
+          )}
         </div>
 
         {(view === 'choice' || view === 'continue') && (
@@ -700,14 +707,13 @@ const Login: React.FC<LoginProps> = ({ onLogin, tenantName }) => {
 
 
 
-        <div className="py-8 border-t border-gray-50/50 mt-auto">
+        <div className="py-8 border-t border-gray-50/50 mt-auto flex items-center justify-center gap-2">
+          <img src="/local_logo.svg" alt="" className="w-5 h-5 opacity-80" />
           <p className="text-center text-[10px] text-gray-400 uppercase tracking-[0.2em] font-medium opacity-50">
-            Powered by Local &bull; Copyright 2025
+            Powered by Local &bull; Copyright 2026
           </p>
         </div>
       </div>
     </div>
   );
 };
-
-export default Login;

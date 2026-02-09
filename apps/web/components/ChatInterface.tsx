@@ -18,6 +18,7 @@ import BottomNav from './BottomNav';
 import UserList from './UserList';
 import Settings from './Settings';
 import { UnifiedChatList } from './UnifiedChatList';
+import { LocalSection } from './LocalSection';
 import { useSwipeBack } from '@/hooks/useSwipeBack';
 import { useMembership } from '@/hooks/useMembership';
 import { useKeyboardAnimation } from '@/hooks/useKeyboardAnimation';
@@ -28,7 +29,7 @@ interface ChatInterfaceProps {
     initialMessages: Message[];
 }
 
-type Tab = 'chats' | 'users' | 'settings' | 'admin';
+type Tab = 'chats' | 'users' | 'local' | 'settings' | 'admin';
 type PrivateChatsMap = Record<string, { peer: User; messages: Message[]; unread: number }>;
 
 // Helper for generating unique IDs (fallback for non-secure contexts)
@@ -466,7 +467,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                 </div>
             );
         }
-        return <div className="h-full w-full flex items-center justify-center bg-white sm:bg-gray-50 flex-col"><Login onLogin={handleLogin} tenantName={tenant.name} /></div>;
+        return <div className="h-full w-full flex items-center justify-center bg-white sm:bg-gray-50 flex-col"><Login onLogin={handleLogin} tenantName={tenant.name} tenantLogo={tenant.logoUrl || undefined} /></div>;
     }
 
     const totalUnread = Object.values(privateChats).reduce((acc, chat) => acc + chat.unread, 0);
@@ -490,9 +491,11 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                                 onSelectRoom={(id) => { setActiveRoomId(id); setSelectedChatPeerId(null); }}
                                 onSelectChat={(id) => { setSelectedChatPeerId(id); setActiveRoomId(null); }}
                                 onDeleteChat={handleDeleteChat}
+                                tenantName={tenant.name}
                             />
                         )}
                         {activeTab === 'users' && <UserList currentUser={currentUser} users={onlineUsers} onStartChat={handleStartChat} />}
+                        {activeTab === 'local' && <LocalSection tenant={tenant} />}
                         {activeTab === 'settings' && <Settings user={currentUser} onLogout={handleLogout} onUpdateAlias={handleUpdateAlias} onUpdateStatus={handleUpdateStatus} tenantId={tenant.id} />}
                     </div>
 
