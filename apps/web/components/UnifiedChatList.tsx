@@ -11,7 +11,7 @@ interface PrivateChatSession {
 }
 
 interface UnifiedChatListProps {
-    rooms: Room[];
+    rooms: (Room & { lastMessage?: Message; unreadCount?: number })[];
     privateChats: PrivateChatSession[];
     activeRoomId?: string;
     selectedChatPeerId?: string;
@@ -167,9 +167,18 @@ export function UnifiedChatList({
                                         <RoomIcon size={20} />
                                     </div>
                                     <div className="flex-1 text-left min-w-0">
-                                        <h3 className="font-bold text-base truncate">{room.name}</h3>
+                                        <div className="flex justify-between items-baseline mb-0.5">
+                                            <h3 className="font-bold text-base truncate pr-2">{room.name}</h3>
+                                            {room.lastMessage && (
+                                                <span className="text-[11px] text-gray-400 font-medium shrink-0">
+                                                    {getLastTime([room.lastMessage])}
+                                                </span>
+                                            )}
+                                        </div>
                                         <p className="text-sm text-gray-500 truncate dark:text-gray-400">
-                                            {isAnnouncement ? (
+                                            {room.lastMessage ? (
+                                                room.lastMessage.text
+                                            ) : isAnnouncement ? (
                                                 <>Messaggi da <span className="font-bold">{tenantName}</span></>
                                             ) : (
                                                 room.description || 'Chat pubblica'
@@ -177,13 +186,21 @@ export function UnifiedChatList({
                                         </p>
                                     </div>
 
-                                    {!isAnnouncement && (roomOnlineCounts[room.id] > 0) && (
-                                        <div className="ml-2 min-w-[20px] h-5 px-1.5 bg-primary/10 text-primary rounded-full flex items-center justify-center shrink-0">
-                                            <span className="text-[10px] font-bold leading-none">
-                                                {roomOnlineCounts[room.id] > 99 ? '99+' : roomOnlineCounts[room.id]}
-                                            </span>
-                                        </div>
-                                    )}
+                                    <div className="flex items-center gap-2 ml-2 shrink-0">
+                                        {(room.unreadCount || 0) > 0 ? (
+                                            <div className="min-w-[20px] h-5 px-1.5 bg-primary rounded-full flex items-center justify-center">
+                                                <span className="text-[10px] font-bold text-white leading-none">
+                                                    {room.unreadCount! > 99 ? '99+' : room.unreadCount}
+                                                </span>
+                                            </div>
+                                        ) : !isAnnouncement && (roomOnlineCounts[room.id] > 0) ? (
+                                            <div className="min-w-[20px] h-5 px-1.5 bg-primary/10 text-primary rounded-full flex items-center justify-center">
+                                                <span className="text-[10px] font-bold leading-none">
+                                                    {roomOnlineCounts[room.id] > 99 ? '99+' : roomOnlineCounts[room.id]}
+                                                </span>
+                                            </div>
+                                        ) : null}
+                                    </div>
                                 </button>
                             );
                         })}

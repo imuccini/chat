@@ -76,6 +76,8 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
     const [onlineUserIds, setOnlineUserIds] = useState<string[]>([]);
     const [roomOnlineCounts, setRoomOnlineCounts] = useState<Record<string, number>>({});
     const [privateChats, setPrivateChats] = useState<PrivateChatsMap>({});
+    const [roomUnreads, setRoomUnreads] = useState<Record<string, number>>({});
+    const [roomLastMessages, setRoomLastMessages] = useState<Record<string, Message>>({});
     const [isConnected, setIsConnected] = useState(false);
 
     const queryClient = useQueryClient();
@@ -83,6 +85,14 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
     // Track if this is the first socket connection to prevent reconnection loops
     const socketInitializedRef = useRef(false);
     const userIdRef = useRef<string | null>(null);
+    const activeRoomIdRef = useRef<string | null>(null);
+    const activeTabRef = useRef<Tab>('chats');
+    const selectedChatPeerIdRef = useRef<string | null>(null);
+
+    // Sync refs
+    useEffect(() => { activeRoomIdRef.current = activeRoomId; }, [activeRoomId]);
+    useEffect(() => { activeTabRef.current = activeTab; }, [activeTab]);
+    useEffect(() => { selectedChatPeerIdRef.current = selectedChatPeerId; }, [selectedChatPeerId]);
 
     // 1. Initial Data Fetching (Offline-First)
     const { data: messages = (activeRoomId ? [] : initialMessages), isFetching: isFetchingGlobal } = useQuery({
@@ -319,7 +329,16 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                     if (messages.some(m => m.id === msg.id)) return messages;
                     return [...messages, msg];
                 });
+
+                // Update room metadata for list preview and unreads
+                if (msg.roomId) {
+                    setRoomLastMessages(prev => ({ ...prev, [msg.roomId!]: msg }));
+                    if (activeRoomIdRef.current !== msg.roomId) {
+                        setRoomUnreads(prev => ({ ...prev, [msg.roomId!]: (prev[msg.roomId!] || 0) + 1 }));
+                    }
+                }
             });
+
 
             newSocket.on('messageDeleted', async (data: { messageId: string, roomId?: string }) => {
                 await sqliteService.deleteMessage(data.messageId);
@@ -344,9 +363,9 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                     if (existing.messages.some(m => m.id === msg.id)) return prev;
 
                     // Only increment unread if message is from someone else
-                    // Also check if we are currently looking at this chat (optional, but good practice if simple)
-                    // For now, adhering to strict request: don't increment for self.
-                    const newUnread = isMe ? existing.unread : existing.unread + 1;
+                    // AND we are NOT currently looking at this specific chat
+                    const isChatActive = activeTabRef.current === 'chats' && selectedChatPeerIdRef.current === peerId;
+                    const newUnread = (isMe || isChatActive) ? existing.unread : existing.unread + 1;
 
                     return { ...prev, [peerId]: { ...existing, messages: [...existing.messages, msg], unread: newUnread } };
                 });
@@ -414,6 +433,8 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
         await sqliteService.saveMessage(msg, true);
         queryClient.setQueryData(['messages', 'global', tenant.slug, activeRoomId], (prev: Message[] | undefined) => [...(prev || []), msg]);
         socket.emit('sendMessage', { ...msg, tenantSlug: tenant.slug });
+        setRoomLastMessages(prev => ({ ...prev, [activeRoomId]: msg }));
+        setRoomUnreads(prev => ({ ...prev, [activeRoomId]: 0 }));
     }, [currentUser, socket, tenant.slug, activeRoomId, queryClient, tenant.id]);
 
     const handleDeleteMessage = useCallback((messageId: string) => {
@@ -434,7 +455,10 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
     }, [currentUser, socket, selectedChatPeerId, tenant.slug, tenant.id]);
 
     const handleStartChat = (peer: User) => {
-        if (!privateChats[peer.id]) setPrivateChats(prev => ({ ...prev, [peer.id]: { peer, messages: [], unread: 0 } }));
+        setPrivateChats(prev => {
+            const existing = prev[peer.id] || { peer, messages: [], unread: 0 };
+            return { ...prev, [peer.id]: { ...existing, unread: 0 } };
+        });
         setSelectedChatPeerId(peer.id);
         setActiveRoomId(null);
         setActiveTab('chats');
@@ -460,6 +484,26 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
         enabled: Capacitor.isNativePlatform() && isChatOpen
     });
 
+    const totalUnread =
+        Object.values(privateChats).reduce((acc, chat) => acc + chat.unread, 0) +
+        Object.values(roomUnreads).reduce((acc, count) => acc + count, 0);
+
+    // Auto-clear unread when chat becomes active
+    useEffect(() => {
+        if (activeTab === 'chats' && selectedChatPeerId && privateChats[selectedChatPeerId]?.unread > 0) {
+            setPrivateChats(prev => ({
+                ...prev,
+                [selectedChatPeerId]: { ...prev[selectedChatPeerId], unread: 0 }
+            }));
+        }
+        if (activeTab === 'chats' && activeRoomId && roomUnreads[activeRoomId] > 0) {
+            setRoomUnreads(prev => ({
+                ...prev,
+                [activeRoomId]: 0
+            }));
+        }
+    }, [activeTab, selectedChatPeerId, activeRoomId, privateChats[selectedChatPeerId]?.messages.length, roomUnreads]);
+
     if (!currentUser) {
         // Show loading spinner while we are determining session state
         if (isSessionLoading || isRestoringSession) {
@@ -472,8 +516,6 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
         return <div className="h-full w-full flex items-center justify-center bg-white sm:bg-gray-50 flex-col"><Login onLogin={handleLogin} tenantName={tenant.name} tenantLogo={tenant.logoUrl || undefined} /></div>;
     }
 
-    const totalUnread = Object.values(privateChats).reduce((acc, chat) => acc + chat.unread, 0);
-
     return (
         <div className="relative w-full h-full max-w-3xl mx-auto bg-white shadow-xl overflow-hidden">
 
@@ -484,14 +526,30 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                     <div className="flex-1 overflow-hidden relative">
                         {activeTab === 'chats' && (
                             <UnifiedChatList
-                                rooms={tenant.rooms || []}
+                                rooms={(tenant.rooms || []).map(r => ({
+                                    ...r,
+                                    lastMessage: roomLastMessages[r.id],
+                                    unreadCount: roomUnreads[r.id] || 0
+                                }))}
                                 privateChats={Object.values(privateChats).map(c => ({ ...c, unreadCount: c.unread })).sort((a, b) => (b.messages.length ? new Date(b.messages[b.messages.length - 1].timestamp).getTime() : 0) - (a.messages.length ? new Date(a.messages[a.messages.length - 1].timestamp).getTime() : 0))}
                                 activeRoomId={activeRoomId || undefined}
                                 selectedChatPeerId={selectedChatPeerId || null}
                                 roomOnlineCounts={roomOnlineCounts}
                                 onlineUserIds={onlineUserIds}
-                                onSelectRoom={(id) => { setActiveRoomId(id); setSelectedChatPeerId(null); }}
-                                onSelectChat={(id) => { setSelectedChatPeerId(id); setActiveRoomId(null); }}
+                                onSelectRoom={(id) => {
+                                    setActiveRoomId(id);
+                                    setSelectedChatPeerId(null);
+                                    setRoomUnreads(prev => ({ ...prev, [id]: 0 }));
+                                }}
+                                onSelectChat={(id) => {
+                                    setSelectedChatPeerId(id);
+                                    setActiveRoomId(null);
+                                    // Clear unread immediately on select
+                                    setPrivateChats(prev => ({
+                                        ...prev,
+                                        [id]: { ...prev[id], unread: 0 }
+                                    }));
+                                }}
                                 onDeleteChat={handleDeleteChat}
                                 tenantName={tenant.name}
                             />
