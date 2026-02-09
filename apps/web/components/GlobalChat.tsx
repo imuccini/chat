@@ -21,6 +21,7 @@ interface GlobalChatProps {
   onBack?: () => void;
   showOnlineCount?: boolean;
   keyboardContentStyle?: React.CSSProperties;  // Applied to content area, NOT header
+  roomType?: 'ANNOUNCEMENT' | 'GENERAL';
 }
 
 const GenderIcon = memo(({ gender, className }: { gender: Gender; className?: string }) => {
@@ -128,7 +129,8 @@ const GlobalChat = memo<GlobalChatProps>(({
   canModerate,
   onBack,
   showOnlineCount = true,
-  keyboardContentStyle
+  keyboardContentStyle,
+  roomType = 'GENERAL'
 }) => {
   const virtuosoRef = useRef<VirtuosoHandle>(null);
 
@@ -244,15 +246,41 @@ const GlobalChat = memo<GlobalChatProps>(({
       {/* Content wrapper - this moves with keyboard, header stays fixed */}
       <div className="flex-1 flex flex-col overflow-hidden" style={keyboardContentStyle}>
         <div className="flex-1 overflow-hidden relative chat-bg">
-          <Virtuoso
-            ref={virtuosoRef}
-            data={messages}
-            initialTopMostItemIndex={messages.length - 1}
-            itemContent={renderMessage}
-            followOutput={true}
-            className="h-full w-full"
-            alignToBottom={true}
-          />
+          {messages.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-full text-gray-400 p-8 space-y-6 animate-fadeIn">
+              <div className="w-20 h-20 rounded-full bg-gray-50 flex items-center justify-center shadow-inner">
+                {roomType === 'ANNOUNCEMENT' ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-primary opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
+                  </svg>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  </svg>
+                )}
+              </div>
+              <div className="max-w-[280px] text-center space-y-2">
+                <p className="font-bold text-gray-900 text-lg leading-tight">
+                  {roomType === 'ANNOUNCEMENT' ? 'Nessun annuncio' : 'Ancora nessun messaggio'}
+                </p>
+                <p className="text-sm text-gray-500 leading-relaxed italic">
+                  {roomType === 'ANNOUNCEMENT'
+                    ? 'Qui troverai i messaggi che il gestore invia a tutti i presenti su local'
+                    : 'Non ci sono ancora messaggi in questa stanza. Inizia tu la conversazione!'}
+                </p>
+              </div>
+            </div>
+          ) : (
+            <Virtuoso
+              ref={virtuosoRef}
+              data={messages}
+              initialTopMostItemIndex={messages.length - 1}
+              itemContent={renderMessage}
+              followOutput={true}
+              className="h-full w-full"
+              alignToBottom={true}
+            />
+          )}
         </div>
 
         <ChatInput

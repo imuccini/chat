@@ -49,7 +49,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
             try {
                 const saved = localStorage.getItem('chat_user');
                 if (saved) return JSON.parse(saved);
-            } catch {}
+            } catch { }
         }
         return null;
     });
@@ -561,6 +561,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                                 canModerate={canManageTenant} onBack={() => setActiveRoomId(null)}
                                 showOnlineCount={tenant.rooms?.find(r => r.id === activeRoomId)?.type !== 'ANNOUNCEMENT'}
                                 keyboardContentStyle={keyboardContentStyle}
+                                roomType={tenant.rooms?.find(r => r.id === activeRoomId)?.type as any}
                             />
                         </div>
                     ) : null}
