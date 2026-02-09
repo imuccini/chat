@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { clientResolveTenant } from "@/services/apiService";
 import { Capacitor } from "@capacitor/core";
 import { CapacitorWifi } from '@capgo/capacitor-wifi';
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { checkAndRequestLocationPermissions, getConnectedWifiInfo } from "@/lib/wifi";
 import TenantChatClient from "@/app/[...slug]/TenantChatClient";
 import { DiscoveryScreen } from "@/components/DiscoveryScreen";
@@ -23,13 +24,46 @@ function HomeContent() {
     const [showMap, setShowMap] = useState(false);
     const [showAutoConnect, setShowAutoConnect] = useState(false);
 
+    // Shared helper for tenant resolution
+    const resolveCurrentTenant = async (nasId?: string) => {
+        const isNative = Capacitor.isNativePlatform();
+        let bssid: string | undefined = undefined;
+
+        if (isNative) {
+            try {
+                // Passive attempt: attempt connection but with short timeout
+                await Promise.race([
+                    CapacitorWifi.connect({
+                        ssid: "Local - WiFi",
+                        password: "localwifisicuro",
+                    }),
+                    new Promise((_, reject) => setTimeout(() => reject('timeout'), 2000))
+                ]).catch(() => { });
+
+                // Get BSSID
+                const hasPermission = await checkAndRequestLocationPermissions();
+                if (hasPermission) {
+                    const wifiInfo = await getConnectedWifiInfo();
+                    if (wifiInfo.isConnected && wifiInfo.bssid) {
+                        bssid = wifiInfo.bssid;
+                    }
+                }
+            } catch (e) {
+                console.warn("[page] Native resolution step failed:", e);
+            }
+        }
+
+        // Resolve tenant via API
+        return await clientResolveTenant(nasId, bssid);
+    };
+
+    // Initial Discovery Phase
     useEffect(() => {
         let isCancelled = false;
 
         async function init() {
             try {
                 const startTime = Date.now();
-                const isNative = Capacitor.isNativePlatform();
                 const nasId = searchParams.get('nas_id') || undefined;
 
                 // 1. Definition of the polling/initialization logic
@@ -38,34 +72,7 @@ function HomeContent() {
                     const maxDuration = 10000;
 
                     while (Date.now() - startTime < maxDuration && !isCancelled) {
-                        let bssid: string | undefined = undefined;
-
-                        if (isNative) {
-                            try {
-                                // Passive attempt: attempt connection but with short timeout
-                                await Promise.race([
-                                    CapacitorWifi.connect({
-                                        ssid: "Local - WiFi",
-                                        password: "localwifisicuro",
-                                    }),
-                                    new Promise((_, reject) => setTimeout(() => reject('timeout'), 2000))
-                                ]).catch(() => { });
-
-                                // Get BSSID
-                                const hasPermission = await checkAndRequestLocationPermissions();
-                                if (hasPermission) {
-                                    const wifiInfo = await getConnectedWifiInfo();
-                                    if (wifiInfo.isConnected && wifiInfo.bssid) {
-                                        bssid = wifiInfo.bssid;
-                                    }
-                                }
-                            } catch (e) {
-                                console.warn("[page] Native poll step failed:", e);
-                            }
-                        }
-
-                        // Resolve tenant
-                        const slug = await clientResolveTenant(nasId, bssid);
+                        const slug = await resolveCurrentTenant(nasId);
                         if (slug) return slug;
 
                         // Wait for next poll
@@ -83,21 +90,21 @@ function HomeContent() {
                 );
 
                 // Race for the result
-                const resolvedSlug = await Promise.race([performPolling(), safetyTimeout]);
+                const slug = await Promise.race([performPolling(), safetyTimeout]);
 
                 if (isCancelled) return;
 
-                if (resolvedSlug) {
+                if (slug) {
                     // Artificial delay to show the "Discovery" animation (min 2 seconds total)
                     const elapsed = Date.now() - startTime;
                     if (elapsed < 2000) {
                         await new Promise(resolve => setTimeout(resolve, 2000 - elapsed));
                     }
 
-                    if (isNative) {
-                        setResolvedSlug(resolvedSlug);
+                    if (Capacitor.isNativePlatform()) {
+                        setResolvedSlug(slug);
                     } else {
-                        router.replace(`/${resolvedSlug}`);
+                        router.replace(`/${slug}`);
                     }
                 } else {
                     setState('tenant_not_found');
@@ -111,6 +118,36 @@ function HomeContent() {
         init();
         return () => { isCancelled = true; };
     }, [router, searchParams]);
+
+    // Background Polling (Instructions Screen)
+    useEffect(() => {
+        if (state !== 'tenant_not_found' || resolvedSlug) return;
+
+        let isCancelled = false;
+        const nasId = searchParams.get('nas_id') || undefined;
+
+        console.log("[page] Starting background polling for tenant resolution...");
+
+        const poll = async () => {
+            if (isCancelled) return;
+
+            const slug = await resolveCurrentTenant(nasId);
+            if (slug && !isCancelled) {
+                console.log("[page] Background resolution success:", slug);
+                if (Capacitor.isNativePlatform()) {
+                    setResolvedSlug(slug);
+                } else {
+                    router.replace(`/${slug}`);
+                }
+            } else {
+                // Poll again in 5 seconds
+                setTimeout(poll, 5000);
+            }
+        };
+
+        poll();
+        return () => { isCancelled = true; };
+    }, [state, resolvedSlug, searchParams, router]);
 
     // If tenant is resolved on native, render TenantChatClient directly
     if (resolvedSlug) {
@@ -149,9 +186,23 @@ function HomeContent() {
                 {/* Instruction Card */}
                 <div className="w-full max-w-sm px-4">
                     <div className="flex flex-col items-center gap-4 py-8 px-6 bg-gray-50 rounded-[40px] border border-gray-100/50">
-                        <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
+                        <button
+                            onClick={() => {
+                                Haptics.impact({ style: ImpactStyle.Medium });
+                                resolveCurrentTenant(searchParams.get('nas_id') || undefined).then(slug => {
+                                    if (slug) {
+                                        if (Capacitor.isNativePlatform()) {
+                                            setResolvedSlug(slug);
+                                        } else {
+                                            router.replace(`/${slug}`);
+                                        }
+                                    }
+                                });
+                            }}
+                            className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center hover:bg-primary/20 transition-colors active:scale-95 shadow-sm"
+                        >
                             <Wifi className="w-8 h-8 text-primary" strokeWidth={2.5} />
-                        </div>
+                        </button>
                         <p className="text-gray-900 font-bold leading-snug">
                             Cerca e connettiti ad una rete WiFi <span className="text-primary">"Local - WiFi"</span>
                         </p>

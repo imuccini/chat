@@ -5,7 +5,7 @@ import { CapacitorWifi } from '@capgo/capacitor-wifi';
 import { Capacitor } from '@capacitor/core';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { useEffect } from 'react';
-import { Browser } from '@capacitor/browser';
+import WifiConfig from '@/lib/wifi-config';
 
 interface AutoConnectScreenProps {
     onBack: () => void;
@@ -13,28 +13,39 @@ interface AutoConnectScreenProps {
 
 export function AutoConnectScreen({ onBack }: AutoConnectScreenProps) {
     const handleEnable = async () => {
-        // 1. Attempt immediate active connection on native
-        if (Capacitor.isNativePlatform()) {
-            try {
-                await Haptics.impact({ style: ImpactStyle.Medium });
-                await CapacitorWifi.connect({
-                    ssid: "Local - WiFi",
-                    password: "localwifisicuro",
-                });
-            } catch (error) {
-                console.warn("Immediate native WiFi connection failed", error);
-            }
-        }
-
-        // 2. Trigger persistent profile download (essential for iOS/macOS persistence)
-        await downloadProfile();
-    };
-
-    const downloadProfile = async () => {
         const ssid = "Local - WiFi";
         const password = "localwifisicuro";
 
-        // Generate .mobileconfig for iOS/macOS
+        // Native iOS: Setup persistent profile via custom plugin
+        if (Capacitor.getPlatform() === 'ios') {
+            try {
+                await Haptics.impact({ style: ImpactStyle.Medium });
+                // On iOS, this triggers the system pop-up to approve/configure the network
+                const result = await WifiConfig.connect({ ssid, password });
+                console.log("iOS Native WiFi setup approved:", result);
+            } catch (error) {
+                console.error("iOS Native WiFi setup failed or cancelled:", error);
+            }
+        }
+
+        // Native Android: Configure network (Android's API usually connects immediately)
+        else if (Capacitor.getPlatform() === 'android') {
+            try {
+                await Haptics.impact({ style: ImpactStyle.Medium });
+                await CapacitorWifi.connect({ ssid, password });
+            } catch (error) {
+                console.warn("Android WiFi setup/connection failed", error);
+            }
+        }
+
+        // Web/macOS Fallback: Download .mobileconfig
+        else {
+            downloadProfile(ssid, password);
+        }
+    };
+
+    const downloadProfile = (ssid: string, password: string) => {
+        // Generate .mobileconfig for Web/macOS
         const profile = `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -91,27 +102,14 @@ export function AutoConnectScreen({ onBack }: AutoConnectScreenProps) {
 </dict>
 </plist>`;
 
-        if (Capacitor.isNativePlatform()) {
-            // On native, use Browser plugin to open the data URI. 
-            // This is more reliable for triggering the iOS profile installation prompt.
-            const base64Profile = btoa(profile);
-            const dataUri = `data:application/x-apple-aspen-config;base64,${base64Profile}`;
-
-            try {
-                await Browser.open({ url: dataUri });
-            } catch (err) {
-                console.error("Browser failed to open profile URI", err);
-            }
-        } else {
-            const blob = new Blob([profile], { type: 'application/x-apple-aspen-config' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = 'LocalWiFi.mobileconfig';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
+        const blob = new Blob([profile], { type: 'application/x-apple-aspen-config' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'LocalWiFi.mobileconfig';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     };
 
     return (
