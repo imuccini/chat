@@ -43,7 +43,7 @@ export const LocalSection: React.FC<LocalSectionProps> = ({ tenant, isAdmin, tok
                         onClick={() => setIsEditOpen(true)}
                         className="absolute top-4 right-4 p-2 bg-gray-100 rounded-full text-gray-600 hover:bg-gray-200 transition-colors z-10"
                     >
-                        <Icon name="Edit_02" className="w-5 h-5" />
+                        <Icon name="Edit_Pencil_01" className="w-5 h-5" />
                     </button>
                 )}
 
