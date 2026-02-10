@@ -157,7 +157,7 @@ export const LocalSection: React.FC<LocalSectionProps> = ({ tenant, isAdmin, tok
                     Servizi Disponibili
                 </h2>
 
-                <div className="grid grid-cols-1 gap-4">
+                <div className="grid grid-cols-1 gap-3">
                     {services
                         .filter(s => isAdmin || s.enabled) // Filter services based on admin status or enabled state
                         .map((service) => (
@@ -174,33 +174,36 @@ export const LocalSection: React.FC<LocalSectionProps> = ({ tenant, isAdmin, tok
                                         router.push(service.path);
                                     }
                                 }}
-                                className={`group relative w-full flex items-center gap-4 p-5 bg-white rounded-[2rem] border border-gray-100 shadow-sm transition-all duration-300 active:scale-[0.98] active:bg-gray-50 ${!service.enabled ? 'opacity-60 grayscale' : ''}`}
+                                className={`group relative w-full flex items-center gap-3 p-4 bg-white rounded-2xl border border-gray-100 shadow-sm transition-all duration-300 active:scale-[0.98] active:bg-gray-50 ${!service.enabled ? 'opacity-60 grayscale' : ''}`}
                             >
-                                <div className="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center text-primary shrink-0 group-hover:bg-primary group-hover:text-white transition-colors">
-                                    <Icon name={service.icon} className="w-7 h-7" />
+                                <div className="text-primary shrink-0 group-hover:scale-110 transition-transform">
+                                    <Icon name={service.icon} className="w-8 h-8" />
                                 </div>
 
-                                <div className="flex flex-col text-left overflow-hidden">
-                                    <h3 className="font-bold text-gray-900 truncate">
-                                        {service.title}
-                                    </h3>
-                                    <p className="text-xs text-gray-500 font-medium truncate">
+                                <div className="flex flex-col text-left overflow-hidden flex-1 min-w-0">
+                                    <div className="flex items-center gap-2">
+                                        <h3 className="font-bold text-gray-900 truncate text-base leading-tight">
+                                            {service.title}
+                                        </h3>
+                                    </div>
+                                    <p className="text-[11px] text-gray-500 font-medium truncate leading-tight mt-0.5">
                                         {service.description}
                                     </p>
                                 </div>
 
-                                <div className="ml-auto flex items-center gap-3 shrink-0">
+                                <div className="flex items-center gap-2 shrink-0 ml-1">
                                     {isAdmin && (
                                         <div onClick={(e) => e.stopPropagation()}>
                                             <Switch
                                                 checked={localEnabledStates[service.id] ?? true}
                                                 onCheckedChange={(checked) => handleToggleService(service.id, checked)}
                                                 disabled={togglingId === service.id}
+                                                className="scale-75 origin-right"
                                             />
                                         </div>
                                     )}
-                                    <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 group-hover:text-primary group-hover:bg-primary/5 transition-all">
-                                        <Icon name="Arrow_Right_SM" className="w-5 h-5" />
+                                    <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 group-hover:text-primary group-hover:bg-primary/5 transition-all">
+                                        <Icon name="Arrow_Right_SM" className="w-4 h-4" />
                                     </div>
                                 </div>
                             </button>

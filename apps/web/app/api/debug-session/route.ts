@@ -17,7 +17,15 @@ export async function GET(req: NextRequest) {
             headers: hList
         });
 
-        const response = NextResponse.json(session || { session: null, user: null });
+        // In production, only expose minimal session info to limit data leakage
+        const payload = process.env.NODE_ENV === 'production'
+            ? {
+                authenticated: !!session?.user,
+                user: session?.user ? { id: session.user.id, name: session.user.name } : null,
+            }
+            : (session || { session: null, user: null });
+
+        const response = NextResponse.json(payload);
 
         // Add CORS headers to response
         const reqOrigin = req.headers.get('origin');

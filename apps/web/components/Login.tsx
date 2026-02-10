@@ -208,19 +208,13 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
 
     setIsLoading(true);
     try {
-      // DEBUG: Log the URL being used for auth requests
-      console.log("[Login] DEBUG - Capacitor.isNativePlatform():", Capacitor.isNativePlatform());
-      console.log("[Login] DEBUG - SERVER_URL:", SERVER_URL);
-      console.log("[Login] DEBUG - authClient baseURL:", (authClient as any).$fetch?.baseURL || 'using relative URLs');
-
       // Check if user already has a session
       let existingSession = null;
       try {
         const result = await authClient.getSession();
         existingSession = result.data;
-        console.log("[Login] Existing session check:", JSON.stringify(existingSession, null, 2));
       } catch (sessionErr) {
-        console.warn("[Login] Failed to check existing session (expected on first native run if relative URLs used):", sessionErr);
+        // Expected on first native run if relative URLs used
         // Continue as if no session exists
       }
 
@@ -242,15 +236,13 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
         onLogin(user);
       } else {
         // Create new anonymous session
-        console.log("[Login] DEBUG - Calling authClient.signIn.anonymous()...");
         let signInData, error;
         try {
           const result = await authClient.signIn.anonymous();
           signInData = result.data;
           error = result.error;
-          console.log("[Login] DEBUG - signIn.anonymous result:", JSON.stringify(result, null, 2));
         } catch (signInError: any) {
-          console.error("[Login] DEBUG - signIn.anonymous failed, trying manual fallback:", signInError);
+          // signIn.anonymous failed, trying manual fallback
 
           // FALLBACK 3: Manual Direct Fetch
           // This bypasses the better-auth client entirely to strictly control the request
@@ -259,8 +251,6 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
               ? (SERVER_URL || 'http://localhost:3000')
               : '';
             const fallbackUrl = `${baseUrl}/api/auth/sign-in/anonymous`;
-
-            console.log("[Login] DEBUG - Attempting manual fetch to:", fallbackUrl);
 
             const res = await fetch(fallbackUrl, {
               method: 'POST',
@@ -276,7 +266,6 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
             }
 
             const data = await res.json();
-            console.log("[Login] DEBUG - Manual fallback success:", data);
 
             // Manual fetch succeeded, update state manually
             if (data?.user) {
@@ -288,15 +277,7 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
             }
 
           } catch (manualErr: any) {
-            console.error("[Login] DEBUG - Manual fallback ALSO failed:", manualErr);
-            // Throw original error to show in alert/UI, or combine them
-
-            // Extract more info if available
-            let detailedError = manualErr.message;
-            if (manualErr.cause) detailedError += ` Cause: ${manualErr.cause}`;
-            if (manualErr.stack) console.error(manualErr.stack);
-
-            throw new Error(`Fallback Failed: ${detailedError}`);
+            throw new Error(`Fallback Failed: ${manualErr.message}`);
           }
         }
 
@@ -314,8 +295,15 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
           // Don't block login if just profile update fails, we have the user
         }
 
+        // Sync BetterAuth client state after sign-in
+        // This ensures the session cookie is recognized by authClient for socket auth
+        const postSignInSession = await authClient.getSession();
+        if (!postSignInSession?.data?.user) {
+          console.warn("[Login] BetterAuth getSession() returned null after anonymous sign-in — socket will use cookie fallback");
+        }
+
         // Use signIn user data with manual updates
-        const createdUserRaw = signInData?.user;
+        const createdUserRaw = signInData?.user || postSignInSession?.data?.user;
 
         if (createdUserRaw) {
           const user = {
@@ -326,25 +314,12 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
           } as unknown as AppUser;
 
           onLogin(user);
-        } else {
-          // Fallback to getSession only if absolutely necessary
-          const { data: sessionData } = await authClient.getSession();
-          if (sessionData?.user) {
-            const user = {
-              ...sessionData.user,
-              alias: alias.trim(),
-              gender: gender,
-              joinedAt: Date.now()
-            } as unknown as AppUser;
-
-            onLogin(user);
-          }
         }
       }
     } catch (err: any) {
       // Special handling: if server says we are already logged in anonymously but client doesn't know
       if (err.message && err.message.includes("Anonymous users cannot sign in again")) {
-        console.log("[Login] Recovering from 'already signed in' state...");
+        // Recovering from 'already signed in' state
 
         // Force update regardless of session state since we know we have a valid session token
         // Catch result directly
@@ -389,11 +364,6 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
         } catch (e) {
           // Silently fail on fallback 2
         }
-      }
-
-      // TEMPORARY DEBUG: Show alert with error details for native debugging
-      if (Capacitor.isNativePlatform()) {
-        alert(`DEBUG ERROR:\n${err.name}: ${err.message}`);
       }
 
       setError(err.message);

@@ -25,9 +25,11 @@ The application uses **Better Auth** for authentication, but handles sessions di
 - **Session Restoration**:
   - `localStorage` item `chat_user` acts as a fast-load backup for offline/cold start.
   - On mount, `ChatInterface` syncs this with the server session (`useSession` hook).
+  - **Explicit Sync**: After anonymous sign-in, code explicitly calls `authClient.getSession()` to ensure client state is consistent.
 
 ### User Identification
 - **User ID**: Found in `session.user.id`.
+- **Session Token**: Found in `session.session.token` (or `session.session.id`). This is the primary key for socket authentication.
 - **Anonymous Users**: The backend (`ChatGateway`) supports anonymous connections, creating temporary users if no token is provided but a `userId` is in the handshake query.
 
 ## 2. WebSockets (Socket.IO)
@@ -37,7 +39,8 @@ Real-time features rely heavily on Socket.IO, with specific logic for connection
 ### Connection
 - **URL**: `SOCKET_URL` from config.
 - **Handshake Auth**:
-  - `auth: { token }`: Passed in the connection options.
+  - `auth: { token }`: Passed in the connection options. **Updated**: Now uses `session.token` instead of `session.id` for consistency.
+  - **Cookie Fallback**: If `authClient.getSession()` returns null (e.g. OTP), `ChatInterface` now attempts to read the `better-auth.session_token` cookie directly to authenticate the socket.
   - `query: { tenantSlug, userId, userAlias }`: specific params to help the gateway route the connection and handle anonymous users.
 - **Reconnection**: Handled automatically, but `ChatInterface` has logic to prevent loops for anonymous users receiving new IDs.
 
@@ -86,3 +89,15 @@ Defined in `schema.prisma` (`TenantRole` enum):
 2.  **Check Socket Events**: Verify event names in `ChatGateway` before implementing frontend listeners. Mismatches (e.g. `message` vs `privateMessage`) are common bugs.
 3.  **Handle Native Fetches**: Always prepend `API_BASE_URL` and disable cache for dynamic data.
 4.  **Platform Checks**: Use `Capacitor.isNativePlatform()` for UI logic differences (e.g., back buttons, haptics, status bars).
+### 6. Security & Rate Limiting
+- **Feedback API**: Implements in-memory rate limiting (1 submission per IP per 30 seconds) to prevent spam.
+- **Logout**: A dedicated `/api/auth/logout` route invalidates the session server-side and clears cookies appropriately. `ChatInterface` calls this after disconnecting the socket.
+- **Debug Endpoints**: `/api/debug-session` is now gated to prevent leaking session data in production.
+
+## 5. Architectural Rules for Development
+
+1.  **Always Send Auth**: When modifying `apiService`, ensure the `Authorization` header is included if a token exists. Do not rely on cookies alone.
+2.  **Check Socket Events**: Verify event names in `ChatGateway` before implementing frontend listeners. Mismatches (e.g. `message` vs `privateMessage`) are common bugs.
+3.  **Handle Native Fetches**: Always prepend `API_BASE_URL` and disable cache for dynamic data.
+4.  **Platform Checks**: Use `Capacitor.isNativePlatform()` for UI logic differences (e.g., back buttons, haptics, status bars).
+5.  **Session Consistency**: Prefer `session.token` for authentication. Use `authClient.getSession()` to re-sync state after auth actions.

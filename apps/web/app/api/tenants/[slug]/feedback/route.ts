@@ -1,6 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCorsHeaders, handleOptions } from '@/lib/cors';
 
+// In-memory rate limiter: IP -> last submission timestamp
+const feedbackRateLimit = new Map<string, number>();
+const RATE_LIMIT_WINDOW_MS = 30_000; // 30 seconds
+
+function checkRateLimit(ip: string): { limited: boolean; retryAfter?: number } {
+    const now = Date.now();
+    const lastSubmission = feedbackRateLimit.get(ip);
+    if (lastSubmission && now - lastSubmission < RATE_LIMIT_WINDOW_MS) {
+        return { limited: true, retryAfter: Math.ceil((RATE_LIMIT_WINDOW_MS - (now - lastSubmission)) / 1000) };
+    }
+    feedbackRateLimit.set(ip, now);
+    // Cleanup old entries periodically (keep map from growing unbounded)
+    if (feedbackRateLimit.size > 10_000) {
+        for (const [key, ts] of feedbackRateLimit) {
+            if (now - ts > RATE_LIMIT_WINDOW_MS) feedbackRateLimit.delete(key);
+        }
+    }
+    return { limited: false };
+}
+
 export async function OPTIONS(req: Request) {
     return handleOptions(req);
 }
@@ -18,6 +38,9 @@ async function resolveUser(hList: Headers, userId?: string) {
     if (resolved?.user) return resolved.user;
 
     // 2. Fallback: verify userId from request body exists in DB
+    // Also verify the user has an active connection (exists in user table)
+    // This fallback exists because anonymous users may not have a BetterAuth session cookie.
+    // It can be removed once anonymous sign-in reliably sets the session cookie (see Fix 6).
     if (userId) {
         const { prisma } = await import('@/lib/db');
         const user = await prisma.user.findUnique({ where: { id: userId } });
@@ -33,6 +56,16 @@ export async function POST(
 ) {
     const { slug } = await params;
     const origin = request.headers.get('origin');
+
+    // Rate limit: 1 feedback per 30 seconds per IP
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || request.headers.get('x-real-ip') || 'unknown';
+    const rateCheck = checkRateLimit(ip);
+    if (rateCheck.limited) {
+        return withCors(
+            NextResponse.json({ error: 'Too many requests', retryAfter: rateCheck.retryAfter }, { status: 429 }),
+            origin
+        );
+    }
 
     try {
         const { headers } = await import('next/headers');

@@ -23,8 +23,6 @@ export const GET = async (req: Request) => {
     const origin = getOrigin(req);
     const requestOrigin = req.headers.get('origin');
     const auth = getAuth(origin);
-    console.log(`[Auth API] GET ${req.url} | Origin: ${origin}`);
-
     const response = await auth.handler(req);
 
     // Add CORS headers to the response
@@ -40,8 +38,6 @@ export const POST = async (req: Request) => {
     const origin = getOrigin(req);
     const requestOrigin = req.headers.get('origin');
     const auth = getAuth(origin);
-    console.log(`[Auth API] POST ${req.url} | Origin: ${origin}`);
-
     const response = await auth.handler(req);
 
     // Add CORS headers to the response

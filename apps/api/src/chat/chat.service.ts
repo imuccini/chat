@@ -2,9 +2,6 @@ import { Injectable, Logger, Inject } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { Prisma } from '@local/database/generated/client/index.js';
 import type { Message } from '@local/types';
-import fs from 'fs';
-
-console.error('[ChatService] FILE EVALUATED - TIMESTAMP: ' + Date.now());
 
 @Injectable()
 export class ChatService {
@@ -28,8 +25,8 @@ export class ChatService {
                     imageUrl: (message as any).imageUrl || null,
                     recipientId: message.recipientId || null,
                     roomId: message.roomId || null,
-                    tenantId: tenantId,
-                    userId: message.senderId,
+                    tenant: { connect: { id: tenantId } },
+                    user: { connect: { id: message.senderId } },
                 },
             });
             this.logger.debug(`[saveMessage] Success: saved message ${saved.id}`);
@@ -78,7 +75,6 @@ export class ChatService {
             return messages;
         } catch (error) {
             this.logger.error(`Failed to fetch messages: ${error.message}`, error.stack);
-            fs.appendFileSync('trace.log', `[ChatService ERROR] ${error.message}\n${error.stack}\n`);
             throw error;
         }
     }

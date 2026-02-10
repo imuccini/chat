@@ -10,7 +10,6 @@ import {
 import { Server } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 import { Logger, Inject } from '@nestjs/common';
-import fs from 'fs';
 import type { CustomSocket, User, Message, ServerToClientEvents, ClientToServerEvents } from '@local/types';
 import { ChatService } from './chat.service.js';
 import { TenantService } from '../tenant/tenant.service.js';
@@ -61,7 +60,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
             try {
                 let userId = existingUserId;
-                let userAlias = existingUserAlias || `Guest-${socket.id.substring(0, 6)}`;
+                const guestFallback = `Guest-${socket.id.substring(0, 6)}`;
+                let userAlias = this.sanitizeAlias(existingUserAlias, guestFallback);
                 let isNewUser = false;
 
                 // Check if user already exists in DB (for reconnection)
@@ -88,7 +88,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
                 if (isNewUser) {
                     const anonymousUser = await this.prisma.user.create({
                         data: {
-                            name: userAlias,
+                            name: this.sanitizeAlias(userAlias, guestFallback),
                             isAnonymous: true,
                         },
                     });
@@ -127,9 +127,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         }
 
         try {
-            // Validate session against DB (BetterAuth uses session IDs as tokens)
-            const session = await this.prisma.session.findUnique({
-                where: { id: token as string },
+            // Validate session against DB — look up by token field for consistency
+            // with resolveSession() which also uses the token column
+            const session = await this.prisma.session.findFirst({
+                where: { token: token as string },
                 include: { user: true },
             });
 
@@ -212,9 +213,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
             userEntry.rooms = roomIds;
         }
 
-        const logMsg = `[ChatGateway] handleJoin user=${user.id} tenant=${tenantSlug} tenantId=${tenant?.id} rooms=${Array.from(socket.rooms).join(',')}\n`;
-        console.log(`[DEBUG] User ${user.id} joining room ${user.id}`); // Debug log
-        this.logger.log(logMsg.trim());
+        this.logger.log(`handleJoin user=${user.id} tenant=${tenantSlug} tenantId=${tenant?.id} rooms=${Array.from(socket.rooms).join(',')}`);
         this.broadcastPresence(tenantSlug);
     }
 
@@ -223,9 +222,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         @ConnectedSocket() socket: CustomSocket,
         @MessageBody() message: Message,
     ) {
-        console.error(`[ChatGateway] RECEIVED MESSAGE: ${message?.text?.substring(0, 20)} from ${socket.id}`);
-
-        this.logger.log(`[handleMessage] Received message: ${JSON.stringify(message)}`);
+        this.logger.log(`[handleMessage] Received message from ${socket.id}`);
 
         if (!message?.text && !message?.imageUrl) {
             this.logger.warn('[handleMessage] No message text or image provided');
@@ -241,11 +238,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         this.logger.log(`[handleMessage] User data (onlineUsers): ${JSON.stringify(userData)}`);
         this.logger.log(`[handleMessage] Socket data (user): ${JSON.stringify(socket.data.user)}`);
         this.logger.log(`[handleMessage] Socket rooms: ${Array.from(socket.rooms).join(', ')}`);
-
-        const logMsg = `[handleMessage TRACE] text="${message.text}" roomId=${message.roomId} recipientId=${message.recipientId} socketUser=${JSON.stringify(socket.data.user)} rooms=${Array.from(socket.rooms).join(',')}`;
-        this.logger.debug(logMsg);
-        // fs.appendFileSync('/tmp/antigravity_chat.log', logMsg + '\n');
-        // fs.appendFileSync('/tmp/chat_debug.log', `[${new Date().toISOString()}] TRACE: ${logMsg}\n`);
 
         // Rate limiting
         const now = Date.now();
@@ -297,8 +289,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
             const senderRoomSize = this.server.sockets.adapter.rooms.get(message.senderId)?.size || 0;
 
             this.logger.log(`[handleMessage] Private: ${message.senderId} -> ${message.recipientId} (Recip Sockets: ${recipientRoomSize}, Sender Sockets: ${senderRoomSize})`);
-
-            console.log(`[DEBUG] Emitting privateMessage to ${message.recipientId} (room size: ${recipientRoomSize})`); // Debug log
 
             // Emit to recipient's personal room
             this.server.to(message.recipientId).emit('privateMessage', message);
@@ -381,6 +371,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
             onlineIds,
             roomCounts
         });
+    }
+
+    private sanitizeAlias(alias: string | undefined, fallback: string): string {
+        if (!alias || typeof alias !== 'string') return fallback;
+        const sanitized = alias
+            .trim()
+            .replace(/[^a-zA-Z0-9 \-_\u00C0-\u024F]/g, '') // Allow alphanumeric, spaces, hyphens, underscores, accented chars
+            .substring(0, 30);
+        return sanitized.length > 0 ? sanitized : fallback;
     }
 
     private sanitizeText(text: string): string {

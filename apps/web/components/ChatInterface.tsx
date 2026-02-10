@@ -260,9 +260,14 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
 
         const connect = async () => {
             const sessionData = await authClient.getSession();
-            const token = sessionData?.data?.session?.id;
+            let token = sessionData?.data?.session?.token;
 
-            console.log("[Socket] Attempting connection to:", SOCKET_URL, "for tenant:", tenant.slug);
+            // Fallback: read cookie directly for OTP sessions (not managed by BetterAuth client)
+            if (!token && typeof document !== 'undefined') {
+                const match = document.cookie.match(/better-auth\.session_token=([^;]+)/);
+                if (match) token = decodeURIComponent(match[1]);
+            }
+
             newSocket = io(SOCKET_URL, {
                 auth: { token },
                 query: {
@@ -413,7 +418,23 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
     };
 
     const handleLogout = async () => {
+        // 1. Disconnect socket immediately
+        if (socket) {
+            socket.disconnect();
+            socketInitializedRef.current = false;
+        }
+
+        // 2. BetterAuth sign-out (handles BetterAuth-managed sessions)
         if (session) await signOut();
+
+        // 3. Also call explicit logout to handle OTP sessions and clear cookies
+        try {
+            const url = Capacitor.isNativePlatform() ? `${SERVER_URL}/api/auth/logout` : '/api/auth/logout';
+            await fetch(url, { method: 'POST', credentials: 'include' });
+        } catch {
+            // Best-effort — don't block logout on network errors
+        }
+
         setCurrentUser(null);
         setSocket(null);
         localStorage.removeItem('chat_user');
