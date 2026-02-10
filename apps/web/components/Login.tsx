@@ -5,6 +5,16 @@ import { SERVER_URL } from '@/config';
 import { Capacitor } from '@capacitor/core';
 import { Keyboard, KeyboardStyle } from '@capacitor/keyboard';
 import { useKeyboardAnimation } from '@/hooks/useKeyboardAnimation';
+import { BiometricService } from "@/lib/biometrics";
+import { Fingerprint } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 interface LoginProps {
   onLogin: (user: User) => void;
@@ -38,6 +48,12 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { keyboardHeight } = useKeyboardAnimation();
 
+  // Biometric State
+  const [isBiometricsAvailable, setIsBiometricsAvailable] = useState(false);
+  const [isBiometricsEnabled, setIsBiometricsEnabled] = useState(false);
+  const [showBiometricPrompt, setShowBiometricPrompt] = useState(false);
+  const [pendingUser, setPendingUser] = useState<AppUser | null>(null);
+
   useEffect(() => {
     if (Capacitor.isNativePlatform()) {
       document.body.style.backgroundColor = '#ffffff';
@@ -45,6 +61,38 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
       Keyboard.setStyle({ style: KeyboardStyle.Light }).catch(() => { });
     }
   }, []);
+
+  // Check Biometrics on Mount
+  useEffect(() => {
+    const checkBio = async () => {
+      const available = await BiometricService.isAvailable();
+      const enabled = BiometricService.isEnabled();
+      setIsBiometricsAvailable(available);
+      setIsBiometricsEnabled(enabled);
+    };
+    checkBio();
+  }, []);
+
+  const handleBiometricLogin = async () => {
+    setIsLoading(true);
+    const result = await BiometricService.authenticate();
+
+    if (result.success) {
+      // Session is created server-side, reload to pick it up
+      window.location.reload();
+    } else {
+      setError(result.error || "Autenticazione biometrica fallita");
+      setIsLoading(false);
+    }
+  };
+
+  const handleBiometricSetup = async () => {
+    if (!pendingUser?.phoneNumber) return;
+
+    await BiometricService.setup(pendingUser.phoneNumber);
+    setShowBiometricPrompt(false);
+    onLogin(pendingUser);
+  };
 
   const handlePhoneSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -111,13 +159,20 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
 
       if (data.success && data.user) {
         // Login successful
-        // Ensure user has alias (map from name if needed)
         const appUser = {
           ...data.user,
           alias: data.user.alias || data.user.name || 'User'
         };
 
-        onLogin(appUser);
+        // Check if we should prompt for biometrics
+        if (isBiometricsAvailable && !isBiometricsEnabled) {
+          setPendingUser(appUser);
+          setShowBiometricPrompt(true);
+          setIsLoading(false);
+          // Don't call onLogin yet, wait for prompt interaction
+        } else {
+          onLogin(appUser);
+        }
       }
     } catch (err: any) {
       setIsLoading(false);
@@ -155,7 +210,15 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
           ...data.user,
           alias: data.user.alias || data.user.name || 'User'
         };
-        onLogin(appUser);
+
+        // Check if we should prompt for biometrics
+        if (isBiometricsAvailable && !isBiometricsEnabled) {
+          setPendingUser(appUser);
+          setShowBiometricPrompt(true);
+          setIsLoading(false);
+        } else {
+          onLogin(appUser);
+        }
       }
     } catch (err: any) {
       setIsLoading(false);
@@ -428,6 +491,17 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
 
         {view === 'choice' && (
           <div className="space-y-4">
+            {isBiometricsAvailable && isBiometricsEnabled && (
+              <button
+                onClick={handleBiometricLogin}
+                disabled={isLoading}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-200 transition-all flex items-center justify-center gap-2 group mb-4"
+              >
+                <Fingerprint className="w-6 h-6" />
+                <span>Accedi con FaceID</span>
+              </button>
+            )}
+
             <button
               onClick={() => setView('anonymous')}
               className="w-full bg-white hover:bg-gray-50 text-gray-700 font-bold py-4 rounded-xl border-2 border-gray-100 hover:border-primary hover:text-primary transition-all flex items-center justify-center gap-2 group"
@@ -691,6 +765,39 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
           </p>
         </div>
       </div>
+      {/* PWA Install Prompt - Subtle */}
+      {/* ... existing PWA prompt ... */}
+
+      {/* Biometric Setup Dialog */}
+      <Dialog open={showBiometricPrompt} onOpenChange={(open) => {
+        if (!open && pendingUser) {
+          setShowBiometricPrompt(false);
+          onLogin(pendingUser); // Proceed if dismissed
+        }
+      }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Attiva accesso rapido</DialogTitle>
+            <DialogDescription>
+              Vuoi usare FaceID/TouchID per accedere più velocemente la prossima volta?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex-row gap-2 sm:justify-end">
+            <button
+              onClick={() => { setShowBiometricPrompt(false); if (pendingUser) onLogin(pendingUser); }}
+              className="px-4 py-2 text-gray-600 font-medium hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              No, grazie
+            </button>
+            <button
+              onClick={handleBiometricSetup}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition-colors"
+            >
+              Attiva
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

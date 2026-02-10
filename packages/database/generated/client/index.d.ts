@@ -73,6 +73,11 @@ export type Passkey = $Result.DefaultSelection<Prisma.$PasskeyPayload>
  * 
  */
 export type Feedback = $Result.DefaultSelection<Prisma.$FeedbackPayload>
+/**
+ * Model BiometricToken
+ * 
+ */
+export type BiometricToken = $Result.DefaultSelection<Prisma.$BiometricTokenPayload>
 
 /**
  * Enums
@@ -358,6 +363,16 @@ export class PrismaClient<
     * ```
     */
   get feedback(): Prisma.FeedbackDelegate<ExtArgs>;
+
+  /**
+   * `prisma.biometricToken`: Exposes CRUD operations for the **BiometricToken** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more BiometricTokens
+    * const biometricTokens = await prisma.biometricToken.findMany()
+    * ```
+    */
+  get biometricToken(): Prisma.BiometricTokenDelegate<ExtArgs>;
 }
 
 export namespace Prisma {
@@ -810,7 +825,8 @@ export namespace Prisma {
     Message: 'Message',
     SystemLog: 'SystemLog',
     Passkey: 'Passkey',
-    Feedback: 'Feedback'
+    Feedback: 'Feedback',
+    BiometricToken: 'BiometricToken'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -826,7 +842,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "tenant" | "nasDevice" | "user" | "session" | "account" | "verification" | "tenantMember" | "room" | "message" | "systemLog" | "passkey" | "feedback"
+      modelProps: "tenant" | "nasDevice" | "user" | "session" | "account" | "verification" | "tenantMember" | "room" | "message" | "systemLog" | "passkey" | "feedback" | "biometricToken"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1670,6 +1686,76 @@ export namespace Prisma {
           }
         }
       }
+      BiometricToken: {
+        payload: Prisma.$BiometricTokenPayload<ExtArgs>
+        fields: Prisma.BiometricTokenFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.BiometricTokenFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BiometricTokenPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.BiometricTokenFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BiometricTokenPayload>
+          }
+          findFirst: {
+            args: Prisma.BiometricTokenFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BiometricTokenPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.BiometricTokenFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BiometricTokenPayload>
+          }
+          findMany: {
+            args: Prisma.BiometricTokenFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BiometricTokenPayload>[]
+          }
+          create: {
+            args: Prisma.BiometricTokenCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BiometricTokenPayload>
+          }
+          createMany: {
+            args: Prisma.BiometricTokenCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.BiometricTokenCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BiometricTokenPayload>[]
+          }
+          delete: {
+            args: Prisma.BiometricTokenDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BiometricTokenPayload>
+          }
+          update: {
+            args: Prisma.BiometricTokenUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BiometricTokenPayload>
+          }
+          deleteMany: {
+            args: Prisma.BiometricTokenDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.BiometricTokenUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.BiometricTokenUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BiometricTokenPayload>
+          }
+          aggregate: {
+            args: Prisma.BiometricTokenAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateBiometricToken>
+          }
+          groupBy: {
+            args: Prisma.BiometricTokenGroupByArgs<ExtArgs>
+            result: $Utils.Optional<BiometricTokenGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.BiometricTokenCountArgs<ExtArgs>
+            result: $Utils.Optional<BiometricTokenCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1913,6 +1999,7 @@ export namespace Prisma {
     messages: number
     passkeys: number
     feedbacks: number
+    biometricTokens: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -1922,6 +2009,7 @@ export namespace Prisma {
     messages?: boolean | UserCountOutputTypeCountMessagesArgs
     passkeys?: boolean | UserCountOutputTypeCountPasskeysArgs
     feedbacks?: boolean | UserCountOutputTypeCountFeedbacksArgs
+    biometricTokens?: boolean | UserCountOutputTypeCountBiometricTokensArgs
   }
 
   // Custom InputTypes
@@ -1975,6 +2063,13 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountFeedbacksArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: FeedbackWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountBiometricTokensArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BiometricTokenWhereInput
   }
 
 
@@ -4446,6 +4541,7 @@ export namespace Prisma {
     messages?: boolean | User$messagesArgs<ExtArgs>
     passkeys?: boolean | User$passkeysArgs<ExtArgs>
     feedbacks?: boolean | User$feedbacksArgs<ExtArgs>
+    biometricTokens?: boolean | User$biometricTokensArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -4484,6 +4580,7 @@ export namespace Prisma {
     messages?: boolean | User$messagesArgs<ExtArgs>
     passkeys?: boolean | User$passkeysArgs<ExtArgs>
     feedbacks?: boolean | User$feedbacksArgs<ExtArgs>
+    biometricTokens?: boolean | User$biometricTokensArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -4497,6 +4594,7 @@ export namespace Prisma {
       messages: Prisma.$MessagePayload<ExtArgs>[]
       passkeys: Prisma.$PasskeyPayload<ExtArgs>[]
       feedbacks: Prisma.$FeedbackPayload<ExtArgs>[]
+      biometricTokens: Prisma.$BiometricTokenPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -4880,6 +4978,7 @@ export namespace Prisma {
     messages<T extends User$messagesArgs<ExtArgs> = {}>(args?: Subset<T, User$messagesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MessagePayload<ExtArgs>, T, "findMany"> | Null>
     passkeys<T extends User$passkeysArgs<ExtArgs> = {}>(args?: Subset<T, User$passkeysArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PasskeyPayload<ExtArgs>, T, "findMany"> | Null>
     feedbacks<T extends User$feedbacksArgs<ExtArgs> = {}>(args?: Subset<T, User$feedbacksArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, "findMany"> | Null>
+    biometricTokens<T extends User$biometricTokensArgs<ExtArgs> = {}>(args?: Subset<T, User$biometricTokensArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BiometricTokenPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -5351,6 +5450,26 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: FeedbackScalarFieldEnum | FeedbackScalarFieldEnum[]
+  }
+
+  /**
+   * User.biometricTokens
+   */
+  export type User$biometricTokensArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BiometricToken
+     */
+    select?: BiometricTokenSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BiometricTokenInclude<ExtArgs> | null
+    where?: BiometricTokenWhereInput
+    orderBy?: BiometricTokenOrderByWithRelationInput | BiometricTokenOrderByWithRelationInput[]
+    cursor?: BiometricTokenWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: BiometricTokenScalarFieldEnum | BiometricTokenScalarFieldEnum[]
   }
 
   /**
@@ -14218,6 +14337,951 @@ export namespace Prisma {
 
 
   /**
+   * Model BiometricToken
+   */
+
+  export type AggregateBiometricToken = {
+    _count: BiometricTokenCountAggregateOutputType | null
+    _min: BiometricTokenMinAggregateOutputType | null
+    _max: BiometricTokenMaxAggregateOutputType | null
+  }
+
+  export type BiometricTokenMinAggregateOutputType = {
+    id: string | null
+    token: string | null
+    userId: string | null
+    deviceId: string | null
+    createdAt: Date | null
+    expiresAt: Date | null
+  }
+
+  export type BiometricTokenMaxAggregateOutputType = {
+    id: string | null
+    token: string | null
+    userId: string | null
+    deviceId: string | null
+    createdAt: Date | null
+    expiresAt: Date | null
+  }
+
+  export type BiometricTokenCountAggregateOutputType = {
+    id: number
+    token: number
+    userId: number
+    deviceId: number
+    createdAt: number
+    expiresAt: number
+    _all: number
+  }
+
+
+  export type BiometricTokenMinAggregateInputType = {
+    id?: true
+    token?: true
+    userId?: true
+    deviceId?: true
+    createdAt?: true
+    expiresAt?: true
+  }
+
+  export type BiometricTokenMaxAggregateInputType = {
+    id?: true
+    token?: true
+    userId?: true
+    deviceId?: true
+    createdAt?: true
+    expiresAt?: true
+  }
+
+  export type BiometricTokenCountAggregateInputType = {
+    id?: true
+    token?: true
+    userId?: true
+    deviceId?: true
+    createdAt?: true
+    expiresAt?: true
+    _all?: true
+  }
+
+  export type BiometricTokenAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which BiometricToken to aggregate.
+     */
+    where?: BiometricTokenWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BiometricTokens to fetch.
+     */
+    orderBy?: BiometricTokenOrderByWithRelationInput | BiometricTokenOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: BiometricTokenWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BiometricTokens from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BiometricTokens.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned BiometricTokens
+    **/
+    _count?: true | BiometricTokenCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: BiometricTokenMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: BiometricTokenMaxAggregateInputType
+  }
+
+  export type GetBiometricTokenAggregateType<T extends BiometricTokenAggregateArgs> = {
+        [P in keyof T & keyof AggregateBiometricToken]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateBiometricToken[P]>
+      : GetScalarType<T[P], AggregateBiometricToken[P]>
+  }
+
+
+
+
+  export type BiometricTokenGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BiometricTokenWhereInput
+    orderBy?: BiometricTokenOrderByWithAggregationInput | BiometricTokenOrderByWithAggregationInput[]
+    by: BiometricTokenScalarFieldEnum[] | BiometricTokenScalarFieldEnum
+    having?: BiometricTokenScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: BiometricTokenCountAggregateInputType | true
+    _min?: BiometricTokenMinAggregateInputType
+    _max?: BiometricTokenMaxAggregateInputType
+  }
+
+  export type BiometricTokenGroupByOutputType = {
+    id: string
+    token: string
+    userId: string
+    deviceId: string
+    createdAt: Date
+    expiresAt: Date | null
+    _count: BiometricTokenCountAggregateOutputType | null
+    _min: BiometricTokenMinAggregateOutputType | null
+    _max: BiometricTokenMaxAggregateOutputType | null
+  }
+
+  type GetBiometricTokenGroupByPayload<T extends BiometricTokenGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<BiometricTokenGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof BiometricTokenGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], BiometricTokenGroupByOutputType[P]>
+            : GetScalarType<T[P], BiometricTokenGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type BiometricTokenSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    token?: boolean
+    userId?: boolean
+    deviceId?: boolean
+    createdAt?: boolean
+    expiresAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["biometricToken"]>
+
+  export type BiometricTokenSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    token?: boolean
+    userId?: boolean
+    deviceId?: boolean
+    createdAt?: boolean
+    expiresAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["biometricToken"]>
+
+  export type BiometricTokenSelectScalar = {
+    id?: boolean
+    token?: boolean
+    userId?: boolean
+    deviceId?: boolean
+    createdAt?: boolean
+    expiresAt?: boolean
+  }
+
+  export type BiometricTokenInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type BiometricTokenIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $BiometricTokenPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "BiometricToken"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      token: string
+      userId: string
+      deviceId: string
+      createdAt: Date
+      expiresAt: Date | null
+    }, ExtArgs["result"]["biometricToken"]>
+    composites: {}
+  }
+
+  type BiometricTokenGetPayload<S extends boolean | null | undefined | BiometricTokenDefaultArgs> = $Result.GetResult<Prisma.$BiometricTokenPayload, S>
+
+  type BiometricTokenCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<BiometricTokenFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: BiometricTokenCountAggregateInputType | true
+    }
+
+  export interface BiometricTokenDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['BiometricToken'], meta: { name: 'BiometricToken' } }
+    /**
+     * Find zero or one BiometricToken that matches the filter.
+     * @param {BiometricTokenFindUniqueArgs} args - Arguments to find a BiometricToken
+     * @example
+     * // Get one BiometricToken
+     * const biometricToken = await prisma.biometricToken.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends BiometricTokenFindUniqueArgs>(args: SelectSubset<T, BiometricTokenFindUniqueArgs<ExtArgs>>): Prisma__BiometricTokenClient<$Result.GetResult<Prisma.$BiometricTokenPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one BiometricToken that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {BiometricTokenFindUniqueOrThrowArgs} args - Arguments to find a BiometricToken
+     * @example
+     * // Get one BiometricToken
+     * const biometricToken = await prisma.biometricToken.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends BiometricTokenFindUniqueOrThrowArgs>(args: SelectSubset<T, BiometricTokenFindUniqueOrThrowArgs<ExtArgs>>): Prisma__BiometricTokenClient<$Result.GetResult<Prisma.$BiometricTokenPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first BiometricToken that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BiometricTokenFindFirstArgs} args - Arguments to find a BiometricToken
+     * @example
+     * // Get one BiometricToken
+     * const biometricToken = await prisma.biometricToken.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends BiometricTokenFindFirstArgs>(args?: SelectSubset<T, BiometricTokenFindFirstArgs<ExtArgs>>): Prisma__BiometricTokenClient<$Result.GetResult<Prisma.$BiometricTokenPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first BiometricToken that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BiometricTokenFindFirstOrThrowArgs} args - Arguments to find a BiometricToken
+     * @example
+     * // Get one BiometricToken
+     * const biometricToken = await prisma.biometricToken.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends BiometricTokenFindFirstOrThrowArgs>(args?: SelectSubset<T, BiometricTokenFindFirstOrThrowArgs<ExtArgs>>): Prisma__BiometricTokenClient<$Result.GetResult<Prisma.$BiometricTokenPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more BiometricTokens that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BiometricTokenFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all BiometricTokens
+     * const biometricTokens = await prisma.biometricToken.findMany()
+     * 
+     * // Get first 10 BiometricTokens
+     * const biometricTokens = await prisma.biometricToken.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const biometricTokenWithIdOnly = await prisma.biometricToken.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends BiometricTokenFindManyArgs>(args?: SelectSubset<T, BiometricTokenFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BiometricTokenPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a BiometricToken.
+     * @param {BiometricTokenCreateArgs} args - Arguments to create a BiometricToken.
+     * @example
+     * // Create one BiometricToken
+     * const BiometricToken = await prisma.biometricToken.create({
+     *   data: {
+     *     // ... data to create a BiometricToken
+     *   }
+     * })
+     * 
+     */
+    create<T extends BiometricTokenCreateArgs>(args: SelectSubset<T, BiometricTokenCreateArgs<ExtArgs>>): Prisma__BiometricTokenClient<$Result.GetResult<Prisma.$BiometricTokenPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many BiometricTokens.
+     * @param {BiometricTokenCreateManyArgs} args - Arguments to create many BiometricTokens.
+     * @example
+     * // Create many BiometricTokens
+     * const biometricToken = await prisma.biometricToken.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends BiometricTokenCreateManyArgs>(args?: SelectSubset<T, BiometricTokenCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many BiometricTokens and returns the data saved in the database.
+     * @param {BiometricTokenCreateManyAndReturnArgs} args - Arguments to create many BiometricTokens.
+     * @example
+     * // Create many BiometricTokens
+     * const biometricToken = await prisma.biometricToken.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many BiometricTokens and only return the `id`
+     * const biometricTokenWithIdOnly = await prisma.biometricToken.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends BiometricTokenCreateManyAndReturnArgs>(args?: SelectSubset<T, BiometricTokenCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BiometricTokenPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a BiometricToken.
+     * @param {BiometricTokenDeleteArgs} args - Arguments to delete one BiometricToken.
+     * @example
+     * // Delete one BiometricToken
+     * const BiometricToken = await prisma.biometricToken.delete({
+     *   where: {
+     *     // ... filter to delete one BiometricToken
+     *   }
+     * })
+     * 
+     */
+    delete<T extends BiometricTokenDeleteArgs>(args: SelectSubset<T, BiometricTokenDeleteArgs<ExtArgs>>): Prisma__BiometricTokenClient<$Result.GetResult<Prisma.$BiometricTokenPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one BiometricToken.
+     * @param {BiometricTokenUpdateArgs} args - Arguments to update one BiometricToken.
+     * @example
+     * // Update one BiometricToken
+     * const biometricToken = await prisma.biometricToken.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends BiometricTokenUpdateArgs>(args: SelectSubset<T, BiometricTokenUpdateArgs<ExtArgs>>): Prisma__BiometricTokenClient<$Result.GetResult<Prisma.$BiometricTokenPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more BiometricTokens.
+     * @param {BiometricTokenDeleteManyArgs} args - Arguments to filter BiometricTokens to delete.
+     * @example
+     * // Delete a few BiometricTokens
+     * const { count } = await prisma.biometricToken.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends BiometricTokenDeleteManyArgs>(args?: SelectSubset<T, BiometricTokenDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more BiometricTokens.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BiometricTokenUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many BiometricTokens
+     * const biometricToken = await prisma.biometricToken.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends BiometricTokenUpdateManyArgs>(args: SelectSubset<T, BiometricTokenUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one BiometricToken.
+     * @param {BiometricTokenUpsertArgs} args - Arguments to update or create a BiometricToken.
+     * @example
+     * // Update or create a BiometricToken
+     * const biometricToken = await prisma.biometricToken.upsert({
+     *   create: {
+     *     // ... data to create a BiometricToken
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the BiometricToken we want to update
+     *   }
+     * })
+     */
+    upsert<T extends BiometricTokenUpsertArgs>(args: SelectSubset<T, BiometricTokenUpsertArgs<ExtArgs>>): Prisma__BiometricTokenClient<$Result.GetResult<Prisma.$BiometricTokenPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of BiometricTokens.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BiometricTokenCountArgs} args - Arguments to filter BiometricTokens to count.
+     * @example
+     * // Count the number of BiometricTokens
+     * const count = await prisma.biometricToken.count({
+     *   where: {
+     *     // ... the filter for the BiometricTokens we want to count
+     *   }
+     * })
+    **/
+    count<T extends BiometricTokenCountArgs>(
+      args?: Subset<T, BiometricTokenCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], BiometricTokenCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a BiometricToken.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BiometricTokenAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends BiometricTokenAggregateArgs>(args: Subset<T, BiometricTokenAggregateArgs>): Prisma.PrismaPromise<GetBiometricTokenAggregateType<T>>
+
+    /**
+     * Group by BiometricToken.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BiometricTokenGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends BiometricTokenGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: BiometricTokenGroupByArgs['orderBy'] }
+        : { orderBy?: BiometricTokenGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, BiometricTokenGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetBiometricTokenGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the BiometricToken model
+   */
+  readonly fields: BiometricTokenFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for BiometricToken.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__BiometricTokenClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the BiometricToken model
+   */ 
+  interface BiometricTokenFieldRefs {
+    readonly id: FieldRef<"BiometricToken", 'String'>
+    readonly token: FieldRef<"BiometricToken", 'String'>
+    readonly userId: FieldRef<"BiometricToken", 'String'>
+    readonly deviceId: FieldRef<"BiometricToken", 'String'>
+    readonly createdAt: FieldRef<"BiometricToken", 'DateTime'>
+    readonly expiresAt: FieldRef<"BiometricToken", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * BiometricToken findUnique
+   */
+  export type BiometricTokenFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BiometricToken
+     */
+    select?: BiometricTokenSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BiometricTokenInclude<ExtArgs> | null
+    /**
+     * Filter, which BiometricToken to fetch.
+     */
+    where: BiometricTokenWhereUniqueInput
+  }
+
+  /**
+   * BiometricToken findUniqueOrThrow
+   */
+  export type BiometricTokenFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BiometricToken
+     */
+    select?: BiometricTokenSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BiometricTokenInclude<ExtArgs> | null
+    /**
+     * Filter, which BiometricToken to fetch.
+     */
+    where: BiometricTokenWhereUniqueInput
+  }
+
+  /**
+   * BiometricToken findFirst
+   */
+  export type BiometricTokenFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BiometricToken
+     */
+    select?: BiometricTokenSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BiometricTokenInclude<ExtArgs> | null
+    /**
+     * Filter, which BiometricToken to fetch.
+     */
+    where?: BiometricTokenWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BiometricTokens to fetch.
+     */
+    orderBy?: BiometricTokenOrderByWithRelationInput | BiometricTokenOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for BiometricTokens.
+     */
+    cursor?: BiometricTokenWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BiometricTokens from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BiometricTokens.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BiometricTokens.
+     */
+    distinct?: BiometricTokenScalarFieldEnum | BiometricTokenScalarFieldEnum[]
+  }
+
+  /**
+   * BiometricToken findFirstOrThrow
+   */
+  export type BiometricTokenFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BiometricToken
+     */
+    select?: BiometricTokenSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BiometricTokenInclude<ExtArgs> | null
+    /**
+     * Filter, which BiometricToken to fetch.
+     */
+    where?: BiometricTokenWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BiometricTokens to fetch.
+     */
+    orderBy?: BiometricTokenOrderByWithRelationInput | BiometricTokenOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for BiometricTokens.
+     */
+    cursor?: BiometricTokenWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BiometricTokens from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BiometricTokens.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BiometricTokens.
+     */
+    distinct?: BiometricTokenScalarFieldEnum | BiometricTokenScalarFieldEnum[]
+  }
+
+  /**
+   * BiometricToken findMany
+   */
+  export type BiometricTokenFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BiometricToken
+     */
+    select?: BiometricTokenSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BiometricTokenInclude<ExtArgs> | null
+    /**
+     * Filter, which BiometricTokens to fetch.
+     */
+    where?: BiometricTokenWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BiometricTokens to fetch.
+     */
+    orderBy?: BiometricTokenOrderByWithRelationInput | BiometricTokenOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing BiometricTokens.
+     */
+    cursor?: BiometricTokenWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BiometricTokens from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BiometricTokens.
+     */
+    skip?: number
+    distinct?: BiometricTokenScalarFieldEnum | BiometricTokenScalarFieldEnum[]
+  }
+
+  /**
+   * BiometricToken create
+   */
+  export type BiometricTokenCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BiometricToken
+     */
+    select?: BiometricTokenSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BiometricTokenInclude<ExtArgs> | null
+    /**
+     * The data needed to create a BiometricToken.
+     */
+    data: XOR<BiometricTokenCreateInput, BiometricTokenUncheckedCreateInput>
+  }
+
+  /**
+   * BiometricToken createMany
+   */
+  export type BiometricTokenCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many BiometricTokens.
+     */
+    data: BiometricTokenCreateManyInput | BiometricTokenCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * BiometricToken createManyAndReturn
+   */
+  export type BiometricTokenCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BiometricToken
+     */
+    select?: BiometricTokenSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many BiometricTokens.
+     */
+    data: BiometricTokenCreateManyInput | BiometricTokenCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BiometricTokenIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * BiometricToken update
+   */
+  export type BiometricTokenUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BiometricToken
+     */
+    select?: BiometricTokenSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BiometricTokenInclude<ExtArgs> | null
+    /**
+     * The data needed to update a BiometricToken.
+     */
+    data: XOR<BiometricTokenUpdateInput, BiometricTokenUncheckedUpdateInput>
+    /**
+     * Choose, which BiometricToken to update.
+     */
+    where: BiometricTokenWhereUniqueInput
+  }
+
+  /**
+   * BiometricToken updateMany
+   */
+  export type BiometricTokenUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update BiometricTokens.
+     */
+    data: XOR<BiometricTokenUpdateManyMutationInput, BiometricTokenUncheckedUpdateManyInput>
+    /**
+     * Filter which BiometricTokens to update
+     */
+    where?: BiometricTokenWhereInput
+  }
+
+  /**
+   * BiometricToken upsert
+   */
+  export type BiometricTokenUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BiometricToken
+     */
+    select?: BiometricTokenSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BiometricTokenInclude<ExtArgs> | null
+    /**
+     * The filter to search for the BiometricToken to update in case it exists.
+     */
+    where: BiometricTokenWhereUniqueInput
+    /**
+     * In case the BiometricToken found by the `where` argument doesn't exist, create a new BiometricToken with this data.
+     */
+    create: XOR<BiometricTokenCreateInput, BiometricTokenUncheckedCreateInput>
+    /**
+     * In case the BiometricToken was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<BiometricTokenUpdateInput, BiometricTokenUncheckedUpdateInput>
+  }
+
+  /**
+   * BiometricToken delete
+   */
+  export type BiometricTokenDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BiometricToken
+     */
+    select?: BiometricTokenSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BiometricTokenInclude<ExtArgs> | null
+    /**
+     * Filter which BiometricToken to delete.
+     */
+    where: BiometricTokenWhereUniqueInput
+  }
+
+  /**
+   * BiometricToken deleteMany
+   */
+  export type BiometricTokenDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which BiometricTokens to delete
+     */
+    where?: BiometricTokenWhereInput
+  }
+
+  /**
+   * BiometricToken without action
+   */
+  export type BiometricTokenDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BiometricToken
+     */
+    select?: BiometricTokenSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BiometricTokenInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -14411,6 +15475,18 @@ export namespace Prisma {
   };
 
   export type FeedbackScalarFieldEnum = (typeof FeedbackScalarFieldEnum)[keyof typeof FeedbackScalarFieldEnum]
+
+
+  export const BiometricTokenScalarFieldEnum: {
+    id: 'id',
+    token: 'token',
+    userId: 'userId',
+    deviceId: 'deviceId',
+    createdAt: 'createdAt',
+    expiresAt: 'expiresAt'
+  };
+
+  export type BiometricTokenScalarFieldEnum = (typeof BiometricTokenScalarFieldEnum)[keyof typeof BiometricTokenScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -14797,6 +15873,7 @@ export namespace Prisma {
     messages?: MessageListRelationFilter
     passkeys?: PasskeyListRelationFilter
     feedbacks?: FeedbackListRelationFilter
+    biometricTokens?: BiometricTokenListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -14817,6 +15894,7 @@ export namespace Prisma {
     messages?: MessageOrderByRelationAggregateInput
     passkeys?: PasskeyOrderByRelationAggregateInput
     feedbacks?: FeedbackOrderByRelationAggregateInput
+    biometricTokens?: BiometricTokenOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -14840,6 +15918,7 @@ export namespace Prisma {
     messages?: MessageListRelationFilter
     passkeys?: PasskeyListRelationFilter
     feedbacks?: FeedbackListRelationFilter
+    biometricTokens?: BiometricTokenListRelationFilter
   }, "id" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -15533,6 +16612,66 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"Feedback"> | Date | string
   }
 
+  export type BiometricTokenWhereInput = {
+    AND?: BiometricTokenWhereInput | BiometricTokenWhereInput[]
+    OR?: BiometricTokenWhereInput[]
+    NOT?: BiometricTokenWhereInput | BiometricTokenWhereInput[]
+    id?: StringFilter<"BiometricToken"> | string
+    token?: StringFilter<"BiometricToken"> | string
+    userId?: StringFilter<"BiometricToken"> | string
+    deviceId?: StringFilter<"BiometricToken"> | string
+    createdAt?: DateTimeFilter<"BiometricToken"> | Date | string
+    expiresAt?: DateTimeNullableFilter<"BiometricToken"> | Date | string | null
+    user?: XOR<UserRelationFilter, UserWhereInput>
+  }
+
+  export type BiometricTokenOrderByWithRelationInput = {
+    id?: SortOrder
+    token?: SortOrder
+    userId?: SortOrder
+    deviceId?: SortOrder
+    createdAt?: SortOrder
+    expiresAt?: SortOrderInput | SortOrder
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type BiometricTokenWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    token?: string
+    AND?: BiometricTokenWhereInput | BiometricTokenWhereInput[]
+    OR?: BiometricTokenWhereInput[]
+    NOT?: BiometricTokenWhereInput | BiometricTokenWhereInput[]
+    userId?: StringFilter<"BiometricToken"> | string
+    deviceId?: StringFilter<"BiometricToken"> | string
+    createdAt?: DateTimeFilter<"BiometricToken"> | Date | string
+    expiresAt?: DateTimeNullableFilter<"BiometricToken"> | Date | string | null
+    user?: XOR<UserRelationFilter, UserWhereInput>
+  }, "id" | "token">
+
+  export type BiometricTokenOrderByWithAggregationInput = {
+    id?: SortOrder
+    token?: SortOrder
+    userId?: SortOrder
+    deviceId?: SortOrder
+    createdAt?: SortOrder
+    expiresAt?: SortOrderInput | SortOrder
+    _count?: BiometricTokenCountOrderByAggregateInput
+    _max?: BiometricTokenMaxOrderByAggregateInput
+    _min?: BiometricTokenMinOrderByAggregateInput
+  }
+
+  export type BiometricTokenScalarWhereWithAggregatesInput = {
+    AND?: BiometricTokenScalarWhereWithAggregatesInput | BiometricTokenScalarWhereWithAggregatesInput[]
+    OR?: BiometricTokenScalarWhereWithAggregatesInput[]
+    NOT?: BiometricTokenScalarWhereWithAggregatesInput | BiometricTokenScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"BiometricToken"> | string
+    token?: StringWithAggregatesFilter<"BiometricToken"> | string
+    userId?: StringWithAggregatesFilter<"BiometricToken"> | string
+    deviceId?: StringWithAggregatesFilter<"BiometricToken"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"BiometricToken"> | Date | string
+    expiresAt?: DateTimeNullableWithAggregatesFilter<"BiometricToken"> | Date | string | null
+  }
+
   export type TenantCreateInput = {
     id?: string
     name: string
@@ -15791,6 +16930,7 @@ export namespace Prisma {
     messages?: MessageCreateNestedManyWithoutUserInput
     passkeys?: PasskeyCreateNestedManyWithoutUserInput
     feedbacks?: FeedbackCreateNestedManyWithoutUserInput
+    biometricTokens?: BiometricTokenCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -15811,6 +16951,7 @@ export namespace Prisma {
     messages?: MessageUncheckedCreateNestedManyWithoutUserInput
     passkeys?: PasskeyUncheckedCreateNestedManyWithoutUserInput
     feedbacks?: FeedbackUncheckedCreateNestedManyWithoutUserInput
+    biometricTokens?: BiometricTokenUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -15831,6 +16972,7 @@ export namespace Prisma {
     messages?: MessageUpdateManyWithoutUserNestedInput
     passkeys?: PasskeyUpdateManyWithoutUserNestedInput
     feedbacks?: FeedbackUpdateManyWithoutUserNestedInput
+    biometricTokens?: BiometricTokenUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -15851,6 +16993,7 @@ export namespace Prisma {
     messages?: MessageUncheckedUpdateManyWithoutUserNestedInput
     passkeys?: PasskeyUncheckedUpdateManyWithoutUserNestedInput
     feedbacks?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
+    biometricTokens?: BiometricTokenUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -16594,6 +17737,68 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type BiometricTokenCreateInput = {
+    id?: string
+    token: string
+    deviceId: string
+    createdAt?: Date | string
+    expiresAt?: Date | string | null
+    user: UserCreateNestedOneWithoutBiometricTokensInput
+  }
+
+  export type BiometricTokenUncheckedCreateInput = {
+    id?: string
+    token: string
+    userId: string
+    deviceId: string
+    createdAt?: Date | string
+    expiresAt?: Date | string | null
+  }
+
+  export type BiometricTokenUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    token?: StringFieldUpdateOperationsInput | string
+    deviceId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    user?: UserUpdateOneRequiredWithoutBiometricTokensNestedInput
+  }
+
+  export type BiometricTokenUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    token?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    deviceId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type BiometricTokenCreateManyInput = {
+    id?: string
+    token: string
+    userId: string
+    deviceId: string
+    createdAt?: Date | string
+    expiresAt?: Date | string | null
+  }
+
+  export type BiometricTokenUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    token?: StringFieldUpdateOperationsInput | string
+    deviceId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type BiometricTokenUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    token?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    deviceId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -16973,6 +18178,12 @@ export namespace Prisma {
     none?: PasskeyWhereInput
   }
 
+  export type BiometricTokenListRelationFilter = {
+    every?: BiometricTokenWhereInput
+    some?: BiometricTokenWhereInput
+    none?: BiometricTokenWhereInput
+  }
+
   export type SessionOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -16982,6 +18193,10 @@ export namespace Prisma {
   }
 
   export type PasskeyOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type BiometricTokenOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -17473,6 +18688,33 @@ export namespace Prisma {
     score?: SortOrder
   }
 
+  export type BiometricTokenCountOrderByAggregateInput = {
+    id?: SortOrder
+    token?: SortOrder
+    userId?: SortOrder
+    deviceId?: SortOrder
+    createdAt?: SortOrder
+    expiresAt?: SortOrder
+  }
+
+  export type BiometricTokenMaxOrderByAggregateInput = {
+    id?: SortOrder
+    token?: SortOrder
+    userId?: SortOrder
+    deviceId?: SortOrder
+    createdAt?: SortOrder
+    expiresAt?: SortOrder
+  }
+
+  export type BiometricTokenMinOrderByAggregateInput = {
+    id?: SortOrder
+    token?: SortOrder
+    userId?: SortOrder
+    deviceId?: SortOrder
+    createdAt?: SortOrder
+    expiresAt?: SortOrder
+  }
+
   export type TenantMemberCreateNestedManyWithoutTenantInput = {
     create?: XOR<TenantMemberCreateWithoutTenantInput, TenantMemberUncheckedCreateWithoutTenantInput> | TenantMemberCreateWithoutTenantInput[] | TenantMemberUncheckedCreateWithoutTenantInput[]
     connectOrCreate?: TenantMemberCreateOrConnectWithoutTenantInput | TenantMemberCreateOrConnectWithoutTenantInput[]
@@ -17805,6 +19047,13 @@ export namespace Prisma {
     connect?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
   }
 
+  export type BiometricTokenCreateNestedManyWithoutUserInput = {
+    create?: XOR<BiometricTokenCreateWithoutUserInput, BiometricTokenUncheckedCreateWithoutUserInput> | BiometricTokenCreateWithoutUserInput[] | BiometricTokenUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: BiometricTokenCreateOrConnectWithoutUserInput | BiometricTokenCreateOrConnectWithoutUserInput[]
+    createMany?: BiometricTokenCreateManyUserInputEnvelope
+    connect?: BiometricTokenWhereUniqueInput | BiometricTokenWhereUniqueInput[]
+  }
+
   export type TenantMemberUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<TenantMemberCreateWithoutUserInput, TenantMemberUncheckedCreateWithoutUserInput> | TenantMemberCreateWithoutUserInput[] | TenantMemberUncheckedCreateWithoutUserInput[]
     connectOrCreate?: TenantMemberCreateOrConnectWithoutUserInput | TenantMemberCreateOrConnectWithoutUserInput[]
@@ -17845,6 +19094,13 @@ export namespace Prisma {
     connectOrCreate?: FeedbackCreateOrConnectWithoutUserInput | FeedbackCreateOrConnectWithoutUserInput[]
     createMany?: FeedbackCreateManyUserInputEnvelope
     connect?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
+  }
+
+  export type BiometricTokenUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<BiometricTokenCreateWithoutUserInput, BiometricTokenUncheckedCreateWithoutUserInput> | BiometricTokenCreateWithoutUserInput[] | BiometricTokenUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: BiometricTokenCreateOrConnectWithoutUserInput | BiometricTokenCreateOrConnectWithoutUserInput[]
+    createMany?: BiometricTokenCreateManyUserInputEnvelope
+    connect?: BiometricTokenWhereUniqueInput | BiometricTokenWhereUniqueInput[]
   }
 
   export type NullableBoolFieldUpdateOperationsInput = {
@@ -17939,6 +19195,20 @@ export namespace Prisma {
     deleteMany?: FeedbackScalarWhereInput | FeedbackScalarWhereInput[]
   }
 
+  export type BiometricTokenUpdateManyWithoutUserNestedInput = {
+    create?: XOR<BiometricTokenCreateWithoutUserInput, BiometricTokenUncheckedCreateWithoutUserInput> | BiometricTokenCreateWithoutUserInput[] | BiometricTokenUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: BiometricTokenCreateOrConnectWithoutUserInput | BiometricTokenCreateOrConnectWithoutUserInput[]
+    upsert?: BiometricTokenUpsertWithWhereUniqueWithoutUserInput | BiometricTokenUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: BiometricTokenCreateManyUserInputEnvelope
+    set?: BiometricTokenWhereUniqueInput | BiometricTokenWhereUniqueInput[]
+    disconnect?: BiometricTokenWhereUniqueInput | BiometricTokenWhereUniqueInput[]
+    delete?: BiometricTokenWhereUniqueInput | BiometricTokenWhereUniqueInput[]
+    connect?: BiometricTokenWhereUniqueInput | BiometricTokenWhereUniqueInput[]
+    update?: BiometricTokenUpdateWithWhereUniqueWithoutUserInput | BiometricTokenUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: BiometricTokenUpdateManyWithWhereWithoutUserInput | BiometricTokenUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: BiometricTokenScalarWhereInput | BiometricTokenScalarWhereInput[]
+  }
+
   export type TenantMemberUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<TenantMemberCreateWithoutUserInput, TenantMemberUncheckedCreateWithoutUserInput> | TenantMemberCreateWithoutUserInput[] | TenantMemberUncheckedCreateWithoutUserInput[]
     connectOrCreate?: TenantMemberCreateOrConnectWithoutUserInput | TenantMemberCreateOrConnectWithoutUserInput[]
@@ -18021,6 +19291,20 @@ export namespace Prisma {
     update?: FeedbackUpdateWithWhereUniqueWithoutUserInput | FeedbackUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: FeedbackUpdateManyWithWhereWithoutUserInput | FeedbackUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: FeedbackScalarWhereInput | FeedbackScalarWhereInput[]
+  }
+
+  export type BiometricTokenUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<BiometricTokenCreateWithoutUserInput, BiometricTokenUncheckedCreateWithoutUserInput> | BiometricTokenCreateWithoutUserInput[] | BiometricTokenUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: BiometricTokenCreateOrConnectWithoutUserInput | BiometricTokenCreateOrConnectWithoutUserInput[]
+    upsert?: BiometricTokenUpsertWithWhereUniqueWithoutUserInput | BiometricTokenUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: BiometricTokenCreateManyUserInputEnvelope
+    set?: BiometricTokenWhereUniqueInput | BiometricTokenWhereUniqueInput[]
+    disconnect?: BiometricTokenWhereUniqueInput | BiometricTokenWhereUniqueInput[]
+    delete?: BiometricTokenWhereUniqueInput | BiometricTokenWhereUniqueInput[]
+    connect?: BiometricTokenWhereUniqueInput | BiometricTokenWhereUniqueInput[]
+    update?: BiometricTokenUpdateWithWhereUniqueWithoutUserInput | BiometricTokenUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: BiometricTokenUpdateManyWithWhereWithoutUserInput | BiometricTokenUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: BiometricTokenScalarWhereInput | BiometricTokenScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutSessionsInput = {
@@ -18257,6 +19541,20 @@ export namespace Prisma {
     upsert?: TenantUpsertWithoutFeedbacksInput
     connect?: TenantWhereUniqueInput
     update?: XOR<XOR<TenantUpdateToOneWithWhereWithoutFeedbacksInput, TenantUpdateWithoutFeedbacksInput>, TenantUncheckedUpdateWithoutFeedbacksInput>
+  }
+
+  export type UserCreateNestedOneWithoutBiometricTokensInput = {
+    create?: XOR<UserCreateWithoutBiometricTokensInput, UserUncheckedCreateWithoutBiometricTokensInput>
+    connectOrCreate?: UserCreateOrConnectWithoutBiometricTokensInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserUpdateOneRequiredWithoutBiometricTokensNestedInput = {
+    create?: XOR<UserCreateWithoutBiometricTokensInput, UserUncheckedCreateWithoutBiometricTokensInput>
+    connectOrCreate?: UserCreateOrConnectWithoutBiometricTokensInput
+    upsert?: UserUpsertWithoutBiometricTokensInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutBiometricTokensInput, UserUpdateWithoutBiometricTokensInput>, UserUncheckedUpdateWithoutBiometricTokensInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -19212,6 +20510,32 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type BiometricTokenCreateWithoutUserInput = {
+    id?: string
+    token: string
+    deviceId: string
+    createdAt?: Date | string
+    expiresAt?: Date | string | null
+  }
+
+  export type BiometricTokenUncheckedCreateWithoutUserInput = {
+    id?: string
+    token: string
+    deviceId: string
+    createdAt?: Date | string
+    expiresAt?: Date | string | null
+  }
+
+  export type BiometricTokenCreateOrConnectWithoutUserInput = {
+    where: BiometricTokenWhereUniqueInput
+    create: XOR<BiometricTokenCreateWithoutUserInput, BiometricTokenUncheckedCreateWithoutUserInput>
+  }
+
+  export type BiometricTokenCreateManyUserInputEnvelope = {
+    data: BiometricTokenCreateManyUserInput | BiometricTokenCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
   export type TenantMemberUpsertWithWhereUniqueWithoutUserInput = {
     where: TenantMemberWhereUniqueInput
     update: XOR<TenantMemberUpdateWithoutUserInput, TenantMemberUncheckedUpdateWithoutUserInput>
@@ -19357,6 +20681,34 @@ export namespace Prisma {
     data: XOR<FeedbackUpdateManyMutationInput, FeedbackUncheckedUpdateManyWithoutUserInput>
   }
 
+  export type BiometricTokenUpsertWithWhereUniqueWithoutUserInput = {
+    where: BiometricTokenWhereUniqueInput
+    update: XOR<BiometricTokenUpdateWithoutUserInput, BiometricTokenUncheckedUpdateWithoutUserInput>
+    create: XOR<BiometricTokenCreateWithoutUserInput, BiometricTokenUncheckedCreateWithoutUserInput>
+  }
+
+  export type BiometricTokenUpdateWithWhereUniqueWithoutUserInput = {
+    where: BiometricTokenWhereUniqueInput
+    data: XOR<BiometricTokenUpdateWithoutUserInput, BiometricTokenUncheckedUpdateWithoutUserInput>
+  }
+
+  export type BiometricTokenUpdateManyWithWhereWithoutUserInput = {
+    where: BiometricTokenScalarWhereInput
+    data: XOR<BiometricTokenUpdateManyMutationInput, BiometricTokenUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type BiometricTokenScalarWhereInput = {
+    AND?: BiometricTokenScalarWhereInput | BiometricTokenScalarWhereInput[]
+    OR?: BiometricTokenScalarWhereInput[]
+    NOT?: BiometricTokenScalarWhereInput | BiometricTokenScalarWhereInput[]
+    id?: StringFilter<"BiometricToken"> | string
+    token?: StringFilter<"BiometricToken"> | string
+    userId?: StringFilter<"BiometricToken"> | string
+    deviceId?: StringFilter<"BiometricToken"> | string
+    createdAt?: DateTimeFilter<"BiometricToken"> | Date | string
+    expiresAt?: DateTimeNullableFilter<"BiometricToken"> | Date | string | null
+  }
+
   export type UserCreateWithoutSessionsInput = {
     id?: string
     name?: string | null
@@ -19374,6 +20726,7 @@ export namespace Prisma {
     messages?: MessageCreateNestedManyWithoutUserInput
     passkeys?: PasskeyCreateNestedManyWithoutUserInput
     feedbacks?: FeedbackCreateNestedManyWithoutUserInput
+    biometricTokens?: BiometricTokenCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSessionsInput = {
@@ -19393,6 +20746,7 @@ export namespace Prisma {
     messages?: MessageUncheckedCreateNestedManyWithoutUserInput
     passkeys?: PasskeyUncheckedCreateNestedManyWithoutUserInput
     feedbacks?: FeedbackUncheckedCreateNestedManyWithoutUserInput
+    biometricTokens?: BiometricTokenUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSessionsInput = {
@@ -19428,6 +20782,7 @@ export namespace Prisma {
     messages?: MessageUpdateManyWithoutUserNestedInput
     passkeys?: PasskeyUpdateManyWithoutUserNestedInput
     feedbacks?: FeedbackUpdateManyWithoutUserNestedInput
+    biometricTokens?: BiometricTokenUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -19447,6 +20802,7 @@ export namespace Prisma {
     messages?: MessageUncheckedUpdateManyWithoutUserNestedInput
     passkeys?: PasskeyUncheckedUpdateManyWithoutUserNestedInput
     feedbacks?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
+    biometricTokens?: BiometricTokenUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutAccountsInput = {
@@ -19466,6 +20822,7 @@ export namespace Prisma {
     messages?: MessageCreateNestedManyWithoutUserInput
     passkeys?: PasskeyCreateNestedManyWithoutUserInput
     feedbacks?: FeedbackCreateNestedManyWithoutUserInput
+    biometricTokens?: BiometricTokenCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutAccountsInput = {
@@ -19485,6 +20842,7 @@ export namespace Prisma {
     messages?: MessageUncheckedCreateNestedManyWithoutUserInput
     passkeys?: PasskeyUncheckedCreateNestedManyWithoutUserInput
     feedbacks?: FeedbackUncheckedCreateNestedManyWithoutUserInput
+    biometricTokens?: BiometricTokenUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutAccountsInput = {
@@ -19520,6 +20878,7 @@ export namespace Prisma {
     messages?: MessageUpdateManyWithoutUserNestedInput
     passkeys?: PasskeyUpdateManyWithoutUserNestedInput
     feedbacks?: FeedbackUpdateManyWithoutUserNestedInput
+    biometricTokens?: BiometricTokenUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -19539,6 +20898,7 @@ export namespace Prisma {
     messages?: MessageUncheckedUpdateManyWithoutUserNestedInput
     passkeys?: PasskeyUncheckedUpdateManyWithoutUserNestedInput
     feedbacks?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
+    biometricTokens?: BiometricTokenUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutMembershipsInput = {
@@ -19558,6 +20918,7 @@ export namespace Prisma {
     messages?: MessageCreateNestedManyWithoutUserInput
     passkeys?: PasskeyCreateNestedManyWithoutUserInput
     feedbacks?: FeedbackCreateNestedManyWithoutUserInput
+    biometricTokens?: BiometricTokenCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutMembershipsInput = {
@@ -19577,6 +20938,7 @@ export namespace Prisma {
     messages?: MessageUncheckedCreateNestedManyWithoutUserInput
     passkeys?: PasskeyUncheckedCreateNestedManyWithoutUserInput
     feedbacks?: FeedbackUncheckedCreateNestedManyWithoutUserInput
+    biometricTokens?: BiometricTokenUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutMembershipsInput = {
@@ -19665,6 +21027,7 @@ export namespace Prisma {
     messages?: MessageUpdateManyWithoutUserNestedInput
     passkeys?: PasskeyUpdateManyWithoutUserNestedInput
     feedbacks?: FeedbackUpdateManyWithoutUserNestedInput
+    biometricTokens?: BiometricTokenUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutMembershipsInput = {
@@ -19684,6 +21047,7 @@ export namespace Prisma {
     messages?: MessageUncheckedUpdateManyWithoutUserNestedInput
     passkeys?: PasskeyUncheckedUpdateManyWithoutUserNestedInput
     feedbacks?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
+    biometricTokens?: BiometricTokenUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type TenantUpsertWithoutMembersInput = {
@@ -19949,6 +21313,7 @@ export namespace Prisma {
     accounts?: AccountCreateNestedManyWithoutUserInput
     passkeys?: PasskeyCreateNestedManyWithoutUserInput
     feedbacks?: FeedbackCreateNestedManyWithoutUserInput
+    biometricTokens?: BiometricTokenCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutMessagesInput = {
@@ -19968,6 +21333,7 @@ export namespace Prisma {
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     passkeys?: PasskeyUncheckedCreateNestedManyWithoutUserInput
     feedbacks?: FeedbackUncheckedCreateNestedManyWithoutUserInput
+    biometricTokens?: BiometricTokenUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutMessagesInput = {
@@ -20085,6 +21451,7 @@ export namespace Prisma {
     accounts?: AccountUpdateManyWithoutUserNestedInput
     passkeys?: PasskeyUpdateManyWithoutUserNestedInput
     feedbacks?: FeedbackUpdateManyWithoutUserNestedInput
+    biometricTokens?: BiometricTokenUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutMessagesInput = {
@@ -20104,6 +21471,7 @@ export namespace Prisma {
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     passkeys?: PasskeyUncheckedUpdateManyWithoutUserNestedInput
     feedbacks?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
+    biometricTokens?: BiometricTokenUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type TenantUpsertWithoutMessagesInput = {
@@ -20294,6 +21662,7 @@ export namespace Prisma {
     accounts?: AccountCreateNestedManyWithoutUserInput
     messages?: MessageCreateNestedManyWithoutUserInput
     feedbacks?: FeedbackCreateNestedManyWithoutUserInput
+    biometricTokens?: BiometricTokenCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutPasskeysInput = {
@@ -20313,6 +21682,7 @@ export namespace Prisma {
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     messages?: MessageUncheckedCreateNestedManyWithoutUserInput
     feedbacks?: FeedbackUncheckedCreateNestedManyWithoutUserInput
+    biometricTokens?: BiometricTokenUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutPasskeysInput = {
@@ -20348,6 +21718,7 @@ export namespace Prisma {
     accounts?: AccountUpdateManyWithoutUserNestedInput
     messages?: MessageUpdateManyWithoutUserNestedInput
     feedbacks?: FeedbackUpdateManyWithoutUserNestedInput
+    biometricTokens?: BiometricTokenUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutPasskeysInput = {
@@ -20367,6 +21738,7 @@ export namespace Prisma {
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     messages?: MessageUncheckedUpdateManyWithoutUserNestedInput
     feedbacks?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
+    biometricTokens?: BiometricTokenUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutFeedbacksInput = {
@@ -20386,6 +21758,7 @@ export namespace Prisma {
     accounts?: AccountCreateNestedManyWithoutUserInput
     messages?: MessageCreateNestedManyWithoutUserInput
     passkeys?: PasskeyCreateNestedManyWithoutUserInput
+    biometricTokens?: BiometricTokenCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutFeedbacksInput = {
@@ -20405,6 +21778,7 @@ export namespace Prisma {
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     messages?: MessageUncheckedCreateNestedManyWithoutUserInput
     passkeys?: PasskeyUncheckedCreateNestedManyWithoutUserInput
+    biometricTokens?: BiometricTokenUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutFeedbacksInput = {
@@ -20493,6 +21867,7 @@ export namespace Prisma {
     accounts?: AccountUpdateManyWithoutUserNestedInput
     messages?: MessageUpdateManyWithoutUserNestedInput
     passkeys?: PasskeyUpdateManyWithoutUserNestedInput
+    biometricTokens?: BiometricTokenUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutFeedbacksInput = {
@@ -20512,6 +21887,7 @@ export namespace Prisma {
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     messages?: MessageUncheckedUpdateManyWithoutUserNestedInput
     passkeys?: PasskeyUncheckedUpdateManyWithoutUserNestedInput
+    biometricTokens?: BiometricTokenUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type TenantUpsertWithoutFeedbacksInput = {
@@ -20571,6 +21947,102 @@ export namespace Prisma {
     rooms?: RoomUncheckedUpdateManyWithoutTenantNestedInput
     logs?: SystemLogUncheckedUpdateManyWithoutTenantNestedInput
     devices?: NasDeviceUncheckedUpdateManyWithoutTenantNestedInput
+  }
+
+  export type UserCreateWithoutBiometricTokensInput = {
+    id?: string
+    name?: string | null
+    email?: string | null
+    emailVerified?: boolean | null
+    image?: string | null
+    phoneNumber?: string | null
+    gender?: string | null
+    isAnonymous?: boolean
+    role?: $Enums.GlobalRole
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    memberships?: TenantMemberCreateNestedManyWithoutUserInput
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    accounts?: AccountCreateNestedManyWithoutUserInput
+    messages?: MessageCreateNestedManyWithoutUserInput
+    passkeys?: PasskeyCreateNestedManyWithoutUserInput
+    feedbacks?: FeedbackCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutBiometricTokensInput = {
+    id?: string
+    name?: string | null
+    email?: string | null
+    emailVerified?: boolean | null
+    image?: string | null
+    phoneNumber?: string | null
+    gender?: string | null
+    isAnonymous?: boolean
+    role?: $Enums.GlobalRole
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    memberships?: TenantMemberUncheckedCreateNestedManyWithoutUserInput
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
+    messages?: MessageUncheckedCreateNestedManyWithoutUserInput
+    passkeys?: PasskeyUncheckedCreateNestedManyWithoutUserInput
+    feedbacks?: FeedbackUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutBiometricTokensInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutBiometricTokensInput, UserUncheckedCreateWithoutBiometricTokensInput>
+  }
+
+  export type UserUpsertWithoutBiometricTokensInput = {
+    update: XOR<UserUpdateWithoutBiometricTokensInput, UserUncheckedUpdateWithoutBiometricTokensInput>
+    create: XOR<UserCreateWithoutBiometricTokensInput, UserUncheckedCreateWithoutBiometricTokensInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutBiometricTokensInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutBiometricTokensInput, UserUncheckedUpdateWithoutBiometricTokensInput>
+  }
+
+  export type UserUpdateWithoutBiometricTokensInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerified?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    isAnonymous?: BoolFieldUpdateOperationsInput | boolean
+    role?: EnumGlobalRoleFieldUpdateOperationsInput | $Enums.GlobalRole
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    memberships?: TenantMemberUpdateManyWithoutUserNestedInput
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    accounts?: AccountUpdateManyWithoutUserNestedInput
+    messages?: MessageUpdateManyWithoutUserNestedInput
+    passkeys?: PasskeyUpdateManyWithoutUserNestedInput
+    feedbacks?: FeedbackUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutBiometricTokensInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerified?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    isAnonymous?: BoolFieldUpdateOperationsInput | boolean
+    role?: EnumGlobalRoleFieldUpdateOperationsInput | $Enums.GlobalRole
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    memberships?: TenantMemberUncheckedUpdateManyWithoutUserNestedInput
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
+    messages?: MessageUncheckedUpdateManyWithoutUserNestedInput
+    passkeys?: PasskeyUncheckedUpdateManyWithoutUserNestedInput
+    feedbacks?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type TenantMemberCreateManyTenantInput = {
@@ -20876,6 +22348,14 @@ export namespace Prisma {
     createdAt?: Date | string
   }
 
+  export type BiometricTokenCreateManyUserInput = {
+    id?: string
+    token: string
+    deviceId: string
+    createdAt?: Date | string
+    expiresAt?: Date | string | null
+  }
+
   export type TenantMemberUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     role?: EnumTenantRoleFieldUpdateOperationsInput | $Enums.TenantRole
@@ -21083,6 +22563,30 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type BiometricTokenUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    token?: StringFieldUpdateOperationsInput | string
+    deviceId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type BiometricTokenUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    token?: StringFieldUpdateOperationsInput | string
+    deviceId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type BiometricTokenUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    token?: StringFieldUpdateOperationsInput | string
+    deviceId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
   export type MessageCreateManyRoomInput = {
     id?: string
     text: string
@@ -21200,6 +22704,10 @@ export namespace Prisma {
      * @deprecated Use FeedbackDefaultArgs instead
      */
     export type FeedbackArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = FeedbackDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use BiometricTokenDefaultArgs instead
+     */
+    export type BiometricTokenArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = BiometricTokenDefaultArgs<ExtArgs>
 
   /**
    * Batch Payload for updateMany & deleteMany & createMany

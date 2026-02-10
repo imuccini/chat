@@ -268,6 +268,15 @@ exports.Prisma.FeedbackScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.BiometricTokenScalarFieldEnum = {
+  id: 'id',
+  token: 'token',
+  userId: 'userId',
+  deviceId: 'deviceId',
+  createdAt: 'createdAt',
+  expiresAt: 'expiresAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -321,7 +330,8 @@ exports.Prisma.ModelName = {
   Message: 'Message',
   SystemLog: 'SystemLog',
   Passkey: 'Passkey',
-  Feedback: 'Feedback'
+  Feedback: 'Feedback',
+  BiometricToken: 'BiometricToken'
 };
 
 /**

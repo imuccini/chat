@@ -63,12 +63,13 @@ model User {
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
 
-  memberships TenantMember[]
-  sessions    Session[]
-  accounts    Account[]
-  messages    Message[]
-  passkeys    Passkey[]
-  feedbacks   Feedback[]
+  memberships     TenantMember[]
+  sessions        Session[]
+  accounts        Account[]
+  messages        Message[]
+  passkeys        Passkey[]
+  feedbacks       Feedback[]
+  biometricTokens BiometricToken[]
 
   @@index([createdAt])
   @@map("user")
@@ -232,4 +233,17 @@ model Feedback {
   @@index([tenantId])
   @@index([userId])
   @@index([createdAt])
+}
+
+model BiometricToken {
+  id        String    @id @default(uuid())
+  token     String    @unique
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deviceId  String // Unique identifier from the device
+  createdAt DateTime  @default(now())
+  expiresAt DateTime? // Optional expiry if we want to force re-auth periodically
+
+  @@index([userId])
+  @@index([deviceId])
 }

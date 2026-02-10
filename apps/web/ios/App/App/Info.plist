@@ -29,6 +29,8 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Local uses FaceID to authenticate you quickly and securely.</string>
 	<key>NSBluetoothWhileInUseUsageDescription</key>
 	<string>We use Bluetooth to detect your physical presence in a Local enabled space.</string>
 	<key>NSLocalNetworkUsageDescription</key>

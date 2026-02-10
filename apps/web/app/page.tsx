@@ -42,22 +42,22 @@ function HomeContent() {
                 if (!hasAttemptedWifi) {
                     setHasAttemptedWifi(true);
 
-                    const wifiDetection = async () => {
-                        // Passive attempt: try connecting to venue WiFi
-                        await Promise.race([
-                            CapacitorWifi.connect({
-                                ssid: "Local - WiFi",
-                                password: "localwifisicuro",
-                            }),
-                            new Promise((_, reject) => setTimeout(() => reject('timeout'), 2000))
-                        ]).catch(() => { });
-                    };
+                    // const wifiDetection = async () => {
+                    //     // Passive attempt: try connecting to venue WiFi
+                    //     await Promise.race([
+                    //         CapacitorWifi.connect({
+                    //             ssid: "Local - WiFi",
+                    //             password: "localwifisicuro",
+                    //         }),
+                    //         new Promise((_, reject) => setTimeout(() => reject('timeout'), 2000))
+                    //     ]).catch(() => { });
+                    // };
 
-                    const wifiTimeout = new Promise((_, reject) =>
-                        setTimeout(() => reject(new Error('WiFi detection timeout')), 3000)
-                    );
+                    // const wifiTimeout = new Promise((_, reject) =>
+                    //     setTimeout(() => reject(new Error('WiFi detection timeout')), 3000)
+                    // );
 
-                    await Promise.race([wifiDetection(), wifiTimeout]).catch(() => { });
+                    // await Promise.race([wifiDetection(), wifiTimeout]).catch(() => { });
                 }
 
                 // Get BSSID - this is still safe to call multiple times as it's quick
