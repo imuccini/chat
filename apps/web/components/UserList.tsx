@@ -11,8 +11,13 @@ interface UserListProps {
 const UserList: React.FC<UserListProps> = ({ currentUser, users, onStartChat }) => {
     const [searchQuery, setSearchQuery] = useState('');
 
+    // Deduplicate users by ID (in case of multiple socket connections)
+    const uniqueUsers = Array.from(
+        new Map(users.map(u => [u.id, u])).values()
+    );
+
     // Filter out self and apply search query
-    const otherUsers = users.filter(u =>
+    const otherUsers = uniqueUsers.filter(u =>
         u.id !== currentUser.id &&
         u.alias.toLowerCase().includes(searchQuery.toLowerCase())
     );

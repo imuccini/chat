@@ -207,13 +207,19 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         // Join all tenant rooms to ensure receiving broadcasts
         if (tenant && tenant.rooms) {
             const roomIds = tenant.rooms.map((r: any) => r.id);
-            roomIds.forEach((roomId: string) => socket.join(roomId));
+            this.logger.log(`User ${user.id} joining ${roomIds.length} rooms for tenant ${tenantSlug}`);
+            roomIds.forEach((roomId: string) => {
+                socket.join(roomId);
+                this.logger.debug(`User ${user.id} joined room: ${roomId}`);
+            });
             socket.data.rooms = roomIds;
             // Also update the onlineUsers map entry!
             userEntry.rooms = roomIds;
+        } else {
+            this.logger.warn(`No rooms found for tenant ${tenantSlug} during join`);
         }
 
-        this.logger.log(`handleJoin user=${user.id} tenant=${tenantSlug} tenantId=${tenant?.id} rooms=${Array.from(socket.rooms).join(',')}`);
+        this.logger.log(`handleJoin user=${user.id} tenant=${tenantSlug} rooms_count=${socket.rooms.size}`);
         this.broadcastPresence(tenantSlug);
     }
 
