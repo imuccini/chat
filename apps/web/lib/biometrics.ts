@@ -8,6 +8,14 @@ interface BiometricResult {
     success: boolean;
     token?: string;
     error?: string;
+    user?: {
+        id: string;
+        name?: string;
+        alias?: string;
+        phoneNumber?: string;
+        gender?: string;
+    };
+    sessionToken?: string;
 }
 
 export const BiometricService = {
@@ -35,13 +43,29 @@ export const BiometricService = {
 
     /**
      * Sets up biometrics for the current user.
-     * 1. Calls backend to generate a secure token.
-     * 2. Stores token + phoneNumber in Keychain/Keystore via NativeBiometric.
-     * 3. Sets local flag.
+     * 1. Prompts FaceID/TouchID to confirm user wants to enable biometrics.
+     * 2. Calls backend to generate a secure token.
+     * 3. Stores token + phoneNumber in Keychain/Keystore via NativeBiometric.
+     * 4. Sets local flag.
+     *
+     * @param phoneNumber - User's phone number
+     * @param sessionToken - Optional session token from OTP login (for native apps where cookies don't work)
      */
-    setup: async (phoneNumber: string): Promise<boolean> => {
+    setup: async (phoneNumber: string, sessionToken?: string): Promise<boolean> => {
         try {
             console.log("!!! [BIOMETRICS_V4] SETUP_STARTING_FOR:", phoneNumber, "!!!");
+            console.log("[Biometrics] Session token provided:", !!sessionToken);
+
+            // Step 0: Verify identity FIRST to trigger FaceID prompt
+            // This gives the user the expected "scan face to enable" experience
+            console.log("[Biometrics] Prompting FaceID for setup verification...");
+            await NativeBiometric.verifyIdentity({
+                reason: 'Attiva Face ID per accessi futuri',
+                title: 'Attiva Face ID',
+                subtitle: 'Conferma la tua identità',
+                description: 'Usa Face ID per abilitare l\'accesso rapido',
+            });
+            console.log("[Biometrics] FaceID verification successful, proceeding with setup...");
 
             // 1. Get secure token from backend
             // Use absolute URL on native
@@ -50,9 +74,15 @@ export const BiometricService = {
 
             const response = await fetch(url, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    // Pass token in header for native where cookies don't work
+                    ...(sessionToken && { 'Authorization': `Bearer ${sessionToken}` })
+                },
+                credentials: 'include', // Ensure cookies are sent (works on web)
                 body: JSON.stringify({
-                    deviceId: 'v4_manual_device'
+                    deviceId: 'v4_manual_device',
+                    sessionToken // Also pass in body as additional fallback
                 })
             });
 
@@ -86,16 +116,26 @@ export const BiometricService = {
 
     /**
      * Authenticates the user via Biometrics.
-     * 1. Prompts FaceID/TouchID.
-     * 2. Retrieves secure token.
+     * 1. Prompts FaceID/TouchID via verifyIdentity().
+     * 2. Only after successful verification, retrieves secure token.
      * 3. Calls backend login endpoint.
      */
     authenticate: async (): Promise<BiometricResult> => {
         try {
             console.log("!!! [BIOMETRICS_V4] AUTHENTICATE_STARTING !!!");
 
-            // Verify Identity & Get Credentials
-            // The plugin handles the prompt UI
+            // Step 1: Verify identity with FaceID/TouchID
+            // This MUST be called first to trigger the biometric prompt
+            console.log("[Biometrics] Calling verifyIdentity to trigger FaceID...");
+            await NativeBiometric.verifyIdentity({
+                reason: 'Accedi con Face ID',
+                title: 'Autenticazione',
+                subtitle: 'Usa Face ID per accedere',
+                description: 'Tocca il sensore per verificare la tua identità',
+            });
+            console.log("[Biometrics] FaceID verification successful!");
+
+            // Step 2: Only after successful biometric verification, get credentials
             const credentials = await NativeBiometric.getCredentials({
                 server: 'com.antigravity.chat',
             });
@@ -115,15 +155,22 @@ export const BiometricService = {
             const response = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
+                credentials: 'include', // Try to get cookies set
                 body: JSON.stringify({ token, phoneNumber })
             });
 
+            const data = await response.json();
+
             if (!response.ok) {
-                const data = await response.json();
                 return { success: false, error: data.error || 'Server validation failed' };
             }
 
-            return { success: true };
+            // Return the user and session token for native apps to handle
+            return {
+                success: true,
+                user: data.user,
+                sessionToken: data.sessionToken
+            };
 
         } catch (error: any) {
             console.error('[Biometrics] Authentication failed', error);

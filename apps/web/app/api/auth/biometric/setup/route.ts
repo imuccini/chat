@@ -13,15 +13,59 @@ export async function POST(req: NextRequest) {
     const origin = req.headers.get('origin');
 
     try {
+        const body = await req.json();
+        const { deviceId, sessionToken } = body;
+
+        // Try multiple auth methods (cookies may not work on native)
+        let userId: string | null = null;
+
+        // 1. Try BetterAuth session from cookie
         const Session = await auth.api.getSession({
             headers: await headers()
         });
 
-        if (!Session?.user) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        if (Session?.user) {
+            userId = Session.user.id;
         }
 
-        const { deviceId } = await req.json();
+        // 2. Fallback: Try Authorization header (Bearer token)
+        if (!userId) {
+            const authHeader = req.headers.get('authorization');
+            if (authHeader?.startsWith('Bearer ')) {
+                const token = authHeader.slice(7);
+                const { prisma } = await import('@/lib/db');
+                const session = await prisma.session.findFirst({
+                    where: {
+                        token,
+                        expiresAt: { gt: new Date() }
+                    },
+                    include: { user: true }
+                });
+                if (session?.user) {
+                    userId = session.user.id;
+                }
+            }
+        }
+
+        // 3. Fallback: Try sessionToken from body (native apps)
+        if (!userId && sessionToken) {
+            const { prisma } = await import('@/lib/db');
+            const session = await prisma.session.findFirst({
+                where: {
+                    token: sessionToken,
+                    expiresAt: { gt: new Date() }
+                },
+                include: { user: true }
+            });
+            if (session?.user) {
+                userId = session.user.id;
+            }
+        }
+
+        if (!userId) {
+            console.error('[Biometric Setup] No valid session found via any method');
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
 
         if (!deviceId) {
             return NextResponse.json({ error: 'Device ID required' }, { status: 400 });
@@ -36,7 +80,7 @@ export async function POST(req: NextRequest) {
         await prisma.biometricToken.create({
             data: {
                 token,
-                userId: Session.user.id,
+                userId,
                 deviceId,
                 // Optional: set expiresAt in the future
             }

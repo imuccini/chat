@@ -96,7 +96,8 @@ export async function POST(req: Request) {
         // Set cookie with the RAW token
         const response = NextResponse.json({
             success: true,
-            user: user
+            user: user,
+            sessionToken: rawToken // Return token for native apps to use in biometric setup
         }, { headers: corsHeaders });
 
         response.cookies.set('better-auth.session_token', rawToken, {

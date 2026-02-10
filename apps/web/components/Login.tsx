@@ -54,6 +54,8 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
   const [isBiometricsEnabled, setIsBiometricsEnabled] = useState(false);
   const [showBiometricPrompt, setShowBiometricPrompt] = useState(false);
   const [pendingUser, setPendingUser] = useState<AppUser | null>(null);
+  const [pendingSessionToken, setPendingSessionToken] = useState<string | null>(null);
+  const [biometricFailed, setBiometricFailed] = useState(false); // Track if FaceID failed to show account button
 
   useEffect(() => {
     if (Capacitor.isNativePlatform()) {
@@ -76,12 +78,29 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
 
   const handleBiometricLogin = async () => {
     setIsLoading(true);
+    setError(null);
     const result = await BiometricService.authenticate();
 
-    if (result.success) {
-      // Session is created server-side, reload to pick it up
-      window.location.reload();
+    if (result.success && result.user) {
+      // Store session token in localStorage for native apps
+      if (result.sessionToken) {
+        localStorage.setItem('session_token', result.sessionToken);
+      }
+
+      // Construct user object and log in directly
+      const appUser: AppUser = {
+        id: result.user.id,
+        name: result.user.name,
+        alias: result.user.alias || result.user.name || 'User',
+        phoneNumber: result.user.phoneNumber,
+        gender: (result.user.gender as Gender) || 'other'
+      };
+
+      // Call onLogin with the user data - no need to reload
+      onLogin(appUser);
     } else {
+      // FaceID failed - show account button instead
+      setBiometricFailed(true);
       setError(result.error || "Autenticazione biometrica fallita");
       setIsLoading(false);
     }
@@ -91,7 +110,11 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
     if (!pendingUser?.phoneNumber) return;
 
     try {
-      const success = await BiometricService.setup(pendingUser.phoneNumber);
+      // Pass session token for native apps where cookies don't work
+      const success = await BiometricService.setup(
+        pendingUser.phoneNumber,
+        pendingSessionToken || undefined
+      );
       if (success) {
         await Haptics.notification({ type: NotificationType.Success });
       } else {
@@ -102,6 +125,7 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
     } finally {
       // Always proceed to login, don't block user
       setShowBiometricPrompt(false);
+      setPendingSessionToken(null); // Clear the token
       onLogin(pendingUser);
     }
   };
@@ -179,6 +203,7 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
         // Check if we should prompt for biometrics
         if (isBiometricsAvailable && !isBiometricsEnabled) {
           setPendingUser(appUser);
+          setPendingSessionToken(data.sessionToken || null); // Store session token for biometric setup
           setShowBiometricPrompt(true);
           setIsLoading(false);
           // Don't call onLogin yet, wait for prompt interaction
@@ -226,6 +251,7 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
         // Check if we should prompt for biometrics
         if (isBiometricsAvailable && !isBiometricsEnabled) {
           setPendingUser(appUser);
+          setPendingSessionToken(data.sessionToken || null); // Store session token for biometric setup
           setShowBiometricPrompt(true);
           setIsLoading(false);
         } else {
@@ -503,30 +529,35 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
 
         {view === 'choice' && (
           <div className="space-y-4">
-            {isBiometricsAvailable && isBiometricsEnabled && (
+            {/* FaceID button: Show only if biometrics available, enabled, and NOT failed */}
+            {isBiometricsAvailable && isBiometricsEnabled && !biometricFailed && (
               <button
                 onClick={handleBiometricLogin}
                 disabled={isLoading}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-200 transition-all flex items-center justify-center gap-2 group mb-4"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-200 transition-all flex items-center justify-center gap-2 group"
               >
                 <Fingerprint className="w-6 h-6" />
                 <span>Accedi con FaceID</span>
               </button>
             )}
 
+            {/* Account button: Show if biometrics NOT enabled OR if FaceID failed */}
+            {(!isBiometricsEnabled || biometricFailed) && (
+              <button
+                onClick={() => setView('phone_input')}
+                className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2"
+              >
+                <span>Accedi con Account</span>
+              </button>
+            )}
+
+            {/* Anonymous button: Always shown last */}
             <button
               onClick={() => setView('anonymous')}
               className="w-full bg-white hover:bg-gray-50 text-gray-700 font-bold py-4 rounded-xl border-2 border-gray-100 hover:border-primary hover:text-primary transition-all flex items-center justify-center gap-2 group"
             >
               <span className="text-xl group-hover:scale-110 transition-transform">🕵️</span>
               <span>Accesso anonimo</span>
-            </button>
-
-            <button
-              onClick={() => setView('phone_input')}
-              className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2"
-            >
-              <span>Accedi con Account</span>
             </button>
           </div>
         )}

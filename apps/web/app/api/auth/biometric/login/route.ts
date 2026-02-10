@@ -42,25 +42,45 @@ export async function POST(req: NextRequest) {
             console.warn(`[Biometric Login] Device ID mismatch for user ${bioToken.userId}`);
         }
 
-        // 3. Create Session via Better-Auth
-        // We use the internal `auth` instance to create a session for this user
-        // This mimics a successful login
-        const session = await auth.api.createSession({
-            userId: bioToken.userId,
-            headers: req.headers
+        // 3. Create Session manually (same as OTP flow for consistency)
+        // BetterAuth's createSession may not work well with native apps
+        const crypto = require('crypto');
+        const rawToken = crypto.randomBytes(32).toString('base64');
+
+        const expiresAt = new Date();
+        expiresAt.setDate(expiresAt.getDate() + 365);
+
+        await prisma.session.create({
+            data: {
+                userId: bioToken.userId,
+                token: rawToken,
+                expiresAt,
+                ipAddress: req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip'),
+                userAgent: req.headers.get('user-agent')
+            }
         });
 
-        if (!session) {
-            return NextResponse.json({ error: 'Failed to create session' }, { status: 500 });
-        }
-
+        // Return user data and session token for native apps
         const response = NextResponse.json({
             success: true,
-            session
+            user: {
+                id: bioToken.user.id,
+                name: bioToken.user.name,
+                alias: bioToken.user.name, // Alias is stored as name
+                phoneNumber: bioToken.user.phoneNumber,
+                gender: bioToken.user.gender
+            },
+            sessionToken: rawToken
         });
 
-        // Set the session cookie manually if needed, although Better-Auth might handle it via headers
-        // Since we are calling this from native, we likely rely on the response JSON
+        // Also set cookie for web apps
+        response.cookies.set('better-auth.session_token', rawToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 365 * 24 * 60 * 60,
+            path: '/'
+        });
 
         const corsHeaders = getCorsHeaders(origin);
         Object.entries(corsHeaders).forEach(([key, value]) => {
