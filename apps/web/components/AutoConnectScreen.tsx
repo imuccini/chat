@@ -28,11 +28,14 @@ export function AutoConnectScreen({ onBack }: AutoConnectScreenProps) {
             }
         }
 
-        // Native Android: Configure network (Android's API usually connects immediately)
+        // Native Android: Configure network suggestion for persistence
         else if (Capacitor.getPlatform() === 'android') {
             try {
                 await Haptics.impact({ style: ImpactStyle.Medium });
-                await CapacitorWifi.connect({ ssid, password });
+                // We add a suggestion so it connects automatically in the future
+                await WifiConfig.addSuggestion({ ssid, password });
+                // We also try an immediate connection for the current session
+                await WifiConfig.connectImmediate({ ssid, password });
             } catch (error) {
                 console.warn("Android WiFi setup/connection failed", error);
             }

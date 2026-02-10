@@ -29,6 +29,10 @@ export interface Tenant {
   slug: string;
   logoUrl?: string | null;
   config?: any;
+  menuEnabled?: boolean;
+  feedbackEnabled?: boolean;
+  staffEnabled?: boolean;
+  menuUrl?: string | null;
   rooms?: Room[]; // Optional populated field
 }
 

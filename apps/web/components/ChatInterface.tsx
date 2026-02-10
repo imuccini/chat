@@ -18,16 +18,21 @@ import BottomNav from './BottomNav';
 import UserList from './UserList';
 import Settings from './Settings';
 import { UnifiedChatList } from './UnifiedChatList';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { LocalSection } from './LocalSection';
+import { LocalMenuOverlay } from './LocalMenuOverlay';
 import { useSwipeBack } from '@/hooks/useSwipeBack';
 import { useMembership } from '@/hooks/useMembership';
 import { useKeyboardAnimation } from '@/hooks/useKeyboardAnimation';
 import { useSession, signOut, authClient } from '@/lib/auth-client';
+import { clientGetTenantBySlug, clientGetMessages, clientGetTenantStaff } from '@/services/apiService';
 
 interface ChatInterfaceProps {
     tenant: Tenant;
     initialMessages: Message[];
 }
+
+
 
 type Tab = 'chats' | 'users' | 'local' | 'settings' | 'admin';
 type PrivateChatsMap = Record<string, { peer: User; messages: Message[]; unread: number }>;
@@ -55,6 +60,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
     });
     const [socket, setSocket] = useState<Socket | null>(null);
     const { data: session, isPending: isSessionLoading } = useSession();
+    const router = useRouter();
     // New state to block UI until we have definitively checked both main and backup session sources
     const [isRestoringSession, setIsRestoringSession] = useState(true);
     const { canManageTenant, isAdmin, isModerator } = useMembership(tenant.id, currentUser?.id);
@@ -63,9 +69,11 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
     const { isKeyboardVisible, contentStyle: keyboardContentStyle } = useKeyboardAnimation();
 
     // UI State
-    const [activeTab, setActiveTab] = useState<Tab>('chats');
+    const searchParams = useSearchParams();
+    const [activeTab, setActiveTab] = useState<Tab>((searchParams.get('tab') as Tab) || 'chats');
     const [activeRoomId, setActiveRoomId] = useState<string | null>(null);
     const [selectedChatPeerId, setSelectedChatPeerId] = useState<string | null>(null);
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
     // isInputFocused is now driven by keyboard visibility for native, or input focus for web
     const [isInputFocusedLocal, setIsInputFocusedLocal] = useState(false);
     const isInputFocused = Capacitor.isNativePlatform() ? isKeyboardVisible : isInputFocusedLocal;
@@ -472,6 +480,25 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
         setActiveTab('chats');
     };
 
+    const handleContactStaff = async () => {
+        try {
+            const staff = await clientGetTenantStaff(tenant.slug);
+            if (staff && staff.length > 0) {
+                // Map backend user to frontend user format
+                const staffMember = staff[0];
+                const staffUser: User = {
+                    id: staffMember.id,
+                    alias: staffMember.name || 'Staff',
+                    gender: (staffMember.gender as any) || 'other',
+                };
+                // Open chat with the first staff member found
+                handleStartChat(staffUser);
+            }
+        } catch (error) {
+            console.error("Error contacting staff:", error);
+        }
+    };
+
     const handleDeleteChat = (peerId: string) => {
         setPrivateChats(prev => { const n = { ...prev }; delete n[peerId]; return n; });
         if (selectedChatPeerId === peerId) setSelectedChatPeerId(null);
@@ -480,12 +507,13 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
     // 4. Swipe Back Logic (Native Only)
     const isRoomChatOpen = !!activeRoomId && activeTab === 'chats';
     const isPrivateChatOpen = !!selectedChatPeerId && activeTab === 'chats';
-    const isChatOpen = isRoomChatOpen || isPrivateChatOpen;
+    const isChatOpen = isRoomChatOpen || isPrivateChatOpen || isMenuOpen;
 
     const handleSwipeComplete = useCallback(() => {
         if (selectedChatPeerId) setSelectedChatPeerId(null);
         if (activeRoomId) setActiveRoomId(null);
-    }, [selectedChatPeerId, activeRoomId]);
+        if (isMenuOpen) setIsMenuOpen(false);
+    }, [selectedChatPeerId, activeRoomId, isMenuOpen]);
 
     const { handlers, style: swipeStyle, isDragging, progress } = useSwipeBack({
         onSwipeBack: handleSwipeComplete,
@@ -563,7 +591,15 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                             />
                         )}
                         {activeTab === 'users' && <UserList currentUser={currentUser} users={onlineUsers} onStartChat={handleStartChat} />}
-                        {activeTab === 'local' && <LocalSection tenant={tenant} isAdmin={isAdmin} token={session?.session?.id} />}
+                        {activeTab === 'local' && (
+                            <LocalSection
+                                tenant={tenant}
+                                isAdmin={isAdmin}
+                                token={session?.session?.id}
+                                onOpenMenu={() => setIsMenuOpen(true)}
+                                onContactStaff={handleContactStaff}
+                            />
+                        )}
                         {activeTab === 'settings' && <Settings user={currentUser} onLogout={handleLogout} onUpdateAlias={handleUpdateAlias} onUpdateStatus={handleUpdateStatus} tenantId={tenant.id} />}
                     </div>
 
@@ -628,6 +664,21 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                                 showOnlineCount={tenant.rooms?.find(r => r.id === activeRoomId)?.type !== 'ANNOUNCEMENT'}
                                 keyboardContentStyle={keyboardContentStyle}
                                 roomType={tenant.rooms?.find(r => r.id === activeRoomId)?.type as any}
+                            />
+                        </div>
+                    ) : isMenuOpen ? (
+                        <div className="flex-1 flex flex-col h-full bg-white">
+                            <LocalMenuOverlay
+                                tenant={tenant}
+                                isAdmin={isAdmin}
+                                token={session?.session?.id}
+                                onClose={() => setIsMenuOpen(false)}
+                                onUpdateTenant={(updated) => {
+                                    // Update local tenant data in the UI
+                                    queryClient.setQueryData(['tenant', tenant.slug], updated);
+                                    // Also refresh and close
+                                    router.refresh();
+                                }}
                             />
                         </div>
                     ) : null}

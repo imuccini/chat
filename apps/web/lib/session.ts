@@ -18,10 +18,17 @@ export async function resolveSession(headers: Headers) {
         // BetterAuth may fail for sessions it didn't create — fall through
     }
 
-    // 2. Fallback: read the session token cookie and look up directly in Prisma
-    const cookieHeader = headers.get('cookie') || '';
-    const match = cookieHeader.match(/better-auth\.session_token=([^;]+)/);
-    const token = match ? decodeURIComponent(match[1]) : null;
+    // 2. Fallback: read from Authorization header or cookie
+    const authHeader = headers.get('authorization');
+    let token: string | null = null;
+
+    if (authHeader?.startsWith('Bearer ')) {
+        token = authHeader.substring(7);
+    } else {
+        const cookieHeader = headers.get('cookie') || '';
+        const match = cookieHeader.match(/better-auth\.session_token=([^;]+)/);
+        token = match ? decodeURIComponent(match[1]) : null;
+    }
 
     if (!token) return null;
 

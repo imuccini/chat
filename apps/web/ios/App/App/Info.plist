@@ -24,13 +24,13 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
-	<key>UIUserInterfaceStyle</key>
-<string>Light</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
+	<key>NSBluetoothWhileInUseUsageDescription</key>
+	<string>We use Bluetooth to detect your physical presence in a Local enabled space.</string>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>We use the local network to understad the venue you are in</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
@@ -56,6 +56,8 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>UIUserInterfaceStyle</key>
+	<string>Light</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
 </dict>

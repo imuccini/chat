@@ -1,37 +1,105 @@
 import React from 'react';
 import { Tenant } from '@/types';
 import { Icon } from './Icon';
-import { API_BASE_URL } from '@/config';
+import { API_BASE_URL, SERVER_URL } from '@/config';
+import { Switch } from './ui/switch';
+import { useRouter } from 'next/navigation';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 
 interface LocalSectionProps {
     tenant: Tenant;
     isAdmin?: boolean;
     token?: string;
+    onOpenMenu?: () => void;
+    onContactStaff?: () => void;
 }
 
-export const LocalSection: React.FC<LocalSectionProps> = ({ tenant, isAdmin, token }) => {
+export const LocalSection: React.FC<LocalSectionProps> = ({ tenant, isAdmin, token, onOpenMenu, onContactStaff }) => {
+    const router = useRouter(); // Initialized useRouter
     const services = [
         {
             id: 'menu',
             title: 'Menu',
             icon: 'Menu_Alt_01',
-            description: 'Sfoglia il nostro menu digitale'
+            description: 'Sfoglia il nostro menu digitale',
+            enabled: tenant.menuEnabled ?? true, // Added enabled property
+            path: `/local/${tenant.slug}/menu` // Added path property
         },
         {
             id: 'feedback',
             title: 'Lasciaci un feedback',
             icon: 'List_Checklist',
-            description: 'La tua opinione è importante per noi'
+            description: 'La tua opinione è importante per noi',
+            enabled: tenant.feedbackEnabled ?? true, // Added enabled property
+            path: `/local/${tenant.slug}/feedback` // Added path property
         },
         {
             id: 'staff',
             title: 'Scrivi allo staff',
             icon: 'Chat_Conversation',
-            description: 'Hai bisogno di aiuto? Contattaci subito'
+            description: 'Hai bisogno di aiuto? Contattaci subito',
+            enabled: tenant.staffEnabled ?? true, // Added enabled property
+            path: `/local/${tenant.slug}/staff` // Added path property
         }
     ];
 
     const [isEditOpen, setIsEditOpen] = React.useState(false);
+    const [togglingId, setTogglingId] = React.useState<string | null>(null);
+    const [localEnabledStates, setLocalEnabledStates] = React.useState<Record<string, boolean>>({
+        menu: tenant.menuEnabled ?? true,
+        feedback: tenant.feedbackEnabled ?? true,
+        staff: tenant.staffEnabled ?? true
+    });
+
+    // Update local state if tenant prop changes (e.g., after router.refresh())
+    React.useEffect(() => {
+        setLocalEnabledStates({
+            menu: tenant.menuEnabled ?? true,
+            feedback: tenant.feedbackEnabled ?? true,
+            staff: tenant.staffEnabled ?? true
+        });
+    }, [tenant.menuEnabled, tenant.feedbackEnabled, tenant.staffEnabled]);
+
+    // Function to handle toggling service status
+    const handleToggleService = async (serviceId: string, enabled: boolean) => {
+        setTogglingId(serviceId);
+        // Optimistic update
+        const previousState = localEnabledStates[serviceId];
+        setLocalEnabledStates(prev => ({ ...prev, [serviceId]: enabled }));
+
+        try {
+            const fieldMap: Record<string, string> = {
+                menu: 'menuEnabled',
+                feedback: 'feedbackEnabled',
+                staff: 'staffEnabled'
+            };
+
+            const response = await fetch(`${SERVER_URL}/api/tenants/${tenant.slug}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token && { 'Authorization': `Bearer ${token}` })
+                },
+                body: JSON.stringify({
+                    [fieldMap[serviceId]]: enabled
+                })
+            });
+
+            if (!response.ok) throw new Error('Failed to update service status');
+
+            router.refresh();
+        } catch (error) {
+            console.error("Failed to toggle service:", error);
+            // Revert optimistic update
+            setLocalEnabledStates(prev => ({ ...prev, [serviceId]: previousState }));
+            alert("Errore durante l'aggiornamento del servizio");
+        } finally {
+            setTogglingId(null);
+        }
+    };
 
     return (
         <div className="flex flex-col h-full bg-gray-50 overflow-y-auto w-full">
@@ -89,29 +157,51 @@ export const LocalSection: React.FC<LocalSectionProps> = ({ tenant, isAdmin, tok
                 </h2>
 
                 <div className="grid grid-cols-1 gap-4">
-                    {services.map((service) => (
-                        <button
-                            key={service.id}
-                            className="group relative flex items-center gap-4 p-5 bg-white rounded-[2rem] border border-gray-100 shadow-sm transition-all duration-300 active:scale-[0.97] active:bg-gray-50 max-w-full"
-                        >
-                            <div className="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center text-primary group-hover:bg-primary/5 transition-colors duration-300 shrink-0">
-                                <Icon name={service.icon} className="w-7 h-7" />
-                            </div>
+                    {services
+                        .filter(s => isAdmin || s.enabled) // Filter services based on admin status or enabled state
+                        .map((service) => (
+                            <div // Changed from button to div
+                                key={service.id}
+                                className={`group relative flex items-center gap-4 p-5 bg-white rounded-[2rem] border border-gray-100 shadow-sm transition-all duration-300 ${!service.enabled ? 'opacity-60' : ''} max-w-full`} // Added opacity class
+                            >
+                                <div className="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center text-primary shrink-0">
+                                    <Icon name={service.icon} className="w-7 h-7" />
+                                </div>
 
-                            <div className="flex flex-col text-left overflow-hidden">
-                                <h3 className="font-bold text-gray-900 group-hover:text-primary transition-colors duration-300 truncate">
-                                    {service.title}
-                                </h3>
-                                <p className="text-xs text-gray-500 font-medium truncate">
-                                    {service.description}
-                                </p>
-                            </div>
+                                <div className="flex flex-col text-left overflow-hidden">
+                                    <h3 className="font-bold text-gray-900 truncate">
+                                        {service.title}
+                                    </h3>
+                                    <p className="text-xs text-gray-500 font-medium truncate">
+                                        {service.description}
+                                    </p>
+                                </div>
 
-                            <div className="ml-auto w-8 h-8 rounded-full flex items-center justify-center text-gray-300 shrink-0">
-                                <Icon name="Arrow_Right_SM" className="w-5 h-5" />
+                                <div className="ml-auto flex items-center gap-3 shrink-0"> {/* Updated right-side div */}
+                                    {isAdmin && (
+                                        <Switch
+                                            checked={localEnabledStates[service.id] ?? true}
+                                            onCheckedChange={(checked) => handleToggleService(service.id, checked)}
+                                            disabled={togglingId === service.id}
+                                        />
+                                    )}
+                                    <button
+                                        onClick={() => {
+                                            if (service.id === 'menu') {
+                                                onOpenMenu?.();
+                                            } else if (service.id === 'staff') {
+                                                onContactStaff?.();
+                                            } else {
+                                                router.push(service.path);
+                                            }
+                                        }} // Navigation button
+                                        className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:text-primary hover:bg-primary/5 transition-all"
+                                    >
+                                        <Icon name="Arrow_Right_SM" className="w-5 h-5" />
+                                    </button>
+                                </div>
                             </div>
-                        </button>
-                    ))}
+                        ))}
                 </div>
             </div>
 
@@ -127,14 +217,8 @@ export const LocalSection: React.FC<LocalSectionProps> = ({ tenant, isAdmin, tok
 };
 
 // Inline Dialog Component to avoid circular deps or complex imports for now
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { useRouter } from 'next/navigation';
 
 function EditTenantDialog({ tenant, open, onOpenChange, token }: { tenant: Tenant, open: boolean, onOpenChange: (open: boolean) => void, token?: string }) {
-    const router = useRouter();
     const [isLoading, setIsLoading] = React.useState(false);
 
     // We need to implement client-side form submission to nicely handle the Loading state and feedback
@@ -169,7 +253,7 @@ function EditTenantDialog({ tenant, open, onOpenChange, token }: { tenant: Tenan
                 fetchHeaders['Authorization'] = `Bearer ${token}`;
             }
 
-            const response = await fetch(`${API_BASE_URL}/api/tenants/${tenant.slug}`, {
+            const response = await fetch(`${SERVER_URL}/api/tenants/${tenant.slug}`, {
                 method: 'POST',
                 headers: fetchHeaders,
                 credentials: 'include',

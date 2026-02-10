@@ -16,6 +16,9 @@ import { deleteTenantAction, initRoomsAction } from "@/app/actions/adminTenant"
 
 // Extended type to include devices, members and KPIs
 export type TenantWithDevices = Tenant & {
+    address?: string | null
+    latitude?: number | null
+    longitude?: number | null
     devices: NasDevice[]
     members?: any[] // Detailed memberships (any used because of complex joined type)
     activeUsersCount?: number

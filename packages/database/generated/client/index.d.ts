@@ -68,6 +68,11 @@ export type SystemLog = $Result.DefaultSelection<Prisma.$SystemLogPayload>
  * 
  */
 export type Passkey = $Result.DefaultSelection<Prisma.$PasskeyPayload>
+/**
+ * Model Feedback
+ * 
+ */
+export type Feedback = $Result.DefaultSelection<Prisma.$FeedbackPayload>
 
 /**
  * Enums
@@ -343,6 +348,16 @@ export class PrismaClient<
     * ```
     */
   get passkey(): Prisma.PasskeyDelegate<ExtArgs>;
+
+  /**
+   * `prisma.feedback`: Exposes CRUD operations for the **Feedback** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Feedbacks
+    * const feedbacks = await prisma.feedback.findMany()
+    * ```
+    */
+  get feedback(): Prisma.FeedbackDelegate<ExtArgs>;
 }
 
 export namespace Prisma {
@@ -794,7 +809,8 @@ export namespace Prisma {
     Room: 'Room',
     Message: 'Message',
     SystemLog: 'SystemLog',
-    Passkey: 'Passkey'
+    Passkey: 'Passkey',
+    Feedback: 'Feedback'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -810,7 +826,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "tenant" | "nasDevice" | "user" | "session" | "account" | "verification" | "tenantMember" | "room" | "message" | "systemLog" | "passkey"
+      modelProps: "tenant" | "nasDevice" | "user" | "session" | "account" | "verification" | "tenantMember" | "room" | "message" | "systemLog" | "passkey" | "feedback"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1584,6 +1600,76 @@ export namespace Prisma {
           }
         }
       }
+      Feedback: {
+        payload: Prisma.$FeedbackPayload<ExtArgs>
+        fields: Prisma.FeedbackFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.FeedbackFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeedbackPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.FeedbackFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeedbackPayload>
+          }
+          findFirst: {
+            args: Prisma.FeedbackFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeedbackPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.FeedbackFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeedbackPayload>
+          }
+          findMany: {
+            args: Prisma.FeedbackFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeedbackPayload>[]
+          }
+          create: {
+            args: Prisma.FeedbackCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeedbackPayload>
+          }
+          createMany: {
+            args: Prisma.FeedbackCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.FeedbackCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeedbackPayload>[]
+          }
+          delete: {
+            args: Prisma.FeedbackDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeedbackPayload>
+          }
+          update: {
+            args: Prisma.FeedbackUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeedbackPayload>
+          }
+          deleteMany: {
+            args: Prisma.FeedbackDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.FeedbackUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.FeedbackUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeedbackPayload>
+          }
+          aggregate: {
+            args: Prisma.FeedbackAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateFeedback>
+          }
+          groupBy: {
+            args: Prisma.FeedbackGroupByArgs<ExtArgs>
+            result: $Utils.Optional<FeedbackGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.FeedbackCountArgs<ExtArgs>
+            result: $Utils.Optional<FeedbackCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1750,6 +1836,7 @@ export namespace Prisma {
     rooms: number
     logs: number
     devices: number
+    feedbacks: number
   }
 
   export type TenantCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -1758,6 +1845,7 @@ export namespace Prisma {
     rooms?: boolean | TenantCountOutputTypeCountRoomsArgs
     logs?: boolean | TenantCountOutputTypeCountLogsArgs
     devices?: boolean | TenantCountOutputTypeCountDevicesArgs
+    feedbacks?: boolean | TenantCountOutputTypeCountFeedbacksArgs
   }
 
   // Custom InputTypes
@@ -1806,6 +1894,13 @@ export namespace Prisma {
     where?: NasDeviceWhereInput
   }
 
+  /**
+   * TenantCountOutputType without action
+   */
+  export type TenantCountOutputTypeCountFeedbacksArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FeedbackWhereInput
+  }
+
 
   /**
    * Count Type UserCountOutputType
@@ -1817,6 +1912,7 @@ export namespace Prisma {
     accounts: number
     messages: number
     passkeys: number
+    feedbacks: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -1825,6 +1921,7 @@ export namespace Prisma {
     accounts?: boolean | UserCountOutputTypeCountAccountsArgs
     messages?: boolean | UserCountOutputTypeCountMessagesArgs
     passkeys?: boolean | UserCountOutputTypeCountPasskeysArgs
+    feedbacks?: boolean | UserCountOutputTypeCountFeedbacksArgs
   }
 
   // Custom InputTypes
@@ -1871,6 +1968,13 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountPasskeysArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: PasskeyWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountFeedbacksArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FeedbackWhereInput
   }
 
 
@@ -1936,12 +2040,17 @@ export namespace Prisma {
     name: string | null
     slug: string | null
     logoUrl: string | null
+    address: string | null
     createdAt: Date | null
     updatedAt: Date | null
     bssid: string | null
     staticIp: string | null
     latitude: number | null
     longitude: number | null
+    menuEnabled: boolean | null
+    feedbackEnabled: boolean | null
+    staffEnabled: boolean | null
+    menuUrl: string | null
   }
 
   export type TenantMaxAggregateOutputType = {
@@ -1949,12 +2058,17 @@ export namespace Prisma {
     name: string | null
     slug: string | null
     logoUrl: string | null
+    address: string | null
     createdAt: Date | null
     updatedAt: Date | null
     bssid: string | null
     staticIp: string | null
     latitude: number | null
     longitude: number | null
+    menuEnabled: boolean | null
+    feedbackEnabled: boolean | null
+    staffEnabled: boolean | null
+    menuUrl: string | null
   }
 
   export type TenantCountAggregateOutputType = {
@@ -1963,12 +2077,17 @@ export namespace Prisma {
     slug: number
     metadata: number
     logoUrl: number
+    address: number
     createdAt: number
     updatedAt: number
     bssid: number
     staticIp: number
     latitude: number
     longitude: number
+    menuEnabled: number
+    feedbackEnabled: number
+    staffEnabled: number
+    menuUrl: number
     _all: number
   }
 
@@ -1988,12 +2107,17 @@ export namespace Prisma {
     name?: true
     slug?: true
     logoUrl?: true
+    address?: true
     createdAt?: true
     updatedAt?: true
     bssid?: true
     staticIp?: true
     latitude?: true
     longitude?: true
+    menuEnabled?: true
+    feedbackEnabled?: true
+    staffEnabled?: true
+    menuUrl?: true
   }
 
   export type TenantMaxAggregateInputType = {
@@ -2001,12 +2125,17 @@ export namespace Prisma {
     name?: true
     slug?: true
     logoUrl?: true
+    address?: true
     createdAt?: true
     updatedAt?: true
     bssid?: true
     staticIp?: true
     latitude?: true
     longitude?: true
+    menuEnabled?: true
+    feedbackEnabled?: true
+    staffEnabled?: true
+    menuUrl?: true
   }
 
   export type TenantCountAggregateInputType = {
@@ -2015,12 +2144,17 @@ export namespace Prisma {
     slug?: true
     metadata?: true
     logoUrl?: true
+    address?: true
     createdAt?: true
     updatedAt?: true
     bssid?: true
     staticIp?: true
     latitude?: true
     longitude?: true
+    menuEnabled?: true
+    feedbackEnabled?: true
+    staffEnabled?: true
+    menuUrl?: true
     _all?: true
   }
 
@@ -2116,12 +2250,17 @@ export namespace Prisma {
     slug: string
     metadata: JsonValue | null
     logoUrl: string | null
+    address: string | null
     createdAt: Date
     updatedAt: Date
     bssid: string | null
     staticIp: string | null
     latitude: number | null
     longitude: number | null
+    menuEnabled: boolean
+    feedbackEnabled: boolean
+    staffEnabled: boolean
+    menuUrl: string | null
     _count: TenantCountAggregateOutputType | null
     _avg: TenantAvgAggregateOutputType | null
     _sum: TenantSumAggregateOutputType | null
@@ -2149,17 +2288,23 @@ export namespace Prisma {
     slug?: boolean
     metadata?: boolean
     logoUrl?: boolean
+    address?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     bssid?: boolean
     staticIp?: boolean
     latitude?: boolean
     longitude?: boolean
+    menuEnabled?: boolean
+    feedbackEnabled?: boolean
+    staffEnabled?: boolean
+    menuUrl?: boolean
     members?: boolean | Tenant$membersArgs<ExtArgs>
     messages?: boolean | Tenant$messagesArgs<ExtArgs>
     rooms?: boolean | Tenant$roomsArgs<ExtArgs>
     logs?: boolean | Tenant$logsArgs<ExtArgs>
     devices?: boolean | Tenant$devicesArgs<ExtArgs>
+    feedbacks?: boolean | Tenant$feedbacksArgs<ExtArgs>
     _count?: boolean | TenantCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["tenant"]>
 
@@ -2169,12 +2314,17 @@ export namespace Prisma {
     slug?: boolean
     metadata?: boolean
     logoUrl?: boolean
+    address?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     bssid?: boolean
     staticIp?: boolean
     latitude?: boolean
     longitude?: boolean
+    menuEnabled?: boolean
+    feedbackEnabled?: boolean
+    staffEnabled?: boolean
+    menuUrl?: boolean
   }, ExtArgs["result"]["tenant"]>
 
   export type TenantSelectScalar = {
@@ -2183,12 +2333,17 @@ export namespace Prisma {
     slug?: boolean
     metadata?: boolean
     logoUrl?: boolean
+    address?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     bssid?: boolean
     staticIp?: boolean
     latitude?: boolean
     longitude?: boolean
+    menuEnabled?: boolean
+    feedbackEnabled?: boolean
+    staffEnabled?: boolean
+    menuUrl?: boolean
   }
 
   export type TenantInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2197,6 +2352,7 @@ export namespace Prisma {
     rooms?: boolean | Tenant$roomsArgs<ExtArgs>
     logs?: boolean | Tenant$logsArgs<ExtArgs>
     devices?: boolean | Tenant$devicesArgs<ExtArgs>
+    feedbacks?: boolean | Tenant$feedbacksArgs<ExtArgs>
     _count?: boolean | TenantCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type TenantIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -2209,6 +2365,7 @@ export namespace Prisma {
       rooms: Prisma.$RoomPayload<ExtArgs>[]
       logs: Prisma.$SystemLogPayload<ExtArgs>[]
       devices: Prisma.$NasDevicePayload<ExtArgs>[]
+      feedbacks: Prisma.$FeedbackPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -2216,12 +2373,17 @@ export namespace Prisma {
       slug: string
       metadata: Prisma.JsonValue | null
       logoUrl: string | null
+      address: string | null
       createdAt: Date
       updatedAt: Date
       bssid: string | null
       staticIp: string | null
       latitude: number | null
       longitude: number | null
+      menuEnabled: boolean
+      feedbackEnabled: boolean
+      staffEnabled: boolean
+      menuUrl: string | null
     }, ExtArgs["result"]["tenant"]>
     composites: {}
   }
@@ -2591,6 +2753,7 @@ export namespace Prisma {
     rooms<T extends Tenant$roomsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$roomsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RoomPayload<ExtArgs>, T, "findMany"> | Null>
     logs<T extends Tenant$logsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$logsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SystemLogPayload<ExtArgs>, T, "findMany"> | Null>
     devices<T extends Tenant$devicesArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$devicesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NasDevicePayload<ExtArgs>, T, "findMany"> | Null>
+    feedbacks<T extends Tenant$feedbacksArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$feedbacksArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2625,12 +2788,17 @@ export namespace Prisma {
     readonly slug: FieldRef<"Tenant", 'String'>
     readonly metadata: FieldRef<"Tenant", 'Json'>
     readonly logoUrl: FieldRef<"Tenant", 'String'>
+    readonly address: FieldRef<"Tenant", 'String'>
     readonly createdAt: FieldRef<"Tenant", 'DateTime'>
     readonly updatedAt: FieldRef<"Tenant", 'DateTime'>
     readonly bssid: FieldRef<"Tenant", 'String'>
     readonly staticIp: FieldRef<"Tenant", 'String'>
     readonly latitude: FieldRef<"Tenant", 'Float'>
     readonly longitude: FieldRef<"Tenant", 'Float'>
+    readonly menuEnabled: FieldRef<"Tenant", 'Boolean'>
+    readonly feedbackEnabled: FieldRef<"Tenant", 'Boolean'>
+    readonly staffEnabled: FieldRef<"Tenant", 'Boolean'>
+    readonly menuUrl: FieldRef<"Tenant", 'String'>
   }
     
 
@@ -3042,6 +3210,26 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: NasDeviceScalarFieldEnum | NasDeviceScalarFieldEnum[]
+  }
+
+  /**
+   * Tenant.feedbacks
+   */
+  export type Tenant$feedbacksArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Feedback
+     */
+    select?: FeedbackSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeedbackInclude<ExtArgs> | null
+    where?: FeedbackWhereInput
+    orderBy?: FeedbackOrderByWithRelationInput | FeedbackOrderByWithRelationInput[]
+    cursor?: FeedbackWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: FeedbackScalarFieldEnum | FeedbackScalarFieldEnum[]
   }
 
   /**
@@ -4257,6 +4445,7 @@ export namespace Prisma {
     accounts?: boolean | User$accountsArgs<ExtArgs>
     messages?: boolean | User$messagesArgs<ExtArgs>
     passkeys?: boolean | User$passkeysArgs<ExtArgs>
+    feedbacks?: boolean | User$feedbacksArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -4294,6 +4483,7 @@ export namespace Prisma {
     accounts?: boolean | User$accountsArgs<ExtArgs>
     messages?: boolean | User$messagesArgs<ExtArgs>
     passkeys?: boolean | User$passkeysArgs<ExtArgs>
+    feedbacks?: boolean | User$feedbacksArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -4306,6 +4496,7 @@ export namespace Prisma {
       accounts: Prisma.$AccountPayload<ExtArgs>[]
       messages: Prisma.$MessagePayload<ExtArgs>[]
       passkeys: Prisma.$PasskeyPayload<ExtArgs>[]
+      feedbacks: Prisma.$FeedbackPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -4688,6 +4879,7 @@ export namespace Prisma {
     accounts<T extends User$accountsArgs<ExtArgs> = {}>(args?: Subset<T, User$accountsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AccountPayload<ExtArgs>, T, "findMany"> | Null>
     messages<T extends User$messagesArgs<ExtArgs> = {}>(args?: Subset<T, User$messagesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MessagePayload<ExtArgs>, T, "findMany"> | Null>
     passkeys<T extends User$passkeysArgs<ExtArgs> = {}>(args?: Subset<T, User$passkeysArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PasskeyPayload<ExtArgs>, T, "findMany"> | Null>
+    feedbacks<T extends User$feedbacksArgs<ExtArgs> = {}>(args?: Subset<T, User$feedbacksArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -5139,6 +5331,26 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: PasskeyScalarFieldEnum | PasskeyScalarFieldEnum[]
+  }
+
+  /**
+   * User.feedbacks
+   */
+  export type User$feedbacksArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Feedback
+     */
+    select?: FeedbackSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeedbackInclude<ExtArgs> | null
+    where?: FeedbackWhereInput
+    orderBy?: FeedbackOrderByWithRelationInput | FeedbackOrderByWithRelationInput[]
+    cursor?: FeedbackWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: FeedbackScalarFieldEnum | FeedbackScalarFieldEnum[]
   }
 
   /**
@@ -13021,6 +13233,991 @@ export namespace Prisma {
 
 
   /**
+   * Model Feedback
+   */
+
+  export type AggregateFeedback = {
+    _count: FeedbackCountAggregateOutputType | null
+    _avg: FeedbackAvgAggregateOutputType | null
+    _sum: FeedbackSumAggregateOutputType | null
+    _min: FeedbackMinAggregateOutputType | null
+    _max: FeedbackMaxAggregateOutputType | null
+  }
+
+  export type FeedbackAvgAggregateOutputType = {
+    score: number | null
+  }
+
+  export type FeedbackSumAggregateOutputType = {
+    score: number | null
+  }
+
+  export type FeedbackMinAggregateOutputType = {
+    id: string | null
+    score: number | null
+    comment: string | null
+    userId: string | null
+    tenantId: string | null
+    createdAt: Date | null
+  }
+
+  export type FeedbackMaxAggregateOutputType = {
+    id: string | null
+    score: number | null
+    comment: string | null
+    userId: string | null
+    tenantId: string | null
+    createdAt: Date | null
+  }
+
+  export type FeedbackCountAggregateOutputType = {
+    id: number
+    score: number
+    comment: number
+    userId: number
+    tenantId: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type FeedbackAvgAggregateInputType = {
+    score?: true
+  }
+
+  export type FeedbackSumAggregateInputType = {
+    score?: true
+  }
+
+  export type FeedbackMinAggregateInputType = {
+    id?: true
+    score?: true
+    comment?: true
+    userId?: true
+    tenantId?: true
+    createdAt?: true
+  }
+
+  export type FeedbackMaxAggregateInputType = {
+    id?: true
+    score?: true
+    comment?: true
+    userId?: true
+    tenantId?: true
+    createdAt?: true
+  }
+
+  export type FeedbackCountAggregateInputType = {
+    id?: true
+    score?: true
+    comment?: true
+    userId?: true
+    tenantId?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type FeedbackAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Feedback to aggregate.
+     */
+    where?: FeedbackWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Feedbacks to fetch.
+     */
+    orderBy?: FeedbackOrderByWithRelationInput | FeedbackOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: FeedbackWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Feedbacks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Feedbacks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Feedbacks
+    **/
+    _count?: true | FeedbackCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: FeedbackAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: FeedbackSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: FeedbackMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: FeedbackMaxAggregateInputType
+  }
+
+  export type GetFeedbackAggregateType<T extends FeedbackAggregateArgs> = {
+        [P in keyof T & keyof AggregateFeedback]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateFeedback[P]>
+      : GetScalarType<T[P], AggregateFeedback[P]>
+  }
+
+
+
+
+  export type FeedbackGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FeedbackWhereInput
+    orderBy?: FeedbackOrderByWithAggregationInput | FeedbackOrderByWithAggregationInput[]
+    by: FeedbackScalarFieldEnum[] | FeedbackScalarFieldEnum
+    having?: FeedbackScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: FeedbackCountAggregateInputType | true
+    _avg?: FeedbackAvgAggregateInputType
+    _sum?: FeedbackSumAggregateInputType
+    _min?: FeedbackMinAggregateInputType
+    _max?: FeedbackMaxAggregateInputType
+  }
+
+  export type FeedbackGroupByOutputType = {
+    id: string
+    score: number
+    comment: string | null
+    userId: string
+    tenantId: string
+    createdAt: Date
+    _count: FeedbackCountAggregateOutputType | null
+    _avg: FeedbackAvgAggregateOutputType | null
+    _sum: FeedbackSumAggregateOutputType | null
+    _min: FeedbackMinAggregateOutputType | null
+    _max: FeedbackMaxAggregateOutputType | null
+  }
+
+  type GetFeedbackGroupByPayload<T extends FeedbackGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<FeedbackGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof FeedbackGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], FeedbackGroupByOutputType[P]>
+            : GetScalarType<T[P], FeedbackGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type FeedbackSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    score?: boolean
+    comment?: boolean
+    userId?: boolean
+    tenantId?: boolean
+    createdAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["feedback"]>
+
+  export type FeedbackSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    score?: boolean
+    comment?: boolean
+    userId?: boolean
+    tenantId?: boolean
+    createdAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["feedback"]>
+
+  export type FeedbackSelectScalar = {
+    id?: boolean
+    score?: boolean
+    comment?: boolean
+    userId?: boolean
+    tenantId?: boolean
+    createdAt?: boolean
+  }
+
+  export type FeedbackInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }
+  export type FeedbackIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }
+
+  export type $FeedbackPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Feedback"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+      tenant: Prisma.$TenantPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      score: number
+      comment: string | null
+      userId: string
+      tenantId: string
+      createdAt: Date
+    }, ExtArgs["result"]["feedback"]>
+    composites: {}
+  }
+
+  type FeedbackGetPayload<S extends boolean | null | undefined | FeedbackDefaultArgs> = $Result.GetResult<Prisma.$FeedbackPayload, S>
+
+  type FeedbackCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<FeedbackFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: FeedbackCountAggregateInputType | true
+    }
+
+  export interface FeedbackDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Feedback'], meta: { name: 'Feedback' } }
+    /**
+     * Find zero or one Feedback that matches the filter.
+     * @param {FeedbackFindUniqueArgs} args - Arguments to find a Feedback
+     * @example
+     * // Get one Feedback
+     * const feedback = await prisma.feedback.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends FeedbackFindUniqueArgs>(args: SelectSubset<T, FeedbackFindUniqueArgs<ExtArgs>>): Prisma__FeedbackClient<$Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one Feedback that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {FeedbackFindUniqueOrThrowArgs} args - Arguments to find a Feedback
+     * @example
+     * // Get one Feedback
+     * const feedback = await prisma.feedback.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends FeedbackFindUniqueOrThrowArgs>(args: SelectSubset<T, FeedbackFindUniqueOrThrowArgs<ExtArgs>>): Prisma__FeedbackClient<$Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first Feedback that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FeedbackFindFirstArgs} args - Arguments to find a Feedback
+     * @example
+     * // Get one Feedback
+     * const feedback = await prisma.feedback.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends FeedbackFindFirstArgs>(args?: SelectSubset<T, FeedbackFindFirstArgs<ExtArgs>>): Prisma__FeedbackClient<$Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first Feedback that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FeedbackFindFirstOrThrowArgs} args - Arguments to find a Feedback
+     * @example
+     * // Get one Feedback
+     * const feedback = await prisma.feedback.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends FeedbackFindFirstOrThrowArgs>(args?: SelectSubset<T, FeedbackFindFirstOrThrowArgs<ExtArgs>>): Prisma__FeedbackClient<$Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more Feedbacks that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FeedbackFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Feedbacks
+     * const feedbacks = await prisma.feedback.findMany()
+     * 
+     * // Get first 10 Feedbacks
+     * const feedbacks = await prisma.feedback.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const feedbackWithIdOnly = await prisma.feedback.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends FeedbackFindManyArgs>(args?: SelectSubset<T, FeedbackFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a Feedback.
+     * @param {FeedbackCreateArgs} args - Arguments to create a Feedback.
+     * @example
+     * // Create one Feedback
+     * const Feedback = await prisma.feedback.create({
+     *   data: {
+     *     // ... data to create a Feedback
+     *   }
+     * })
+     * 
+     */
+    create<T extends FeedbackCreateArgs>(args: SelectSubset<T, FeedbackCreateArgs<ExtArgs>>): Prisma__FeedbackClient<$Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many Feedbacks.
+     * @param {FeedbackCreateManyArgs} args - Arguments to create many Feedbacks.
+     * @example
+     * // Create many Feedbacks
+     * const feedback = await prisma.feedback.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends FeedbackCreateManyArgs>(args?: SelectSubset<T, FeedbackCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Feedbacks and returns the data saved in the database.
+     * @param {FeedbackCreateManyAndReturnArgs} args - Arguments to create many Feedbacks.
+     * @example
+     * // Create many Feedbacks
+     * const feedback = await prisma.feedback.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Feedbacks and only return the `id`
+     * const feedbackWithIdOnly = await prisma.feedback.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends FeedbackCreateManyAndReturnArgs>(args?: SelectSubset<T, FeedbackCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a Feedback.
+     * @param {FeedbackDeleteArgs} args - Arguments to delete one Feedback.
+     * @example
+     * // Delete one Feedback
+     * const Feedback = await prisma.feedback.delete({
+     *   where: {
+     *     // ... filter to delete one Feedback
+     *   }
+     * })
+     * 
+     */
+    delete<T extends FeedbackDeleteArgs>(args: SelectSubset<T, FeedbackDeleteArgs<ExtArgs>>): Prisma__FeedbackClient<$Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one Feedback.
+     * @param {FeedbackUpdateArgs} args - Arguments to update one Feedback.
+     * @example
+     * // Update one Feedback
+     * const feedback = await prisma.feedback.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends FeedbackUpdateArgs>(args: SelectSubset<T, FeedbackUpdateArgs<ExtArgs>>): Prisma__FeedbackClient<$Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more Feedbacks.
+     * @param {FeedbackDeleteManyArgs} args - Arguments to filter Feedbacks to delete.
+     * @example
+     * // Delete a few Feedbacks
+     * const { count } = await prisma.feedback.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends FeedbackDeleteManyArgs>(args?: SelectSubset<T, FeedbackDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Feedbacks.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FeedbackUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Feedbacks
+     * const feedback = await prisma.feedback.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends FeedbackUpdateManyArgs>(args: SelectSubset<T, FeedbackUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one Feedback.
+     * @param {FeedbackUpsertArgs} args - Arguments to update or create a Feedback.
+     * @example
+     * // Update or create a Feedback
+     * const feedback = await prisma.feedback.upsert({
+     *   create: {
+     *     // ... data to create a Feedback
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Feedback we want to update
+     *   }
+     * })
+     */
+    upsert<T extends FeedbackUpsertArgs>(args: SelectSubset<T, FeedbackUpsertArgs<ExtArgs>>): Prisma__FeedbackClient<$Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of Feedbacks.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FeedbackCountArgs} args - Arguments to filter Feedbacks to count.
+     * @example
+     * // Count the number of Feedbacks
+     * const count = await prisma.feedback.count({
+     *   where: {
+     *     // ... the filter for the Feedbacks we want to count
+     *   }
+     * })
+    **/
+    count<T extends FeedbackCountArgs>(
+      args?: Subset<T, FeedbackCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], FeedbackCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Feedback.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FeedbackAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends FeedbackAggregateArgs>(args: Subset<T, FeedbackAggregateArgs>): Prisma.PrismaPromise<GetFeedbackAggregateType<T>>
+
+    /**
+     * Group by Feedback.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FeedbackGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends FeedbackGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: FeedbackGroupByArgs['orderBy'] }
+        : { orderBy?: FeedbackGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, FeedbackGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetFeedbackGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Feedback model
+   */
+  readonly fields: FeedbackFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Feedback.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__FeedbackClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    tenant<T extends TenantDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TenantDefaultArgs<ExtArgs>>): Prisma__TenantClient<$Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Feedback model
+   */ 
+  interface FeedbackFieldRefs {
+    readonly id: FieldRef<"Feedback", 'String'>
+    readonly score: FieldRef<"Feedback", 'Int'>
+    readonly comment: FieldRef<"Feedback", 'String'>
+    readonly userId: FieldRef<"Feedback", 'String'>
+    readonly tenantId: FieldRef<"Feedback", 'String'>
+    readonly createdAt: FieldRef<"Feedback", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Feedback findUnique
+   */
+  export type FeedbackFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Feedback
+     */
+    select?: FeedbackSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeedbackInclude<ExtArgs> | null
+    /**
+     * Filter, which Feedback to fetch.
+     */
+    where: FeedbackWhereUniqueInput
+  }
+
+  /**
+   * Feedback findUniqueOrThrow
+   */
+  export type FeedbackFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Feedback
+     */
+    select?: FeedbackSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeedbackInclude<ExtArgs> | null
+    /**
+     * Filter, which Feedback to fetch.
+     */
+    where: FeedbackWhereUniqueInput
+  }
+
+  /**
+   * Feedback findFirst
+   */
+  export type FeedbackFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Feedback
+     */
+    select?: FeedbackSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeedbackInclude<ExtArgs> | null
+    /**
+     * Filter, which Feedback to fetch.
+     */
+    where?: FeedbackWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Feedbacks to fetch.
+     */
+    orderBy?: FeedbackOrderByWithRelationInput | FeedbackOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Feedbacks.
+     */
+    cursor?: FeedbackWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Feedbacks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Feedbacks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Feedbacks.
+     */
+    distinct?: FeedbackScalarFieldEnum | FeedbackScalarFieldEnum[]
+  }
+
+  /**
+   * Feedback findFirstOrThrow
+   */
+  export type FeedbackFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Feedback
+     */
+    select?: FeedbackSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeedbackInclude<ExtArgs> | null
+    /**
+     * Filter, which Feedback to fetch.
+     */
+    where?: FeedbackWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Feedbacks to fetch.
+     */
+    orderBy?: FeedbackOrderByWithRelationInput | FeedbackOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Feedbacks.
+     */
+    cursor?: FeedbackWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Feedbacks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Feedbacks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Feedbacks.
+     */
+    distinct?: FeedbackScalarFieldEnum | FeedbackScalarFieldEnum[]
+  }
+
+  /**
+   * Feedback findMany
+   */
+  export type FeedbackFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Feedback
+     */
+    select?: FeedbackSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeedbackInclude<ExtArgs> | null
+    /**
+     * Filter, which Feedbacks to fetch.
+     */
+    where?: FeedbackWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Feedbacks to fetch.
+     */
+    orderBy?: FeedbackOrderByWithRelationInput | FeedbackOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Feedbacks.
+     */
+    cursor?: FeedbackWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Feedbacks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Feedbacks.
+     */
+    skip?: number
+    distinct?: FeedbackScalarFieldEnum | FeedbackScalarFieldEnum[]
+  }
+
+  /**
+   * Feedback create
+   */
+  export type FeedbackCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Feedback
+     */
+    select?: FeedbackSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeedbackInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Feedback.
+     */
+    data: XOR<FeedbackCreateInput, FeedbackUncheckedCreateInput>
+  }
+
+  /**
+   * Feedback createMany
+   */
+  export type FeedbackCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Feedbacks.
+     */
+    data: FeedbackCreateManyInput | FeedbackCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Feedback createManyAndReturn
+   */
+  export type FeedbackCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Feedback
+     */
+    select?: FeedbackSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many Feedbacks.
+     */
+    data: FeedbackCreateManyInput | FeedbackCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeedbackIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Feedback update
+   */
+  export type FeedbackUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Feedback
+     */
+    select?: FeedbackSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeedbackInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Feedback.
+     */
+    data: XOR<FeedbackUpdateInput, FeedbackUncheckedUpdateInput>
+    /**
+     * Choose, which Feedback to update.
+     */
+    where: FeedbackWhereUniqueInput
+  }
+
+  /**
+   * Feedback updateMany
+   */
+  export type FeedbackUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Feedbacks.
+     */
+    data: XOR<FeedbackUpdateManyMutationInput, FeedbackUncheckedUpdateManyInput>
+    /**
+     * Filter which Feedbacks to update
+     */
+    where?: FeedbackWhereInput
+  }
+
+  /**
+   * Feedback upsert
+   */
+  export type FeedbackUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Feedback
+     */
+    select?: FeedbackSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeedbackInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Feedback to update in case it exists.
+     */
+    where: FeedbackWhereUniqueInput
+    /**
+     * In case the Feedback found by the `where` argument doesn't exist, create a new Feedback with this data.
+     */
+    create: XOR<FeedbackCreateInput, FeedbackUncheckedCreateInput>
+    /**
+     * In case the Feedback was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<FeedbackUpdateInput, FeedbackUncheckedUpdateInput>
+  }
+
+  /**
+   * Feedback delete
+   */
+  export type FeedbackDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Feedback
+     */
+    select?: FeedbackSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeedbackInclude<ExtArgs> | null
+    /**
+     * Filter which Feedback to delete.
+     */
+    where: FeedbackWhereUniqueInput
+  }
+
+  /**
+   * Feedback deleteMany
+   */
+  export type FeedbackDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Feedbacks to delete
+     */
+    where?: FeedbackWhereInput
+  }
+
+  /**
+   * Feedback without action
+   */
+  export type FeedbackDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Feedback
+     */
+    select?: FeedbackSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeedbackInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -13040,12 +14237,17 @@ export namespace Prisma {
     slug: 'slug',
     metadata: 'metadata',
     logoUrl: 'logoUrl',
+    address: 'address',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
     bssid: 'bssid',
     staticIp: 'staticIp',
     latitude: 'latitude',
-    longitude: 'longitude'
+    longitude: 'longitude',
+    menuEnabled: 'menuEnabled',
+    feedbackEnabled: 'feedbackEnabled',
+    staffEnabled: 'staffEnabled',
+    menuUrl: 'menuUrl'
   };
 
   export type TenantScalarFieldEnum = (typeof TenantScalarFieldEnum)[keyof typeof TenantScalarFieldEnum]
@@ -13197,6 +14399,18 @@ export namespace Prisma {
   };
 
   export type PasskeyScalarFieldEnum = (typeof PasskeyScalarFieldEnum)[keyof typeof PasskeyScalarFieldEnum]
+
+
+  export const FeedbackScalarFieldEnum: {
+    id: 'id',
+    score: 'score',
+    comment: 'comment',
+    userId: 'userId',
+    tenantId: 'tenantId',
+    createdAt: 'createdAt'
+  };
+
+  export type FeedbackScalarFieldEnum = (typeof FeedbackScalarFieldEnum)[keyof typeof FeedbackScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -13369,17 +14583,23 @@ export namespace Prisma {
     slug?: StringFilter<"Tenant"> | string
     metadata?: JsonNullableFilter<"Tenant">
     logoUrl?: StringNullableFilter<"Tenant"> | string | null
+    address?: StringNullableFilter<"Tenant"> | string | null
     createdAt?: DateTimeFilter<"Tenant"> | Date | string
     updatedAt?: DateTimeFilter<"Tenant"> | Date | string
     bssid?: StringNullableFilter<"Tenant"> | string | null
     staticIp?: StringNullableFilter<"Tenant"> | string | null
     latitude?: FloatNullableFilter<"Tenant"> | number | null
     longitude?: FloatNullableFilter<"Tenant"> | number | null
+    menuEnabled?: BoolFilter<"Tenant"> | boolean
+    feedbackEnabled?: BoolFilter<"Tenant"> | boolean
+    staffEnabled?: BoolFilter<"Tenant"> | boolean
+    menuUrl?: StringNullableFilter<"Tenant"> | string | null
     members?: TenantMemberListRelationFilter
     messages?: MessageListRelationFilter
     rooms?: RoomListRelationFilter
     logs?: SystemLogListRelationFilter
     devices?: NasDeviceListRelationFilter
+    feedbacks?: FeedbackListRelationFilter
   }
 
   export type TenantOrderByWithRelationInput = {
@@ -13388,17 +14608,23 @@ export namespace Prisma {
     slug?: SortOrder
     metadata?: SortOrderInput | SortOrder
     logoUrl?: SortOrderInput | SortOrder
+    address?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     bssid?: SortOrderInput | SortOrder
     staticIp?: SortOrderInput | SortOrder
     latitude?: SortOrderInput | SortOrder
     longitude?: SortOrderInput | SortOrder
+    menuEnabled?: SortOrder
+    feedbackEnabled?: SortOrder
+    staffEnabled?: SortOrder
+    menuUrl?: SortOrderInput | SortOrder
     members?: TenantMemberOrderByRelationAggregateInput
     messages?: MessageOrderByRelationAggregateInput
     rooms?: RoomOrderByRelationAggregateInput
     logs?: SystemLogOrderByRelationAggregateInput
     devices?: NasDeviceOrderByRelationAggregateInput
+    feedbacks?: FeedbackOrderByRelationAggregateInput
   }
 
   export type TenantWhereUniqueInput = Prisma.AtLeast<{
@@ -13410,17 +14636,23 @@ export namespace Prisma {
     name?: StringFilter<"Tenant"> | string
     metadata?: JsonNullableFilter<"Tenant">
     logoUrl?: StringNullableFilter<"Tenant"> | string | null
+    address?: StringNullableFilter<"Tenant"> | string | null
     createdAt?: DateTimeFilter<"Tenant"> | Date | string
     updatedAt?: DateTimeFilter<"Tenant"> | Date | string
     bssid?: StringNullableFilter<"Tenant"> | string | null
     staticIp?: StringNullableFilter<"Tenant"> | string | null
     latitude?: FloatNullableFilter<"Tenant"> | number | null
     longitude?: FloatNullableFilter<"Tenant"> | number | null
+    menuEnabled?: BoolFilter<"Tenant"> | boolean
+    feedbackEnabled?: BoolFilter<"Tenant"> | boolean
+    staffEnabled?: BoolFilter<"Tenant"> | boolean
+    menuUrl?: StringNullableFilter<"Tenant"> | string | null
     members?: TenantMemberListRelationFilter
     messages?: MessageListRelationFilter
     rooms?: RoomListRelationFilter
     logs?: SystemLogListRelationFilter
     devices?: NasDeviceListRelationFilter
+    feedbacks?: FeedbackListRelationFilter
   }, "id" | "slug">
 
   export type TenantOrderByWithAggregationInput = {
@@ -13429,12 +14661,17 @@ export namespace Prisma {
     slug?: SortOrder
     metadata?: SortOrderInput | SortOrder
     logoUrl?: SortOrderInput | SortOrder
+    address?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     bssid?: SortOrderInput | SortOrder
     staticIp?: SortOrderInput | SortOrder
     latitude?: SortOrderInput | SortOrder
     longitude?: SortOrderInput | SortOrder
+    menuEnabled?: SortOrder
+    feedbackEnabled?: SortOrder
+    staffEnabled?: SortOrder
+    menuUrl?: SortOrderInput | SortOrder
     _count?: TenantCountOrderByAggregateInput
     _avg?: TenantAvgOrderByAggregateInput
     _max?: TenantMaxOrderByAggregateInput
@@ -13451,12 +14688,17 @@ export namespace Prisma {
     slug?: StringWithAggregatesFilter<"Tenant"> | string
     metadata?: JsonNullableWithAggregatesFilter<"Tenant">
     logoUrl?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
+    address?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Tenant"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Tenant"> | Date | string
     bssid?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
     staticIp?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
     latitude?: FloatNullableWithAggregatesFilter<"Tenant"> | number | null
     longitude?: FloatNullableWithAggregatesFilter<"Tenant"> | number | null
+    menuEnabled?: BoolWithAggregatesFilter<"Tenant"> | boolean
+    feedbackEnabled?: BoolWithAggregatesFilter<"Tenant"> | boolean
+    staffEnabled?: BoolWithAggregatesFilter<"Tenant"> | boolean
+    menuUrl?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
   }
 
   export type NasDeviceWhereInput = {
@@ -13554,6 +14796,7 @@ export namespace Prisma {
     accounts?: AccountListRelationFilter
     messages?: MessageListRelationFilter
     passkeys?: PasskeyListRelationFilter
+    feedbacks?: FeedbackListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -13573,6 +14816,7 @@ export namespace Prisma {
     accounts?: AccountOrderByRelationAggregateInput
     messages?: MessageOrderByRelationAggregateInput
     passkeys?: PasskeyOrderByRelationAggregateInput
+    feedbacks?: FeedbackOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -13595,6 +14839,7 @@ export namespace Prisma {
     accounts?: AccountListRelationFilter
     messages?: MessageListRelationFilter
     passkeys?: PasskeyListRelationFilter
+    feedbacks?: FeedbackListRelationFilter
   }, "id" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -14223,23 +15468,94 @@ export namespace Prisma {
     createdAt?: DateTimeNullableWithAggregatesFilter<"Passkey"> | Date | string | null
   }
 
+  export type FeedbackWhereInput = {
+    AND?: FeedbackWhereInput | FeedbackWhereInput[]
+    OR?: FeedbackWhereInput[]
+    NOT?: FeedbackWhereInput | FeedbackWhereInput[]
+    id?: StringFilter<"Feedback"> | string
+    score?: IntFilter<"Feedback"> | number
+    comment?: StringNullableFilter<"Feedback"> | string | null
+    userId?: StringFilter<"Feedback"> | string
+    tenantId?: StringFilter<"Feedback"> | string
+    createdAt?: DateTimeFilter<"Feedback"> | Date | string
+    user?: XOR<UserRelationFilter, UserWhereInput>
+    tenant?: XOR<TenantRelationFilter, TenantWhereInput>
+  }
+
+  export type FeedbackOrderByWithRelationInput = {
+    id?: SortOrder
+    score?: SortOrder
+    comment?: SortOrderInput | SortOrder
+    userId?: SortOrder
+    tenantId?: SortOrder
+    createdAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+    tenant?: TenantOrderByWithRelationInput
+  }
+
+  export type FeedbackWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: FeedbackWhereInput | FeedbackWhereInput[]
+    OR?: FeedbackWhereInput[]
+    NOT?: FeedbackWhereInput | FeedbackWhereInput[]
+    score?: IntFilter<"Feedback"> | number
+    comment?: StringNullableFilter<"Feedback"> | string | null
+    userId?: StringFilter<"Feedback"> | string
+    tenantId?: StringFilter<"Feedback"> | string
+    createdAt?: DateTimeFilter<"Feedback"> | Date | string
+    user?: XOR<UserRelationFilter, UserWhereInput>
+    tenant?: XOR<TenantRelationFilter, TenantWhereInput>
+  }, "id">
+
+  export type FeedbackOrderByWithAggregationInput = {
+    id?: SortOrder
+    score?: SortOrder
+    comment?: SortOrderInput | SortOrder
+    userId?: SortOrder
+    tenantId?: SortOrder
+    createdAt?: SortOrder
+    _count?: FeedbackCountOrderByAggregateInput
+    _avg?: FeedbackAvgOrderByAggregateInput
+    _max?: FeedbackMaxOrderByAggregateInput
+    _min?: FeedbackMinOrderByAggregateInput
+    _sum?: FeedbackSumOrderByAggregateInput
+  }
+
+  export type FeedbackScalarWhereWithAggregatesInput = {
+    AND?: FeedbackScalarWhereWithAggregatesInput | FeedbackScalarWhereWithAggregatesInput[]
+    OR?: FeedbackScalarWhereWithAggregatesInput[]
+    NOT?: FeedbackScalarWhereWithAggregatesInput | FeedbackScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Feedback"> | string
+    score?: IntWithAggregatesFilter<"Feedback"> | number
+    comment?: StringNullableWithAggregatesFilter<"Feedback"> | string | null
+    userId?: StringWithAggregatesFilter<"Feedback"> | string
+    tenantId?: StringWithAggregatesFilter<"Feedback"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"Feedback"> | Date | string
+  }
+
   export type TenantCreateInput = {
     id?: string
     name: string
     slug: string
     metadata?: NullableJsonNullValueInput | InputJsonValue
     logoUrl?: string | null
+    address?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     bssid?: string | null
     staticIp?: string | null
     latitude?: number | null
     longitude?: number | null
+    menuEnabled?: boolean
+    feedbackEnabled?: boolean
+    staffEnabled?: boolean
+    menuUrl?: string | null
     members?: TenantMemberCreateNestedManyWithoutTenantInput
     messages?: MessageCreateNestedManyWithoutTenantInput
     rooms?: RoomCreateNestedManyWithoutTenantInput
     logs?: SystemLogCreateNestedManyWithoutTenantInput
     devices?: NasDeviceCreateNestedManyWithoutTenantInput
+    feedbacks?: FeedbackCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateInput = {
@@ -14248,17 +15564,23 @@ export namespace Prisma {
     slug: string
     metadata?: NullableJsonNullValueInput | InputJsonValue
     logoUrl?: string | null
+    address?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     bssid?: string | null
     staticIp?: string | null
     latitude?: number | null
     longitude?: number | null
+    menuEnabled?: boolean
+    feedbackEnabled?: boolean
+    staffEnabled?: boolean
+    menuUrl?: string | null
     members?: TenantMemberUncheckedCreateNestedManyWithoutTenantInput
     messages?: MessageUncheckedCreateNestedManyWithoutTenantInput
     rooms?: RoomUncheckedCreateNestedManyWithoutTenantInput
     logs?: SystemLogUncheckedCreateNestedManyWithoutTenantInput
     devices?: NasDeviceUncheckedCreateNestedManyWithoutTenantInput
+    feedbacks?: FeedbackUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUpdateInput = {
@@ -14267,17 +15589,23 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     metadata?: NullableJsonNullValueInput | InputJsonValue
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bssid?: NullableStringFieldUpdateOperationsInput | string | null
     staticIp?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    menuEnabled?: BoolFieldUpdateOperationsInput | boolean
+    feedbackEnabled?: BoolFieldUpdateOperationsInput | boolean
+    staffEnabled?: BoolFieldUpdateOperationsInput | boolean
+    menuUrl?: NullableStringFieldUpdateOperationsInput | string | null
     members?: TenantMemberUpdateManyWithoutTenantNestedInput
     messages?: MessageUpdateManyWithoutTenantNestedInput
     rooms?: RoomUpdateManyWithoutTenantNestedInput
     logs?: SystemLogUpdateManyWithoutTenantNestedInput
     devices?: NasDeviceUpdateManyWithoutTenantNestedInput
+    feedbacks?: FeedbackUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateInput = {
@@ -14286,17 +15614,23 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     metadata?: NullableJsonNullValueInput | InputJsonValue
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bssid?: NullableStringFieldUpdateOperationsInput | string | null
     staticIp?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    menuEnabled?: BoolFieldUpdateOperationsInput | boolean
+    feedbackEnabled?: BoolFieldUpdateOperationsInput | boolean
+    staffEnabled?: BoolFieldUpdateOperationsInput | boolean
+    menuUrl?: NullableStringFieldUpdateOperationsInput | string | null
     members?: TenantMemberUncheckedUpdateManyWithoutTenantNestedInput
     messages?: MessageUncheckedUpdateManyWithoutTenantNestedInput
     rooms?: RoomUncheckedUpdateManyWithoutTenantNestedInput
     logs?: SystemLogUncheckedUpdateManyWithoutTenantNestedInput
     devices?: NasDeviceUncheckedUpdateManyWithoutTenantNestedInput
+    feedbacks?: FeedbackUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantCreateManyInput = {
@@ -14305,12 +15639,17 @@ export namespace Prisma {
     slug: string
     metadata?: NullableJsonNullValueInput | InputJsonValue
     logoUrl?: string | null
+    address?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     bssid?: string | null
     staticIp?: string | null
     latitude?: number | null
     longitude?: number | null
+    menuEnabled?: boolean
+    feedbackEnabled?: boolean
+    staffEnabled?: boolean
+    menuUrl?: string | null
   }
 
   export type TenantUpdateManyMutationInput = {
@@ -14319,12 +15658,17 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     metadata?: NullableJsonNullValueInput | InputJsonValue
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bssid?: NullableStringFieldUpdateOperationsInput | string | null
     staticIp?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    menuEnabled?: BoolFieldUpdateOperationsInput | boolean
+    feedbackEnabled?: BoolFieldUpdateOperationsInput | boolean
+    staffEnabled?: BoolFieldUpdateOperationsInput | boolean
+    menuUrl?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type TenantUncheckedUpdateManyInput = {
@@ -14333,12 +15677,17 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     metadata?: NullableJsonNullValueInput | InputJsonValue
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bssid?: NullableStringFieldUpdateOperationsInput | string | null
     staticIp?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    menuEnabled?: BoolFieldUpdateOperationsInput | boolean
+    feedbackEnabled?: BoolFieldUpdateOperationsInput | boolean
+    staffEnabled?: BoolFieldUpdateOperationsInput | boolean
+    menuUrl?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type NasDeviceCreateInput = {
@@ -14441,6 +15790,7 @@ export namespace Prisma {
     accounts?: AccountCreateNestedManyWithoutUserInput
     messages?: MessageCreateNestedManyWithoutUserInput
     passkeys?: PasskeyCreateNestedManyWithoutUserInput
+    feedbacks?: FeedbackCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -14460,6 +15810,7 @@ export namespace Prisma {
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     messages?: MessageUncheckedCreateNestedManyWithoutUserInput
     passkeys?: PasskeyUncheckedCreateNestedManyWithoutUserInput
+    feedbacks?: FeedbackUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -14479,6 +15830,7 @@ export namespace Prisma {
     accounts?: AccountUpdateManyWithoutUserNestedInput
     messages?: MessageUpdateManyWithoutUserNestedInput
     passkeys?: PasskeyUpdateManyWithoutUserNestedInput
+    feedbacks?: FeedbackUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -14498,6 +15850,7 @@ export namespace Prisma {
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     messages?: MessageUncheckedUpdateManyWithoutUserNestedInput
     passkeys?: PasskeyUncheckedUpdateManyWithoutUserNestedInput
+    feedbacks?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -15180,6 +16533,67 @@ export namespace Prisma {
     createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
+  export type FeedbackCreateInput = {
+    id?: string
+    score: number
+    comment?: string | null
+    createdAt?: Date | string
+    user: UserCreateNestedOneWithoutFeedbacksInput
+    tenant: TenantCreateNestedOneWithoutFeedbacksInput
+  }
+
+  export type FeedbackUncheckedCreateInput = {
+    id?: string
+    score: number
+    comment?: string | null
+    userId: string
+    tenantId: string
+    createdAt?: Date | string
+  }
+
+  export type FeedbackUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    score?: IntFieldUpdateOperationsInput | number
+    comment?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutFeedbacksNestedInput
+    tenant?: TenantUpdateOneRequiredWithoutFeedbacksNestedInput
+  }
+
+  export type FeedbackUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    score?: IntFieldUpdateOperationsInput | number
+    comment?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FeedbackCreateManyInput = {
+    id?: string
+    score: number
+    comment?: string | null
+    userId: string
+    tenantId: string
+    createdAt?: Date | string
+  }
+
+  export type FeedbackUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    score?: IntFieldUpdateOperationsInput | number
+    comment?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FeedbackUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    score?: IntFieldUpdateOperationsInput | number
+    comment?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -15254,6 +16668,11 @@ export namespace Prisma {
     not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
 
+  export type BoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
   export type TenantMemberListRelationFilter = {
     every?: TenantMemberWhereInput
     some?: TenantMemberWhereInput
@@ -15284,6 +16703,12 @@ export namespace Prisma {
     none?: NasDeviceWhereInput
   }
 
+  export type FeedbackListRelationFilter = {
+    every?: FeedbackWhereInput
+    some?: FeedbackWhereInput
+    none?: FeedbackWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -15309,18 +16734,27 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
+  export type FeedbackOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type TenantCountOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
     slug?: SortOrder
     metadata?: SortOrder
     logoUrl?: SortOrder
+    address?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     bssid?: SortOrder
     staticIp?: SortOrder
     latitude?: SortOrder
     longitude?: SortOrder
+    menuEnabled?: SortOrder
+    feedbackEnabled?: SortOrder
+    staffEnabled?: SortOrder
+    menuUrl?: SortOrder
   }
 
   export type TenantAvgOrderByAggregateInput = {
@@ -15333,12 +16767,17 @@ export namespace Prisma {
     name?: SortOrder
     slug?: SortOrder
     logoUrl?: SortOrder
+    address?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     bssid?: SortOrder
     staticIp?: SortOrder
     latitude?: SortOrder
     longitude?: SortOrder
+    menuEnabled?: SortOrder
+    feedbackEnabled?: SortOrder
+    staffEnabled?: SortOrder
+    menuUrl?: SortOrder
   }
 
   export type TenantMinOrderByAggregateInput = {
@@ -15346,12 +16785,17 @@ export namespace Prisma {
     name?: SortOrder
     slug?: SortOrder
     logoUrl?: SortOrder
+    address?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     bssid?: SortOrder
     staticIp?: SortOrder
     latitude?: SortOrder
     longitude?: SortOrder
+    menuEnabled?: SortOrder
+    feedbackEnabled?: SortOrder
+    staffEnabled?: SortOrder
+    menuUrl?: SortOrder
   }
 
   export type TenantSumOrderByAggregateInput = {
@@ -15450,6 +16894,14 @@ export namespace Prisma {
     _max?: NestedFloatNullableFilter<$PrismaModel>
   }
 
+  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
+  }
+
   export type TenantRelationFilter = {
     is?: TenantWhereInput
     isNot?: TenantWhereInput
@@ -15494,11 +16946,6 @@ export namespace Prisma {
   export type BoolNullableFilter<$PrismaModel = never> = {
     equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
     not?: NestedBoolNullableFilter<$PrismaModel> | boolean | null
-  }
-
-  export type BoolFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
   export type EnumGlobalRoleFilter<$PrismaModel = never> = {
@@ -15586,14 +17033,6 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedBoolNullableFilter<$PrismaModel>
     _max?: NestedBoolNullableFilter<$PrismaModel>
-  }
-
-  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedBoolFilter<$PrismaModel>
-    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type EnumGlobalRoleWithAggregatesFilter<$PrismaModel = never> = {
@@ -15999,6 +17438,41 @@ export namespace Prisma {
     _max?: NestedIntFilter<$PrismaModel>
   }
 
+  export type FeedbackCountOrderByAggregateInput = {
+    id?: SortOrder
+    score?: SortOrder
+    comment?: SortOrder
+    userId?: SortOrder
+    tenantId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type FeedbackAvgOrderByAggregateInput = {
+    score?: SortOrder
+  }
+
+  export type FeedbackMaxOrderByAggregateInput = {
+    id?: SortOrder
+    score?: SortOrder
+    comment?: SortOrder
+    userId?: SortOrder
+    tenantId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type FeedbackMinOrderByAggregateInput = {
+    id?: SortOrder
+    score?: SortOrder
+    comment?: SortOrder
+    userId?: SortOrder
+    tenantId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type FeedbackSumOrderByAggregateInput = {
+    score?: SortOrder
+  }
+
   export type TenantMemberCreateNestedManyWithoutTenantInput = {
     create?: XOR<TenantMemberCreateWithoutTenantInput, TenantMemberUncheckedCreateWithoutTenantInput> | TenantMemberCreateWithoutTenantInput[] | TenantMemberUncheckedCreateWithoutTenantInput[]
     connectOrCreate?: TenantMemberCreateOrConnectWithoutTenantInput | TenantMemberCreateOrConnectWithoutTenantInput[]
@@ -16032,6 +17506,13 @@ export namespace Prisma {
     connectOrCreate?: NasDeviceCreateOrConnectWithoutTenantInput | NasDeviceCreateOrConnectWithoutTenantInput[]
     createMany?: NasDeviceCreateManyTenantInputEnvelope
     connect?: NasDeviceWhereUniqueInput | NasDeviceWhereUniqueInput[]
+  }
+
+  export type FeedbackCreateNestedManyWithoutTenantInput = {
+    create?: XOR<FeedbackCreateWithoutTenantInput, FeedbackUncheckedCreateWithoutTenantInput> | FeedbackCreateWithoutTenantInput[] | FeedbackUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: FeedbackCreateOrConnectWithoutTenantInput | FeedbackCreateOrConnectWithoutTenantInput[]
+    createMany?: FeedbackCreateManyTenantInputEnvelope
+    connect?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
   }
 
   export type TenantMemberUncheckedCreateNestedManyWithoutTenantInput = {
@@ -16069,6 +17550,13 @@ export namespace Prisma {
     connect?: NasDeviceWhereUniqueInput | NasDeviceWhereUniqueInput[]
   }
 
+  export type FeedbackUncheckedCreateNestedManyWithoutTenantInput = {
+    create?: XOR<FeedbackCreateWithoutTenantInput, FeedbackUncheckedCreateWithoutTenantInput> | FeedbackCreateWithoutTenantInput[] | FeedbackUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: FeedbackCreateOrConnectWithoutTenantInput | FeedbackCreateOrConnectWithoutTenantInput[]
+    createMany?: FeedbackCreateManyTenantInputEnvelope
+    connect?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
+  }
+
   export type StringFieldUpdateOperationsInput = {
     set?: string
   }
@@ -16087,6 +17575,10 @@ export namespace Prisma {
     decrement?: number
     multiply?: number
     divide?: number
+  }
+
+  export type BoolFieldUpdateOperationsInput = {
+    set?: boolean
   }
 
   export type TenantMemberUpdateManyWithoutTenantNestedInput = {
@@ -16159,6 +17651,20 @@ export namespace Prisma {
     deleteMany?: NasDeviceScalarWhereInput | NasDeviceScalarWhereInput[]
   }
 
+  export type FeedbackUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<FeedbackCreateWithoutTenantInput, FeedbackUncheckedCreateWithoutTenantInput> | FeedbackCreateWithoutTenantInput[] | FeedbackUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: FeedbackCreateOrConnectWithoutTenantInput | FeedbackCreateOrConnectWithoutTenantInput[]
+    upsert?: FeedbackUpsertWithWhereUniqueWithoutTenantInput | FeedbackUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: FeedbackCreateManyTenantInputEnvelope
+    set?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
+    disconnect?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
+    delete?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
+    connect?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
+    update?: FeedbackUpdateWithWhereUniqueWithoutTenantInput | FeedbackUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: FeedbackUpdateManyWithWhereWithoutTenantInput | FeedbackUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: FeedbackScalarWhereInput | FeedbackScalarWhereInput[]
+  }
+
   export type TenantMemberUncheckedUpdateManyWithoutTenantNestedInput = {
     create?: XOR<TenantMemberCreateWithoutTenantInput, TenantMemberUncheckedCreateWithoutTenantInput> | TenantMemberCreateWithoutTenantInput[] | TenantMemberUncheckedCreateWithoutTenantInput[]
     connectOrCreate?: TenantMemberCreateOrConnectWithoutTenantInput | TenantMemberCreateOrConnectWithoutTenantInput[]
@@ -16229,6 +17735,20 @@ export namespace Prisma {
     deleteMany?: NasDeviceScalarWhereInput | NasDeviceScalarWhereInput[]
   }
 
+  export type FeedbackUncheckedUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<FeedbackCreateWithoutTenantInput, FeedbackUncheckedCreateWithoutTenantInput> | FeedbackCreateWithoutTenantInput[] | FeedbackUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: FeedbackCreateOrConnectWithoutTenantInput | FeedbackCreateOrConnectWithoutTenantInput[]
+    upsert?: FeedbackUpsertWithWhereUniqueWithoutTenantInput | FeedbackUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: FeedbackCreateManyTenantInputEnvelope
+    set?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
+    disconnect?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
+    delete?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
+    connect?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
+    update?: FeedbackUpdateWithWhereUniqueWithoutTenantInput | FeedbackUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: FeedbackUpdateManyWithWhereWithoutTenantInput | FeedbackUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: FeedbackScalarWhereInput | FeedbackScalarWhereInput[]
+  }
+
   export type TenantCreateNestedOneWithoutDevicesInput = {
     create?: XOR<TenantCreateWithoutDevicesInput, TenantUncheckedCreateWithoutDevicesInput>
     connectOrCreate?: TenantCreateOrConnectWithoutDevicesInput
@@ -16278,6 +17798,13 @@ export namespace Prisma {
     connect?: PasskeyWhereUniqueInput | PasskeyWhereUniqueInput[]
   }
 
+  export type FeedbackCreateNestedManyWithoutUserInput = {
+    create?: XOR<FeedbackCreateWithoutUserInput, FeedbackUncheckedCreateWithoutUserInput> | FeedbackCreateWithoutUserInput[] | FeedbackUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: FeedbackCreateOrConnectWithoutUserInput | FeedbackCreateOrConnectWithoutUserInput[]
+    createMany?: FeedbackCreateManyUserInputEnvelope
+    connect?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
+  }
+
   export type TenantMemberUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<TenantMemberCreateWithoutUserInput, TenantMemberUncheckedCreateWithoutUserInput> | TenantMemberCreateWithoutUserInput[] | TenantMemberUncheckedCreateWithoutUserInput[]
     connectOrCreate?: TenantMemberCreateOrConnectWithoutUserInput | TenantMemberCreateOrConnectWithoutUserInput[]
@@ -16313,12 +17840,15 @@ export namespace Prisma {
     connect?: PasskeyWhereUniqueInput | PasskeyWhereUniqueInput[]
   }
 
-  export type NullableBoolFieldUpdateOperationsInput = {
-    set?: boolean | null
+  export type FeedbackUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<FeedbackCreateWithoutUserInput, FeedbackUncheckedCreateWithoutUserInput> | FeedbackCreateWithoutUserInput[] | FeedbackUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: FeedbackCreateOrConnectWithoutUserInput | FeedbackCreateOrConnectWithoutUserInput[]
+    createMany?: FeedbackCreateManyUserInputEnvelope
+    connect?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
   }
 
-  export type BoolFieldUpdateOperationsInput = {
-    set?: boolean
+  export type NullableBoolFieldUpdateOperationsInput = {
+    set?: boolean | null
   }
 
   export type EnumGlobalRoleFieldUpdateOperationsInput = {
@@ -16395,6 +17925,20 @@ export namespace Prisma {
     deleteMany?: PasskeyScalarWhereInput | PasskeyScalarWhereInput[]
   }
 
+  export type FeedbackUpdateManyWithoutUserNestedInput = {
+    create?: XOR<FeedbackCreateWithoutUserInput, FeedbackUncheckedCreateWithoutUserInput> | FeedbackCreateWithoutUserInput[] | FeedbackUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: FeedbackCreateOrConnectWithoutUserInput | FeedbackCreateOrConnectWithoutUserInput[]
+    upsert?: FeedbackUpsertWithWhereUniqueWithoutUserInput | FeedbackUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: FeedbackCreateManyUserInputEnvelope
+    set?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
+    disconnect?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
+    delete?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
+    connect?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
+    update?: FeedbackUpdateWithWhereUniqueWithoutUserInput | FeedbackUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: FeedbackUpdateManyWithWhereWithoutUserInput | FeedbackUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: FeedbackScalarWhereInput | FeedbackScalarWhereInput[]
+  }
+
   export type TenantMemberUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<TenantMemberCreateWithoutUserInput, TenantMemberUncheckedCreateWithoutUserInput> | TenantMemberCreateWithoutUserInput[] | TenantMemberUncheckedCreateWithoutUserInput[]
     connectOrCreate?: TenantMemberCreateOrConnectWithoutUserInput | TenantMemberCreateOrConnectWithoutUserInput[]
@@ -16463,6 +18007,20 @@ export namespace Prisma {
     update?: PasskeyUpdateWithWhereUniqueWithoutUserInput | PasskeyUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: PasskeyUpdateManyWithWhereWithoutUserInput | PasskeyUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: PasskeyScalarWhereInput | PasskeyScalarWhereInput[]
+  }
+
+  export type FeedbackUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<FeedbackCreateWithoutUserInput, FeedbackUncheckedCreateWithoutUserInput> | FeedbackCreateWithoutUserInput[] | FeedbackUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: FeedbackCreateOrConnectWithoutUserInput | FeedbackCreateOrConnectWithoutUserInput[]
+    upsert?: FeedbackUpsertWithWhereUniqueWithoutUserInput | FeedbackUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: FeedbackCreateManyUserInputEnvelope
+    set?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
+    disconnect?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
+    delete?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
+    connect?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
+    update?: FeedbackUpdateWithWhereUniqueWithoutUserInput | FeedbackUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: FeedbackUpdateManyWithWhereWithoutUserInput | FeedbackUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: FeedbackScalarWhereInput | FeedbackScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutSessionsInput = {
@@ -16673,6 +18231,34 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutPasskeysInput, UserUpdateWithoutPasskeysInput>, UserUncheckedUpdateWithoutPasskeysInput>
   }
 
+  export type UserCreateNestedOneWithoutFeedbacksInput = {
+    create?: XOR<UserCreateWithoutFeedbacksInput, UserUncheckedCreateWithoutFeedbacksInput>
+    connectOrCreate?: UserCreateOrConnectWithoutFeedbacksInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type TenantCreateNestedOneWithoutFeedbacksInput = {
+    create?: XOR<TenantCreateWithoutFeedbacksInput, TenantUncheckedCreateWithoutFeedbacksInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutFeedbacksInput
+    connect?: TenantWhereUniqueInput
+  }
+
+  export type UserUpdateOneRequiredWithoutFeedbacksNestedInput = {
+    create?: XOR<UserCreateWithoutFeedbacksInput, UserUncheckedCreateWithoutFeedbacksInput>
+    connectOrCreate?: UserCreateOrConnectWithoutFeedbacksInput
+    upsert?: UserUpsertWithoutFeedbacksInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutFeedbacksInput, UserUpdateWithoutFeedbacksInput>, UserUncheckedUpdateWithoutFeedbacksInput>
+  }
+
+  export type TenantUpdateOneRequiredWithoutFeedbacksNestedInput = {
+    create?: XOR<TenantCreateWithoutFeedbacksInput, TenantUncheckedCreateWithoutFeedbacksInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutFeedbacksInput
+    upsert?: TenantUpsertWithoutFeedbacksInput
+    connect?: TenantWhereUniqueInput
+    update?: XOR<XOR<TenantUpdateToOneWithWhereWithoutFeedbacksInput, TenantUpdateWithoutFeedbacksInput>, TenantUncheckedUpdateWithoutFeedbacksInput>
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -16721,6 +18307,11 @@ export namespace Prisma {
     gt?: number | FloatFieldRefInput<$PrismaModel>
     gte?: number | FloatFieldRefInput<$PrismaModel>
     not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type NestedBoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
   export type NestedStringWithAggregatesFilter<$PrismaModel = never> = {
@@ -16831,14 +18422,17 @@ export namespace Prisma {
     _max?: NestedFloatNullableFilter<$PrismaModel>
   }
 
+  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
+  }
+
   export type NestedBoolNullableFilter<$PrismaModel = never> = {
     equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
     not?: NestedBoolNullableFilter<$PrismaModel> | boolean | null
-  }
-
-  export type NestedBoolFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
   export type NestedEnumGlobalRoleFilter<$PrismaModel = never> = {
@@ -16854,14 +18448,6 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedBoolNullableFilter<$PrismaModel>
     _max?: NestedBoolNullableFilter<$PrismaModel>
-  }
-
-  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedBoolFilter<$PrismaModel>
-    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type NestedEnumGlobalRoleWithAggregatesFilter<$PrismaModel = never> = {
@@ -17112,6 +18698,32 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type FeedbackCreateWithoutTenantInput = {
+    id?: string
+    score: number
+    comment?: string | null
+    createdAt?: Date | string
+    user: UserCreateNestedOneWithoutFeedbacksInput
+  }
+
+  export type FeedbackUncheckedCreateWithoutTenantInput = {
+    id?: string
+    score: number
+    comment?: string | null
+    userId: string
+    createdAt?: Date | string
+  }
+
+  export type FeedbackCreateOrConnectWithoutTenantInput = {
+    where: FeedbackWhereUniqueInput
+    create: XOR<FeedbackCreateWithoutTenantInput, FeedbackUncheckedCreateWithoutTenantInput>
+  }
+
+  export type FeedbackCreateManyTenantInputEnvelope = {
+    data: FeedbackCreateManyTenantInput | FeedbackCreateManyTenantInput[]
+    skipDuplicates?: boolean
+  }
+
   export type TenantMemberUpsertWithWhereUniqueWithoutTenantInput = {
     where: TenantMemberWhereUniqueInput
     update: XOR<TenantMemberUpdateWithoutTenantInput, TenantMemberUncheckedUpdateWithoutTenantInput>
@@ -17262,22 +18874,56 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"NasDevice"> | Date | string
   }
 
+  export type FeedbackUpsertWithWhereUniqueWithoutTenantInput = {
+    where: FeedbackWhereUniqueInput
+    update: XOR<FeedbackUpdateWithoutTenantInput, FeedbackUncheckedUpdateWithoutTenantInput>
+    create: XOR<FeedbackCreateWithoutTenantInput, FeedbackUncheckedCreateWithoutTenantInput>
+  }
+
+  export type FeedbackUpdateWithWhereUniqueWithoutTenantInput = {
+    where: FeedbackWhereUniqueInput
+    data: XOR<FeedbackUpdateWithoutTenantInput, FeedbackUncheckedUpdateWithoutTenantInput>
+  }
+
+  export type FeedbackUpdateManyWithWhereWithoutTenantInput = {
+    where: FeedbackScalarWhereInput
+    data: XOR<FeedbackUpdateManyMutationInput, FeedbackUncheckedUpdateManyWithoutTenantInput>
+  }
+
+  export type FeedbackScalarWhereInput = {
+    AND?: FeedbackScalarWhereInput | FeedbackScalarWhereInput[]
+    OR?: FeedbackScalarWhereInput[]
+    NOT?: FeedbackScalarWhereInput | FeedbackScalarWhereInput[]
+    id?: StringFilter<"Feedback"> | string
+    score?: IntFilter<"Feedback"> | number
+    comment?: StringNullableFilter<"Feedback"> | string | null
+    userId?: StringFilter<"Feedback"> | string
+    tenantId?: StringFilter<"Feedback"> | string
+    createdAt?: DateTimeFilter<"Feedback"> | Date | string
+  }
+
   export type TenantCreateWithoutDevicesInput = {
     id?: string
     name: string
     slug: string
     metadata?: NullableJsonNullValueInput | InputJsonValue
     logoUrl?: string | null
+    address?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     bssid?: string | null
     staticIp?: string | null
     latitude?: number | null
     longitude?: number | null
+    menuEnabled?: boolean
+    feedbackEnabled?: boolean
+    staffEnabled?: boolean
+    menuUrl?: string | null
     members?: TenantMemberCreateNestedManyWithoutTenantInput
     messages?: MessageCreateNestedManyWithoutTenantInput
     rooms?: RoomCreateNestedManyWithoutTenantInput
     logs?: SystemLogCreateNestedManyWithoutTenantInput
+    feedbacks?: FeedbackCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutDevicesInput = {
@@ -17286,16 +18932,22 @@ export namespace Prisma {
     slug: string
     metadata?: NullableJsonNullValueInput | InputJsonValue
     logoUrl?: string | null
+    address?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     bssid?: string | null
     staticIp?: string | null
     latitude?: number | null
     longitude?: number | null
+    menuEnabled?: boolean
+    feedbackEnabled?: boolean
+    staffEnabled?: boolean
+    menuUrl?: string | null
     members?: TenantMemberUncheckedCreateNestedManyWithoutTenantInput
     messages?: MessageUncheckedCreateNestedManyWithoutTenantInput
     rooms?: RoomUncheckedCreateNestedManyWithoutTenantInput
     logs?: SystemLogUncheckedCreateNestedManyWithoutTenantInput
+    feedbacks?: FeedbackUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutDevicesInput = {
@@ -17320,16 +18972,22 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     metadata?: NullableJsonNullValueInput | InputJsonValue
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bssid?: NullableStringFieldUpdateOperationsInput | string | null
     staticIp?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    menuEnabled?: BoolFieldUpdateOperationsInput | boolean
+    feedbackEnabled?: BoolFieldUpdateOperationsInput | boolean
+    staffEnabled?: BoolFieldUpdateOperationsInput | boolean
+    menuUrl?: NullableStringFieldUpdateOperationsInput | string | null
     members?: TenantMemberUpdateManyWithoutTenantNestedInput
     messages?: MessageUpdateManyWithoutTenantNestedInput
     rooms?: RoomUpdateManyWithoutTenantNestedInput
     logs?: SystemLogUpdateManyWithoutTenantNestedInput
+    feedbacks?: FeedbackUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutDevicesInput = {
@@ -17338,16 +18996,22 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     metadata?: NullableJsonNullValueInput | InputJsonValue
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bssid?: NullableStringFieldUpdateOperationsInput | string | null
     staticIp?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    menuEnabled?: BoolFieldUpdateOperationsInput | boolean
+    feedbackEnabled?: BoolFieldUpdateOperationsInput | boolean
+    staffEnabled?: BoolFieldUpdateOperationsInput | boolean
+    menuUrl?: NullableStringFieldUpdateOperationsInput | string | null
     members?: TenantMemberUncheckedUpdateManyWithoutTenantNestedInput
     messages?: MessageUncheckedUpdateManyWithoutTenantNestedInput
     rooms?: RoomUncheckedUpdateManyWithoutTenantNestedInput
     logs?: SystemLogUncheckedUpdateManyWithoutTenantNestedInput
+    feedbacks?: FeedbackUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantMemberCreateWithoutUserInput = {
@@ -17522,6 +19186,32 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type FeedbackCreateWithoutUserInput = {
+    id?: string
+    score: number
+    comment?: string | null
+    createdAt?: Date | string
+    tenant: TenantCreateNestedOneWithoutFeedbacksInput
+  }
+
+  export type FeedbackUncheckedCreateWithoutUserInput = {
+    id?: string
+    score: number
+    comment?: string | null
+    tenantId: string
+    createdAt?: Date | string
+  }
+
+  export type FeedbackCreateOrConnectWithoutUserInput = {
+    where: FeedbackWhereUniqueInput
+    create: XOR<FeedbackCreateWithoutUserInput, FeedbackUncheckedCreateWithoutUserInput>
+  }
+
+  export type FeedbackCreateManyUserInputEnvelope = {
+    data: FeedbackCreateManyUserInput | FeedbackCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
   export type TenantMemberUpsertWithWhereUniqueWithoutUserInput = {
     where: TenantMemberWhereUniqueInput
     update: XOR<TenantMemberUpdateWithoutUserInput, TenantMemberUncheckedUpdateWithoutUserInput>
@@ -17651,6 +19341,22 @@ export namespace Prisma {
     createdAt?: DateTimeNullableFilter<"Passkey"> | Date | string | null
   }
 
+  export type FeedbackUpsertWithWhereUniqueWithoutUserInput = {
+    where: FeedbackWhereUniqueInput
+    update: XOR<FeedbackUpdateWithoutUserInput, FeedbackUncheckedUpdateWithoutUserInput>
+    create: XOR<FeedbackCreateWithoutUserInput, FeedbackUncheckedCreateWithoutUserInput>
+  }
+
+  export type FeedbackUpdateWithWhereUniqueWithoutUserInput = {
+    where: FeedbackWhereUniqueInput
+    data: XOR<FeedbackUpdateWithoutUserInput, FeedbackUncheckedUpdateWithoutUserInput>
+  }
+
+  export type FeedbackUpdateManyWithWhereWithoutUserInput = {
+    where: FeedbackScalarWhereInput
+    data: XOR<FeedbackUpdateManyMutationInput, FeedbackUncheckedUpdateManyWithoutUserInput>
+  }
+
   export type UserCreateWithoutSessionsInput = {
     id?: string
     name?: string | null
@@ -17667,6 +19373,7 @@ export namespace Prisma {
     accounts?: AccountCreateNestedManyWithoutUserInput
     messages?: MessageCreateNestedManyWithoutUserInput
     passkeys?: PasskeyCreateNestedManyWithoutUserInput
+    feedbacks?: FeedbackCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSessionsInput = {
@@ -17685,6 +19392,7 @@ export namespace Prisma {
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     messages?: MessageUncheckedCreateNestedManyWithoutUserInput
     passkeys?: PasskeyUncheckedCreateNestedManyWithoutUserInput
+    feedbacks?: FeedbackUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSessionsInput = {
@@ -17719,6 +19427,7 @@ export namespace Prisma {
     accounts?: AccountUpdateManyWithoutUserNestedInput
     messages?: MessageUpdateManyWithoutUserNestedInput
     passkeys?: PasskeyUpdateManyWithoutUserNestedInput
+    feedbacks?: FeedbackUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -17737,6 +19446,7 @@ export namespace Prisma {
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     messages?: MessageUncheckedUpdateManyWithoutUserNestedInput
     passkeys?: PasskeyUncheckedUpdateManyWithoutUserNestedInput
+    feedbacks?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutAccountsInput = {
@@ -17755,6 +19465,7 @@ export namespace Prisma {
     sessions?: SessionCreateNestedManyWithoutUserInput
     messages?: MessageCreateNestedManyWithoutUserInput
     passkeys?: PasskeyCreateNestedManyWithoutUserInput
+    feedbacks?: FeedbackCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutAccountsInput = {
@@ -17773,6 +19484,7 @@ export namespace Prisma {
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     messages?: MessageUncheckedCreateNestedManyWithoutUserInput
     passkeys?: PasskeyUncheckedCreateNestedManyWithoutUserInput
+    feedbacks?: FeedbackUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutAccountsInput = {
@@ -17807,6 +19519,7 @@ export namespace Prisma {
     sessions?: SessionUpdateManyWithoutUserNestedInput
     messages?: MessageUpdateManyWithoutUserNestedInput
     passkeys?: PasskeyUpdateManyWithoutUserNestedInput
+    feedbacks?: FeedbackUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -17825,6 +19538,7 @@ export namespace Prisma {
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     messages?: MessageUncheckedUpdateManyWithoutUserNestedInput
     passkeys?: PasskeyUncheckedUpdateManyWithoutUserNestedInput
+    feedbacks?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutMembershipsInput = {
@@ -17843,6 +19557,7 @@ export namespace Prisma {
     accounts?: AccountCreateNestedManyWithoutUserInput
     messages?: MessageCreateNestedManyWithoutUserInput
     passkeys?: PasskeyCreateNestedManyWithoutUserInput
+    feedbacks?: FeedbackCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutMembershipsInput = {
@@ -17861,6 +19576,7 @@ export namespace Prisma {
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     messages?: MessageUncheckedCreateNestedManyWithoutUserInput
     passkeys?: PasskeyUncheckedCreateNestedManyWithoutUserInput
+    feedbacks?: FeedbackUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutMembershipsInput = {
@@ -17874,16 +19590,22 @@ export namespace Prisma {
     slug: string
     metadata?: NullableJsonNullValueInput | InputJsonValue
     logoUrl?: string | null
+    address?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     bssid?: string | null
     staticIp?: string | null
     latitude?: number | null
     longitude?: number | null
+    menuEnabled?: boolean
+    feedbackEnabled?: boolean
+    staffEnabled?: boolean
+    menuUrl?: string | null
     messages?: MessageCreateNestedManyWithoutTenantInput
     rooms?: RoomCreateNestedManyWithoutTenantInput
     logs?: SystemLogCreateNestedManyWithoutTenantInput
     devices?: NasDeviceCreateNestedManyWithoutTenantInput
+    feedbacks?: FeedbackCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutMembersInput = {
@@ -17892,16 +19614,22 @@ export namespace Prisma {
     slug: string
     metadata?: NullableJsonNullValueInput | InputJsonValue
     logoUrl?: string | null
+    address?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     bssid?: string | null
     staticIp?: string | null
     latitude?: number | null
     longitude?: number | null
+    menuEnabled?: boolean
+    feedbackEnabled?: boolean
+    staffEnabled?: boolean
+    menuUrl?: string | null
     messages?: MessageUncheckedCreateNestedManyWithoutTenantInput
     rooms?: RoomUncheckedCreateNestedManyWithoutTenantInput
     logs?: SystemLogUncheckedCreateNestedManyWithoutTenantInput
     devices?: NasDeviceUncheckedCreateNestedManyWithoutTenantInput
+    feedbacks?: FeedbackUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutMembersInput = {
@@ -17936,6 +19664,7 @@ export namespace Prisma {
     accounts?: AccountUpdateManyWithoutUserNestedInput
     messages?: MessageUpdateManyWithoutUserNestedInput
     passkeys?: PasskeyUpdateManyWithoutUserNestedInput
+    feedbacks?: FeedbackUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutMembershipsInput = {
@@ -17954,6 +19683,7 @@ export namespace Prisma {
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     messages?: MessageUncheckedUpdateManyWithoutUserNestedInput
     passkeys?: PasskeyUncheckedUpdateManyWithoutUserNestedInput
+    feedbacks?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type TenantUpsertWithoutMembersInput = {
@@ -17973,16 +19703,22 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     metadata?: NullableJsonNullValueInput | InputJsonValue
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bssid?: NullableStringFieldUpdateOperationsInput | string | null
     staticIp?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    menuEnabled?: BoolFieldUpdateOperationsInput | boolean
+    feedbackEnabled?: BoolFieldUpdateOperationsInput | boolean
+    staffEnabled?: BoolFieldUpdateOperationsInput | boolean
+    menuUrl?: NullableStringFieldUpdateOperationsInput | string | null
     messages?: MessageUpdateManyWithoutTenantNestedInput
     rooms?: RoomUpdateManyWithoutTenantNestedInput
     logs?: SystemLogUpdateManyWithoutTenantNestedInput
     devices?: NasDeviceUpdateManyWithoutTenantNestedInput
+    feedbacks?: FeedbackUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutMembersInput = {
@@ -17991,16 +19727,22 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     metadata?: NullableJsonNullValueInput | InputJsonValue
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bssid?: NullableStringFieldUpdateOperationsInput | string | null
     staticIp?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    menuEnabled?: BoolFieldUpdateOperationsInput | boolean
+    feedbackEnabled?: BoolFieldUpdateOperationsInput | boolean
+    staffEnabled?: BoolFieldUpdateOperationsInput | boolean
+    menuUrl?: NullableStringFieldUpdateOperationsInput | string | null
     messages?: MessageUncheckedUpdateManyWithoutTenantNestedInput
     rooms?: RoomUncheckedUpdateManyWithoutTenantNestedInput
     logs?: SystemLogUncheckedUpdateManyWithoutTenantNestedInput
     devices?: NasDeviceUncheckedUpdateManyWithoutTenantNestedInput
+    feedbacks?: FeedbackUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantCreateWithoutRoomsInput = {
@@ -18009,16 +19751,22 @@ export namespace Prisma {
     slug: string
     metadata?: NullableJsonNullValueInput | InputJsonValue
     logoUrl?: string | null
+    address?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     bssid?: string | null
     staticIp?: string | null
     latitude?: number | null
     longitude?: number | null
+    menuEnabled?: boolean
+    feedbackEnabled?: boolean
+    staffEnabled?: boolean
+    menuUrl?: string | null
     members?: TenantMemberCreateNestedManyWithoutTenantInput
     messages?: MessageCreateNestedManyWithoutTenantInput
     logs?: SystemLogCreateNestedManyWithoutTenantInput
     devices?: NasDeviceCreateNestedManyWithoutTenantInput
+    feedbacks?: FeedbackCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutRoomsInput = {
@@ -18027,16 +19775,22 @@ export namespace Prisma {
     slug: string
     metadata?: NullableJsonNullValueInput | InputJsonValue
     logoUrl?: string | null
+    address?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     bssid?: string | null
     staticIp?: string | null
     latitude?: number | null
     longitude?: number | null
+    menuEnabled?: boolean
+    feedbackEnabled?: boolean
+    staffEnabled?: boolean
+    menuUrl?: string | null
     members?: TenantMemberUncheckedCreateNestedManyWithoutTenantInput
     messages?: MessageUncheckedCreateNestedManyWithoutTenantInput
     logs?: SystemLogUncheckedCreateNestedManyWithoutTenantInput
     devices?: NasDeviceUncheckedCreateNestedManyWithoutTenantInput
+    feedbacks?: FeedbackUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutRoomsInput = {
@@ -18097,16 +19851,22 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     metadata?: NullableJsonNullValueInput | InputJsonValue
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bssid?: NullableStringFieldUpdateOperationsInput | string | null
     staticIp?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    menuEnabled?: BoolFieldUpdateOperationsInput | boolean
+    feedbackEnabled?: BoolFieldUpdateOperationsInput | boolean
+    staffEnabled?: BoolFieldUpdateOperationsInput | boolean
+    menuUrl?: NullableStringFieldUpdateOperationsInput | string | null
     members?: TenantMemberUpdateManyWithoutTenantNestedInput
     messages?: MessageUpdateManyWithoutTenantNestedInput
     logs?: SystemLogUpdateManyWithoutTenantNestedInput
     devices?: NasDeviceUpdateManyWithoutTenantNestedInput
+    feedbacks?: FeedbackUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutRoomsInput = {
@@ -18115,16 +19875,22 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     metadata?: NullableJsonNullValueInput | InputJsonValue
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bssid?: NullableStringFieldUpdateOperationsInput | string | null
     staticIp?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    menuEnabled?: BoolFieldUpdateOperationsInput | boolean
+    feedbackEnabled?: BoolFieldUpdateOperationsInput | boolean
+    staffEnabled?: BoolFieldUpdateOperationsInput | boolean
+    menuUrl?: NullableStringFieldUpdateOperationsInput | string | null
     members?: TenantMemberUncheckedUpdateManyWithoutTenantNestedInput
     messages?: MessageUncheckedUpdateManyWithoutTenantNestedInput
     logs?: SystemLogUncheckedUpdateManyWithoutTenantNestedInput
     devices?: NasDeviceUncheckedUpdateManyWithoutTenantNestedInput
+    feedbacks?: FeedbackUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type MessageUpsertWithWhereUniqueWithoutRoomInput = {
@@ -18182,6 +19948,7 @@ export namespace Prisma {
     sessions?: SessionCreateNestedManyWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     passkeys?: PasskeyCreateNestedManyWithoutUserInput
+    feedbacks?: FeedbackCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutMessagesInput = {
@@ -18200,6 +19967,7 @@ export namespace Prisma {
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     passkeys?: PasskeyUncheckedCreateNestedManyWithoutUserInput
+    feedbacks?: FeedbackUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutMessagesInput = {
@@ -18213,16 +19981,22 @@ export namespace Prisma {
     slug: string
     metadata?: NullableJsonNullValueInput | InputJsonValue
     logoUrl?: string | null
+    address?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     bssid?: string | null
     staticIp?: string | null
     latitude?: number | null
     longitude?: number | null
+    menuEnabled?: boolean
+    feedbackEnabled?: boolean
+    staffEnabled?: boolean
+    menuUrl?: string | null
     members?: TenantMemberCreateNestedManyWithoutTenantInput
     rooms?: RoomCreateNestedManyWithoutTenantInput
     logs?: SystemLogCreateNestedManyWithoutTenantInput
     devices?: NasDeviceCreateNestedManyWithoutTenantInput
+    feedbacks?: FeedbackCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutMessagesInput = {
@@ -18231,16 +20005,22 @@ export namespace Prisma {
     slug: string
     metadata?: NullableJsonNullValueInput | InputJsonValue
     logoUrl?: string | null
+    address?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     bssid?: string | null
     staticIp?: string | null
     latitude?: number | null
     longitude?: number | null
+    menuEnabled?: boolean
+    feedbackEnabled?: boolean
+    staffEnabled?: boolean
+    menuUrl?: string | null
     members?: TenantMemberUncheckedCreateNestedManyWithoutTenantInput
     rooms?: RoomUncheckedCreateNestedManyWithoutTenantInput
     logs?: SystemLogUncheckedCreateNestedManyWithoutTenantInput
     devices?: NasDeviceUncheckedCreateNestedManyWithoutTenantInput
+    feedbacks?: FeedbackUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutMessagesInput = {
@@ -18304,6 +20084,7 @@ export namespace Prisma {
     sessions?: SessionUpdateManyWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     passkeys?: PasskeyUpdateManyWithoutUserNestedInput
+    feedbacks?: FeedbackUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutMessagesInput = {
@@ -18322,6 +20103,7 @@ export namespace Prisma {
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     passkeys?: PasskeyUncheckedUpdateManyWithoutUserNestedInput
+    feedbacks?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type TenantUpsertWithoutMessagesInput = {
@@ -18341,16 +20123,22 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     metadata?: NullableJsonNullValueInput | InputJsonValue
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bssid?: NullableStringFieldUpdateOperationsInput | string | null
     staticIp?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    menuEnabled?: BoolFieldUpdateOperationsInput | boolean
+    feedbackEnabled?: BoolFieldUpdateOperationsInput | boolean
+    staffEnabled?: BoolFieldUpdateOperationsInput | boolean
+    menuUrl?: NullableStringFieldUpdateOperationsInput | string | null
     members?: TenantMemberUpdateManyWithoutTenantNestedInput
     rooms?: RoomUpdateManyWithoutTenantNestedInput
     logs?: SystemLogUpdateManyWithoutTenantNestedInput
     devices?: NasDeviceUpdateManyWithoutTenantNestedInput
+    feedbacks?: FeedbackUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutMessagesInput = {
@@ -18359,16 +20147,22 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     metadata?: NullableJsonNullValueInput | InputJsonValue
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bssid?: NullableStringFieldUpdateOperationsInput | string | null
     staticIp?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    menuEnabled?: BoolFieldUpdateOperationsInput | boolean
+    feedbackEnabled?: BoolFieldUpdateOperationsInput | boolean
+    staffEnabled?: BoolFieldUpdateOperationsInput | boolean
+    menuUrl?: NullableStringFieldUpdateOperationsInput | string | null
     members?: TenantMemberUncheckedUpdateManyWithoutTenantNestedInput
     rooms?: RoomUncheckedUpdateManyWithoutTenantNestedInput
     logs?: SystemLogUncheckedUpdateManyWithoutTenantNestedInput
     devices?: NasDeviceUncheckedUpdateManyWithoutTenantNestedInput
+    feedbacks?: FeedbackUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantCreateWithoutLogsInput = {
@@ -18377,16 +20171,22 @@ export namespace Prisma {
     slug: string
     metadata?: NullableJsonNullValueInput | InputJsonValue
     logoUrl?: string | null
+    address?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     bssid?: string | null
     staticIp?: string | null
     latitude?: number | null
     longitude?: number | null
+    menuEnabled?: boolean
+    feedbackEnabled?: boolean
+    staffEnabled?: boolean
+    menuUrl?: string | null
     members?: TenantMemberCreateNestedManyWithoutTenantInput
     messages?: MessageCreateNestedManyWithoutTenantInput
     rooms?: RoomCreateNestedManyWithoutTenantInput
     devices?: NasDeviceCreateNestedManyWithoutTenantInput
+    feedbacks?: FeedbackCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutLogsInput = {
@@ -18395,16 +20195,22 @@ export namespace Prisma {
     slug: string
     metadata?: NullableJsonNullValueInput | InputJsonValue
     logoUrl?: string | null
+    address?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     bssid?: string | null
     staticIp?: string | null
     latitude?: number | null
     longitude?: number | null
+    menuEnabled?: boolean
+    feedbackEnabled?: boolean
+    staffEnabled?: boolean
+    menuUrl?: string | null
     members?: TenantMemberUncheckedCreateNestedManyWithoutTenantInput
     messages?: MessageUncheckedCreateNestedManyWithoutTenantInput
     rooms?: RoomUncheckedCreateNestedManyWithoutTenantInput
     devices?: NasDeviceUncheckedCreateNestedManyWithoutTenantInput
+    feedbacks?: FeedbackUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutLogsInput = {
@@ -18429,16 +20235,22 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     metadata?: NullableJsonNullValueInput | InputJsonValue
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bssid?: NullableStringFieldUpdateOperationsInput | string | null
     staticIp?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    menuEnabled?: BoolFieldUpdateOperationsInput | boolean
+    feedbackEnabled?: BoolFieldUpdateOperationsInput | boolean
+    staffEnabled?: BoolFieldUpdateOperationsInput | boolean
+    menuUrl?: NullableStringFieldUpdateOperationsInput | string | null
     members?: TenantMemberUpdateManyWithoutTenantNestedInput
     messages?: MessageUpdateManyWithoutTenantNestedInput
     rooms?: RoomUpdateManyWithoutTenantNestedInput
     devices?: NasDeviceUpdateManyWithoutTenantNestedInput
+    feedbacks?: FeedbackUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutLogsInput = {
@@ -18447,16 +20259,22 @@ export namespace Prisma {
     slug?: StringFieldUpdateOperationsInput | string
     metadata?: NullableJsonNullValueInput | InputJsonValue
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     bssid?: NullableStringFieldUpdateOperationsInput | string | null
     staticIp?: NullableStringFieldUpdateOperationsInput | string | null
     latitude?: NullableFloatFieldUpdateOperationsInput | number | null
     longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    menuEnabled?: BoolFieldUpdateOperationsInput | boolean
+    feedbackEnabled?: BoolFieldUpdateOperationsInput | boolean
+    staffEnabled?: BoolFieldUpdateOperationsInput | boolean
+    menuUrl?: NullableStringFieldUpdateOperationsInput | string | null
     members?: TenantMemberUncheckedUpdateManyWithoutTenantNestedInput
     messages?: MessageUncheckedUpdateManyWithoutTenantNestedInput
     rooms?: RoomUncheckedUpdateManyWithoutTenantNestedInput
     devices?: NasDeviceUncheckedUpdateManyWithoutTenantNestedInput
+    feedbacks?: FeedbackUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type UserCreateWithoutPasskeysInput = {
@@ -18475,6 +20293,7 @@ export namespace Prisma {
     sessions?: SessionCreateNestedManyWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     messages?: MessageCreateNestedManyWithoutUserInput
+    feedbacks?: FeedbackCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutPasskeysInput = {
@@ -18493,6 +20312,7 @@ export namespace Prisma {
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     messages?: MessageUncheckedCreateNestedManyWithoutUserInput
+    feedbacks?: FeedbackUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutPasskeysInput = {
@@ -18527,6 +20347,7 @@ export namespace Prisma {
     sessions?: SessionUpdateManyWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     messages?: MessageUpdateManyWithoutUserNestedInput
+    feedbacks?: FeedbackUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutPasskeysInput = {
@@ -18545,6 +20366,211 @@ export namespace Prisma {
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     messages?: MessageUncheckedUpdateManyWithoutUserNestedInput
+    feedbacks?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserCreateWithoutFeedbacksInput = {
+    id?: string
+    name?: string | null
+    email?: string | null
+    emailVerified?: boolean | null
+    image?: string | null
+    phoneNumber?: string | null
+    gender?: string | null
+    isAnonymous?: boolean
+    role?: $Enums.GlobalRole
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    memberships?: TenantMemberCreateNestedManyWithoutUserInput
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    accounts?: AccountCreateNestedManyWithoutUserInput
+    messages?: MessageCreateNestedManyWithoutUserInput
+    passkeys?: PasskeyCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutFeedbacksInput = {
+    id?: string
+    name?: string | null
+    email?: string | null
+    emailVerified?: boolean | null
+    image?: string | null
+    phoneNumber?: string | null
+    gender?: string | null
+    isAnonymous?: boolean
+    role?: $Enums.GlobalRole
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    memberships?: TenantMemberUncheckedCreateNestedManyWithoutUserInput
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
+    messages?: MessageUncheckedCreateNestedManyWithoutUserInput
+    passkeys?: PasskeyUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutFeedbacksInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutFeedbacksInput, UserUncheckedCreateWithoutFeedbacksInput>
+  }
+
+  export type TenantCreateWithoutFeedbacksInput = {
+    id?: string
+    name: string
+    slug: string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    logoUrl?: string | null
+    address?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    bssid?: string | null
+    staticIp?: string | null
+    latitude?: number | null
+    longitude?: number | null
+    menuEnabled?: boolean
+    feedbackEnabled?: boolean
+    staffEnabled?: boolean
+    menuUrl?: string | null
+    members?: TenantMemberCreateNestedManyWithoutTenantInput
+    messages?: MessageCreateNestedManyWithoutTenantInput
+    rooms?: RoomCreateNestedManyWithoutTenantInput
+    logs?: SystemLogCreateNestedManyWithoutTenantInput
+    devices?: NasDeviceCreateNestedManyWithoutTenantInput
+  }
+
+  export type TenantUncheckedCreateWithoutFeedbacksInput = {
+    id?: string
+    name: string
+    slug: string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    logoUrl?: string | null
+    address?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    bssid?: string | null
+    staticIp?: string | null
+    latitude?: number | null
+    longitude?: number | null
+    menuEnabled?: boolean
+    feedbackEnabled?: boolean
+    staffEnabled?: boolean
+    menuUrl?: string | null
+    members?: TenantMemberUncheckedCreateNestedManyWithoutTenantInput
+    messages?: MessageUncheckedCreateNestedManyWithoutTenantInput
+    rooms?: RoomUncheckedCreateNestedManyWithoutTenantInput
+    logs?: SystemLogUncheckedCreateNestedManyWithoutTenantInput
+    devices?: NasDeviceUncheckedCreateNestedManyWithoutTenantInput
+  }
+
+  export type TenantCreateOrConnectWithoutFeedbacksInput = {
+    where: TenantWhereUniqueInput
+    create: XOR<TenantCreateWithoutFeedbacksInput, TenantUncheckedCreateWithoutFeedbacksInput>
+  }
+
+  export type UserUpsertWithoutFeedbacksInput = {
+    update: XOR<UserUpdateWithoutFeedbacksInput, UserUncheckedUpdateWithoutFeedbacksInput>
+    create: XOR<UserCreateWithoutFeedbacksInput, UserUncheckedCreateWithoutFeedbacksInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutFeedbacksInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutFeedbacksInput, UserUncheckedUpdateWithoutFeedbacksInput>
+  }
+
+  export type UserUpdateWithoutFeedbacksInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerified?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    isAnonymous?: BoolFieldUpdateOperationsInput | boolean
+    role?: EnumGlobalRoleFieldUpdateOperationsInput | $Enums.GlobalRole
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    memberships?: TenantMemberUpdateManyWithoutUserNestedInput
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    accounts?: AccountUpdateManyWithoutUserNestedInput
+    messages?: MessageUpdateManyWithoutUserNestedInput
+    passkeys?: PasskeyUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutFeedbacksInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerified?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    isAnonymous?: BoolFieldUpdateOperationsInput | boolean
+    role?: EnumGlobalRoleFieldUpdateOperationsInput | $Enums.GlobalRole
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    memberships?: TenantMemberUncheckedUpdateManyWithoutUserNestedInput
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
+    messages?: MessageUncheckedUpdateManyWithoutUserNestedInput
+    passkeys?: PasskeyUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type TenantUpsertWithoutFeedbacksInput = {
+    update: XOR<TenantUpdateWithoutFeedbacksInput, TenantUncheckedUpdateWithoutFeedbacksInput>
+    create: XOR<TenantCreateWithoutFeedbacksInput, TenantUncheckedCreateWithoutFeedbacksInput>
+    where?: TenantWhereInput
+  }
+
+  export type TenantUpdateToOneWithWhereWithoutFeedbacksInput = {
+    where?: TenantWhereInput
+    data: XOR<TenantUpdateWithoutFeedbacksInput, TenantUncheckedUpdateWithoutFeedbacksInput>
+  }
+
+  export type TenantUpdateWithoutFeedbacksInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    bssid?: NullableStringFieldUpdateOperationsInput | string | null
+    staticIp?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    menuEnabled?: BoolFieldUpdateOperationsInput | boolean
+    feedbackEnabled?: BoolFieldUpdateOperationsInput | boolean
+    staffEnabled?: BoolFieldUpdateOperationsInput | boolean
+    menuUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    members?: TenantMemberUpdateManyWithoutTenantNestedInput
+    messages?: MessageUpdateManyWithoutTenantNestedInput
+    rooms?: RoomUpdateManyWithoutTenantNestedInput
+    logs?: SystemLogUpdateManyWithoutTenantNestedInput
+    devices?: NasDeviceUpdateManyWithoutTenantNestedInput
+  }
+
+  export type TenantUncheckedUpdateWithoutFeedbacksInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    bssid?: NullableStringFieldUpdateOperationsInput | string | null
+    staticIp?: NullableStringFieldUpdateOperationsInput | string | null
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    menuEnabled?: BoolFieldUpdateOperationsInput | boolean
+    feedbackEnabled?: BoolFieldUpdateOperationsInput | boolean
+    staffEnabled?: BoolFieldUpdateOperationsInput | boolean
+    menuUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    members?: TenantMemberUncheckedUpdateManyWithoutTenantNestedInput
+    messages?: MessageUncheckedUpdateManyWithoutTenantNestedInput
+    rooms?: RoomUncheckedUpdateManyWithoutTenantNestedInput
+    logs?: SystemLogUncheckedUpdateManyWithoutTenantNestedInput
+    devices?: NasDeviceUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantMemberCreateManyTenantInput = {
@@ -18595,6 +20621,14 @@ export namespace Prisma {
     name?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+  }
+
+  export type FeedbackCreateManyTenantInput = {
+    id?: string
+    score: number
+    comment?: string | null
+    userId: string
+    createdAt?: Date | string
   }
 
   export type TenantMemberUpdateWithoutTenantInput = {
@@ -18749,6 +20783,30 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type FeedbackUpdateWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    score?: IntFieldUpdateOperationsInput | number
+    comment?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutFeedbacksNestedInput
+  }
+
+  export type FeedbackUncheckedUpdateWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    score?: IntFieldUpdateOperationsInput | number
+    comment?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FeedbackUncheckedUpdateManyWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    score?: IntFieldUpdateOperationsInput | number
+    comment?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type TenantMemberCreateManyUserInput = {
     id?: string
     tenantId: string
@@ -18808,6 +20866,14 @@ export namespace Prisma {
     transports?: string | null
     aaguid?: string | null
     createdAt?: Date | string | null
+  }
+
+  export type FeedbackCreateManyUserInput = {
+    id?: string
+    score: number
+    comment?: string | null
+    tenantId: string
+    createdAt?: Date | string
   }
 
   export type TenantMemberUpdateWithoutUserInput = {
@@ -18993,6 +21059,30 @@ export namespace Prisma {
     createdAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
+  export type FeedbackUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    score?: IntFieldUpdateOperationsInput | number
+    comment?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenant?: TenantUpdateOneRequiredWithoutFeedbacksNestedInput
+  }
+
+  export type FeedbackUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    score?: IntFieldUpdateOperationsInput | number
+    comment?: NullableStringFieldUpdateOperationsInput | string | null
+    tenantId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FeedbackUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    score?: IntFieldUpdateOperationsInput | number
+    comment?: NullableStringFieldUpdateOperationsInput | string | null
+    tenantId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type MessageCreateManyRoomInput = {
     id?: string
     text: string
@@ -19106,6 +21196,10 @@ export namespace Prisma {
      * @deprecated Use PasskeyDefaultArgs instead
      */
     export type PasskeyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = PasskeyDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use FeedbackDefaultArgs instead
+     */
+    export type FeedbackArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = FeedbackDefaultArgs<ExtArgs>
 
   /**
    * Batch Payload for updateMany & deleteMany & createMany

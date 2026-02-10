@@ -128,12 +128,17 @@ exports.Prisma.TenantScalarFieldEnum = {
   slug: 'slug',
   metadata: 'metadata',
   logoUrl: 'logoUrl',
+  address: 'address',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   bssid: 'bssid',
   staticIp: 'staticIp',
   latitude: 'latitude',
-  longitude: 'longitude'
+  longitude: 'longitude',
+  menuEnabled: 'menuEnabled',
+  feedbackEnabled: 'feedbackEnabled',
+  staffEnabled: 'staffEnabled',
+  menuUrl: 'menuUrl'
 };
 
 exports.Prisma.NasDeviceScalarFieldEnum = {
@@ -254,6 +259,15 @@ exports.Prisma.PasskeyScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.FeedbackScalarFieldEnum = {
+  id: 'id',
+  score: 'score',
+  comment: 'comment',
+  userId: 'userId',
+  tenantId: 'tenantId',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -306,7 +320,8 @@ exports.Prisma.ModelName = {
   Room: 'Room',
   Message: 'Message',
   SystemLog: 'SystemLog',
-  Passkey: 'Passkey'
+  Passkey: 'Passkey',
+  Feedback: 'Feedback'
 };
 
 /**

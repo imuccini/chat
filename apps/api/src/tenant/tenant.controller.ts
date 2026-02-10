@@ -24,6 +24,10 @@ export class TenantController {
         }
         return tenant;
     }
+    @Get(':slug/staff')
+    async getStaff(@Param('slug') slug: string): Promise<any[]> {
+        return this.tenantService.findStaff(slug);
+    }
 
 
     @Post('validate-nas')
@@ -48,6 +52,57 @@ export class TenantController {
         @Body() body: { name?: string; logoUrl?: string; id?: string },
         @Headers('authorization') auth: string,
     ): Promise<any> {
+        const userId = await this.resolveUserId(auth);
+
+        let tenantId = body.id;
+        if (!tenantId) {
+            const tenant = await this.tenantService.findBySlug(slug);
+            if (!tenant) throw new NotFoundException('Tenant not found');
+            tenantId = tenant.id;
+        }
+
+        const isAdmin = await this.tenantService.isTenantAdmin(userId, tenantId);
+        if (!isAdmin) {
+            throw new ForbiddenException('Admin access required');
+        }
+
+        return this.tenantService.update(tenantId, {
+            name: body.name,
+            logoUrl: body.logoUrl
+        });
+    }
+
+    @Post(':slug/feedback')
+    async submitFeedback(
+        @Param('slug') slug: string,
+        @Body() body: { score: number; comment?: string },
+        @Headers('authorization') auth: string,
+    ): Promise<any> {
+        const userId = await this.resolveUserId(auth);
+        const tenant = await this.tenantService.findBySlug(slug);
+        if (!tenant) throw new NotFoundException('Tenant not found');
+
+        return this.tenantService.createFeedback(userId, tenant.id, body.score, body.comment);
+    }
+
+    @Get(':slug/feedback')
+    async getFeedbacks(
+        @Param('slug') slug: string,
+        @Headers('authorization') auth: string,
+    ): Promise<any[]> {
+        const userId = await this.resolveUserId(auth);
+        const tenant = await this.tenantService.findBySlug(slug);
+        if (!tenant) throw new NotFoundException('Tenant not found');
+
+        const isAdmin = await this.tenantService.isTenantAdmin(userId, tenant.id);
+        if (!isAdmin) {
+            throw new ForbiddenException('Admin access required');
+        }
+
+        return this.tenantService.getFeedback(tenant.id);
+    }
+
+    private async resolveUserId(auth: string): Promise<string> {
         if (!auth) throw new UnauthorizedException();
         const token = auth.replace('Bearer ', '');
 
@@ -69,27 +124,11 @@ export class TenantController {
         if (!userId) {
             throw new UnauthorizedException('Invalid token');
         }
-
-        let tenantId = body.id;
-        if (!tenantId) {
-            const tenant = await this.tenantService.findBySlug(slug);
-            if (!tenant) throw new NotFoundException('Tenant not found');
-            tenantId = tenant.id;
-        }
-
-        const isAdmin = await this.tenantService.isTenantAdmin(userId, tenantId);
-        if (!isAdmin) {
-            throw new ForbiddenException('Admin access required');
-        }
-
-        return this.tenantService.update(tenantId, {
-            name: body.name,
-            logoUrl: body.logoUrl
-        });
+        return userId;
     }
 
     private async handleValidateNas(request: any, data: { nasId?: string; bssid?: string; publicIp?: string }) {
-        // Get IP from body or headers
+        // ... (existing code)
         const forwarded = request.headers['x-forwarded-for'];
         const remoteIp = forwarded ? forwarded.split(',')[0].trim() : request.socket?.remoteAddress;
         const publicIp = data.publicIp || remoteIp;

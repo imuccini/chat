@@ -161,6 +161,19 @@ header {
   .animate-fade-slide-up {
     animation: fade-slide-up 0.5s ease-out forwards;
   }
+
+  .animate-header-reveal {
+    animation: header-reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .animate-header-slide-up {
+    animation: header-slide-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .animate-card-reveal {
+    animation: card-reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+  }
 }
 
 @keyframes ripple {
@@ -187,10 +200,45 @@ header {
   }
 }
 
+@keyframes header-reveal {
+  0% {
+    opacity: 0;
+    transform: translateY(20vh);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(20vh);
+  }
+}
+
+@keyframes header-slide-up {
+  0% {
+    transform: translateY(20vh);
+  }
+
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes card-reveal {
+  0% {
+    opacity: 0;
+    transform: translateY(100px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @keyframes progress-fill {
   0% {
     width: 0%;
   }
+
   100% {
     width: 100%;
   }

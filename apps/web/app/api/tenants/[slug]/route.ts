@@ -79,9 +79,21 @@ export async function POST(
 
         // 3. Perform update directly via Prisma (avoids NestJS auth round-trip)
         const body = await request.json();
-        const updateData: { name?: string; logoUrl?: string } = {};
+        const updateData: {
+            name?: string;
+            logoUrl?: string;
+            menuEnabled?: boolean;
+            feedbackEnabled?: boolean;
+            staffEnabled?: boolean;
+            menuUrl?: string;
+        } = {};
+
         if (body.name) updateData.name = body.name;
         if (body.logoUrl !== undefined) updateData.logoUrl = body.logoUrl;
+        if (body.menuEnabled !== undefined) updateData.menuEnabled = body.menuEnabled;
+        if (body.feedbackEnabled !== undefined) updateData.feedbackEnabled = body.feedbackEnabled;
+        if (body.staffEnabled !== undefined) updateData.staffEnabled = body.staffEnabled;
+        if (body.menuUrl !== undefined) updateData.menuUrl = body.menuUrl;
 
         const updated = await prisma.tenant.update({
             where: { id: tenant.id },

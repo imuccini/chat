@@ -19,11 +19,12 @@ const nextConfig = {
     },
 
     async rewrites() {
+        const apiUrl = (process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000').replace(':3000', ':3001');
         return [
             // Tenant API is now handled by Next.js API route at /app/api/tenants/[slug]/route.ts
             {
                 source: '/api/validate-nas',
-                destination: `${process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3001'}/api/tenants/validate-nas`,
+                destination: `${apiUrl}/api/tenants/validate-nas`,
             },
         ];
     },

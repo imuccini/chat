@@ -11,6 +11,10 @@ export async function createTenantAction(formData: FormData) {
 
     const name = formData.get('name') as string;
     const slug = formData.get('slug') as string;
+    const address = formData.get('address') as string || null;
+    const latitude = formData.get('latitude') ? parseFloat(formData.get('latitude') as string) : null;
+    const longitude = formData.get('longitude') ? parseFloat(formData.get('longitude') as string) : null;
+
     const nasIds = (formData.get('nasIds') as string || "").split(',').map(s => s.trim()).filter(Boolean);
     const publicIps = (formData.get('publicIps') as string || "").split(',').map(s => s.trim()).filter(Boolean);
     const bssids = (formData.get('bssids') as string || "").split(',').map(s => s.trim()).filter(Boolean);
@@ -31,6 +35,9 @@ export async function createTenantAction(formData: FormData) {
         data: {
             name,
             slug,
+            address,
+            latitude,
+            longitude,
             bssid,
             staticIp,
             logoUrl,
@@ -59,6 +66,10 @@ export async function updateTenantAction(formData: FormData) {
     const id = formData.get('id') as string;
     const name = formData.get('name') as string;
     const slug = formData.get('slug') as string;
+    const address = formData.get('address') as string || null;
+    const latitude = formData.get('latitude') ? parseFloat(formData.get('latitude') as string) : null;
+    const longitude = formData.get('longitude') ? parseFloat(formData.get('longitude') as string) : null;
+
     const nasIds = (formData.get('nasIds') as string || "").split(',').map(s => s.trim()).filter(Boolean);
     const publicIps = (formData.get('publicIps') as string || "").split(',').map(s => s.trim()).filter(Boolean);
     const bssids = (formData.get('bssids') as string || "").split(',').map(s => s.trim()).filter(Boolean);
@@ -82,6 +93,9 @@ export async function updateTenantAction(formData: FormData) {
         data: {
             name,
             slug,
+            address,
+            latitude,
+            longitude,
             bssid,
             staticIp,
             ...(logoUrl !== undefined ? { logoUrl } : {})

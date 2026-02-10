@@ -14,6 +14,7 @@ model Tenant {
   slug      String   @unique
   metadata  Json?
   logoUrl   String?
+  address   String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -22,11 +23,18 @@ model Tenant {
   latitude  Float?
   longitude Float?
 
-  members  TenantMember[]
-  messages Message[]
-  rooms    Room[]
-  logs     SystemLog[]
-  devices  NasDevice[]
+  // Local Services Configuration
+  menuEnabled     Boolean @default(true)
+  feedbackEnabled Boolean @default(true)
+  staffEnabled    Boolean @default(true)
+  menuUrl         String?
+
+  members   TenantMember[]
+  messages  Message[]
+  rooms     Room[]
+  logs      SystemLog[]
+  devices   NasDevice[]
+  feedbacks Feedback[]
 }
 
 model NasDevice {
@@ -60,6 +68,7 @@ model User {
   accounts    Account[]
   messages    Message[]
   passkeys    Passkey[]
+  feedbacks   Feedback[]
 
   @@index([createdAt])
   @@map("user")
@@ -208,4 +217,19 @@ model Passkey {
   createdAt    DateTime?
 
   @@map("passkey")
+}
+
+model Feedback {
+  id        String   @id @default(uuid())
+  score     Int // 1-10
+  comment   String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([userId])
+  @@index([createdAt])
 }

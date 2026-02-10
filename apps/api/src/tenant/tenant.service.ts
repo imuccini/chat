@@ -129,4 +129,52 @@ export class TenantService {
             },
         });
     }
+
+    /**
+     * Get all staff members for a tenant (Admins/Owners)
+     */
+    async findStaff(slug: string): Promise<any[]> {
+        const tenant = await this.prisma.tenant.findUnique({
+            where: { slug },
+            include: {
+                members: {
+                    where: {
+                        role: { in: ['ADMIN', 'STAFF'] }
+                    },
+                    include: {
+                        user: true
+                    }
+                }
+            }
+        });
+
+        if (!tenant) return [];
+        return tenant.members.map(m => (m as any).user);
+    }
+
+    /**
+     * Create feedback for a tenant
+     */
+    async createFeedback(userId: string, tenantId: string, score: number, comment?: string): Promise<any> {
+        return (this.prisma as any).feedback.create({
+            data: {
+                userId,
+                tenantId,
+                score,
+                comment,
+            },
+            include: { user: true }
+        });
+    }
+
+    /**
+     * Get all feedback for a tenant
+     */
+    async getFeedback(tenantId: string): Promise<any[]> {
+        return (this.prisma as any).feedback.findMany({
+            where: { tenantId },
+            include: { user: true },
+            orderBy: { createdAt: 'desc' },
+        });
+    }
 }

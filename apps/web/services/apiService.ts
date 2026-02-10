@@ -59,3 +59,9 @@ export const clientGetMessages = async (tenantSlug: string, roomId?: string, ten
     if (!res.ok) return [];
     return await res.json();
 };
+
+export const clientGetTenantStaff = async (slug: string) => {
+    const res = await fetch(`${API_BASE_URL}/api/tenants/${slug}/staff`, { cache: 'no-store' });
+    if (!res.ok) return [];
+    return await res.json();
+};

@@ -9,11 +9,12 @@ export const SERVER_URL = isNative
     : '';
 
 // The URL of the NestJS API/Socket server
-// On Web: empty string means same-origin, which allows Next.js rewrites to work
-// On Native: we connect directly to the API server on port 3001
+// On both Web and Native: connect directly to the API server on port 3001
 export const API_BASE_URL = isNative
     ? (process.env.NEXT_PUBLIC_SERVER_URL?.replace(':3000', ':3001') || 'http://localhost:3001')
-    : ''; // Same-origin on web - Next.js rewrites will proxy to port 3001
+    : (typeof window !== 'undefined'
+        ? `${window.location.protocol}//${window.location.hostname}:3001`
+        : (process.env.NEXT_PUBLIC_SERVER_URL?.replace(':3000', ':3001') || 'http://localhost:3001'));
 
 // For Socket.IO Specifically
 // On Web: Connect to the same host but port 3001

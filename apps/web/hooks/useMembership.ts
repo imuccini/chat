@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSession } from '@/lib/auth-client';
 import { getConnectedWifiInfo } from '@/lib/wifi';
+import { SERVER_URL } from '@/config';
 
 interface Membership {
     id: string;
@@ -35,7 +36,9 @@ export function useMembership(tenantId?: string, forceUserId?: string) {
                 const wifi = await getConnectedWifiInfo();
 
                 // 2. Fetch authorized membership from server
-                const url = new URL('/api/auth/membership', window.location.origin);
+                const isNative = typeof window !== 'undefined' && window.location.protocol === 'capacitor:';
+                const baseUrl = isNative ? SERVER_URL : window.location.origin;
+                const url = new URL('/api/auth/membership', baseUrl);
                 url.searchParams.append('tenantId', tenantId);
                 if (wifi.bssid) {
                     url.searchParams.append('bssid', wifi.bssid);

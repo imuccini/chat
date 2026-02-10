@@ -11,6 +11,7 @@ import TenantChatClient from "@/app/[...slug]/TenantChatClient";
 import { DiscoveryScreen } from "@/components/DiscoveryScreen";
 import { SearchSpacesScreen } from "@/components/SearchSpacesScreen";
 import { AutoConnectScreen } from "@/components/AutoConnectScreen";
+import { OnboardingScreen } from "@/components/OnboardingScreen";
 import { Wifi, MapPin, ChevronRight, BellRing, Sparkles } from "lucide-react";
 
 type InitState = 'loading' | 'permission_denied' | 'wifi_disconnected' | 'tenant_not_found' | 'error';
@@ -23,6 +24,12 @@ function HomeContent() {
     const [resolvedSlug, setResolvedSlug] = useState<string | null>(null);
     const [showMap, setShowMap] = useState(false);
     const [showAutoConnect, setShowAutoConnect] = useState(false);
+    const [showOnboarding, setShowOnboarding] = useState<boolean | null>(null);
+
+    // Track if we've already tried to connect to WiFi in this session to avoid loop hangs
+    const [hasAttemptedWifi, setHasAttemptedWifi] = useState(false);
+    // Track if instructions animations have already played in this session
+    const [hasSeenInstructions, setHasSeenInstructions] = useState(false);
 
     // Shared helper for tenant resolution
     const resolveCurrentTenant = async (nasId?: string) => {
@@ -31,16 +38,29 @@ function HomeContent() {
 
         if (isNative) {
             try {
-                // Passive attempt: attempt connection but with short timeout
-                await Promise.race([
-                    CapacitorWifi.connect({
-                        ssid: "Local - WiFi",
-                        password: "localwifisicuro",
-                    }),
-                    new Promise((_, reject) => setTimeout(() => reject('timeout'), 2000))
-                ]).catch(() => { });
+                // Only attempt connect once per session if it's failing to avoid bridge lag
+                if (!hasAttemptedWifi) {
+                    setHasAttemptedWifi(true);
 
-                // Get BSSID
+                    const wifiDetection = async () => {
+                        // Passive attempt: try connecting to venue WiFi
+                        await Promise.race([
+                            CapacitorWifi.connect({
+                                ssid: "Local - WiFi",
+                                password: "localwifisicuro",
+                            }),
+                            new Promise((_, reject) => setTimeout(() => reject('timeout'), 2000))
+                        ]).catch(() => { });
+                    };
+
+                    const wifiTimeout = new Promise((_, reject) =>
+                        setTimeout(() => reject(new Error('WiFi detection timeout')), 3000)
+                    );
+
+                    await Promise.race([wifiDetection(), wifiTimeout]).catch(() => { });
+                }
+
+                // Get BSSID - this is still safe to call multiple times as it's quick
                 const hasPermission = await checkAndRequestLocationPermissions();
                 if (hasPermission) {
                     const wifiInfo = await getConnectedWifiInfo();
@@ -49,11 +69,11 @@ function HomeContent() {
                     }
                 }
             } catch (e) {
-                console.warn("[page] Native resolution step failed:", e);
+                console.warn("[page] Native resolution step failed or timed out:", e);
             }
         }
 
-        // Resolve tenant via API
+        // Resolve tenant via API (always reached, even if WiFi detection fails/times out)
         return await clientResolveTenant(nasId, bssid);
     };
 
@@ -62,6 +82,14 @@ function HomeContent() {
         let isCancelled = false;
 
         async function init() {
+            // Check onboarding
+            const isDone = localStorage.getItem('onboarding_done');
+            if (isDone) {
+                setShowOnboarding(false);
+            } else {
+                setShowOnboarding(true);
+            }
+
             try {
                 const startTime = Date.now();
                 const nasId = searchParams.get('nas_id') || undefined;
@@ -149,13 +177,27 @@ function HomeContent() {
         return () => { isCancelled = true; };
     }, [state, resolvedSlug, searchParams, router]);
 
+    // Mark instructions as seen after they appear to disable future animations
+    useEffect(() => {
+        if (state === 'tenant_not_found' && !hasSeenInstructions) {
+            const timer = setTimeout(() => {
+                setHasSeenInstructions(true);
+            }, 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [state, hasSeenInstructions]);
+
     // If tenant is resolved on native, render TenantChatClient directly
     if (resolvedSlug) {
         return <TenantChatClient overrideSlug={resolvedSlug} />;
     }
 
+    if (showOnboarding === true) {
+        return <OnboardingScreen onComplete={() => setShowOnboarding(false)} />;
+    }
+
     // Loading state
-    if (state === 'loading') {
+    if (state === 'loading' || showOnboarding === null) {
         return <DiscoveryScreen />;
     }
 
@@ -169,9 +211,9 @@ function HomeContent() {
 
     // Error states (Instruction Screen)
     return (
-        <div className="h-screen w-full flex flex-col bg-white overflow-hidden">
+        <div className="h-screen w-full flex flex-col bg-white overflow-hidden pb-safe">
             {/* Header Content */}
-            <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
+            <div className={`flex-1 flex flex-col items-center justify-center p-6 text-center ${!hasSeenInstructions ? 'animate-header-reveal animate-header-slide-up [animation-delay:0s,1.2s]' : ''} will-change-transform`}>
                 <img src="/local_logo.svg" alt="Local Logo" className="w-20 h-20 mb-4 object-contain" />
 
                 <h1 className="text-3xl font-black text-gray-900 mb-2">
@@ -182,7 +224,7 @@ function HomeContent() {
                 </p>
 
                 {/* Instruction Card */}
-                <div className="w-full max-w-sm px-4 mx-auto">
+                <div className={`w-full max-w-sm px-4 mx-auto ${!hasSeenInstructions ? 'animate-card-reveal [animation-delay:1.2s]' : ''} will-change-transform`}>
                     <div className="flex flex-col items-center gap-4 py-6 px-6 bg-gray-50 rounded-[40px] border border-gray-100/50">
                         <button
                             onClick={() => {
@@ -219,7 +261,7 @@ function HomeContent() {
             </div>
 
             {/* Branded Footer Banner */}
-            <div className="w-full max-w-sm mx-auto px-4 pb-12 pt-0 safe-bottom">
+            <div className={`w-full max-w-sm mx-auto px-4 pb-12 pt-0 ${!hasSeenInstructions ? 'animate-card-reveal [animation-delay:1.4s]' : ''} will-change-transform`}>
                 <button
                     onClick={() => setShowMap(true)}
                     className="w-full h-24 bg-gray-900 rounded-[32px] p-4 flex items-center gap-4 relative overflow-hidden group active:scale-[0.98] transition-transform"
