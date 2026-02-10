@@ -45,3 +45,13 @@ export interface Room {
   type: RoomType;
   tenantId: string;
 }
+
+export interface Feedback {
+  id: string;
+  score: number;
+  comment?: string;
+  userId: string;
+  user?: User;
+  tenantId: string;
+  createdAt: string;
+}

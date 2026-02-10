@@ -1,4 +1,4 @@
-import { API_BASE_URL } from "@/config";
+import { API_BASE_URL, SERVER_URL } from "@/config";
 import { Message } from "@/types";
 
 export const clientResolveTenant = async (urlNasId?: string, bssid?: string): Promise<string | null> => {
@@ -62,6 +62,27 @@ export const clientGetMessages = async (tenantSlug: string, roomId?: string, ten
 
 export const clientGetTenantStaff = async (slug: string) => {
     const res = await fetch(`${API_BASE_URL}/api/tenants/${slug}/staff`, { cache: 'no-store' });
+    if (!res.ok) return [];
+    return await res.json();
+};
+
+export const clientSubmitFeedback = async (slug: string, score: number, comment?: string, userId?: string) => {
+    const res = await fetch(`${SERVER_URL}/api/tenants/${slug}/feedback`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ score, comment, userId }),
+    });
+    if (!res.ok) throw new Error('Failed to submit feedback');
+    return await res.json();
+};
+
+export const clientGetFeedback = async (slug: string, userId?: string) => {
+    const params = userId ? `?userId=${userId}` : '';
+    const res = await fetch(`${SERVER_URL}/api/tenants/${slug}/feedback${params}`, {
+        credentials: 'include',
+        cache: 'no-store',
+    });
     if (!res.ok) return [];
     return await res.json();
 };

@@ -15,9 +15,10 @@ interface LocalSectionProps {
     token?: string;
     onOpenMenu?: () => void;
     onContactStaff?: () => void;
+    onLeaveFeedback?: () => void;
 }
 
-export const LocalSection: React.FC<LocalSectionProps> = ({ tenant, isAdmin, token, onOpenMenu, onContactStaff }) => {
+export const LocalSection: React.FC<LocalSectionProps> = ({ tenant, isAdmin, token, onOpenMenu, onContactStaff, onLeaveFeedback }) => {
     const router = useRouter(); // Initialized useRouter
     const services = [
         {
@@ -160,11 +161,22 @@ export const LocalSection: React.FC<LocalSectionProps> = ({ tenant, isAdmin, tok
                     {services
                         .filter(s => isAdmin || s.enabled) // Filter services based on admin status or enabled state
                         .map((service) => (
-                            <div // Changed from button to div
+                            <button
                                 key={service.id}
-                                className={`group relative flex items-center gap-4 p-5 bg-white rounded-[2rem] border border-gray-100 shadow-sm transition-all duration-300 ${!service.enabled ? 'opacity-60' : ''} max-w-full`} // Added opacity class
+                                onClick={() => {
+                                    if (service.id === 'menu') {
+                                        onOpenMenu?.();
+                                    } else if (service.id === 'staff') {
+                                        onContactStaff?.();
+                                    } else if (service.id === 'feedback') {
+                                        onLeaveFeedback?.();
+                                    } else {
+                                        router.push(service.path);
+                                    }
+                                }}
+                                className={`group relative w-full flex items-center gap-4 p-5 bg-white rounded-[2rem] border border-gray-100 shadow-sm transition-all duration-300 active:scale-[0.98] active:bg-gray-50 ${!service.enabled ? 'opacity-60 grayscale' : ''}`}
                             >
-                                <div className="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center text-primary shrink-0">
+                                <div className="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center text-primary shrink-0 group-hover:bg-primary group-hover:text-white transition-colors">
                                     <Icon name={service.icon} className="w-7 h-7" />
                                 </div>
 
@@ -177,30 +189,21 @@ export const LocalSection: React.FC<LocalSectionProps> = ({ tenant, isAdmin, tok
                                     </p>
                                 </div>
 
-                                <div className="ml-auto flex items-center gap-3 shrink-0"> {/* Updated right-side div */}
+                                <div className="ml-auto flex items-center gap-3 shrink-0">
                                     {isAdmin && (
-                                        <Switch
-                                            checked={localEnabledStates[service.id] ?? true}
-                                            onCheckedChange={(checked) => handleToggleService(service.id, checked)}
-                                            disabled={togglingId === service.id}
-                                        />
+                                        <div onClick={(e) => e.stopPropagation()}>
+                                            <Switch
+                                                checked={localEnabledStates[service.id] ?? true}
+                                                onCheckedChange={(checked) => handleToggleService(service.id, checked)}
+                                                disabled={togglingId === service.id}
+                                            />
+                                        </div>
                                     )}
-                                    <button
-                                        onClick={() => {
-                                            if (service.id === 'menu') {
-                                                onOpenMenu?.();
-                                            } else if (service.id === 'staff') {
-                                                onContactStaff?.();
-                                            } else {
-                                                router.push(service.path);
-                                            }
-                                        }} // Navigation button
-                                        className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:text-primary hover:bg-primary/5 transition-all"
-                                    >
+                                    <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 group-hover:text-primary group-hover:bg-primary/5 transition-all">
                                         <Icon name="Arrow_Right_SM" className="w-5 h-5" />
-                                    </button>
+                                    </div>
                                 </div>
-                            </div>
+                            </button>
                         ))}
                 </div>
             </div>

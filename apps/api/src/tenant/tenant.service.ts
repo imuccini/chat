@@ -149,7 +149,7 @@ export class TenantService {
         });
 
         if (!tenant) return [];
-        return tenant.members.map(m => (m as any).user);
+        return tenant.members.map((m: any) => (m as any).user);
     }
 
     /**

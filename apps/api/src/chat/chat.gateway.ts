@@ -213,6 +213,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         }
 
         const logMsg = `[ChatGateway] handleJoin user=${user.id} tenant=${tenantSlug} tenantId=${tenant?.id} rooms=${Array.from(socket.rooms).join(',')}\n`;
+        console.log(`[DEBUG] User ${user.id} joining room ${user.id}`); // Debug log
         this.logger.log(logMsg.trim());
         this.broadcastPresence(tenantSlug);
     }
@@ -296,6 +297,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
             const senderRoomSize = this.server.sockets.adapter.rooms.get(message.senderId)?.size || 0;
 
             this.logger.log(`[handleMessage] Private: ${message.senderId} -> ${message.recipientId} (Recip Sockets: ${recipientRoomSize}, Sender Sockets: ${senderRoomSize})`);
+
+            console.log(`[DEBUG] Emitting privateMessage to ${message.recipientId} (room size: ${recipientRoomSize})`); // Debug log
 
             // Emit to recipient's personal room
             this.server.to(message.recipientId).emit('privateMessage', message);

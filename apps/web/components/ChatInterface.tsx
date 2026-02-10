@@ -21,6 +21,7 @@ import { UnifiedChatList } from './UnifiedChatList';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { LocalSection } from './LocalSection';
 import { LocalMenuOverlay } from './LocalMenuOverlay';
+import { LocalFeedbackOverlay } from './LocalFeedbackOverlay';
 import { useSwipeBack } from '@/hooks/useSwipeBack';
 import { useMembership } from '@/hooks/useMembership';
 import { useKeyboardAnimation } from '@/hooks/useKeyboardAnimation';
@@ -61,7 +62,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
     const [socket, setSocket] = useState<Socket | null>(null);
     const { data: session, isPending: isSessionLoading } = useSession();
     const router = useRouter();
-    // New state to block UI until we have definitively checked both main and backup session sources
+    // New state to block UI until we are definitively checked both main and backup session sources
     const [isRestoringSession, setIsRestoringSession] = useState(true);
     const { canManageTenant, isAdmin, isModerator } = useMembership(tenant.id, currentUser?.id);
 
@@ -74,6 +75,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
     const [activeRoomId, setActiveRoomId] = useState<string | null>(null);
     const [selectedChatPeerId, setSelectedChatPeerId] = useState<string | null>(null);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
     // isInputFocused is now driven by keyboard visibility for native, or input focus for web
     const [isInputFocusedLocal, setIsInputFocusedLocal] = useState(false);
     const isInputFocused = Capacitor.isNativePlatform() ? isKeyboardVisible : isInputFocusedLocal;
@@ -359,6 +361,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
             });
 
             newSocket.on('privateMessage', async (msg: Message) => {
+                console.log("[ChatInterface] Received privateMessage:", msg); // Debug log
                 const isMe = msg.senderId === currentUser.id;
                 const peerId = isMe ? msg.recipientId! : msg.senderId;
                 try {
@@ -507,13 +510,14 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
     // 4. Swipe Back Logic (Native Only)
     const isRoomChatOpen = !!activeRoomId && activeTab === 'chats';
     const isPrivateChatOpen = !!selectedChatPeerId && activeTab === 'chats';
-    const isChatOpen = isRoomChatOpen || isPrivateChatOpen || isMenuOpen;
+    const isChatOpen = isRoomChatOpen || isPrivateChatOpen || isMenuOpen || isFeedbackOpen;
 
     const handleSwipeComplete = useCallback(() => {
         if (selectedChatPeerId) setSelectedChatPeerId(null);
         if (activeRoomId) setActiveRoomId(null);
         if (isMenuOpen) setIsMenuOpen(false);
-    }, [selectedChatPeerId, activeRoomId, isMenuOpen]);
+        if (isFeedbackOpen) setIsFeedbackOpen(false);
+    }, [selectedChatPeerId, activeRoomId, isMenuOpen, isFeedbackOpen]);
 
     const { handlers, style: swipeStyle, isDragging, progress } = useSwipeBack({
         onSwipeBack: handleSwipeComplete,
@@ -595,9 +599,10 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                             <LocalSection
                                 tenant={tenant}
                                 isAdmin={isAdmin}
-                                token={session?.session?.id}
+                                token={session?.session?.token}
                                 onOpenMenu={() => setIsMenuOpen(true)}
                                 onContactStaff={handleContactStaff}
+                                onLeaveFeedback={() => setIsFeedbackOpen(true)}
                             />
                         )}
                         {activeTab === 'settings' && <Settings user={currentUser} onLogout={handleLogout} onUpdateAlias={handleUpdateAlias} onUpdateStatus={handleUpdateStatus} tenantId={tenant.id} />}
@@ -671,7 +676,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                             <LocalMenuOverlay
                                 tenant={tenant}
                                 isAdmin={isAdmin}
-                                token={session?.session?.id}
+                                token={session?.session?.token}
                                 onClose={() => setIsMenuOpen(false)}
                                 onUpdateTenant={(updated) => {
                                     // Update local tenant data in the UI
@@ -679,6 +684,15 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                                     // Also refresh and close
                                     router.refresh();
                                 }}
+                            />
+                        </div>
+                    ) : isFeedbackOpen ? (
+                        <div className="flex-1 flex flex-col h-full bg-white">
+                            <LocalFeedbackOverlay
+                                tenant={tenant}
+                                isAdmin={isAdmin}
+                                userId={currentUser?.id}
+                                onClose={() => setIsFeedbackOpen(false)}
                             />
                         </div>
                     ) : null}
