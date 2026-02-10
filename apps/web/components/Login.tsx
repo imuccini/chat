@@ -235,6 +235,13 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
 
         onLogin(user);
       } else {
+        // If a session exists but is NOT anonymous (e.g. Admin/User), force logout first
+        // This prevents "leaking" admin permissions into a new anonymous session
+        if (existingSession?.user) {
+          console.log("[Login] Found non-anonymous session, forcing sign out before anonymous login...");
+          await authClient.signOut();
+        }
+
         // Create new anonymous session
         let signInData, error;
         try {
