@@ -96,11 +96,15 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
                         </div>
 
                         <h1 className="text-4xl font-black text-gray-900 tracking-tight mb-4 leading-tight">
-                            Benvenuto su <span className="text-primary italic">Local</span>
+                            Benvenuto in <span className="text-primary italic">Local</span>
                         </h1>
 
-                        <p className="text-gray-500 font-medium text-lg leading-relaxed max-w-[300px]">
-                            Connettiti istantaneamente agli spazi intorno a te per sbloccare chat, servizi e offerte esclusive.
+                        <p className="text-gray-900 font-bold text-lg leading-relaxed max-w-[300px] mb-4">
+                            Il primo hub digitale per spazi fisici.
+                        </p>
+
+                        <p className="text-gray-400 font-medium text-sm leading-relaxed max-w-[320px]">
+                            Per accedere a Local, devi trovarti fisicamente in uno spazio aderente. In Local, trovi solo persone reali che socializzano vicino a te.
                         </p>
 
                         <div className="mt-12 flex gap-3">

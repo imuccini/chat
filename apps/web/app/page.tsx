@@ -213,8 +213,8 @@ function HomeContent() {
                 </p>
 
                 {/* Instruction Card */}
-                <div className={`w-full max-w-sm px-4 mx-auto ${!hasSeenInstructions ? 'animate-card-reveal [animation-delay:1.2s]' : ''} will-change-transform`}>
-                    <div className="flex flex-col items-center gap-4 py-6 px-6 bg-gray-50 rounded-[40px] border border-gray-100/50">
+                <div className={`w-full max-w-md px-4 mx-auto ${!hasSeenInstructions ? 'animate-card-reveal [animation-delay:1.2s]' : ''} will-change-transform`}>
+                    <div className="flex flex-col items-center gap-4 py-8 px-6 bg-gray-50 rounded-[40px] border border-gray-100/50">
                         <button
                             onClick={() => {
                                 Haptics.impact({ style: ImpactStyle.Medium });
@@ -239,7 +239,7 @@ function HomeContent() {
                         <div className="pt-2">
                             <button
                                 onClick={() => setShowAutoConnect(true)}
-                                className="bg-primary text-white px-6 py-2 rounded-full text-sm font-bold flex items-center gap-2 hover:bg-primary/90 transition-all shadow-md active:scale-95"
+                                className="bg-primary text-white px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2 hover:bg-primary/90 transition-all shadow-md active:scale-95 whitespace-nowrap"
                             >
                                 <Sparkles className="w-4 h-4" />
                                 Connettimi in automatico
@@ -250,7 +250,7 @@ function HomeContent() {
             </div>
 
             {/* Branded Footer Banner */}
-            <div className={`w-full max-w-sm mx-auto px-4 pb-12 pt-0 ${!hasSeenInstructions ? 'animate-card-reveal [animation-delay:1.4s]' : ''} will-change-transform`}>
+            <div className={`w-full max-w-md mx-auto px-4 pb-12 pt-0 ${!hasSeenInstructions ? 'animate-card-reveal [animation-delay:1.4s]' : ''} will-change-transform`}>
                 <button
                     onClick={() => setShowMap(true)}
                     className="w-full h-24 bg-gray-900 rounded-[32px] p-4 flex items-center gap-4 relative overflow-hidden group active:scale-[0.98] transition-transform"
