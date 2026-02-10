@@ -1,6 +1,6 @@
-
 import { NativeBiometric } from '@capgo/capacitor-native-biometric';
 import { Capacitor } from '@capacitor/core';
+import { SERVER_URL } from '@/config';
 
 export const BIOMETRIC_ENABLED_KEY = 'biometrics_enabled';
 
@@ -41,16 +41,28 @@ export const BiometricService = {
      */
     setup: async (phoneNumber: string): Promise<boolean> => {
         try {
+            console.log("!!! [BIOMETRICS_V4] SETUP_STARTING_FOR:", phoneNumber, "!!!");
+
             // 1. Get secure token from backend
-            const response = await fetch('/api/auth/biometric/setup', {
+            // Use absolute URL on native
+            const url = Capacitor.isNativePlatform() ? `${SERVER_URL}/api/auth/biometric/setup` : '/api/auth/biometric/setup';
+            console.log("[Biometrics] Fetching from URL:", url);
+
+            const response = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    deviceId: (await NativeBiometric.getCredentials({ server: 'com.antigravity.chat' })).password ? 'existing_device' : 'new_device' // Simple check, or generate UUID
+                    deviceId: 'v4_manual_device'
                 })
             });
 
-            if (!response.ok) throw new Error('Failed to generate biometric token');
+            console.log("[Biometrics] Backend response status:", response.status);
+
+            if (!response.ok) {
+                const errText = await response.text();
+                console.error("[Biometrics] Backend setup error:", errText);
+                throw new Error('Failed to generate biometric token');
+            }
 
             const { token } = await response.json();
 
@@ -80,6 +92,8 @@ export const BiometricService = {
      */
     authenticate: async (): Promise<BiometricResult> => {
         try {
+            console.log("!!! [BIOMETRICS_V4] AUTHENTICATE_STARTING !!!");
+
             // Verify Identity & Get Credentials
             // The plugin handles the prompt UI
             const credentials = await NativeBiometric.getCredentials({
@@ -93,8 +107,12 @@ export const BiometricService = {
             const phoneNumber = credentials.username;
             const token = credentials.password;
 
-            // Call Backend Login
-            const response = await fetch('/api/auth/biometric/login', {
+            console.log("[Biometrics] Valid credentials retrieved, calling login...");
+
+            // Call Backend Login - Use absolute URL on native
+            const url = Capacitor.isNativePlatform() ? `${SERVER_URL}/api/auth/biometric/login` : '/api/auth/biometric/login';
+
+            const response = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ token, phoneNumber })

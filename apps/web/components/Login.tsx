@@ -6,6 +6,7 @@ import { Capacitor } from '@capacitor/core';
 import { Keyboard, KeyboardStyle } from '@capacitor/keyboard';
 import { useKeyboardAnimation } from '@/hooks/useKeyboardAnimation';
 import { BiometricService } from "@/lib/biometrics";
+import { Haptics, NotificationType } from '@capacitor/haptics';
 import { Fingerprint } from "lucide-react";
 import {
   Dialog,
@@ -89,9 +90,20 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
   const handleBiometricSetup = async () => {
     if (!pendingUser?.phoneNumber) return;
 
-    await BiometricService.setup(pendingUser.phoneNumber);
-    setShowBiometricPrompt(false);
-    onLogin(pendingUser);
+    try {
+      const success = await BiometricService.setup(pendingUser.phoneNumber);
+      if (success) {
+        await Haptics.notification({ type: NotificationType.Success });
+      } else {
+        console.error("[Login] Biometric setup failed");
+      }
+    } catch (e) {
+      console.error("[Login] Biometric setup exception", e);
+    } finally {
+      // Always proceed to login, don't block user
+      setShowBiometricPrompt(false);
+      onLogin(pendingUser);
+    }
   };
 
   const handlePhoneSubmit = async (e: React.FormEvent) => {
@@ -775,26 +787,36 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
           onLogin(pendingUser); // Proceed if dismissed
         }
       }}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-md p-6 bg-white/95 backdrop-blur-xl border-none shadow-2xl rounded-2xl">
           <DialogHeader>
-            <DialogTitle>Attiva accesso rapido</DialogTitle>
-            <DialogDescription>
-              Vuoi usare FaceID/TouchID per accedere più velocemente la prossima volta?
-            </DialogDescription>
+            <div className="flex flex-col items-center text-center space-y-6 py-4">
+              <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-2 animate-bounce-slow">
+                <Fingerprint className="w-10 h-10 text-blue-600" />
+              </div>
+
+              <div className="space-y-2">
+                <DialogTitle className="text-2xl font-black text-gray-900">Accesso Rapido</DialogTitle>
+                <DialogDescription className="text-gray-500 text-base">
+                  Attiva FaceID/TouchID per accedere al tuo account in un istante, senza SMS.
+                </DialogDescription>
+              </div>
+            </div>
           </DialogHeader>
-          <DialogFooter className="flex-row gap-2 sm:justify-end">
-            <button
-              onClick={() => { setShowBiometricPrompt(false); if (pendingUser) onLogin(pendingUser); }}
-              className="px-4 py-2 text-gray-600 font-medium hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              No, grazie
-            </button>
-            <button
-              onClick={handleBiometricSetup}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition-colors"
-            >
-              Attiva
-            </button>
+          <DialogFooter>
+            <div className="grid grid-cols-2 gap-3 w-full pt-4">
+              <button
+                onClick={() => { setShowBiometricPrompt(false); if (pendingUser) onLogin(pendingUser); }}
+                className="px-4 py-3 text-gray-500 font-bold hover:bg-gray-50 rounded-xl transition-colors"
+              >
+                Più tardi
+              </button>
+              <button
+                onClick={handleBiometricSetup}
+                className="px-4 py-3 bg-blue-600 text-white rounded-xl font-bold shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all transform active:scale-95"
+              >
+                Attiva Ora
+              </button>
+            </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>
