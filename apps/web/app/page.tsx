@@ -38,36 +38,25 @@ function HomeContent() {
 
         if (isNative) {
             try {
-                // Only attempt connect once per session if it's failing to avoid bridge lag
-                if (!hasAttemptedWifi) {
-                    setHasAttemptedWifi(true);
+                // Wrap native logic in a timeout to prevent hanging
+                await Promise.race([
+                    (async () => {
+                        // Only attempt connect once per session if it's failing to avoid bridge lag
+                        if (!hasAttemptedWifi) {
+                            setHasAttemptedWifi(true);
+                        }
 
-                    // const wifiDetection = async () => {
-                    //     // Passive attempt: try connecting to venue WiFi
-                    //     await Promise.race([
-                    //         CapacitorWifi.connect({
-                    //             ssid: "Local - WiFi",
-                    //             password: "localwifisicuro",
-                    //         }),
-                    //         new Promise((_, reject) => setTimeout(() => reject('timeout'), 2000))
-                    //     ]).catch(() => { });
-                    // };
-
-                    // const wifiTimeout = new Promise((_, reject) =>
-                    //     setTimeout(() => reject(new Error('WiFi detection timeout')), 3000)
-                    // );
-
-                    // await Promise.race([wifiDetection(), wifiTimeout]).catch(() => { });
-                }
-
-                // Get BSSID - this is still safe to call multiple times as it's quick
-                const hasPermission = await checkAndRequestLocationPermissions();
-                if (hasPermission) {
-                    const wifiInfo = await getConnectedWifiInfo();
-                    if (wifiInfo.isConnected && wifiInfo.bssid) {
-                        bssid = wifiInfo.bssid;
-                    }
-                }
+                        // Get BSSID - this is still safe to call multiple times as it's quick
+                        const hasPermission = await checkAndRequestLocationPermissions();
+                        if (hasPermission) {
+                            const wifiInfo = await getConnectedWifiInfo();
+                            if (wifiInfo.isConnected && wifiInfo.bssid) {
+                                bssid = wifiInfo.bssid;
+                            }
+                        }
+                    })(),
+                    new Promise((_, reject) => setTimeout(() => reject('Native logic timeout'), 2000))
+                ]);
             } catch (e) {
                 console.warn("[page] Native resolution step failed or timed out:", e);
             }

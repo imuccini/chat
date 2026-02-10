@@ -9,7 +9,11 @@ export const clientResolveTenant = async (urlNasId?: string, bssid?: string): Pr
             // Note: publicIp will be detected by the server from the request headers
         };
 
-        const url = `${API_BASE_URL}/api/tenants/validate-nas`;
+        // Use the Next.js API route which proxies to the NestJS backend
+        // This avoids direct port 3001 access issues from the device
+        // On Web, SERVER_URL is empty, so this becomes relative '/api/validate-nas'
+        const baseUrl = SERVER_URL;
+        const url = `${baseUrl}/api/validate-nas`;
         console.log(`[apiService] Resolving tenant via ${url}`, payload);
 
         const res = await fetch(url, {
@@ -29,7 +33,8 @@ export const clientResolveTenant = async (urlNasId?: string, bssid?: string): Pr
         console.log(`[apiService] Resolve tenant result:`, data);
 
         // NestJS returns { valid: boolean, tenant: { slug: string } }
-        return data.valid ? data.tenant.slug : null;
+        // Next.js Proxy returns { valid: boolean, tenantSlug: string }
+        return data.valid ? (data.tenantSlug || data.tenant?.slug) : null;
     } catch (e) {
         console.error("[apiService] Network error during tenant resolution:", e);
         return null;
