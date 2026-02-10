@@ -5,8 +5,9 @@ export interface User {
   alias: string;
   gender: Gender;
   status?: string; // Short status text (e.g. "In viaggio", "Disponibile")
-  joinedAt?: number;
+  image?: string; // Base64 or URL
   phoneNumber?: string; // For account recovery
+  joinedAt?: number;
 }
 
 export interface Message {

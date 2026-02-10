@@ -4341,6 +4341,7 @@ export namespace Prisma {
     image: string | null
     phoneNumber: string | null
     gender: string | null
+    status: string | null
     isAnonymous: boolean | null
     role: $Enums.GlobalRole | null
     createdAt: Date | null
@@ -4355,6 +4356,7 @@ export namespace Prisma {
     image: string | null
     phoneNumber: string | null
     gender: string | null
+    status: string | null
     isAnonymous: boolean | null
     role: $Enums.GlobalRole | null
     createdAt: Date | null
@@ -4369,6 +4371,7 @@ export namespace Prisma {
     image: number
     phoneNumber: number
     gender: number
+    status: number
     isAnonymous: number
     role: number
     createdAt: number
@@ -4385,6 +4388,7 @@ export namespace Prisma {
     image?: true
     phoneNumber?: true
     gender?: true
+    status?: true
     isAnonymous?: true
     role?: true
     createdAt?: true
@@ -4399,6 +4403,7 @@ export namespace Prisma {
     image?: true
     phoneNumber?: true
     gender?: true
+    status?: true
     isAnonymous?: true
     role?: true
     createdAt?: true
@@ -4413,6 +4418,7 @@ export namespace Prisma {
     image?: true
     phoneNumber?: true
     gender?: true
+    status?: true
     isAnonymous?: true
     role?: true
     createdAt?: true
@@ -4500,6 +4506,7 @@ export namespace Prisma {
     image: string | null
     phoneNumber: string | null
     gender: string | null
+    status: string | null
     isAnonymous: boolean
     role: $Enums.GlobalRole
     createdAt: Date
@@ -4531,6 +4538,7 @@ export namespace Prisma {
     image?: boolean
     phoneNumber?: boolean
     gender?: boolean
+    status?: boolean
     isAnonymous?: boolean
     role?: boolean
     createdAt?: boolean
@@ -4553,6 +4561,7 @@ export namespace Prisma {
     image?: boolean
     phoneNumber?: boolean
     gender?: boolean
+    status?: boolean
     isAnonymous?: boolean
     role?: boolean
     createdAt?: boolean
@@ -4567,6 +4576,7 @@ export namespace Prisma {
     image?: boolean
     phoneNumber?: boolean
     gender?: boolean
+    status?: boolean
     isAnonymous?: boolean
     role?: boolean
     createdAt?: boolean
@@ -4604,6 +4614,7 @@ export namespace Prisma {
       image: string | null
       phoneNumber: string | null
       gender: string | null
+      status: string | null
       isAnonymous: boolean
       role: $Enums.GlobalRole
       createdAt: Date
@@ -5015,6 +5026,7 @@ export namespace Prisma {
     readonly image: FieldRef<"User", 'String'>
     readonly phoneNumber: FieldRef<"User", 'String'>
     readonly gender: FieldRef<"User", 'String'>
+    readonly status: FieldRef<"User", 'String'>
     readonly isAnonymous: FieldRef<"User", 'Boolean'>
     readonly role: FieldRef<"User", 'GlobalRole'>
     readonly createdAt: FieldRef<"User", 'DateTime'>
@@ -15340,6 +15352,7 @@ export namespace Prisma {
     image: 'image',
     phoneNumber: 'phoneNumber',
     gender: 'gender',
+    status: 'status',
     isAnonymous: 'isAnonymous',
     role: 'role',
     createdAt: 'createdAt',
@@ -15863,6 +15876,7 @@ export namespace Prisma {
     image?: StringNullableFilter<"User"> | string | null
     phoneNumber?: StringNullableFilter<"User"> | string | null
     gender?: StringNullableFilter<"User"> | string | null
+    status?: StringNullableFilter<"User"> | string | null
     isAnonymous?: BoolFilter<"User"> | boolean
     role?: EnumGlobalRoleFilter<"User"> | $Enums.GlobalRole
     createdAt?: DateTimeFilter<"User"> | Date | string
@@ -15884,6 +15898,7 @@ export namespace Prisma {
     image?: SortOrderInput | SortOrder
     phoneNumber?: SortOrderInput | SortOrder
     gender?: SortOrderInput | SortOrder
+    status?: SortOrderInput | SortOrder
     isAnonymous?: SortOrder
     role?: SortOrder
     createdAt?: SortOrder
@@ -15908,6 +15923,7 @@ export namespace Prisma {
     image?: StringNullableFilter<"User"> | string | null
     phoneNumber?: StringNullableFilter<"User"> | string | null
     gender?: StringNullableFilter<"User"> | string | null
+    status?: StringNullableFilter<"User"> | string | null
     isAnonymous?: BoolFilter<"User"> | boolean
     role?: EnumGlobalRoleFilter<"User"> | $Enums.GlobalRole
     createdAt?: DateTimeFilter<"User"> | Date | string
@@ -15929,6 +15945,7 @@ export namespace Prisma {
     image?: SortOrderInput | SortOrder
     phoneNumber?: SortOrderInput | SortOrder
     gender?: SortOrderInput | SortOrder
+    status?: SortOrderInput | SortOrder
     isAnonymous?: SortOrder
     role?: SortOrder
     createdAt?: SortOrder
@@ -15949,6 +15966,7 @@ export namespace Prisma {
     image?: StringNullableWithAggregatesFilter<"User"> | string | null
     phoneNumber?: StringNullableWithAggregatesFilter<"User"> | string | null
     gender?: StringNullableWithAggregatesFilter<"User"> | string | null
+    status?: StringNullableWithAggregatesFilter<"User"> | string | null
     isAnonymous?: BoolWithAggregatesFilter<"User"> | boolean
     role?: EnumGlobalRoleWithAggregatesFilter<"User"> | $Enums.GlobalRole
     createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
@@ -16920,6 +16938,7 @@ export namespace Prisma {
     image?: string | null
     phoneNumber?: string | null
     gender?: string | null
+    status?: string | null
     isAnonymous?: boolean
     role?: $Enums.GlobalRole
     createdAt?: Date | string
@@ -16941,6 +16960,7 @@ export namespace Prisma {
     image?: string | null
     phoneNumber?: string | null
     gender?: string | null
+    status?: string | null
     isAnonymous?: boolean
     role?: $Enums.GlobalRole
     createdAt?: Date | string
@@ -16962,6 +16982,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     gender?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
     isAnonymous?: BoolFieldUpdateOperationsInput | boolean
     role?: EnumGlobalRoleFieldUpdateOperationsInput | $Enums.GlobalRole
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -16983,6 +17004,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     gender?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
     isAnonymous?: BoolFieldUpdateOperationsInput | boolean
     role?: EnumGlobalRoleFieldUpdateOperationsInput | $Enums.GlobalRole
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -17004,6 +17026,7 @@ export namespace Prisma {
     image?: string | null
     phoneNumber?: string | null
     gender?: string | null
+    status?: string | null
     isAnonymous?: boolean
     role?: $Enums.GlobalRole
     createdAt?: Date | string
@@ -17018,6 +17041,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     gender?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
     isAnonymous?: BoolFieldUpdateOperationsInput | boolean
     role?: EnumGlobalRoleFieldUpdateOperationsInput | $Enums.GlobalRole
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -17032,6 +17056,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     gender?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
     isAnonymous?: BoolFieldUpdateOperationsInput | boolean
     role?: EnumGlobalRoleFieldUpdateOperationsInput | $Enums.GlobalRole
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -18208,6 +18233,7 @@ export namespace Prisma {
     image?: SortOrder
     phoneNumber?: SortOrder
     gender?: SortOrder
+    status?: SortOrder
     isAnonymous?: SortOrder
     role?: SortOrder
     createdAt?: SortOrder
@@ -18222,6 +18248,7 @@ export namespace Prisma {
     image?: SortOrder
     phoneNumber?: SortOrder
     gender?: SortOrder
+    status?: SortOrder
     isAnonymous?: SortOrder
     role?: SortOrder
     createdAt?: SortOrder
@@ -18236,6 +18263,7 @@ export namespace Prisma {
     image?: SortOrder
     phoneNumber?: SortOrder
     gender?: SortOrder
+    status?: SortOrder
     isAnonymous?: SortOrder
     role?: SortOrder
     createdAt?: SortOrder
@@ -20717,6 +20745,7 @@ export namespace Prisma {
     image?: string | null
     phoneNumber?: string | null
     gender?: string | null
+    status?: string | null
     isAnonymous?: boolean
     role?: $Enums.GlobalRole
     createdAt?: Date | string
@@ -20737,6 +20766,7 @@ export namespace Prisma {
     image?: string | null
     phoneNumber?: string | null
     gender?: string | null
+    status?: string | null
     isAnonymous?: boolean
     role?: $Enums.GlobalRole
     createdAt?: Date | string
@@ -20773,6 +20803,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     gender?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
     isAnonymous?: BoolFieldUpdateOperationsInput | boolean
     role?: EnumGlobalRoleFieldUpdateOperationsInput | $Enums.GlobalRole
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -20793,6 +20824,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     gender?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
     isAnonymous?: BoolFieldUpdateOperationsInput | boolean
     role?: EnumGlobalRoleFieldUpdateOperationsInput | $Enums.GlobalRole
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -20813,6 +20845,7 @@ export namespace Prisma {
     image?: string | null
     phoneNumber?: string | null
     gender?: string | null
+    status?: string | null
     isAnonymous?: boolean
     role?: $Enums.GlobalRole
     createdAt?: Date | string
@@ -20833,6 +20866,7 @@ export namespace Prisma {
     image?: string | null
     phoneNumber?: string | null
     gender?: string | null
+    status?: string | null
     isAnonymous?: boolean
     role?: $Enums.GlobalRole
     createdAt?: Date | string
@@ -20869,6 +20903,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     gender?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
     isAnonymous?: BoolFieldUpdateOperationsInput | boolean
     role?: EnumGlobalRoleFieldUpdateOperationsInput | $Enums.GlobalRole
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -20889,6 +20924,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     gender?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
     isAnonymous?: BoolFieldUpdateOperationsInput | boolean
     role?: EnumGlobalRoleFieldUpdateOperationsInput | $Enums.GlobalRole
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -20909,6 +20945,7 @@ export namespace Prisma {
     image?: string | null
     phoneNumber?: string | null
     gender?: string | null
+    status?: string | null
     isAnonymous?: boolean
     role?: $Enums.GlobalRole
     createdAt?: Date | string
@@ -20929,6 +20966,7 @@ export namespace Prisma {
     image?: string | null
     phoneNumber?: string | null
     gender?: string | null
+    status?: string | null
     isAnonymous?: boolean
     role?: $Enums.GlobalRole
     createdAt?: Date | string
@@ -21018,6 +21056,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     gender?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
     isAnonymous?: BoolFieldUpdateOperationsInput | boolean
     role?: EnumGlobalRoleFieldUpdateOperationsInput | $Enums.GlobalRole
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -21038,6 +21077,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     gender?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
     isAnonymous?: BoolFieldUpdateOperationsInput | boolean
     role?: EnumGlobalRoleFieldUpdateOperationsInput | $Enums.GlobalRole
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -21304,6 +21344,7 @@ export namespace Prisma {
     image?: string | null
     phoneNumber?: string | null
     gender?: string | null
+    status?: string | null
     isAnonymous?: boolean
     role?: $Enums.GlobalRole
     createdAt?: Date | string
@@ -21324,6 +21365,7 @@ export namespace Prisma {
     image?: string | null
     phoneNumber?: string | null
     gender?: string | null
+    status?: string | null
     isAnonymous?: boolean
     role?: $Enums.GlobalRole
     createdAt?: Date | string
@@ -21442,6 +21484,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     gender?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
     isAnonymous?: BoolFieldUpdateOperationsInput | boolean
     role?: EnumGlobalRoleFieldUpdateOperationsInput | $Enums.GlobalRole
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -21462,6 +21505,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     gender?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
     isAnonymous?: BoolFieldUpdateOperationsInput | boolean
     role?: EnumGlobalRoleFieldUpdateOperationsInput | $Enums.GlobalRole
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -21653,6 +21697,7 @@ export namespace Prisma {
     image?: string | null
     phoneNumber?: string | null
     gender?: string | null
+    status?: string | null
     isAnonymous?: boolean
     role?: $Enums.GlobalRole
     createdAt?: Date | string
@@ -21673,6 +21718,7 @@ export namespace Prisma {
     image?: string | null
     phoneNumber?: string | null
     gender?: string | null
+    status?: string | null
     isAnonymous?: boolean
     role?: $Enums.GlobalRole
     createdAt?: Date | string
@@ -21709,6 +21755,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     gender?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
     isAnonymous?: BoolFieldUpdateOperationsInput | boolean
     role?: EnumGlobalRoleFieldUpdateOperationsInput | $Enums.GlobalRole
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -21729,6 +21776,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     gender?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
     isAnonymous?: BoolFieldUpdateOperationsInput | boolean
     role?: EnumGlobalRoleFieldUpdateOperationsInput | $Enums.GlobalRole
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -21749,6 +21797,7 @@ export namespace Prisma {
     image?: string | null
     phoneNumber?: string | null
     gender?: string | null
+    status?: string | null
     isAnonymous?: boolean
     role?: $Enums.GlobalRole
     createdAt?: Date | string
@@ -21769,6 +21818,7 @@ export namespace Prisma {
     image?: string | null
     phoneNumber?: string | null
     gender?: string | null
+    status?: string | null
     isAnonymous?: boolean
     role?: $Enums.GlobalRole
     createdAt?: Date | string
@@ -21858,6 +21908,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     gender?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
     isAnonymous?: BoolFieldUpdateOperationsInput | boolean
     role?: EnumGlobalRoleFieldUpdateOperationsInput | $Enums.GlobalRole
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -21878,6 +21929,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     gender?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
     isAnonymous?: BoolFieldUpdateOperationsInput | boolean
     role?: EnumGlobalRoleFieldUpdateOperationsInput | $Enums.GlobalRole
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -21957,6 +22009,7 @@ export namespace Prisma {
     image?: string | null
     phoneNumber?: string | null
     gender?: string | null
+    status?: string | null
     isAnonymous?: boolean
     role?: $Enums.GlobalRole
     createdAt?: Date | string
@@ -21977,6 +22030,7 @@ export namespace Prisma {
     image?: string | null
     phoneNumber?: string | null
     gender?: string | null
+    status?: string | null
     isAnonymous?: boolean
     role?: $Enums.GlobalRole
     createdAt?: Date | string
@@ -22013,6 +22067,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     gender?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
     isAnonymous?: BoolFieldUpdateOperationsInput | boolean
     role?: EnumGlobalRoleFieldUpdateOperationsInput | $Enums.GlobalRole
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -22033,6 +22088,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     gender?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
     isAnonymous?: BoolFieldUpdateOperationsInput | boolean
     role?: EnumGlobalRoleFieldUpdateOperationsInput | $Enums.GlobalRole
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string

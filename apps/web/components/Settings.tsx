@@ -1,22 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { User } from '@/types';
 import { useMembership } from '@/hooks/useMembership';
-import { ShieldCheck, ShieldAlert } from 'lucide-react';
+import { ShieldCheck, ShieldAlert, Camera, User as UserIcon } from 'lucide-react';
 
 interface SettingsProps {
     user: User;
     onLogout: () => void;
     onUpdateAlias: (newAlias: string) => void;
     onUpdateStatus: (newStatus: string) => void;
+    onUpdateImage: (newImage: string) => void;
     tenantId?: string;
 }
 
-const Settings: React.FC<SettingsProps> = ({ user, onLogout, onUpdateAlias, onUpdateStatus, tenantId }) => {
+const Settings: React.FC<SettingsProps> = ({ user, onLogout, onUpdateAlias, onUpdateStatus, onUpdateImage, tenantId }) => {
     const { isAdmin, isModerator } = useMembership(tenantId, user.id);
     const [isEditingAlias, setIsEditingAlias] = useState(false);
     const [isEditingStatus, setIsEditingStatus] = useState(false);
     const [newAlias, setNewAlias] = useState(user.alias);
     const [newStatus, setNewStatus] = useState(user.status || '');
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleSaveAlias = () => {
         if (newAlias.trim() && newAlias !== user.alias) {
@@ -30,6 +32,17 @@ const Settings: React.FC<SettingsProps> = ({ user, onLogout, onUpdateAlias, onUp
             onUpdateStatus(newStatus.trim());
         }
         setIsEditingStatus(false);
+    };
+
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = () => {
+                onUpdateImage(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
     };
 
     const genderLabels: Record<string, string> = {
@@ -49,12 +62,35 @@ const Settings: React.FC<SettingsProps> = ({ user, onLogout, onUpdateAlias, onUp
             <main className="flex-1 overflow-y-auto">
                 <div className="pb-32">
 
-                    {/* Avatar Section - Photo edit removed as requested */}
+                    {/* Avatar Section */}
                     <div className="py-8 flex flex-col items-center bg-white border-b border-gray-100">
                         <div className="relative group mb-4">
-                            <div className="w-24 h-24 bg-primary rounded-full flex items-center justify-center text-white text-4xl font-bold shadow-sm overflow-hidden">
-                                {(user.alias || (user as any).name || '?').charAt(0).toUpperCase()}
+                            <input
+                                type="file"
+                                ref={fileInputRef}
+                                onChange={handleImageChange}
+                                accept="image/*"
+                                className="hidden"
+                            />
+                            <div
+                                onClick={() => fileInputRef.current?.click()}
+                                className="w-24 h-24 bg-primary rounded-full flex items-center justify-center text-white text-4xl font-bold shadow-sm overflow-hidden cursor-pointer relative transition-transform active:scale-95 group"
+                            >
+                                {user.image ? (
+                                    <img src={user.image} alt={user.alias} className="w-full h-full object-cover" />
+                                ) : (
+                                    (user.alias || (user as any).name || '?').charAt(0).toUpperCase()
+                                )}
+                                <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                                    <Camera size={24} className="text-white" />
+                                </div>
                             </div>
+                            <button
+                                onClick={() => fileInputRef.current?.click()}
+                                className="absolute -bottom-1 -right-1 bg-white p-1.5 rounded-full shadow-md text-primary border border-gray-50"
+                            >
+                                <Camera size={16} />
+                            </button>
                         </div>
 
                         {/* Role Badges */}

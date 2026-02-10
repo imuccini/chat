@@ -58,6 +58,7 @@ model User {
   image         String?
   phoneNumber   String?
   gender        String?
+  status        String?
   isAnonymous   Boolean    @default(false)
   role          GlobalRole @default(USER)
   createdAt     DateTime   @default(now())

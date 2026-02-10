@@ -161,6 +161,7 @@ exports.Prisma.UserScalarFieldEnum = {
   image: 'image',
   phoneNumber: 'phoneNumber',
   gender: 'gender',
+  status: 'status',
   isAnonymous: 'isAnonymous',
   role: 'role',
   createdAt: 'createdAt',

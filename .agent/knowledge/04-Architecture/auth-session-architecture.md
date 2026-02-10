@@ -1,552 +1,939 @@
 # Authentication, Session & WebSocket Architecture
 
 > **Last updated**: 2026-02-10
-> **Scope**: Full analysis of auth flows, session management, WebSocket connection, state sync, and security posture.
+> **Scope**: Full analysis of auth flows, session management, WebSocket connection, CORS, ports, environment configuration, and mobile/web platform considerations.
+
+---
+
+## CRITICAL RULES FOR AI AGENTS
+
+> **READ THIS SECTION BEFORE MAKING ANY CHANGES TO AUTH, SESSION, WEBSOCKET, OR NETWORKING CODE**
+
+### Rule 1: Never Hardcode URLs, IPs, or Ports
+
+**FORBIDDEN:**
+```typescript
+// NEVER DO THIS
+const apiUrl = 'http://localhost:3001';
+const serverUrl = 'http://192.168.1.110:3000';
+fetch('http://localhost:3001/api/messages');
+io('http://localhost:3001');
+```
+
+**CORRECT:**
+```typescript
+// ALWAYS use environment variables or config.ts exports
+import { API_BASE_URL, SOCKET_URL, SERVER_URL } from '@/config';
+const apiUrl = process.env.NEXT_PUBLIC_SERVER_URL?.replace(':3000', ':3001') || 'http://localhost:3001';
+```
+
+### Rule 2: Understand the Two-Server Architecture
+
+| Server | Port | Purpose | Protocol |
+|--------|------|---------|----------|
+| **Next.js** | 3000 | Frontend + BetterAuth + API Proxies | HTTP |
+| **NestJS** | 3001 | Backend API + WebSocket Gateway | HTTP + WS |
+
+- Next.js handles authentication (BetterAuth cookies are on port 3000)
+- NestJS handles chat/tenant API and Socket.IO connections
+- API proxies in Next.js (`/apps/web/app/api/*`) forward to NestJS when needed
+
+### Rule 3: Know the URL Configuration Pattern
+
+**File: `apps/web/config.ts`**
+
+```typescript
+// Native (Capacitor): Uses NEXT_PUBLIC_SERVER_URL from env (absolute URL)
+// Web: Uses window.location (dynamic, adapts to current host)
+
+export const SERVER_URL = isNative
+    ? (process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000')
+    : '';
+
+export const API_BASE_URL = isNative
+    ? (process.env.NEXT_PUBLIC_SERVER_URL?.replace(':3000', ':3001') || 'http://localhost:3001')
+    : (typeof window !== 'undefined'
+        ? `${window.location.protocol}//${window.location.hostname}:3001`
+        : ...);
+
+export const SOCKET_URL = // Same pattern as API_BASE_URL
+```
+
+### Rule 4: Session Token vs Session ID
+
+The `Session` table has TWO identifiers:
+- `id` (UUID primary key)
+- `token` (unique string stored in cookie)
+
+**CURRENT INCONSISTENCY (DO NOT CHANGE WITHOUT FIXING ALL):**
+| Consumer | Looks up by | Column |
+|----------|-------------|--------|
+| ChatGateway (Socket.IO) | `session.id` | Primary key |
+| TenantController (NestJS REST) | `session.token` | Token column |
+| resolveSession (Next.js) | `session.token` | Token column |
+
+**When modifying session code, verify which field you're using!**
+
+### Rule 5: CORS Must Be Configured in THREE Places
+
+1. **NestJS HTTP CORS** (`apps/api/src/main.ts`)
+2. **NestJS WebSocket CORS** (`apps/api/src/chat/chat.gateway.ts`)
+3. **Next.js API Routes** (`apps/web/lib/cors.ts`)
+
+**If you change CORS in one place, consider if it needs changing in others.**
+
+### Rule 6: Environment Changes Require Rebuild for Mobile
+
+Mobile apps (Capacitor) bake `NEXT_PUBLIC_SERVER_URL` at build time. Changing the server IP requires:
+1. Update `.env` with new IP
+2. Run `npm run build:cap`
+3. Re-sync and rebuild native apps (`npx cap sync`)
+
+**Web apps auto-detect hostname from `window.location` - no rebuild needed.**
+
+### Rule 7: BetterAuth vs OTP Sessions
+
+| Login Method | Session Created By | Cookie? | authClient.getSession() Works? |
+|--------------|-------------------|---------|-------------------------------|
+| Email/Password | BetterAuth | Yes | Yes |
+| Passkey | BetterAuth | Yes | Yes |
+| Anonymous | BetterAuth | Sometimes* | Yes (if cookie set) |
+| OTP Phone | Manual Prisma insert | Yes (manual) | **NO** |
+
+*Anonymous sessions sometimes fail to set cookies due to BetterAuth quirks.
+
+**For OTP sessions:** Use `resolveSession()` fallback or read cookie manually.
+
+### Rule 8: When Debugging Connection Issues
+
+Check these in order:
+1. **Is the server IP correct in `.env`?** → `NEXT_PUBLIC_SERVER_URL`
+2. **Is the API port correct?** → Default 3001, check `API_PORT`
+3. **Is CORS allowing the origin?** → Check all three CORS configs
+4. **Is the session token being sent?** → Check `socket.handshake.auth.token`
+5. **Is the session expired?** → Check `expiresAt` in database
+6. **Is the database URL correct?** → `DATABASE_URL`
+
+### Rule 9: Never Modify These Files Without Full Understanding
+
+| File | Risk | Reason |
+|------|------|--------|
+| `apps/web/lib/auth.ts` | HIGH | Dynamic origin handling for passkeys |
+| `apps/api/src/chat/chat.gateway.ts` | HIGH | WebSocket auth + session validation |
+| `apps/web/config.ts` | HIGH | All URL configuration |
+| `apps/api/src/main.ts` | HIGH | CORS + server bootstrap |
+| `apps/web/lib/session.ts` | MEDIUM | Multi-source session resolution |
+| `.env` | CRITICAL | All environment configuration |
+
+### Rule 10: Test After Environment Changes
+
+When IP or port changes, test these flows:
+1. [ ] Web anonymous login
+2. [ ] Web OTP login
+3. [ ] Mobile (Capacitor) login
+4. [ ] WebSocket connection (send/receive messages)
+5. [ ] API proxy routes (`/api/tenants/*`)
+6. [ ] Biometric authentication (mobile)
 
 ---
 
 ## Table of Contents
 
-1. [Authentication Overview](#1-authentication-overview)
-2. [Anonymous Login Flow](#2-anonymous-login-flow)
-3. [OTP Phone Login Flow](#3-otp-phone-login-flow)
-4. [Session Resolution](#4-session-resolution)
-5. [WebSocket Authentication](#5-websocket-authentication)
-6. [Backend Auth (NestJS)](#6-backend-auth-nestjs)
-7. [Frontend State Management](#7-frontend-state-management)
-8. [API Proxy Pattern](#8-api-proxy-pattern)
-9. [Data Flow Diagrams](#9-data-flow-diagrams)
-10. [Security Analysis](#10-security-analysis)
-11. [Known Issues & Bugs](#11-known-issues--bugs)
-12. [Recommendations](#12-recommendations)
-13. [Key Files Reference](#13-key-files-reference)
+1. [Environment Configuration](#1-environment-configuration)
+2. [Authentication Overview](#2-authentication-overview)
+3. [BetterAuth Configuration](#3-betterauth-configuration)
+4. [Session Management](#4-session-management)
+5. [WebSocket Configuration](#5-websocket-configuration)
+6. [CORS Configuration](#6-cors-configuration)
+7. [API Proxying Pattern](#7-api-proxying-pattern)
+8. [Mobile (Capacitor) Configuration](#8-mobile-capacitor-configuration)
+9. [Hardcoded Values Registry](#9-hardcoded-values-registry)
+10. [Troubleshooting Guide](#10-troubleshooting-guide)
+11. [Security Considerations](#11-security-considerations)
+12. [Key Files Reference](#12-key-files-reference)
 
 ---
 
-## 1. Authentication Overview
+## 1. Environment Configuration
 
-The app uses **BetterAuth** for authentication with multiple strategies:
+### Required Environment Variables
 
-| Strategy | Cookie Set? | Session Type | Socket Auth |
-|----------|-------------|--------------|-------------|
-| Anonymous (BetterAuth plugin) | Should be, but often missing | BetterAuth-managed | Falls back to anonymous socket path |
-| OTP Phone Login | Yes (manually set) | Raw token in DB | BetterAuth client can't read it (bug) |
-| Email/Password | Yes (BetterAuth) | BetterAuth-managed | Session ID via `authClient.getSession()` |
-| Passkey/WebAuthn | Yes (BetterAuth) | BetterAuth-managed | Session ID via `authClient.getSession()` |
+```bash
+# Database
+DATABASE_URL="postgresql://user:password@localhost:5432/chat_db?schema=public"
 
-### Key Config Files
+# Authentication
+BETTER_AUTH_SECRET="<random-32-char-secret>"  # MUST be secure in production
+BETTER_AUTH_URL="http://192.168.1.110:3000"   # Server URL for auth
 
-- **BetterAuth Server**: `apps/web/lib/auth.ts` - Dynamic origin-based config (handles Capacitor, localhost, production)
-- **BetterAuth Client**: `apps/web/lib/auth-client.ts` - Creates `authClient` with passkey + anonymous plugins
-- **Session Resolver**: `apps/web/lib/session.ts` - Multi-source session resolution (BetterAuth -> cookie -> DB)
+# Public URLs (exposed to frontend)
+NEXT_PUBLIC_SERVER_URL="http://192.168.1.110:3000"  # Base URL for the app
 
-### Cookie Name
+# API Configuration
+API_PORT=3001  # NestJS port (optional, defaults to 3001)
 
-BetterAuth stores the session token in: `better-auth.session_token` (HTTP-only cookie).
+# Optional
+REDIS_URL="redis://localhost:6379"  # For distributed Socket.IO
+GOOGLE_CLIENT_ID="..."              # Google OAuth (optional)
+GOOGLE_CLIENT_SECRET="..."
+APPLE_CLIENT_ID="..."               # Apple OAuth (optional)
+APPLE_CLIENT_SECRET="..."
+```
 
----
+### Environment File Locations
 
-## 2. Anonymous Login Flow
+| File | Purpose | Git tracked? |
+|------|---------|--------------|
+| `.env` | All environments | Should be `.env.example` |
+| `.env.local` | Local overrides | No (gitignored) |
+| `.env.production` | Production values | No (gitignored) |
 
-**Entry point**: `apps/web/components/Login.tsx` (handleAnonymousSubmit)
+### Critical: IP Address Configuration
 
-### Steps
+When changing development machines:
 
-1. **Check existing session** (useEffect on mount):
-   - Calls `authClient.getSession()`
-   - If a session exists with `isAnonymous: true`, shows "continue" view
-
-2. **Sign in** (3 fallback layers):
-
+1. Find your machine's local IP: `ifconfig | grep "inet " | grep -v 127.0.0.1`
+2. Update `.env`:
+   ```bash
+   BETTER_AUTH_URL="http://YOUR_IP:3000"
+   NEXT_PUBLIC_SERVER_URL="http://YOUR_IP:3000"
    ```
-   [Attempt 1] authClient.signIn.anonymous()
-       |-- BetterAuth creates session + sets cookie
-       |-- Returns { data: { user, session } }
+3. Rebuild mobile app if needed: `npm run build:cap && npx cap sync`
 
-   [Attempt 2] Manual fetch to /api/auth/sign-in/anonymous
-       |-- Uses credentials: 'include' to set cookie
-       |-- Returns JSON user data
+### Port Architecture
 
-   [Attempt 3] authClient.getSession()
-       |-- Retrieves session that may have been set by Attempt 2
-   ```
-
-3. **Profile update**: `authClient.updateUser({ name: alias, gender })`
-
-4. **Login callback**: Constructs User object, calls `onLogin(user)`
-
-### Current Issue
-
-Anonymous users frequently end up **without a BetterAuth session cookie**. This was confirmed by debugging: the cookie header shows only `admin_session=true; __next_hmr_refresh_hash__=...` with no `better-auth.session_token`. The root cause is likely that `authClient.signIn.anonymous()` fails silently or the fallback path doesn't properly set the cookie.
-
-**Impact**: Anonymous users connect to the socket via the anonymous fallback path (userId in query params) rather than with a session token. HTTP endpoints that require auth (like feedback) need a userId-based fallback.
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Browser / Capacitor App                  │
+└─────────────────────┬───────────────────┬───────────────────┘
+                      │                   │
+                      ▼                   ▼
+┌─────────────────────────────┐   ┌─────────────────────────────┐
+│     Next.js (Port 3000)     │   │     NestJS (Port 3001)      │
+│                             │   │                             │
+│  • BetterAuth endpoints     │   │  • REST API (/api/*)        │
+│  • API proxy routes         │   │  • Socket.IO WebSocket      │
+│  • Static frontend          │   │  • Redis adapter (optional) │
+│  • Session cookies          │   │                             │
+└─────────────────────────────┘   └─────────────────────────────┘
+                      │                   │
+                      └─────────┬─────────┘
+                                ▼
+                    ┌─────────────────────┐
+                    │    PostgreSQL DB    │
+                    │                     │
+                    │  • Sessions         │
+                    │  • Users            │
+                    │  • Messages         │
+                    │  • Tenants          │
+                    └─────────────────────┘
+```
 
 ---
 
-## 3. OTP Phone Login Flow
+## 2. Authentication Overview
 
-**Entry point**: `apps/web/components/Login.tsx` (handleOtpSubmit)
+### Supported Authentication Methods
 
-### Send OTP
-- **Route**: `apps/web/app/api/auth/otp/send/route.ts`
-- Generates 6-digit OTP, stores in Prisma `Verification` table (5-min expiry)
-- Sends SMS via BulkGate API
+| Method | Cookie Set? | Session Type | Socket Auth | Mobile Support |
+|--------|-------------|--------------|-------------|----------------|
+| Email/Password | Yes (BetterAuth) | BetterAuth-managed | token via getSession() | Yes |
+| Passkey/WebAuthn | Yes (BetterAuth) | BetterAuth-managed | token via getSession() | Yes (with rpID) |
+| Anonymous | Sometimes* | BetterAuth-managed | Fallback to query params | Yes |
+| OTP Phone | Yes (manual) | Raw token in DB | Manual cookie read | Yes |
+| Biometric | JSON response | Session via API | Token in response | Native only |
 
-### Verify OTP
-- **Route**: `apps/web/app/api/auth/otp/verify/route.ts`
-- Two-phase verification:
-  - **Probe phase**: If new user + no alias -> return `{ isNewUser: true }` (don't consume OTP)
-  - **Creation phase**: When alias provided -> create user, create session, delete OTP
+*Anonymous sessions have a known issue where cookies sometimes fail to set.
 
-### Session Creation (OTP-specific)
+### Authentication Flow Summary
+
+```
+User Action
+    │
+    ├─> Email/Password ──> BetterAuth ──> Cookie set ──> Session in DB
+    │
+    ├─> Passkey ──> WebAuthn ──> BetterAuth ──> Cookie set ──> Session in DB
+    │
+    ├─> Anonymous ──> BetterAuth plugin ──> Cookie (sometimes) ──> Session in DB
+    │                                           │
+    │                                           └─> Fallback: userId in socket query
+    │
+    ├─> OTP Phone ──> Manual verify ──> Manual session insert ──> Manual cookie
+    │                                                               │
+    │                                                               └─> authClient can't read it!
+    │
+    └─> Biometric (mobile) ──> Token from Keychain ──> API creates session ──> JSON response
+```
+
+---
+
+## 3. BetterAuth Configuration
+
+### Server Configuration
+
+**File:** `apps/web/lib/auth.ts`
+
 ```typescript
-// verify route, lines ~78-94
+export function getAuth(origin: string) {
+    // Dynamic auth instance based on request origin
+    // Critical for passkey RP ID validation
+
+    const baseURL = (isCapacitor || isAndroidLocal)
+        ? (process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:3000")
+        : origin;
+
+    return betterAuth({
+        database: prismaAdapter(prisma, { provider: "postgresql" }),
+        secret: process.env.BETTER_AUTH_SECRET,
+        baseURL: baseURL,
+        session: {
+            expiresIn: 60 * 60 * 24 * 30,      // 30 days
+            updateAge: 60 * 60 * 24,           // Refresh daily
+            cookieCache: { maxAge: 5 * 60 },   // 5 min client cache
+        },
+        plugins: [
+            passkey({
+                rpID: new URL(baseURL).hostname,  // Dynamic for multi-env
+                rpName: "Local",
+                origin: origin,  // Original origin for WebAuthn
+            }),
+            anonymous(),
+        ],
+        trustedOrigins: [
+            "capacitor://localhost",
+            "http://localhost",
+            origin,
+            baseURL,
+            // ... env URLs
+        ],
+    });
+}
+```
+
+### Client Configuration
+
+**File:** `apps/web/lib/auth-client.ts`
+
+```typescript
+const isNative = Capacitor.isNativePlatform();
+const envUrl = process.env.NEXT_PUBLIC_SERVER_URL;
+
+// Native: Always use absolute URL
+// Web localhost: Use relative paths (for cookie proxying)
+// Web IP: Use absolute URL
+const baseURL = (isNative || (isProductionOrIP && !isLocalhost)) ? envUrl : undefined;
+
+export const authClient = createAuthClient({
+    baseURL,
+    plugins: [passkeyClient(), anonymousClient()],
+});
+```
+
+### Passkey RP ID Handling
+
+For passkeys to work across environments, the RP ID must match the origin:
+
+| Environment | Origin | RP ID |
+|------------|--------|-------|
+| Web localhost | http://localhost:3000 | localhost |
+| Web LAN IP | http://192.168.1.110:3000 | 192.168.1.110 |
+| Capacitor iOS | capacitor://localhost | localhost |
+| Capacitor Android | http://localhost | localhost |
+| Production | https://chat.example.com | chat.example.com |
+
+---
+
+## 4. Session Management
+
+### Session Resolution (Multi-Source)
+
+**File:** `apps/web/lib/session.ts`
+
+```
+resolveSession(headers)
+    │
+    ├─[1]─> BetterAuth: auth.api.getSession({ headers })
+    │       Works for: Email, Password, Passkey, Anonymous (if cookie set)
+    │
+    ├─[2]─> Authorization Header: Bearer <token>
+    │       Works for: Native apps, explicit token passing
+    │
+    ├─[3]─> Cookie Fallback: Parse better-auth.session_token
+    │       Works for: OTP sessions (created outside BetterAuth)
+    │
+    └─[4]─> DB Lookup: prisma.session.findFirst({ where: { token } })
+            Validates: Token exists + not expired
+
+    Returns: { session, user } or null
+```
+
+### Session Storage
+
+```sql
+-- Prisma Schema: Session table
+model Session {
+  id        String   @id @default(uuid())
+  userId    String
+  token     String   @unique          -- The session token in cookie
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(...)
+}
+```
+
+### Cookie Configuration
+
+```typescript
+// Cookie name: better-auth.session_token
+// Properties:
+{
+    httpOnly: true,                    // Prevents XSS token theft
+    secure: NODE_ENV === 'production', // HTTPS only in prod
+    sameSite: 'lax',                   // CSRF protection
+    maxAge: 30 * 24 * 60 * 60,         // 30 days (BetterAuth)
+           // OR 365 days (OTP manual)
+    path: '/',
+}
+```
+
+### OTP Session Creation (Manual)
+
+**File:** `apps/web/app/api/auth/otp/verify/route.ts`
+
+```typescript
+// OTP creates sessions OUTSIDE BetterAuth
 const rawToken = crypto.randomBytes(32).toString('base64');
 await prisma.session.create({
     data: {
         userId: user.id,
-        token: rawToken,
-        expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year
+        token: rawToken,           // Stored raw (not hashed)
+        expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
     }
 });
-// Sets HTTP-only cookie: better-auth.session_token = rawToken
+// Cookie set manually with raw token
+
+// CONSEQUENCE: authClient.getSession() CANNOT find OTP sessions
+// Must use resolveSession() fallback path
 ```
-
-### Known Bug
-
-OTP sessions are created **outside BetterAuth** (manual Prisma insert + manual cookie). This means:
-- `authClient.getSession()` does NOT recognize OTP sessions
-- Socket connection for OTP users sends `token = undefined` -> treated as anonymous
-- `resolveSession()` in Next.js API routes CAN find them (via the cookie fallback path)
 
 ---
 
-## 4. Session Resolution
+## 5. WebSocket Configuration
 
-**File**: `apps/web/lib/session.ts`
+### Server Setup (NestJS)
 
-This function handles multi-source session resolution:
-
-```
-resolveSession(headers)
-    |
-    |-- [1] BetterAuth: auth.api.getSession({ headers })
-    |       Uses the better-auth.session_token cookie
-    |       Works for: BetterAuth-managed sessions (email, passkey, anonymous if cookie set)
-    |
-    |-- [2] Authorization Header: headers.get('authorization')
-    |       Extracts Bearer token
-    |       Works for: Native apps sending token in header
-    |
-    |-- [3] Cookie Fallback: Parse better-auth.session_token from cookie header
-    |       Manual regex extraction
-    |       Works for: OTP sessions (created outside BetterAuth)
-    |
-    |-- [4] DB Lookup: prisma.session.findFirst({ where: { token } })
-    |       Validates token + expiry
-    |       Works for: Any session type stored in DB
-    |
-    |-- Returns: { session, user } or null
-```
-
-### When It Works
-
-| Login Method | BetterAuth Step | Cookie Fallback | Result |
-|-------------|-----------------|-----------------|--------|
-| Email/Password | Session found | N/A | User resolved |
-| Anonymous (cookie set) | Session found | N/A | User resolved |
-| Anonymous (no cookie) | Fails | No cookie | **null** |
-| OTP | Fails (not BetterAuth session) | Cookie found -> DB lookup | User resolved |
-
----
-
-## 5. WebSocket Authentication
-
-### Client Side
-
-**File**: `apps/web/components/ChatInterface.tsx` (lines ~261-276)
+**File:** `apps/api/src/chat/chat.gateway.ts`
 
 ```typescript
-const sessionData = await authClient.getSession();
-const token = sessionData?.data?.session?.id;  // BetterAuth session ID
-
-io(SOCKET_URL, {
-    auth: { token },                    // Session ID (or undefined)
-    query: {
-        tenantSlug: tenant.slug,
-        userId: currentUser.id,         // From localStorage/state
-        userAlias: currentUser.alias
+@WebSocketGateway({
+    cors: {
+        origin: '*',        // WARNING: Too permissive! Should match HTTP CORS
+        credentials: true,
     },
-});
-```
+    transports: ['websocket', 'polling'],
+})
+export class ChatGateway {
+    async handleConnection(socket: CustomSocket) {
+        const token = socket.handshake.auth?.token || socket.handshake.query?.token;
+        const { tenantSlug, userId, userAlias } = socket.handshake.query;
 
-### Server Side
-
-**File**: `apps/api/src/chat/chat.gateway.ts` (handleConnection)
-
-```
-handleConnection(socket)
-    |
-    |-- Extract: token = socket.handshake.auth?.token
-    |-- Extract: userId, userAlias = socket.handshake.query
-    |
-    |-- if (token) {
-    |       // AUTHENTICATED PATH
-    |       session = prisma.session.findUnique({ id: token })
-    |       if (!session || expired) -> disconnect
-    |       socket.data.user = session.user
-    |   }
-    |
-    |-- if (!token) {
-    |       // ANONYMOUS PATH
-    |       if (existingUserId) {
-    |           user = prisma.user.findUnique({ id: existingUserId })
-    |           if (user exists) -> reconnect (emit 'userConfirmed')
-    |           if (user missing) -> create new (emit 'userCreated')
-    |       } else {
-    |           create new user -> emit 'userCreated'
-    |       }
-    |   }
-```
-
-### Important: Session ID vs Token
-
-The socket sends `session.id` (the UUID primary key of the Session record), NOT `session.token`. The gateway validates by `prisma.session.findUnique({ id: token })`.
-
-The NestJS tenant controller's `resolveUserFromToken()` queries by `token` field (not `id`). These are **different lookup strategies** for the same Session table.
-
-| Consumer | Looks up by | Field |
-|----------|-------------|-------|
-| ChatGateway (socket) | `session.id` | Primary key UUID |
-| TenantController (REST) | `session.token` | Token column |
-| resolveSession (Next.js) | `session.token` | Token column |
-
----
-
-## 6. Backend Auth (NestJS)
-
-### Tenant Controller Auth
-
-**File**: `apps/api/src/tenant/tenant.controller.ts`
-
-The `resolveUserId()` private method handles dual authentication:
-
-```typescript
-private async resolveUserId(auth: string): Promise<string> {
-    if (!auth) throw new UnauthorizedException();
-    const token = auth.replace('Bearer ', '');
-
-    // [1] Try JWT verification
-    try {
-        const payload = this.jwtService.verify(token, {
-            secret: process.env.BETTER_AUTH_SECRET
-        });
-        userId = payload.sub || payload.id;
-    } catch {
-        // [2] Try as session token (DB lookup)
-        const resolvedUserId = await this.tenantService.resolveUserFromToken(token);
-        if (resolvedUserId) userId = resolvedUserId;
+        if (token) {
+            // AUTHENTICATED PATH
+            const session = await this.prisma.session.findFirst({
+                where: { token: token as string },  // Uses token column!
+                include: { user: true },
+            });
+            if (!session || new Date(session.expiresAt) < new Date()) {
+                socket.disconnect();
+                return;
+            }
+            socket.data.user = session.user;
+        } else {
+            // ANONYMOUS PATH
+            // Creates or finds user by userId from query params
+        }
     }
-
-    if (!userId) throw new UnauthorizedException('Invalid token');
-    return userId;
 }
 ```
 
-### TenantInterceptor
+### Client Connection
 
-**File**: `apps/api/src/tenant/tenant.interceptor.ts`
+**File:** `apps/web/components/ChatInterface.tsx`
 
-Minimal interceptor that extracts `tenantId` from `x-tenant-id` header and sets `req.tenantContext`. Not involved in auth.
+```typescript
+// Get session token (with OTP fallback)
+const sessionData = await authClient.getSession();
+let token = sessionData?.data?.session?.token;
+
+// OTP fallback: read cookie directly
+if (!token && typeof document !== 'undefined') {
+    const match = document.cookie.match(/better-auth\.session_token=([^;]+)/);
+    if (match) token = decodeURIComponent(match[1]);
+}
+
+// Connect to Socket.IO
+const newSocket = io(SOCKET_URL, {
+    auth: { token },             // Session token for auth
+    query: {
+        tenantSlug: tenant.slug,
+        userId: currentUser.id,   // Fallback for anonymous
+        userAlias: currentUser.alias
+    },
+    transports: ['websocket', 'polling'],
+    reconnectionAttempts: 10,
+    reconnectionDelay: 1000
+});
+```
+
+### Socket Events
+
+```typescript
+// Client → Server
+interface ClientToServerEvents {
+    join: (data: { user: User; tenantSlug: string }) => void;
+    sendMessage: (msg: Message) => void;
+    deleteMessage: (data: { messageId: string; roomId?: string; tenantSlug: string }) => void;
+}
+
+// Server → Client
+interface ServerToClientEvents {
+    newMessage: (msg: Message) => void;
+    presenceUpdate: (data: { users: User[]; onlineIds: string[]; roomCounts: Record<string, number> }) => void;
+    messageDeleted: (data: { messageId: string; roomId?: string }) => void;
+    privateMessage: (msg: Message) => void;
+    rateLimited: (data: { retryAfter: number }) => void;
+    error: (data: { message: string }) => void;
+    userCreated: (userData: { id: string; alias: string; tenantId: string | null }) => void;
+    userConfirmed: (userData: { id: string; alias: string; tenantId: string | null }) => void;
+}
+```
+
+### Rate Limiting
+
+- **Messages:** 500ms minimum between sends per socket
+- **Connection:** No explicit rate limit (consider adding)
 
 ---
 
-## 7. Frontend State Management
+## 6. CORS Configuration
 
-### Three-Tier Session Restoration
+### Three Configuration Points
 
-**File**: `apps/web/components/ChatInterface.tsx` (lines ~136-202)
+#### 1. NestJS HTTP CORS
 
-On page load/reload:
+**File:** `apps/api/src/main.ts`
 
+```typescript
+app.enableCors({
+    origin: (origin, callback) => {
+        const allowed = [
+            'capacitor://localhost',
+            'http://localhost',
+            'http://localhost:3000',
+        ];
+        const isAllowed = !origin ||
+            allowed.includes(origin) ||
+            origin?.startsWith('http://192.168.') ||
+            origin?.startsWith('http://10.') ||
+            origin?.startsWith('http://172.');
+        callback(null, isAllowed);
+    },
+    credentials: true,
+});
 ```
-[Tier 1] BetterAuth: useSession() hook
-    |-- If session?.user exists -> use as source of truth
-    |-- Sync to localStorage('chat_user')
 
-[Tier 2] localStorage: getItem('chat_user')
-    |-- If BetterAuth empty but localStorage has data
-    |-- Keep user logged in (may be stale)
+#### 2. NestJS WebSocket CORS
 
-[Tier 3] Debug endpoint: fetch('/api/debug-session')
-    |-- Last resort server-side session check
-    |-- If found -> update state + localStorage
+**File:** `apps/api/src/chat/chat.gateway.ts`
 
-Result -> isRestoringSession = false -> unblock UI
+```typescript
+@WebSocketGateway({
+    cors: {
+        origin: '*',        // BUG: Should match HTTP CORS!
+        credentials: true,
+    },
+})
 ```
 
-### localStorage Usage
+**WARNING:** WebSocket CORS is `'*'` which allows any origin. This is a security issue.
 
-`localStorage.setItem('chat_user', JSON.stringify(user))` is used at:
-- After BetterAuth session sync
-- After debug session restore
-- After login (handleLogin callback)
-- After updating alias or status
+#### 3. Next.js API Routes CORS
 
-**Note**: Only stores non-sensitive user fields (id, alias, gender). Tokens stay in HTTP-only cookies.
+**File:** `apps/web/lib/cors.ts`
 
-### Socket-Driven State Updates
-
+```typescript
+const allowedOrigins = [
+    'capacitor://localhost',
+    'http://localhost',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    // Dynamic from NEXT_PUBLIC_SERVER_URL
+];
 ```
-socket.on('userCreated')    -> Update currentUser + localStorage (new anonymous users)
-socket.on('userConfirmed')  -> Update userIdRef (reconnecting users)
-socket.on('presenceUpdate') -> Update onlineUsers, roomOnlineCounts
-socket.on('newMessage')     -> Save to SQLite + update React Query cache
-socket.on('privateMessage') -> Save to SQLite + update private chat state
-socket.on('messageDeleted') -> Remove from cache + SQLite
-```
+
+### CORS Mismatch Issues
+
+| Aspect | NestJS HTTP | NestJS WebSocket | Next.js |
+|--------|-------------|------------------|---------|
+| Private IPs | 192.168.*, 10.*, 172.* | `'*'` (all) | Only configured |
+| Capacitor | Yes | Yes | Yes |
+| localhost | Yes | Yes | Yes |
+| Credentials | Yes | Yes | Yes |
+
+**Recommendation:** Unify CORS configuration across all three.
 
 ---
 
-## 8. API Proxy Pattern
+## 7. API Proxying Pattern
 
-The app uses Next.js API routes as proxies for authenticated requests to avoid cross-port cookie issues.
+### Why Proxy?
 
-### Pattern
+- BetterAuth cookies are set on port 3000 (Next.js)
+- Direct requests from browser to port 3001 (NestJS) may not include cookies
+- Proxy routes on port 3000 can read cookies and forward auth to NestJS
 
-```
-Browser (port 3000) --cookie--> Next.js API route (port 3000)
-    |-- resolveSession(headers) reads cookie
-    |-- Direct Prisma query (or forward to NestJS)
-    |-- Returns response
-```
+### Current Proxy Routes
 
-### Existing Proxies
+| Route | Method | Auth | Target |
+|-------|--------|------|--------|
+| `/api/validate-nas` | POST/GET | None | NestJS `/api/tenants/validate-nas` |
+| `/api/tenants/[slug]` | GET | None | NestJS `/api/tenants/:slug` |
+| `/api/tenants/[slug]` | POST | Session | Direct Prisma (bypass NestJS) |
+| `/api/tenants/[slug]/feedback` | POST/GET | Session + userId fallback | Direct Prisma |
+| `/api/messages` | GET | Authorization header | NestJS `/api/messages` |
+| `/api/auth/*` | * | BetterAuth | BetterAuth handlers |
 
-| Route | Method | Auth | Purpose |
-|-------|--------|------|---------|
-| `/api/tenants/[slug]` | GET | None (public) | Fetch tenant info |
-| `/api/tenants/[slug]` | POST | resolveSession + authorizeTenant | Admin tenant updates |
-| `/api/tenants/[slug]/feedback` | POST | resolveUser (session OR userId fallback) | Submit feedback |
-| `/api/tenants/[slug]/feedback` | GET | resolveUser (session OR userId fallback) | List feedback |
+### KNOWN BUG: Hardcoded URLs in Proxies
 
-### When to Use Proxy vs Direct
+**Files with hardcoded `http://localhost:3001`:**
+- `apps/web/app/api/tenants/[slug]/route.ts` (line 16)
+- `apps/web/app/api/messages/route.ts` (line 14)
 
-- **Use proxy** (Next.js route): When the endpoint needs BetterAuth cookie auth
-- **Use direct** (NestJS API_BASE_URL): When the endpoint is public or uses socket-based auth
-
----
-
-## 9. Data Flow Diagrams
-
-### Authentication Flow
-
-```
-USER ACTION: ANONYMOUS LOGIN
-=============================
-
-Login.tsx
-    |
-    v
-[1] authClient.signIn.anonymous()
-    |-- BetterAuth -> POST /api/auth/sign-in/anonymous
-    |-- Creates Session record in DB
-    |-- Sets better-auth.session_token cookie (SOMETIMES FAILS)
-    |-- Returns { user, session }
-    |
-    [FALLBACK if [1] fails]
-    v
-[2] Manual fetch /api/auth/sign-in/anonymous (credentials: include)
-    |
-    [FALLBACK if [2] fails]
-    v
-[3] authClient.getSession()
-    |
-    v
-onLogin(user) -> ChatInterface
-    |-- localStorage.setItem('chat_user', user)
-    |-- Socket connects (may or may not have token)
-```
-
-### WebSocket Connection
-
-```
-ChatInterface.tsx                    ChatGateway.ts
-    |                                     |
-    |-- authClient.getSession()           |
-    |-- token = session?.id               |
-    |                                     |
-    |-- io(SOCKET_URL, {                  |
-    |     auth: { token },          ----> handleConnection(socket)
-    |     query: { userId, alias }        |
-    |   })                                |
-    |                                     |-- if (token)
-    |                                     |     session = DB.findById(token)
-    |                                     |     if valid -> authenticated
-    |                                     |
-    |                                     |-- if (!token)
-    |                                     |     userId from query
-    |                                     |     DB.findUser(userId)
-    |   <-- 'userConfirmed' ------------- |     emit confirmation
-    |                                     |
-    |-- socket.emit('join', {             |
-    |     user, tenantSlug          ----> handleJoin()
-    |   })                                |-- join rooms
-    |                                     |-- broadcast presence
-```
-
-### Feedback Submission
-
-```
-LocalFeedbackOverlay                Next.js API Route              Database
-    |                                     |                           |
-    |-- POST /api/tenants/                |                           |
-    |   slug/feedback                     |                           |
-    |   { score, comment, userId }  ----> |                           |
-    |                                     |                           |
-    |                               resolveUser(headers, userId)      |
-    |                                     |                           |
-    |                               [1] resolveSession(headers)       |
-    |                                     |-- Read cookie             |
-    |                                     |-- auth.api.getSession()   |
-    |                                     |                           |
-    |                               [2] If no session:                |
-    |                                     |-- prisma.user.findUnique  |
-    |                                     |   ({ id: userId })  ----> |-- Verify exists
-    |                                     |                           |
-    |                               prisma.feedback.create()    ----> |-- Insert feedback
-    |                                     |                           |
-    |   <---- 200 { feedback } ---------- |                           |
+**These break in production!** Should use:
+```typescript
+const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000';
+const apiUrl = serverUrl.replace(':3000', ':3001');
 ```
 
 ---
 
-## 10. Security Analysis
+## 8. Mobile (Capacitor) Configuration
 
-### 10.1 userId Fallback in Feedback Route
+### Capacitor Config
 
-**Risk**: LOW-MEDIUM
+**File:** `apps/web/capacitor.config.ts`
 
-The feedback POST accepts `userId` in the body as a fallback for anonymous users without cookies. An unauthenticated client could submit feedback as any user if they know the user ID.
+```typescript
+const config: CapacitorConfig = {
+    appId: 'io.trenochat.app',
+    appName: 'TrenoChat',
+    webDir: 'out',              // Static export directory
+    server: {
+        androidScheme: 'http',  // Allow HTTP (not just HTTPS)
+        cleartext: true         // Allow cleartext traffic on Android
+    },
+};
+```
 
-**Current mitigations**:
-- BetterAuth session is checked first (authenticated users can't be spoofed)
-- User IDs are CUIDs (not guessable sequential integers)
-- Feedback is a low-sensitivity operation
+### Mobile URL Resolution
 
-**Possible improvement**: Add a rate limit per IP to prevent abuse.
+```typescript
+// In config.ts:
+const isNative = Capacitor.isNativePlatform();
 
-### 10.2 Cross-Port Cookie Handling
+// Native apps use NEXT_PUBLIC_SERVER_URL (absolute, from env at build time)
+// Web uses window.location (dynamic)
 
-**Ports**: Web = 3000, API = 3001
+export const API_BASE_URL = isNative
+    ? (process.env.NEXT_PUBLIC_SERVER_URL?.replace(':3000', ':3001') || 'http://localhost:3001')
+    : `${window.location.protocol}//${window.location.hostname}:3001`;
+```
 
-BetterAuth cookies are set for `localhost` (no port restriction by default). However:
-- Direct requests from browser to `:3001` may not include `:3000` cookies depending on browser
-- The proxy pattern (routing through `:3000` Next.js routes) solves this cleanly
-- Socket.IO connects to `:3001` but uses token-based auth (not cookies)
+### Mobile Build Process
 
-### 10.3 CORS Configuration
+```bash
+# 1. Build static export
+npm run build:cap   # Runs build_cap.sh (hides dynamic routes, builds, restores)
 
-**NestJS** (`apps/api/src/main.ts`):
-- Allows all `localhost` origins
-- Allows local network ranges: `192.168.x.x`, `10.x.x.x`, `172.x.x.x`
-- Allows `capacitor://localhost`
+# 2. Sync with native projects
+npx cap sync
 
-**Next.js** (`apps/web/lib/cors.ts`):
-- Explicit allowlist: localhost variants + `NEXT_PUBLIC_SERVER_URL` derivatives
+# 3. Open in IDE
+npx cap open ios    # Opens Xcode
+npx cap open android # Opens Android Studio
+```
 
-**Note**: Local network ranges are wide open. On shared networks, any device can make API requests.
+### What Breaks on IP Change (Mobile)
 
-### 10.4 Anonymous Alias Injection
+| Component | Behavior | Fix |
+|-----------|----------|-----|
+| Auth API calls | Uses hardcoded IP from build | Rebuild app |
+| WebSocket | Uses hardcoded IP from build | Rebuild app |
+| Biometric tokens | Still work (stored locally) | N/A |
+| SQLite cache | Still works | N/A |
 
-Socket connection accepts `userAlias` from query params and stores it in the DB. A malicious client could connect with a forged alias.
+### Biometric Authentication
 
-**Recommendation**: Validate alias format (max length, allowed characters).
+**File:** `apps/web/lib/biometrics.ts`
 
-### 10.5 Token Confusion
+```typescript
+// Store credentials in device secure storage
+await NativeBiometric.setCredentials({
+    username: phoneNumber,
+    password: token,
+    server: 'com.antigravity.chat',  // App identifier for Keychain/Keystore
+});
 
-The `Session` table has both `id` (UUID) and `token` (unique string) columns. Different parts of the system look up sessions by different fields:
-- Socket gateway: by `id`
-- NestJS REST controller: by `token`
-- Next.js resolveSession: by `token`
-
-This works but is confusing and error-prone for future development.
-
----
-
-## 11. Known Issues & Bugs
-
-### HIGH Priority
-
-| Issue | Location | Impact |
-|-------|----------|--------|
-| **Anonymous users often lack BetterAuth cookie** | Login.tsx -> auth flow | HTTP endpoints need userId fallback for anonymous users |
-| **OTP users can't authenticate on socket** | ChatInterface.tsx:262-263 | `authClient.getSession()` returns null for OTP sessions -> treated as anonymous |
-
-### MEDIUM Priority
-
-| Issue | Location | Impact |
-|-------|----------|--------|
-| **Session ID vs Token confusion** | chat.gateway.ts vs tenant.controller.ts | Different lookup strategies for same table; easy to introduce bugs |
-| **No alias validation on socket** | chat.gateway.ts:49, 91 | Alias from query params stored directly in DB |
-| **Debug session endpoint in production** | ChatInterface.tsx:171 | `/api/debug-session` should be removed or restricted |
-
-### LOW Priority
-
-| Issue | Location | Impact |
-|-------|----------|--------|
-| **Console.log debug statements** | Multiple files | Should be removed before production |
-| **Wide CORS for local network** | main.ts:20-34 | Any device on LAN can make API requests |
+// Login flow:
+// 1. User triggers biometric
+// 2. Retrieve credentials from secure storage
+// 3. POST to /api/auth/biometric/login with token + phone
+// 4. Server validates, creates session
+// 5. Return session in JSON (not cookie for native)
+```
 
 ---
 
-## 12. Recommendations
+## 9. Hardcoded Values Registry
 
-### Short Term (Quick Wins)
+### CRITICAL (Break Production)
 
-1. **Validate socket aliases**: Add max-length and character validation for `userAlias` in `ChatGateway.handleConnection()`
-2. **Remove debug logs**: Clean up `console.log("[Login] DEBUG ...")` statements
-3. **Rate limit feedback**: Add per-IP rate limiting to the feedback proxy route
+| File | Line | Value | Should Be |
+|------|------|-------|-----------|
+| `apps/web/app/api/tenants/[slug]/route.ts` | 16 | `'http://localhost:3001'` | `process.env...` |
+| `apps/web/app/api/messages/route.ts` | 14 | `'http://localhost:3001'` | `process.env...` |
 
-### Medium Term (Architecture)
+### MEDIUM (Break Non-Standard Setups)
 
-4. **Unify session lookup**: Pick one field (either `id` or `token`) for session validation across all consumers. Recommended: always use `token` since it's what BetterAuth sets in cookies.
+| File | Line | Value | Issue |
+|------|------|-------|-------|
+| `apps/web/config.ts` | 16, 25 | `:3001` port | Hardcoded API port |
+| `apps/api/src/main.ts` | 23-26 | CORS allowlist | Not configurable |
+| `.env` | 8, 13 | `192.168.1.110` | Developer's IP |
 
-5. **Fix OTP socket auth**: After OTP login, store the session token in a way that `authClient.getSession()` can find it, OR pass the raw token directly to the socket handshake instead of relying on the BetterAuth client.
+### LOW (Development Defaults)
 
-6. **Investigate anonymous cookie issue**: Determine why `authClient.signIn.anonymous()` fails to set the `better-auth.session_token` cookie. This may be a BetterAuth version issue or a configuration problem.
+| File | Line | Value | Purpose |
+|------|------|-------|---------|
+| `apps/web/lib/auth.ts` | 26, 34, 109 | `localhost:3000` | Fallback defaults |
+| `apps/api/src/main.ts` | 59 | `3001` | Default API port |
 
-### Long Term (Security Hardening)
+### Port Replacement Pattern (Fragile)
 
-7. **Move OTP into BetterAuth plugin**: Instead of manual session creation in the verify route, create a custom BetterAuth plugin that handles OTP. This eliminates the dual-session-type complexity.
+Used in multiple files:
+```typescript
+serverUrl.replace(':3000', ':3001')
+```
 
-8. **Remove userId fallback**: Once the anonymous cookie issue is fixed, remove the `userId` body parameter from the feedback route and require proper session-based auth.
+**Issues:**
+- Fails if URL has no port
+- Fails if using non-standard ports
+- Duplicated in multiple places
 
-9. **Session invalidation on logout**: Ensure server-side session deletion when users log out. Currently localStorage is cleared but the session may persist in DB.
-
-10. **Restrict debug endpoint**: Remove or gate the `/api/debug-session` endpoint behind a development-only check.
+**Better approach:** Use separate `NEXT_PUBLIC_API_URL` env var.
 
 ---
 
-## 13. Key Files Reference
+## 10. Troubleshooting Guide
+
+### Problem: Mobile App Can't Connect
+
+1. **Check `.env`:**
+   ```bash
+   grep NEXT_PUBLIC_SERVER_URL .env
+   # Should show your current machine's IP, not localhost
+   ```
+
+2. **Verify IP is reachable from device:**
+   ```bash
+   # On mobile device or simulator, try:
+   curl http://YOUR_IP:3000/api/health
+   curl http://YOUR_IP:3001/api/health
+   ```
+
+3. **Rebuild if IP changed:**
+   ```bash
+   npm run build:cap && npx cap sync
+   ```
+
+### Problem: WebSocket Not Connecting
+
+1. **Check CORS:**
+   - Browser console shows CORS error?
+   - Add origin to all three CORS configs
+
+2. **Check token:**
+   ```javascript
+   // In browser console:
+   document.cookie  // Should show better-auth.session_token
+   ```
+
+3. **Check server logs:**
+   ```bash
+   # In API terminal, look for:
+   # "Connection rejected: Invalid or expired session"
+   ```
+
+### Problem: Messages Not Sending/Receiving
+
+1. **Check socket connection:**
+   ```javascript
+   // In browser console:
+   socket.connected  // Should be true
+   ```
+
+2. **Check room joined:**
+   - Look for `join` event in server logs
+   - Verify `tenantSlug` is correct
+
+3. **Check rate limiting:**
+   - Server logs show `rateLimited` event?
+   - Wait 500ms between messages
+
+### Problem: OTP Login Works But Session Lost
+
+**Known issue:** OTP sessions are not recognized by `authClient.getSession()`.
+
+**Workaround:** The ChatInterface already has fallback code:
+```typescript
+// Read cookie manually for OTP sessions
+if (!token && typeof document !== 'undefined') {
+    const match = document.cookie.match(/better-auth\.session_token=([^;]+)/);
+    if (match) token = decodeURIComponent(match[1]);
+}
+```
+
+### Problem: Anonymous User Has No Session
+
+**Known issue:** Anonymous sessions sometimes fail to set cookies.
+
+**Current behavior:** System falls back to userId in socket query params.
+
+**Impact:** HTTP endpoints need userId fallback (implemented in feedback route).
+
+### Problem: Passkeys Don't Work
+
+1. **Check RP ID matches origin:**
+   ```javascript
+   // RP ID should be hostname only (no port)
+   // Origin: http://192.168.1.110:3000 → RP ID: 192.168.1.110
+   ```
+
+2. **Check trusted origins in auth.ts**
+
+3. **On mobile:**
+   - iOS: Needs Associated Domains entitlement for production
+   - Development: capacitor://localhost works
+
+---
+
+## 11. Security Considerations
+
+### Current Security Issues
+
+| Issue | Severity | Location | Impact |
+|-------|----------|----------|--------|
+| WebSocket CORS `'*'` | HIGH | chat.gateway.ts | Any site can connect |
+| OTP tokens stored raw | MEDIUM | otp/verify/route.ts | DB breach exposes tokens |
+| Private IP wildcards | MEDIUM | main.ts | LAN devices can access |
+| No alias validation | LOW | chat.gateway.ts | Malicious alias injection |
+| Debug endpoint exposed | LOW | ChatInterface.tsx | Info disclosure |
+
+### Recommendations
+
+1. **Fix WebSocket CORS:** Match HTTP CORS configuration
+2. **Hash OTP tokens:** Use bcrypt before storing
+3. **Restrict private IPs:** Whitelist specific IPs or use VPN
+4. **Validate aliases:** Max length, allowed characters
+5. **Remove debug endpoint:** Or restrict to development
+
+### Cookie Security
+
+| Setting | Value | Purpose |
+|---------|-------|---------|
+| httpOnly | true | Prevents XSS token theft |
+| secure | NODE_ENV === 'production' | HTTPS only in prod |
+| sameSite | 'lax' | CSRF protection |
+
+---
+
+## 12. Key Files Reference
+
+### Authentication
 
 | File | Purpose |
 |------|---------|
-| `apps/web/lib/auth.ts` | BetterAuth server config (dynamic origin, passkey, anonymous, OAuth) |
-| `apps/web/lib/auth-client.ts` | BetterAuth client (passkey + anonymous plugins) |
-| `apps/web/lib/session.ts` | Multi-source session resolution (BetterAuth -> cookie -> DB) |
-| `apps/web/components/Login.tsx` | All login strategies (anonymous, OTP, existing session) |
-| `apps/web/components/ChatInterface.tsx` | Session sync, socket lifecycle, state management |
-| `apps/web/config.ts` | URL configuration (SERVER_URL, API_BASE_URL, SOCKET_URL) |
-| `apps/web/services/apiService.ts` | API client functions (tenant, feedback, messages) |
-| `apps/web/lib/cors.ts` | CORS configuration for Next.js API routes |
-| `apps/web/app/api/tenants/[slug]/route.ts` | Tenant proxy (admin updates with full auth) |
-| `apps/web/app/api/tenants/[slug]/feedback/route.ts` | Feedback proxy (session + userId fallback) |
+| `apps/web/lib/auth.ts` | BetterAuth server config (dynamic origin, passkey, anonymous) |
+| `apps/web/lib/auth-client.ts` | BetterAuth client (plugins, baseURL logic) |
+| `apps/web/lib/session.ts` | Multi-source session resolution |
+| `apps/web/app/api/auth/[...all]/route.ts` | BetterAuth API handler |
 | `apps/web/app/api/auth/otp/send/route.ts` | OTP send (BulkGate SMS) |
-| `apps/web/app/api/auth/otp/verify/route.ts` | OTP verify (manual session creation) |
-| `apps/api/src/chat/chat.gateway.ts` | WebSocket gateway (auth + anonymous, rooms, messages) |
-| `apps/api/src/tenant/tenant.controller.ts` | REST endpoints (JWT + session token dual auth) |
-| `apps/api/src/tenant/tenant.service.ts` | DB queries (tenant, feedback, session resolution) |
-| `apps/api/src/tenant/tenant.interceptor.ts` | Tenant context extraction from headers |
-| `apps/api/src/main.ts` | NestJS bootstrap + CORS config |
-| `packages/database/prisma/schema.prisma` | Database schema (Session, User, TenantMember, Feedback) |
+| `apps/web/app/api/auth/otp/verify/route.ts` | OTP verify (manual session) |
+| `apps/web/app/api/auth/biometric/*` | Biometric setup/login |
+
+### WebSocket
+
+| File | Purpose |
+|------|---------|
+| `apps/api/src/chat/chat.gateway.ts` | Socket.IO gateway (auth, rooms, messages) |
+| `apps/api/src/chat/chat.service.ts` | Message persistence |
+| `apps/api/src/chat/chat.module.ts` | Chat module DI |
+| `apps/web/components/ChatInterface.tsx` | Socket client connection |
+
+### Configuration
+
+| File | Purpose |
+|------|---------|
+| `.env` | Environment variables |
+| `apps/web/config.ts` | URL configuration (SERVER_URL, API_BASE_URL, SOCKET_URL) |
+| `apps/web/next.config.mjs` | Next.js config + rewrites |
+| `apps/web/capacitor.config.ts` | Capacitor mobile config |
+| `apps/api/src/main.ts` | NestJS bootstrap + CORS |
+
+### CORS
+
+| File | Purpose |
+|------|---------|
+| `apps/api/src/main.ts` | NestJS HTTP CORS |
+| `apps/api/src/chat/chat.gateway.ts` | WebSocket CORS (line ~20) |
+| `apps/web/lib/cors.ts` | Next.js API routes CORS |
+
+### API Proxies
+
+| File | Purpose |
+|------|---------|
+| `apps/web/app/api/validate-nas/route.ts` | NAS validation proxy |
+| `apps/web/app/api/tenants/[slug]/route.ts` | Tenant proxy (GET/POST) |
+| `apps/web/app/api/tenants/[slug]/feedback/route.ts` | Feedback proxy |
+| `apps/web/app/api/messages/route.ts` | Messages proxy |
+
+### Database
+
+| File | Purpose |
+|------|---------|
+| `packages/database/prisma/schema.prisma` | Database schema |
+| `packages/database/src/db.ts` | Prisma client |
+
+---
+
+## Appendix: Environment Change Checklist
+
+When moving to a new development machine:
+
+- [ ] Get new machine's local IP
+- [ ] Update `.env`:
+  - [ ] `BETTER_AUTH_URL`
+  - [ ] `NEXT_PUBLIC_SERVER_URL`
+  - [ ] `DATABASE_URL` (if DB on different host)
+- [ ] Verify PostgreSQL is running and accessible
+- [ ] Start servers: `npm run dev`
+- [ ] Test web login at `http://NEW_IP:3000`
+- [ ] Test WebSocket (send a message)
+- [ ] For mobile testing:
+  - [ ] `npm run build:cap`
+  - [ ] `npx cap sync`
+  - [ ] Rebuild native app
+  - [ ] Test on device/simulator

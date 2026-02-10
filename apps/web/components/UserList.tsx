@@ -85,9 +85,13 @@ const UserList: React.FC<UserListProps> = ({ currentUser, users, onStartChat }) 
                                 onClick={() => onStartChat(user)}
                                 className="flex items-center gap-4 p-3 bg-white rounded-xl hover:bg-gray-50 active:bg-gray-100 transition-colors border-b border-gray-50 last:border-0 cursor-pointer group"
                             >
-                                <div className={`w-12 h-12 rounded-full ${getAvatarColor(user.gender)} flex items-center justify-center text-white shrink-0 shadow-sm relative`}>
-                                    <span className="font-bold text-lg uppercase">{user.alias.charAt(0)}</span>
-                                    <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-primary border-2 border-white rounded-full"></div>
+                                <div className={`w-12 h-12 rounded-full ${getAvatarColor(user.gender)} flex items-center justify-center text-white shrink-0 shadow-sm relative overflow-hidden`}>
+                                    {user.image ? (
+                                        <img src={user.image} alt={user.alias} className="w-full h-full object-cover" />
+                                    ) : (
+                                        <span className="font-bold text-lg uppercase">{user.alias.charAt(0)}</span>
+                                    )}
+                                    <div className={`absolute bottom-0 right-0 w-3.5 h-3.5 bg-primary border-2 border-white rounded-full`}></div>
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <h3 className="font-bold text-gray-900 truncate text-base">{user.alias}</h3>

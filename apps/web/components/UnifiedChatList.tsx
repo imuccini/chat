@@ -229,8 +229,12 @@ export function UnifiedChatList({
                                         : 'hover:bg-gray-50 text-gray-900'
                                         }`}
                                 >
-                                    <div className={`w-12 h-12 rounded-full ${getAvatarColor(chat.peer.gender)} flex items-center justify-center text-white shrink-0 mr-3 relative shadow-sm`}>
-                                        <span className="font-bold text-lg uppercase">{chat.peer.alias.charAt(0)}</span>
+                                    <div className={`w-12 h-12 rounded-full ${getAvatarColor(chat.peer.gender)} flex items-center justify-center text-white shrink-0 mr-3 relative shadow-sm overflow-hidden`}>
+                                        {chat.peer.image ? (
+                                            <img src={chat.peer.image} alt={chat.peer.alias} className="w-full h-full object-cover" />
+                                        ) : (
+                                            <span className="font-bold text-lg uppercase">{chat.peer.alias.charAt(0)}</span>
+                                        )}
                                         <div className={`absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-white ${onlineUserIds.includes(chat.peer.id) ? 'bg-primary' : 'bg-red-400'}`} />
                                     </div>
 

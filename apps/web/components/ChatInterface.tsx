@@ -461,6 +461,14 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
         socket.emit('join', { user: updatedUser, tenantSlug: tenant.slug });
     };
 
+    const handleUpdateImage = (newImage: string) => {
+        if (!currentUser || !socket) return;
+        const updatedUser = { ...currentUser, image: newImage };
+        setCurrentUser(updatedUser);
+        localStorage.setItem('chat_user', JSON.stringify(updatedUser));
+        socket.emit('join', { user: updatedUser, tenantSlug: tenant.slug });
+    };
+
     const handleRoomSend = useCallback(async (text: string, imageUrl?: string) => {
         if (!currentUser || !socket || !activeRoomId) return;
         // Use crypto.randomUUID() for cleaner IDs
@@ -626,7 +634,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                                 onLeaveFeedback={() => setIsFeedbackOpen(true)}
                             />
                         )}
-                        {activeTab === 'settings' && <Settings user={currentUser} onLogout={handleLogout} onUpdateAlias={handleUpdateAlias} onUpdateStatus={handleUpdateStatus} tenantId={tenant.id} />}
+                        {activeTab === 'settings' && <Settings user={currentUser} onLogout={handleLogout} onUpdateAlias={handleUpdateAlias} onUpdateStatus={handleUpdateStatus} onUpdateImage={handleUpdateImage} tenantId={tenant.id} />}
                     </div>
 
                     {/* Bottom Nav - Part of Base Layer */}

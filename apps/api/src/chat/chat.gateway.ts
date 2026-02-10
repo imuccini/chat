@@ -190,6 +190,21 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         const userEntry = { user, tenantId: tenant.id, tenantSlug, rooms: [] as string[] };
         this.onlineUsers.set(socket.id, userEntry);
 
+        // PERSISTENCE: Update user profile in DB on join/update
+        try {
+            await this.prisma.user.update({
+                where: { id: user.id },
+                data: {
+                    name: user.alias,
+                    status: (user as any).status || null,
+                    image: (user as any).image || null,
+                },
+            });
+            this.logger.debug(`Persisted profile for user ${user.id} (${user.alias})`);
+        } catch (error: any) {
+            this.logger.error(`Failed to persist profile for user ${user.id}: ${error.message}`);
+        }
+
         // Update socket data for saving messages
         if (socket.data.user) {
             socket.data.user.tenantId = tenant.id;

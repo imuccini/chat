@@ -8,6 +8,7 @@ export interface User {
     alias: string;
     gender: Gender;
     status?: string;
+    image?: string;
     joinedAt?: number;
 }
 
@@ -48,7 +49,7 @@ export interface Tenant {
 
 // ============ Socket Types ============
 export interface SocketData {
-    user: { id: string; alias: string; tenantId?: string | null };
+    user: { id: string; alias: string; status?: string; image?: string; tenantId?: string | null };
     tenantSlug: string;
     rooms: string[];
     isAnonymous?: boolean;
