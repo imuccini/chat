@@ -6,6 +6,7 @@ I have implemented Apple and Google SSO options to the login screen and improved
 
 ### SSO Integration
 - **Social Buttons**: Added Google and Apple sign-in buttons to the login screen.
+- **Native Social Login**: Integrated `@capgo/capacitor-social-login` to provide a truly native login experience on iOS and Android (using native sheets instead of browser redirects).
 - **Platform Intelligence**: 
   - On **iOS**: Shows only Apple ID (as per platform conventions).
   - On **Android/Web**: Shows both Google and Apple ID.

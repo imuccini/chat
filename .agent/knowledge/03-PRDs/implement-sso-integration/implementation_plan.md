@@ -35,6 +35,19 @@ This plan outlines the steps to add Apple and Google SSO options to the login sc
 - **SSO Section Spacing**: Refine the spacing around the SSO buttons and the "oppure" divider to avoid a "cramped" look.
 - **Scrollable Safety**: Ensure that while content is centered, it remains fully scrollable on smaller screens or when the keyboard is active.
 
+### Multi-Platform Google SSO
+
+#### [MODIFY] [.env](file:///Users/ivanmuccini/Desktop/chatapp/chat/.env)
+- Add platform-specific Google Client IDs:
+  - `NEXT_PUBLIC_GOOGLE_CLIENT_ID_WEB`
+  - `NEXT_PUBLIC_GOOGLE_CLIENT_ID_IOS`
+  - `NEXT_PUBLIC_GOOGLE_CLIENT_ID_ANDROID`
+
+#### [MODIFY] [Login.tsx](file:///Users/ivanmuccini/Desktop/chatapp/chat/apps/web/components/Login.tsx)
+- Implement platform-specific Google Client ID selection:
+  - Use `Capacitor.getPlatform()` to choose the correct ID from environment variables.
+  - Pass the selected ID to `SocialLogin.login` options.
+
 ## Verification Plan
 
 ### Automated Tests

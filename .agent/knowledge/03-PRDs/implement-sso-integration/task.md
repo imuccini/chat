@@ -6,6 +6,13 @@
     - [x] Improve keyboard handling and scrolling logic <!-- id: 34 -->
 - [x] Logic Integration <!-- id: 35 -->
     - [x] Implement `handleSocialLogin` in `Login.tsx` <!-- id: 36 -->
+- [x] Multi-Platform Google SSO <!-- id: 60 -->
+    - [x] Update `.env` with platform-specific client IDs <!-- id: 61 -->
+    - [x] Update `Login.tsx` with platform-specific ID selection <!-- id: 62 -->
+- [/] Capacitor Social Login Plugin Integration <!-- id: 50 -->
+    - [x] Install `@capgo/capacitor-social-login` <!-- id: 51 -->
+    - [x] Sync native projects with `npx cap sync` <!-- id: 52 -->
+    - [x] Update `Login.tsx` to use the plugin for native platforms <!-- id: 53 -->
 - [x] Visual Optimization <!-- id: 40 -->
     - [x] Restore vertical balance in `Login.tsx` <!-- id: 41 -->
     - [x] Increase spacing between header and content <!-- id: 42 -->

@@ -8,6 +8,7 @@ import { useKeyboardAnimation } from '@/hooks/useKeyboardAnimation';
 import { BiometricService } from "@/lib/biometrics";
 import { Haptics, NotificationType } from '@capacitor/haptics';
 import { Fingerprint } from "lucide-react";
+import { SocialLogin } from '@capgo/capacitor-social-login';
 import {
   Dialog,
   DialogContent,
@@ -134,10 +135,46 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
     setIsLoading(true);
     setError(null);
     try {
-      await signIn.social({
-        provider,
-        callbackURL: window.location.origin,
-      });
+      if (Capacitor.isNativePlatform()) {
+        const platform = Capacitor.getPlatform();
+        let googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID_WEB || '';
+
+        if (platform === 'ios') {
+          googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID_IOS || '';
+        } else if (platform === 'android') {
+          googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID_ANDROID || '';
+        }
+
+        const result = await SocialLogin.login({
+          provider,
+          options: {
+            google: {
+              webClientId: googleClientId,
+            },
+            apple: {
+              clientId: process.env.NEXT_PUBLIC_APPLE_CLIENT_ID || '',
+              redirectURI: window.location.origin,
+            }
+          }
+        });
+
+        if (result.result) {
+          // Exchange the token with better-auth
+          // better-auth-client usually handles this via signIn.social if configured for "idToken"
+          // but if we are doing it manually:
+          await signIn.social({
+            provider,
+            idToken: result.result.idToken,
+            accessToken: result.result.accessToken,
+            callbackURL: window.location.origin,
+          });
+        }
+      } else {
+        await signIn.social({
+          provider,
+          callbackURL: window.location.origin,
+        });
+      }
     } catch (err: any) {
       setError(err.message || `Errore accesso con ${provider}`);
       setIsLoading(false);
