@@ -189,6 +189,7 @@ exports.Prisma.AccountScalarFieldEnum = {
   accessTokenExpiresAt: 'accessTokenExpiresAt',
   refreshTokenExpiresAt: 'refreshTokenExpiresAt',
   scope: 'scope',
+  idToken: 'idToken',
   password: 'password',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'

@@ -6488,6 +6488,7 @@ export namespace Prisma {
     accessTokenExpiresAt: Date | null
     refreshTokenExpiresAt: Date | null
     scope: string | null
+    idToken: string | null
     password: string | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -6503,6 +6504,7 @@ export namespace Prisma {
     accessTokenExpiresAt: Date | null
     refreshTokenExpiresAt: Date | null
     scope: string | null
+    idToken: string | null
     password: string | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -6518,6 +6520,7 @@ export namespace Prisma {
     accessTokenExpiresAt: number
     refreshTokenExpiresAt: number
     scope: number
+    idToken: number
     password: number
     createdAt: number
     updatedAt: number
@@ -6535,6 +6538,7 @@ export namespace Prisma {
     accessTokenExpiresAt?: true
     refreshTokenExpiresAt?: true
     scope?: true
+    idToken?: true
     password?: true
     createdAt?: true
     updatedAt?: true
@@ -6550,6 +6554,7 @@ export namespace Prisma {
     accessTokenExpiresAt?: true
     refreshTokenExpiresAt?: true
     scope?: true
+    idToken?: true
     password?: true
     createdAt?: true
     updatedAt?: true
@@ -6565,6 +6570,7 @@ export namespace Prisma {
     accessTokenExpiresAt?: true
     refreshTokenExpiresAt?: true
     scope?: true
+    idToken?: true
     password?: true
     createdAt?: true
     updatedAt?: true
@@ -6653,6 +6659,7 @@ export namespace Prisma {
     accessTokenExpiresAt: Date | null
     refreshTokenExpiresAt: Date | null
     scope: string | null
+    idToken: string | null
     password: string | null
     createdAt: Date
     updatedAt: Date
@@ -6685,6 +6692,7 @@ export namespace Prisma {
     accessTokenExpiresAt?: boolean
     refreshTokenExpiresAt?: boolean
     scope?: boolean
+    idToken?: boolean
     password?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -6701,6 +6709,7 @@ export namespace Prisma {
     accessTokenExpiresAt?: boolean
     refreshTokenExpiresAt?: boolean
     scope?: boolean
+    idToken?: boolean
     password?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -6717,6 +6726,7 @@ export namespace Prisma {
     accessTokenExpiresAt?: boolean
     refreshTokenExpiresAt?: boolean
     scope?: boolean
+    idToken?: boolean
     password?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -6744,6 +6754,7 @@ export namespace Prisma {
       accessTokenExpiresAt: Date | null
       refreshTokenExpiresAt: Date | null
       scope: string | null
+      idToken: string | null
       password: string | null
       createdAt: Date
       updatedAt: Date
@@ -7150,6 +7161,7 @@ export namespace Prisma {
     readonly accessTokenExpiresAt: FieldRef<"Account", 'DateTime'>
     readonly refreshTokenExpiresAt: FieldRef<"Account", 'DateTime'>
     readonly scope: FieldRef<"Account", 'String'>
+    readonly idToken: FieldRef<"Account", 'String'>
     readonly password: FieldRef<"Account", 'String'>
     readonly createdAt: FieldRef<"Account", 'DateTime'>
     readonly updatedAt: FieldRef<"Account", 'DateTime'>
@@ -15386,6 +15398,7 @@ export namespace Prisma {
     accessTokenExpiresAt: 'accessTokenExpiresAt',
     refreshTokenExpiresAt: 'refreshTokenExpiresAt',
     scope: 'scope',
+    idToken: 'idToken',
     password: 'password',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
@@ -16056,6 +16069,7 @@ export namespace Prisma {
     accessTokenExpiresAt?: DateTimeNullableFilter<"Account"> | Date | string | null
     refreshTokenExpiresAt?: DateTimeNullableFilter<"Account"> | Date | string | null
     scope?: StringNullableFilter<"Account"> | string | null
+    idToken?: StringNullableFilter<"Account"> | string | null
     password?: StringNullableFilter<"Account"> | string | null
     createdAt?: DateTimeFilter<"Account"> | Date | string
     updatedAt?: DateTimeFilter<"Account"> | Date | string
@@ -16072,6 +16086,7 @@ export namespace Prisma {
     accessTokenExpiresAt?: SortOrderInput | SortOrder
     refreshTokenExpiresAt?: SortOrderInput | SortOrder
     scope?: SortOrderInput | SortOrder
+    idToken?: SortOrderInput | SortOrder
     password?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -16091,6 +16106,7 @@ export namespace Prisma {
     accessTokenExpiresAt?: DateTimeNullableFilter<"Account"> | Date | string | null
     refreshTokenExpiresAt?: DateTimeNullableFilter<"Account"> | Date | string | null
     scope?: StringNullableFilter<"Account"> | string | null
+    idToken?: StringNullableFilter<"Account"> | string | null
     password?: StringNullableFilter<"Account"> | string | null
     createdAt?: DateTimeFilter<"Account"> | Date | string
     updatedAt?: DateTimeFilter<"Account"> | Date | string
@@ -16107,6 +16123,7 @@ export namespace Prisma {
     accessTokenExpiresAt?: SortOrderInput | SortOrder
     refreshTokenExpiresAt?: SortOrderInput | SortOrder
     scope?: SortOrderInput | SortOrder
+    idToken?: SortOrderInput | SortOrder
     password?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -16128,6 +16145,7 @@ export namespace Prisma {
     accessTokenExpiresAt?: DateTimeNullableWithAggregatesFilter<"Account"> | Date | string | null
     refreshTokenExpiresAt?: DateTimeNullableWithAggregatesFilter<"Account"> | Date | string | null
     scope?: StringNullableWithAggregatesFilter<"Account"> | string | null
+    idToken?: StringNullableWithAggregatesFilter<"Account"> | string | null
     password?: StringNullableWithAggregatesFilter<"Account"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Account"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Account"> | Date | string
@@ -17148,6 +17166,7 @@ export namespace Prisma {
     accessTokenExpiresAt?: Date | string | null
     refreshTokenExpiresAt?: Date | string | null
     scope?: string | null
+    idToken?: string | null
     password?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -17164,6 +17183,7 @@ export namespace Prisma {
     accessTokenExpiresAt?: Date | string | null
     refreshTokenExpiresAt?: Date | string | null
     scope?: string | null
+    idToken?: string | null
     password?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -17178,6 +17198,7 @@ export namespace Prisma {
     accessTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     refreshTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     scope?: NullableStringFieldUpdateOperationsInput | string | null
+    idToken?: NullableStringFieldUpdateOperationsInput | string | null
     password?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -17194,6 +17215,7 @@ export namespace Prisma {
     accessTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     refreshTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     scope?: NullableStringFieldUpdateOperationsInput | string | null
+    idToken?: NullableStringFieldUpdateOperationsInput | string | null
     password?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -17209,6 +17231,7 @@ export namespace Prisma {
     accessTokenExpiresAt?: Date | string | null
     refreshTokenExpiresAt?: Date | string | null
     scope?: string | null
+    idToken?: string | null
     password?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -17223,6 +17246,7 @@ export namespace Prisma {
     accessTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     refreshTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     scope?: NullableStringFieldUpdateOperationsInput | string | null
+    idToken?: NullableStringFieldUpdateOperationsInput | string | null
     password?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -17238,6 +17262,7 @@ export namespace Prisma {
     accessTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     refreshTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     scope?: NullableStringFieldUpdateOperationsInput | string | null
+    idToken?: NullableStringFieldUpdateOperationsInput | string | null
     password?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -18347,6 +18372,7 @@ export namespace Prisma {
     accessTokenExpiresAt?: SortOrder
     refreshTokenExpiresAt?: SortOrder
     scope?: SortOrder
+    idToken?: SortOrder
     password?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -18362,6 +18388,7 @@ export namespace Prisma {
     accessTokenExpiresAt?: SortOrder
     refreshTokenExpiresAt?: SortOrder
     scope?: SortOrder
+    idToken?: SortOrder
     password?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -18377,6 +18404,7 @@ export namespace Prisma {
     accessTokenExpiresAt?: SortOrder
     refreshTokenExpiresAt?: SortOrder
     scope?: SortOrder
+    idToken?: SortOrder
     password?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -20411,6 +20439,7 @@ export namespace Prisma {
     accessTokenExpiresAt?: Date | string | null
     refreshTokenExpiresAt?: Date | string | null
     scope?: string | null
+    idToken?: string | null
     password?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -20425,6 +20454,7 @@ export namespace Prisma {
     accessTokenExpiresAt?: Date | string | null
     refreshTokenExpiresAt?: Date | string | null
     scope?: string | null
+    idToken?: string | null
     password?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -20639,6 +20669,7 @@ export namespace Prisma {
     accessTokenExpiresAt?: DateTimeNullableFilter<"Account"> | Date | string | null
     refreshTokenExpiresAt?: DateTimeNullableFilter<"Account"> | Date | string | null
     scope?: StringNullableFilter<"Account"> | string | null
+    idToken?: StringNullableFilter<"Account"> | string | null
     password?: StringNullableFilter<"Account"> | string | null
     createdAt?: DateTimeFilter<"Account"> | Date | string
     updatedAt?: DateTimeFilter<"Account"> | Date | string
@@ -22365,6 +22396,7 @@ export namespace Prisma {
     accessTokenExpiresAt?: Date | string | null
     refreshTokenExpiresAt?: Date | string | null
     scope?: string | null
+    idToken?: string | null
     password?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -22484,6 +22516,7 @@ export namespace Prisma {
     accessTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     refreshTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     scope?: NullableStringFieldUpdateOperationsInput | string | null
+    idToken?: NullableStringFieldUpdateOperationsInput | string | null
     password?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -22498,6 +22531,7 @@ export namespace Prisma {
     accessTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     refreshTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     scope?: NullableStringFieldUpdateOperationsInput | string | null
+    idToken?: NullableStringFieldUpdateOperationsInput | string | null
     password?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -22512,6 +22546,7 @@ export namespace Prisma {
     accessTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     refreshTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     scope?: NullableStringFieldUpdateOperationsInput | string | null
+    idToken?: NullableStringFieldUpdateOperationsInput | string | null
     password?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string

@@ -23,28 +23,50 @@ export const GET = async (req: Request) => {
     const origin = getOrigin(req);
     const requestOrigin = req.headers.get('origin');
     const auth = getAuth(origin);
-    const response = await auth.handler(req);
 
-    // Add CORS headers to the response
-    const corsHeaders = getCorsHeaders(requestOrigin);
-    Object.entries(corsHeaders).forEach(([key, value]) => {
-        response.headers.set(key, value);
-    });
+    try {
+        const response = await auth.handler(req);
 
-    return response;
+        // Add CORS headers to the response
+        const corsHeaders = getCorsHeaders(requestOrigin);
+        Object.entries(corsHeaders).forEach(([key, value]) => {
+            response.headers.set(key, value);
+        });
+
+        return response;
+    } catch (error: any) {
+        console.error('[Auth GET] Error:', error);
+        console.error('[Auth GET] Error message:', error?.message);
+        console.error('[Auth GET] Error stack:', error?.stack);
+        return NextResponse.json(
+            { error: error?.message || 'Authentication failed' },
+            { status: 500 }
+        );
+    }
 };
 
 export const POST = async (req: Request) => {
     const origin = getOrigin(req);
     const requestOrigin = req.headers.get('origin');
     const auth = getAuth(origin);
-    const response = await auth.handler(req);
 
-    // Add CORS headers to the response
-    const corsHeaders = getCorsHeaders(requestOrigin);
-    Object.entries(corsHeaders).forEach(([key, value]) => {
-        response.headers.set(key, value);
-    });
+    try {
+        const response = await auth.handler(req);
 
-    return response;
+        // Add CORS headers to the response
+        const corsHeaders = getCorsHeaders(requestOrigin);
+        Object.entries(corsHeaders).forEach(([key, value]) => {
+            response.headers.set(key, value);
+        });
+
+        return response;
+    } catch (error: any) {
+        console.error('[Auth POST] Error:', error);
+        console.error('[Auth POST] Error message:', error?.message);
+        console.error('[Auth POST] Error stack:', error?.stack);
+        return NextResponse.json(
+            { error: error?.message || 'Authentication failed' },
+            { status: 500 }
+        );
+    }
 };

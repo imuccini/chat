@@ -101,6 +101,7 @@ model Account {
   accessTokenExpiresAt  DateTime?
   refreshTokenExpiresAt DateTime?
   scope                 String?
+  idToken               String?   // Required for OAuth (stores Google/Apple ID token)
   password              String?
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
