@@ -6,6 +6,7 @@ import { Button } from './ui/button';
 import { Star, MessageSquare, Calendar, User as UserIcon, CheckCircle2, XCircle } from 'lucide-react';
 import { clientSubmitFeedback, clientGetFeedback } from '@/services/apiService';
 import { Textarea } from '@/components/ui/textarea';
+import { useKeyboardAnimation } from '@/hooks/useKeyboardAnimation';
 import {
     Dialog,
     DialogContent,
@@ -36,6 +37,7 @@ export const LocalFeedbackOverlay: React.FC<LocalFeedbackOverlayProps> = ({
     const [isLoading, setIsLoading] = useState(false);
     const [resultDialog, setResultDialog] = useState<{ open: boolean; success: boolean }>({ open: false, success: false });
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const { contentStyle } = useKeyboardAnimation();
 
     const handleFocus = () => {
         // Small delay to allow keyboard to start sliding up
@@ -120,7 +122,10 @@ export const LocalFeedbackOverlay: React.FC<LocalFeedbackOverlayProps> = ({
             </header>
 
             {/* Content Area */}
-            <div className="flex-1 overflow-auto p-4">
+            <div
+                className="flex-1 overflow-auto p-4"
+                style={contentStyle}
+            >
                 {view === 'submit' ? (
                     <div className="max-w-md mx-auto space-y-8 py-4">
                         <div className="text-center space-y-2">

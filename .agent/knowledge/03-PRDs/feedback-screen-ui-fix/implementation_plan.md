@@ -8,9 +8,10 @@ The goal is to ensure that the feedback comment text area is visible and centere
 
 #### [MODIFY] [LocalFeedbackOverlay.tsx](file:///Users/ivanmuccini/Desktop/chatapp/chat/apps/web/components/LocalFeedbackOverlay.tsx)
 
-- Implement a focus handler for the `Textarea` component.
-- The handler will use `scrollIntoView({ behavior: 'smooth', block: 'center' })` after a short delay (e.g., 300ms) to allow the keyboard to slide up first.
-- Ensure the container is scrollable.
+- Import and use the `useKeyboardAnimation()` hook.
+- Apply the `contentStyle` provided by the hook to the main content area of the overlay.
+- Keep the `scrollIntoView` centered logic as a secondary measure to ensure the textarea itself is well-positioned within the pushed-up area.
+- Remove the `overflow-hidden` from the outer container if it prevents the transform from working correctly (though `useKeyboardAnimation` is designed to work with it).
 
 ## Verification Plan
 

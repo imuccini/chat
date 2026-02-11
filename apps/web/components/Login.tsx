@@ -84,11 +84,8 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
   // Check Biometrics on Mount
   useEffect(() => {
     const checkBio = async () => {
-      console.log("[Login] Checking biometrics on mount...");
       const available = await BiometricService.isAvailable();
       const enabled = BiometricService.isEnabled();
-      console.log("[Login] Biometrics available:", available);
-      console.log("[Login] Biometrics enabled:", enabled);
       setIsBiometricsAvailable(available);
       setIsBiometricsEnabled(enabled);
     };
@@ -128,45 +125,32 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
   };
 
   const handleBiometricSetup = async () => {
-    console.log("[Login] handleBiometricSetup called!");
-    console.log("[Login] pendingUser:", JSON.stringify(pendingUser));
-    console.log("[Login] pendingSessionToken:", pendingSessionToken ? 'YES' : 'NO');
-
     // Support both phone-based and email-based users (social login)
     const identifier = pendingUser?.phoneNumber || pendingUser?.email;
-    console.log("[Login] Using identifier:", identifier);
 
     if (!identifier) {
-      console.error("[Login] No identifier (phone or email) for biometric setup - ABORTING");
       setShowBiometricPrompt(false);
       if (pendingUser) onLogin(pendingUser);
       return;
     }
 
     try {
-      console.log("[Login] Calling BiometricService.setup...");
       // Pass session token for native apps where cookies don't work
       const success = await BiometricService.setup(
         identifier,
         pendingSessionToken || undefined
       );
-      console.log("[Login] BiometricService.setup returned:", success);
 
       if (success) {
-        console.log("[Login] Setup SUCCESS - triggering haptic feedback");
         await Haptics.notification({ type: NotificationType.Success });
-        // Update state so UI knows biometrics are now enabled
         setIsBiometricsEnabled(true);
-      } else {
-        console.error("[Login] Biometric setup returned false - FAILED");
       }
     } catch (e) {
-      console.error("[Login] Biometric setup exception:", e);
+      console.error('[Login] Biometric setup failed:', e);
     } finally {
       // Always proceed to login, don't block user
-      console.log("[Login] Proceeding to login after biometric setup attempt");
       setShowBiometricPrompt(false);
-      setPendingSessionToken(null); // Clear the token
+      setPendingSessionToken(null);
       onLogin(pendingUser);
     }
   };
@@ -190,29 +174,20 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
           options: {}
         });
 
-        console.log(`[SocialLogin] Result for ${provider}:`, JSON.stringify(result));
-
         if (result.result) {
-          // Cast to any to access properties safely and avoid lint errors
           const authData = result.result as any;
-          const idToken = authData.idToken || authData.id_token; // Try both formats just in case
+          const idToken = authData.idToken || authData.id_token;
           const accessToken = authData.accessToken || authData.access_token;
 
-          console.log(`[SocialLogin] Tokens found - idToken: ${idToken ? 'YES' : 'NO'}, accessToken: ${accessToken ? 'YES' : 'NO'}`);
-
           if (!idToken) {
-            console.error("[SocialLogin] Missing idToken! Verification will likely fail.");
-            setError("Errore: token di autenticazione mancante da Google");
+            setError("Errore: token di autenticazione mancante");
             setIsLoading(false);
             return;
           }
 
           try {
-            // Use our custom native social login endpoint that properly handles the token format
+            // Use custom native social login endpoint
             const url = `${SERVER_URL}/api/auth/social/native`;
-            console.log(`[SocialLogin] Calling native endpoint: ${url}`);
-
-            // Extract profile data from the result
             const profile = authData.profile || {};
 
             const response = await fetch(url, {
@@ -232,7 +207,6 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
             });
 
             const data = await response.json();
-            console.log(`[SocialLogin] Native endpoint response:`, JSON.stringify(data));
 
             if (!response.ok) {
               throw new Error(data.error || 'Social login failed');
@@ -266,7 +240,6 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
               throw new Error('Invalid response from server');
             }
           } catch (signInErr: any) {
-            console.error(`[SocialLogin] Native endpoint error:`, signInErr);
             throw signInErr;
           }
         } else {
