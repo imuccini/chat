@@ -299,6 +299,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         if (targetTenantId) {
             this.logger.log(`[handleMessage] Saving message to DB for tenant ${targetTenantId}`);
             await this.chatService.saveMessage(message, targetTenantId);
+
+            // Task 1: Re-open conversation if it was hidden
+            if (message.recipientId) {
+                await this.chatService.unhideConversation(message.recipientId, message.senderId, targetTenantId);
+                // Also unhide for sender if they had it hidden
+                await this.chatService.unhideConversation(message.senderId, message.recipientId, targetTenantId);
+            }
         } else {
             this.logger.warn(`[handleMessage] No tenantId found in socket.data or userData, message not saved to DB`);
         }

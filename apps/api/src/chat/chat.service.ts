@@ -168,4 +168,23 @@ export class ChatService {
             return false;
         }
     }
+
+    /**
+     * Unhide a private conversation for a user
+     */
+    async unhideConversation(userId: string, peerId: string, tenantId: string): Promise<boolean> {
+        try {
+            await this.prisma.hiddenConversation.deleteMany({
+                where: {
+                    userId,
+                    peerId,
+                    tenantId,
+                },
+            });
+            return true;
+        } catch (error) {
+            this.logger.error(`Failed to unhide conversation for user ${userId} and peer ${peerId}: ${error.message}`);
+            return false;
+        }
+    }
 }

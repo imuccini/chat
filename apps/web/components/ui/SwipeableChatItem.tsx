@@ -92,11 +92,10 @@ export const SwipeableChatItem: React.FC<SwipeableChatItemProps> = ({
         <div ref={containerRef} className="relative overflow-hidden rounded-xl bg-gray-50 dark:bg-gray-800 my-1 group">
             {/* Background Underlay (Revealed during swipe) */}
             <div
-                className="absolute inset-0 bg-gradient-to-r from-red-500 to-red-600 flex items-center justify-end px-6 z-0"
-                style={{ direction: 'rtl' }}
+                className="absolute inset-0 bg-red-500 dark:bg-red-600 flex items-center justify-end px-6 z-0"
             >
                 <div className="flex items-center gap-2 text-white">
-                    <Trash2 size={24} />
+                    <Trash2 size={22} className="shrink-0" />
                     <span className="text-xs font-bold uppercase tracking-wider">Elimina</span>
                 </div>
             </div>

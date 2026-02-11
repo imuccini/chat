@@ -21,6 +21,7 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
     get passkey() { return prisma.passkey; }
     get nasDevice() { return prisma.nasDevice; }
     get systemLog() { return prisma.systemLog; }
+    get hiddenConversation() { return prisma.hiddenConversation; }
 
     async onModuleInit() {
         fs.appendFileSync('trace.log', `[PrismaService] onModuleInit. prisma instance: ${typeof prisma}\n`);
