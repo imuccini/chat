@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { User } from '@/types';
 import { useMembership } from '@/hooks/useMembership';
-import { ShieldCheck, ShieldAlert, Camera, User as UserIcon } from 'lucide-react';
+import { ShieldCheck, ShieldAlert, Camera, User as UserIcon, Mail, Phone, CheckCircle2, UserCircle2 } from 'lucide-react';
 
 interface SettingsProps {
     user: User;
@@ -93,18 +93,33 @@ const Settings: React.FC<SettingsProps> = ({ user, onLogout, onUpdateAlias, onUp
                             </button>
                         </div>
 
+                        {/* Session Type Indicator */}
+                        <div className="mt-2">
+                            {user.isAnonymous ? (
+                                <div className="flex items-center gap-1.5 px-3 py-1 bg-gray-100 text-gray-600 rounded-full border border-gray-200">
+                                    <UserCircle2 size={14} />
+                                    <span className="text-[10px] font-bold uppercase tracking-widest">Sessione Temporanea</span>
+                                </div>
+                            ) : (
+                                <div className="flex items-center gap-1.5 px-3 py-1 bg-green-50 text-green-700 rounded-full border border-green-100">
+                                    <CheckCircle2 size={14} className="fill-green-50" />
+                                    <span className="text-[10px] font-bold uppercase tracking-widest">Utente Verificato</span>
+                                </div>
+                            )}
+                        </div>
+
                         {/* Role Badges */}
-                        <div className="flex flex-wrap gap-2 px-4 justify-center">
+                        <div className="flex flex-wrap gap-2 px-4 mt-3 justify-center">
                             {isAdmin && (
                                 <div className="flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-700 rounded-full border border-blue-100 shadow-sm animate-in fade-in slide-in-from-top-2 duration-500">
                                     <ShieldCheck size={14} className="fill-blue-100" />
-                                    <span className="text-xs font-bold uppercase tracking-wider">Admin</span>
+                                    <span className="text-[10px] font-bold uppercase tracking-widest">Admin</span>
                                 </div>
                             )}
                             {isModerator && (
                                 <div className="flex items-center gap-1.5 px-3 py-1 bg-purple-50 text-purple-700 rounded-full border border-purple-100 shadow-sm animate-in fade-in slide-in-from-top-2 duration-500">
                                     <ShieldAlert size={14} className="fill-purple-100" />
-                                    <span className="text-xs font-bold uppercase tracking-wider">Moderatore</span>
+                                    <span className="text-[10px] font-bold uppercase tracking-widest">Moderatore</span>
                                 </div>
                             )}
                         </div>
@@ -145,50 +160,69 @@ const Settings: React.FC<SettingsProps> = ({ user, onLogout, onUpdateAlias, onUp
                             </div>
                         </div>
 
-                        {/* Name Section */}
+                        {/* Account Section */}
                         <div>
-                            <h3 className="px-4 mb-2 text-xs font-medium text-gray-500 uppercase tracking-wider">Alias</h3>
-                            <div className="bg-white border-y border-gray-100">
+                            <h3 className="px-4 mb-2 text-xs font-medium text-gray-500 uppercase tracking-wider">Informazioni Account</h3>
+                            <div className="bg-white border-y border-gray-100 divide-y divide-gray-50">
+                                {/* Alias Item */}
                                 <button
                                     onClick={() => setIsEditingAlias(true)}
                                     className="w-full px-4 py-3.5 flex items-center justify-between hover:bg-gray-50 transition-colors"
                                 >
-                                    <div className="flex flex-col items-start">
-                                        {isEditingAlias ? (
-                                            <input
-                                                type="text"
-                                                value={newAlias}
-                                                onChange={(e) => setNewAlias(e.target.value)}
-                                                onBlur={handleSaveAlias}
-                                                onKeyDown={(e) => e.key === 'Enter' && handleSaveAlias()}
-                                                maxLength={20}
-                                                className="text-[17px] text-gray-900 focus:outline-none w-full bg-transparent"
-                                                autoFocus
-                                            />
-                                        ) : (
-                                            <span className="text-[17px] text-gray-900">
-                                                {user.alias || (user as any).name || 'User'}
-                                            </span>
-                                        )}
+                                    <div className="flex items-center gap-3">
+                                        <UserIcon size={20} className="text-gray-400" />
+                                        <div className="flex flex-col items-start">
+                                            <span className="text-xs text-gray-400">Nome o Alias</span>
+                                            {isEditingAlias ? (
+                                                <input
+                                                    type="text"
+                                                    value={newAlias}
+                                                    onChange={(e) => setNewAlias(e.target.value)}
+                                                    onBlur={handleSaveAlias}
+                                                    onKeyDown={(e) => e.key === 'Enter' && handleSaveAlias()}
+                                                    maxLength={20}
+                                                    className="text-[17px] text-gray-900 focus:outline-none w-full bg-transparent"
+                                                    autoFocus
+                                                />
+                                            ) : (
+                                                <span className="text-[17px] text-gray-900">
+                                                    {user.alias || (user as any).name || 'User'}
+                                                </span>
+                                            )}
+                                        </div>
                                     </div>
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-300 shrink-0 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5l7 7-7 7" />
                                     </svg>
                                 </button>
-                            </div>
-                        </div>
 
-                        {/* Account Info Section */}
-                        <div>
-                            <h3 className="px-4 mb-2 text-xs font-medium text-gray-500 uppercase tracking-wider">Informazioni</h3>
-                            <div className="bg-white border-y border-gray-100 divide-y divide-gray-50">
-                                <div className="px-4 py-3.5 flex items-center justify-between">
-                                    <span className="text-[17px] text-gray-400">Sesso</span>
-                                    <span className="text-[17px] text-gray-900 capitalize">{genderLabels[user.gender] || user.gender}</span>
+                                {/* Phone Item */}
+                                <div className="px-4 py-3.5 flex items-center gap-3">
+                                    <Phone size={20} className="text-gray-400" />
+                                    <div className="flex flex-col">
+                                        <span className="text-xs text-gray-400">Telefono</span>
+                                        <span className="text-[17px] text-gray-900">{user.phoneNumber || 'Non collegato'}</span>
+                                    </div>
                                 </div>
-                                <div className="px-4 py-3.5 flex items-center justify-between">
-                                    <span className="text-[17px] text-gray-400">User ID</span>
-                                    <span className="text-xs font-mono text-gray-400 uppercase tracking-wider">{user.id}</span>
+
+                                {/* Email Item */}
+                                {!user.isAnonymous && (
+                                    <div className="px-4 py-3.5 flex items-center gap-3">
+                                        <Mail size={20} className="text-gray-400" />
+                                        <div className="flex flex-col">
+                                            <span className="text-xs text-gray-400">Email</span>
+                                            <span className="text-[17px] text-gray-900">{user.email || 'Non collegata'}</span>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Gender Item */}
+                                <div className="px-4 py-3.5 flex items-center gap-3">
+                                    <UserIcon size={20} className="text-gray-400" />
+                                    <div className="flex flex-col">
+                                        <span className="text-xs text-gray-400">Sesso</span>
+                                        <span className="text-[17px] text-gray-900 capitalize">{genderLabels[user.gender] || user.gender}</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>

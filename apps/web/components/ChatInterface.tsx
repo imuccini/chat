@@ -152,6 +152,8 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                     gender: (session.user as any).gender || "other",
                     status: (session.user as any).status || "",
                     phoneNumber: (session.user as any).phoneNumber,
+                    email: session.user.email,
+                    isAnonymous: (session.user as any).isAnonymous,
                     joinedAt: new Date(session.user.createdAt).getTime()
                 };
 
@@ -186,6 +188,8 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                         gender: data.user.gender || "other",
                         status: data.user.status || "",
                         phoneNumber: data.user.phoneNumber,
+                        email: data.user.email,
+                        isAnonymous: data.user.isAnonymous,
                         joinedAt: new Date(data.user.createdAt).getTime()
                     };
                     setCurrentUser(authUser);

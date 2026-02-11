@@ -7,6 +7,8 @@ export interface User {
   status?: string; // Short status text (e.g. "In viaggio", "Disponibile")
   image?: string; // Base64 or URL
   phoneNumber?: string; // For account recovery
+  email?: string; // For registered users
+  isAnonymous?: boolean; // To distinguish session types
   joinedAt?: number;
 }
 
