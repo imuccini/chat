@@ -130,6 +130,20 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
     }
   };
 
+  const handleSocialLogin = async (provider: 'google' | 'apple') => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      await signIn.social({
+        provider,
+        callbackURL: window.location.origin,
+      });
+    } catch (err: any) {
+      setError(err.message || `Errore accesso con ${provider}`);
+      setIsLoading(false);
+    }
+  };
+
   const handlePhoneSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -495,7 +509,7 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
 
   return (
     <div
-      className="bg-white px-6 pb-6 pt-[calc(1.5rem+env(safe-area-inset-top))] sm:p-8 w-full h-full sm:h-auto sm:max-w-md sm:rounded-2xl sm:shadow-xl sm:border border-gray-100 flex flex-col min-h-screen sm:min-h-[600px] justify-between overflow-y-auto"
+      className="bg-white px-6 pb-6 pt-[calc(1.5rem+env(safe-area-inset-top))] sm:p-8 w-full h-full sm:h-auto sm:max-w-md sm:rounded-2xl sm:shadow-xl sm:border border-gray-100 flex flex-col min-h-screen sm:min-h-[600px] justify-between"
       style={{ paddingBottom: `${keyboardHeight > 0 ? keyboardHeight + 24 : 24}px` }}
     >
       <div className={`flex flex-col items-center transition-all duration-500 ${view === 'choice' || view === 'continue' ? 'mt-4 mb-2' : 'mt-2 mb-2'}`}>
@@ -525,7 +539,7 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
         )}
       </div>
 
-      <div className="flex-1 flex flex-col justify-center py-12">
+      <div className="flex-1 flex flex-col overflow-y-auto">
 
         {view === 'choice' && (
           <div className="space-y-4">
@@ -655,50 +669,89 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
         )}
 
         {view === 'phone_input' && (
-          <form onSubmit={handlePhoneSubmit} className="space-y-6">
+          <div className="space-y-6">
             <div className="text-center mb-6">
               <h2 className="text-xl font-bold text-gray-800">Accedi</h2>
-              <p className="text-sm text-gray-500">Inserisci il tuo numero per accedere al profilo</p>
+              <p className="text-sm text-gray-500">Scegli un metodo per accedere o registrarti</p>
             </div>
 
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Numero di Telefono</label>
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-medium select-none pointer-events-none">🇮🇹 +39</span>
-                <input
-                  type="tel"
-                  required
-                  autoFocus
-                  value={phone}
-                  onChange={(e) => {
-                    // Allow only numbers
-                    const val = e.target.value.replace(/\D/g, '');
-                    setPhone(val);
-                  }}
+            {/* SSO Section */}
+            <div className="flex gap-3">
+              {(Capacitor.getPlatform() === 'android' || !Capacitor.isNativePlatform()) && (
+                <button
+                  type="button"
+                  onClick={() => handleSocialLogin('google')}
                   disabled={isLoading}
-                  placeholder="333 1234567"
-                  className="w-full pl-20 pr-4 py-3 rounded-xl focus:outline-none text-gray-800 font-medium tracking-wide disabled:bg-gray-50 disabled:text-gray-400"
-                  style={{ fontSize: '18px' }}
-                />
-              </div>
+                  className="flex-1 flex items-center justify-center gap-2 py-3.5 px-4 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all font-bold text-gray-700 shadow-sm active:scale-95 disabled:opacity-50"
+                >
+                  <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />
+                  <span>Google</span>
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => handleSocialLogin('apple')}
+                disabled={isLoading}
+                className="flex-1 flex items-center justify-center gap-2 py-3.5 px-4 bg-black text-white rounded-xl hover:bg-gray-900 transition-all font-bold shadow-sm active:scale-95 disabled:opacity-50"
+              >
+                <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg" alt="Apple" className="w-5 h-5 invert" />
+                <span>Apple ID</span>
+              </button>
             </div>
 
-            <button
-              type="submit"
-              disabled={phone.length < 9 || isLoading}
-              className="w-full bg-primary hover:bg-primary/90 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2"
-            >
-              {isLoading ? (
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" />
-              ) : (
-                <span>Invia Codice Verifica</span>
-              )}
-            </button>
+            {/* Divider */}
+            <div className="relative flex items-center py-2">
+              <div className="flex-grow border-t border-gray-100"></div>
+              <span className="flex-shrink mx-4 text-gray-400 text-[10px] font-bold uppercase tracking-widest">oppure</span>
+              <div className="flex-grow border-t border-gray-100"></div>
+            </div>
 
-            <button type="button" onClick={() => setView('choice')} className="w-full text-gray-400 text-sm flex items-center justify-center gap-1 hover:text-gray-600 mt-4">
-              ← Torna indietro
-            </button>
-          </form>
+            <form onSubmit={handlePhoneSubmit} className="space-y-6">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Numero di Telefono</label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-medium select-none pointer-events-none">🇮🇹 +39</span>
+                  <input
+                    type="tel"
+                    required
+                    autoFocus
+                    value={phone}
+                    onFocus={(e) => {
+                      // Scroll to top of the scrollable container when focused
+                      setTimeout(() => {
+                        e.target.closest('.overflow-y-auto')?.scrollTo({ top: 0, behavior: 'smooth' });
+                      }, 300);
+                    }}
+                    onChange={(e) => {
+                      // Allow only numbers
+                      const val = e.target.value.replace(/\D/g, '');
+                      setPhone(val);
+                    }}
+                    disabled={isLoading}
+                    placeholder="333 1234567"
+                    className="w-full pl-20 pr-4 py-3 rounded-xl focus:outline-none text-gray-800 font-medium tracking-wide disabled:bg-gray-50 disabled:text-gray-400 border border-transparent focus:border-primary/20"
+                    style={{ fontSize: '18px' }}
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={phone.length < 9 || isLoading}
+                className="w-full bg-primary hover:bg-primary/90 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2"
+              >
+                {isLoading ? (
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" />
+                ) : (
+                  <span>Invia Codice Verifica</span>
+                )}
+              </button>
+
+              <button type="button" onClick={() => setView('choice')} className="w-full text-gray-400 text-sm flex items-center justify-center gap-1 hover:text-gray-600 mt-4">
+                ← Torna indietro
+              </button>
+            </form>
+          </div>
         )}
 
         {view === 'otp_verification' && (

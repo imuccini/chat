@@ -13,6 +13,7 @@ import { SearchSpacesScreen } from "@/components/SearchSpacesScreen";
 import { AutoConnectScreen } from "@/components/AutoConnectScreen";
 import { OnboardingScreen } from "@/components/OnboardingScreen";
 import { Wifi, MapPin, ChevronRight, BellRing, Sparkles } from "lucide-react";
+import { HowItWorks } from "@/components/HowItWorks";
 
 type InitState = 'loading' | 'permission_denied' | 'wifi_disconnected' | 'tenant_not_found' | 'error';
 
@@ -25,6 +26,7 @@ function HomeContent() {
     const [showMap, setShowMap] = useState(false);
     const [showAutoConnect, setShowAutoConnect] = useState(false);
     const [showOnboarding, setShowOnboarding] = useState<boolean | null>(null);
+    const [showHowItWorks, setShowHowItWorks] = useState(false);
 
     // Track if we've already tried to connect to WiFi in this session to avoid loop hangs
     const [hasAttemptedWifi, setHasAttemptedWifi] = useState(false);
@@ -198,6 +200,10 @@ function HomeContent() {
         return <AutoConnectScreen onBack={() => setShowAutoConnect(false)} />;
     }
 
+    if (showHowItWorks) {
+        return <HowItWorks onBack={() => setShowHowItWorks(false)} />;
+    }
+
     // Error states (Instruction Screen)
     return (
         <div className="h-screen w-full flex flex-col bg-white overflow-hidden pb-safe">
@@ -209,7 +215,13 @@ function HomeContent() {
                     Sei quasi dei nostri!
                 </h1>
                 <p className="text-gray-500 font-medium max-w-[280px] mb-8">
-                    Per entrare in Local devi trovarti in uno degli spazi aderenti.
+                    Per entrare in Local devi trovarti in uno degli spazi aderenti.{" "}
+                    <button
+                        onClick={() => setShowHowItWorks(true)}
+                        className="text-primary font-bold hover:underline"
+                    >
+                        Scopri come funziona
+                    </button>
                 </p>
 
                 {/* Instruction Card */}
