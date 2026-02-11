@@ -149,17 +149,38 @@ export const BiometricService = {
             // Step 3: Call Backend Login
             const url = Capacitor.isNativePlatform() ? `${SERVER_URL}/api/auth/biometric/login` : '/api/auth/biometric/login';
 
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
-                body: JSON.stringify({ token, identifier })
-            });
+            let response: Response;
+            try {
+                response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ token, identifier })
+                });
+            } catch (fetchError: any) {
+                console.error('[Biometrics] Network error:', fetchError);
+                return { success: false, error: 'Network error: ' + (fetchError?.message || 'Connection failed') };
+            }
 
-            const data = await response.json();
+            let data: any;
+            try {
+                data = await response.json();
+            } catch (jsonError) {
+                console.error('[Biometrics] Invalid response:', response.status);
+                return { success: false, error: 'Server returned invalid response' };
+            }
 
             if (!response.ok) {
-                return { success: false, error: data.error || 'Server validation failed' };
+                const errorMsg = data?.error || `Server error (${response.status})`;
+                console.error('[Biometrics] Server rejected login:', errorMsg);
+
+                // If token is invalid, clear stored credentials so user can re-setup
+                if (response.status === 401) {
+                    console.log('[Biometrics] Token invalid, clearing stored credentials');
+                    await BiometricService.clear();
+                }
+
+                return { success: false, error: errorMsg };
             }
 
             return {
@@ -169,8 +190,8 @@ export const BiometricService = {
             };
 
         } catch (error: any) {
-            console.error('[Biometrics] Authentication failed', error);
-            return { success: false, error: error.message };
+            console.error('[Biometrics] Authentication failed:', error?.message || error);
+            return { success: false, error: error?.message || 'Authentication failed' };
         }
     },
 

@@ -119,7 +119,9 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
     } else {
       // FaceID failed - show account button instead
       setBiometricFailed(true);
-      setError(result.error || "Autenticazione biometrica fallita");
+      // Re-check if biometrics are still enabled (might have been cleared due to invalid token)
+      setIsBiometricsEnabled(BiometricService.isEnabled());
+      setError(result.error || "Autenticazione biometrica fallita. Accedi normalmente per riattivare Face ID.");
       setIsLoading(false);
     }
   };
