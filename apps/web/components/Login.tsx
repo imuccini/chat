@@ -84,8 +84,11 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
   // Check Biometrics on Mount
   useEffect(() => {
     const checkBio = async () => {
+      console.log("[Login] Checking biometrics on mount...");
       const available = await BiometricService.isAvailable();
       const enabled = BiometricService.isEnabled();
+      console.log("[Login] Biometrics available:", available);
+      console.log("[Login] Biometrics enabled:", enabled);
       setIsBiometricsAvailable(available);
       setIsBiometricsEnabled(enabled);
     };
@@ -109,6 +112,8 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
         name: result.user.name,
         alias: result.user.alias || result.user.name || 'User',
         phoneNumber: result.user.phoneNumber,
+        email: result.user.email,
+        image: result.user.image,
         gender: (result.user.gender as Gender) || 'other'
       };
 
@@ -123,23 +128,43 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
   };
 
   const handleBiometricSetup = async () => {
-    if (!pendingUser?.phoneNumber) return;
+    console.log("[Login] handleBiometricSetup called!");
+    console.log("[Login] pendingUser:", JSON.stringify(pendingUser));
+    console.log("[Login] pendingSessionToken:", pendingSessionToken ? 'YES' : 'NO');
+
+    // Support both phone-based and email-based users (social login)
+    const identifier = pendingUser?.phoneNumber || pendingUser?.email;
+    console.log("[Login] Using identifier:", identifier);
+
+    if (!identifier) {
+      console.error("[Login] No identifier (phone or email) for biometric setup - ABORTING");
+      setShowBiometricPrompt(false);
+      if (pendingUser) onLogin(pendingUser);
+      return;
+    }
 
     try {
+      console.log("[Login] Calling BiometricService.setup...");
       // Pass session token for native apps where cookies don't work
       const success = await BiometricService.setup(
-        pendingUser.phoneNumber,
+        identifier,
         pendingSessionToken || undefined
       );
+      console.log("[Login] BiometricService.setup returned:", success);
+
       if (success) {
+        console.log("[Login] Setup SUCCESS - triggering haptic feedback");
         await Haptics.notification({ type: NotificationType.Success });
+        // Update state so UI knows biometrics are now enabled
+        setIsBiometricsEnabled(true);
       } else {
-        console.error("[Login] Biometric setup failed");
+        console.error("[Login] Biometric setup returned false - FAILED");
       }
     } catch (e) {
-      console.error("[Login] Biometric setup exception", e);
+      console.error("[Login] Biometric setup exception:", e);
     } finally {
       // Always proceed to login, don't block user
+      console.log("[Login] Proceeding to login after biometric setup attempt");
       setShowBiometricPrompt(false);
       setPendingSessionToken(null); // Clear the token
       onLogin(pendingUser);
@@ -183,20 +208,65 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
           }
 
           try {
-            const resp = await (signIn.social as any)({
-              provider,
-              idToken: idToken,
-              accessToken: accessToken,
-              callbackURL: window.location.origin,
-              newUserOptions: {
-                data: {
-                  gender: 'other', // Default gender for social signup
+            // Use our custom native social login endpoint that properly handles the token format
+            const url = `${SERVER_URL}/api/auth/social/native`;
+            console.log(`[SocialLogin] Calling native endpoint: ${url}`);
+
+            // Extract profile data from the result
+            const profile = authData.profile || {};
+
+            const response = await fetch(url, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
+              body: JSON.stringify({
+                provider,
+                idToken,
+                profile: {
+                  email: profile.email,
+                  name: profile.name || profile.displayName,
+                  imageUrl: profile.imageUrl || profile.picture,
+                  id: profile.id
                 }
-              }
+              })
             });
-            console.log(`[SocialLogin] Better-Auth response:`, JSON.stringify(resp));
+
+            const data = await response.json();
+            console.log(`[SocialLogin] Native endpoint response:`, JSON.stringify(data));
+
+            if (!response.ok) {
+              throw new Error(data.error || 'Social login failed');
+            }
+
+            if (data.success && data.user) {
+              // Store session token for native apps
+              if (data.sessionToken) {
+                localStorage.setItem('session_token', data.sessionToken);
+              }
+
+              const appUser: AppUser = {
+                id: data.user.id,
+                name: data.user.name,
+                alias: data.user.alias || data.user.name || data.user.email?.split('@')[0],
+                email: data.user.email,
+                image: data.user.image,
+                gender: (data.user.gender as Gender) || 'other'
+              };
+
+              // Check if we should prompt for biometrics (new user or never set up)
+              if (isBiometricsAvailable && !isBiometricsEnabled) {
+                setPendingUser(appUser);
+                setPendingSessionToken(data.sessionToken || null);
+                setShowBiometricPrompt(true);
+                setIsLoading(false);
+              } else {
+                onLogin(appUser);
+              }
+            } else {
+              throw new Error('Invalid response from server');
+            }
           } catch (signInErr: any) {
-            console.error(`[SocialLogin] Better-Auth sign-in catch block:`, signInErr);
+            console.error(`[SocialLogin] Native endpoint error:`, signInErr);
             throw signInErr;
           }
         } else {
@@ -580,8 +650,8 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
 
   return (
     <div
-      className="bg-white px-6 pb-6 pt-[calc(1.5rem+env(safe-area-inset-top))] sm:p-8 w-full h-full sm:h-auto sm:max-w-md sm:rounded-2xl sm:shadow-xl sm:border border-gray-100 flex flex-col min-h-screen sm:min-h-[600px] justify-between overflow-y-auto"
-      style={{ paddingBottom: `${keyboardHeight > 0 ? keyboardHeight + 24 : 24}px` }}
+      className="bg-white px-6 pb-6 pt-[calc(1.5rem+env(safe-area-inset-top))] sm:p-8 w-full h-full sm:h-auto sm:max-w-md sm:rounded-2xl sm:shadow-xl sm:border border-gray-100 flex flex-col min-h-screen sm:min-h-[600px] justify-between"
+      style={{ paddingBottom: `${keyboardHeight > 0 ? keyboardHeight + 24 : 24}px`, overflowY: keyboardHeight > 0 ? 'auto' : 'hidden' }}
     >
       <div className={`flex flex-col items-center transition-all duration-500 ${view === 'choice' || view === 'continue' ? 'mt-4 mb-2' : 'mt-2 mb-2'}`}>
         <div className={`transition-all duration-300 ${view === 'choice' || view === 'continue' ? 'w-24 h-24 mb-12' : 'w-16 h-16 mb-2'}`}>
@@ -610,8 +680,8 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
         )}
       </div>
 
-      <div className="flex-1 flex flex-col pb-12">
-        <div className="flex-1 flex flex-col justify-center min-h-fit py-12">
+      <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col justify-center">
 
           {view === 'choice' && (
             <div className="space-y-4 pt-8">
@@ -746,6 +816,19 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
                 <h2 className="text-xl font-bold text-gray-800">Accedi</h2>
                 <p className="text-sm text-gray-500">Scegli un metodo per accedere o registrarti</p>
               </div>
+
+              {/* FaceID button: Show if biometrics available and enabled */}
+              {isBiometricsAvailable && isBiometricsEnabled && (
+                <button
+                  type="button"
+                  onClick={handleBiometricLogin}
+                  disabled={isLoading}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-200 transition-all flex items-center justify-center gap-2 group disabled:opacity-50"
+                >
+                  <Fingerprint className="w-6 h-6" />
+                  <span>Accedi con Face ID</span>
+                </button>
+              )}
 
               {/* SSO Section */}
               <div className="flex gap-3">

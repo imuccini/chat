@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Tenant, Feedback, User } from '@/types';
 import { Button } from './ui/button';
 import { Star, MessageSquare, Calendar, User as UserIcon, CheckCircle2, XCircle } from 'lucide-react';
@@ -35,6 +35,14 @@ export const LocalFeedbackOverlay: React.FC<LocalFeedbackOverlayProps> = ({
     const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [resultDialog, setResultDialog] = useState<{ open: boolean; success: boolean }>({ open: false, success: false });
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+    const handleFocus = () => {
+        // Small delay to allow keyboard to start sliding up
+        setTimeout(() => {
+            textareaRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 300);
+    };
 
     useEffect(() => {
         if (view === 'list') {
@@ -147,6 +155,8 @@ export const LocalFeedbackOverlay: React.FC<LocalFeedbackOverlayProps> = ({
                                 <h3>Lascia un commento</h3>
                             </div>
                             <Textarea
+                                ref={textareaRef}
+                                onFocus={handleFocus}
                                 placeholder="Scrivi qui i tuoi suggerimenti o commenti..."
                                 className="min-h-[120px] rounded-xl border-gray-100 shadow-sm focus:ring-primary/20 bg-white"
                                 value={comment}
