@@ -39,6 +39,7 @@ export function useKeyboardAnimation() {
             // keyboardWillShow - Start animation AND set visible immediately
             // This ensures padding changes happen in sync with animation start
             willShowListener = await Keyboard.addListener('keyboardWillShow', (info) => {
+                console.log("[Keyboard] WillShow - height:", info.keyboardHeight);
                 setState({
                     isVisible: true,  // Set visible immediately on open
                     height: info.keyboardHeight,
@@ -58,6 +59,7 @@ export function useKeyboardAnimation() {
             // keyboardWillHide - Start close animation but KEEP isVisible true
             // This prevents padding from changing before animation completes
             willHideListener = await Keyboard.addListener('keyboardWillHide', () => {
+                console.log("[Keyboard] WillHide");
                 setState(prev => ({
                     ...prev,
                     isAnimating: true,

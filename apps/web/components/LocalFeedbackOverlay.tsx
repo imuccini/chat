@@ -37,7 +37,13 @@ export const LocalFeedbackOverlay: React.FC<LocalFeedbackOverlayProps> = ({
     const [isLoading, setIsLoading] = useState(false);
     const [resultDialog, setResultDialog] = useState<{ open: boolean; success: boolean }>({ open: false, success: false });
     const textareaRef = useRef<HTMLTextAreaElement>(null);
-    const { contentStyle } = useKeyboardAnimation();
+    const { contentStyle, keyboardHeight } = useKeyboardAnimation();
+
+    useEffect(() => {
+        if (keyboardHeight > 0) {
+            console.log("[Feedback] Keyboard active, style:", JSON.stringify(contentStyle));
+        }
+    }, [keyboardHeight, contentStyle]);
 
     const handleFocus = () => {
         // Small delay to allow keyboard to start sliding up
