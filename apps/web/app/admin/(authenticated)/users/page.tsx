@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/db';
 import { columns } from '@/components/admin/users/columns';
-import { DataTable } from '@/components/admin/tenants/data-table';
+import { UserDataTable } from '@/components/admin/users/user-data-table';
 import { Users } from "lucide-react";
 import { CreateUserDialog } from '@/components/admin/users/UserDialogs';
 
@@ -18,18 +18,22 @@ export default async function UsersPage() {
     });
 
     return (
-        <div className="space-y-8">
-            <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                    <h2 className="text-2xl font-bold tracking-tight text-gray-800 flex items-center gap-2">
-                        <Users className="h-6 w-6 text-blue-500" />
+        <div className="flex flex-col h-full space-y-6">
+            <div className="flex items-center justify-between">
+                <div>
+                    <h2 className="text-2xl font-bold tracking-tight text-gray-900 flex items-center gap-2">
+                        <Users className="h-7 w-7 text-blue-600" />
                         Registered Users
                     </h2>
-                    <CreateUserDialog />
+                    <p className="text-sm text-gray-500 mt-1">
+                        Manage all registered users, anonymous guests, and their session history.
+                    </p>
                 </div>
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden px-1">
-                    <DataTable columns={columns} data={users} />
-                </div>
+                <CreateUserDialog />
+            </div>
+
+            <div className="flex-1 min-h-0">
+                <UserDataTable columns={columns} data={users as any} />
             </div>
         </div>
     );

@@ -32,6 +32,13 @@ export const columns: ColumnDef<UserWithSessions>[] = [
         }
     },
     {
+        accessorKey: "email",
+        header: "Email",
+        cell: ({ row }) => {
+            return <span className="text-gray-600 text-xs">{row.original.email || "-"}</span>
+        }
+    },
+    {
         accessorKey: "gender",
         header: "Gender",
         cell: ({ row }) => {
