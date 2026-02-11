@@ -27,6 +27,14 @@ This plan outlines the steps to add Apple and Google SSO options to the login sc
 - **Social Login Logic**:
   - Implement `handleSocialLogin(provider)` using `authClient.signIn.social`.
 
+### Visual Consistency and Balance
+
+#### [MODIFY] [Login.tsx](file:///Users/ivanmuccini/Desktop/chatapp/chat/apps/web/components/Login.tsx)
+- **Restore Vertical Balance**: Re-introduce `justify-center` or appropriate flex spacing to the content area to prevent buttons from sticking to the header.
+- **Header-Content Gap**: Increase the margin between the "Ti trovi nello spazio" section and the login buttons (especially in `choice` view).
+- **SSO Section Spacing**: Refine the spacing around the SSO buttons and the "oppure" divider to avoid a "cramped" look.
+- **Scrollable Safety**: Ensure that while content is centered, it remains fully scrollable on smaller screens or when the keyboard is active.
+
 ## Verification Plan
 
 ### Automated Tests

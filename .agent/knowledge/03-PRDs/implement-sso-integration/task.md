@@ -6,5 +6,9 @@
     - [x] Improve keyboard handling and scrolling logic <!-- id: 34 -->
 - [x] Logic Integration <!-- id: 35 -->
     - [x] Implement `handleSocialLogin` in `Login.tsx` <!-- id: 36 -->
-- [/] Verification <!-- id: 37 -->
+- [x] Visual Optimization <!-- id: 40 -->
+    - [x] Restore vertical balance in `Login.tsx` <!-- id: 41 -->
+    - [x] Increase spacing between header and content <!-- id: 42 -->
+    - [x] Refine SSO and divider layout <!-- id: 43 -->
+- [x] Verification <!-- id: 37 -->
     - [x] Test layout on mobile simulator/devices <!-- id: 38 -->
