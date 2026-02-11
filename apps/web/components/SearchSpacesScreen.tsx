@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { ArrowLeft, LocateFixed } from "lucide-react";
+import { ArrowLeft, LocateFixed, MapPin } from "lucide-react";
 import dynamic from 'next/dynamic';
 import { clientGetTenants } from '@/services/apiService';
 import { Geolocation } from '@capacitor/geolocation';
@@ -24,6 +24,8 @@ export function SearchSpacesScreen({ onBack }: SearchSpacesScreenProps) {
     const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
     const [mapCenter, setMapCenter] = useState<[number, number]>([43.7228, 10.3956]); // Default to Pisa
     const [isLoading, setIsLoading] = useState(true);
+    const [showLocationOverlay, setShowLocationOverlay] = useState(false);
+    const [locationChecked, setLocationChecked] = useState(false);
 
     // Dynamically import the map component
     const DiscoveryMap = useMemo(() => dynamic(
@@ -47,6 +49,46 @@ export function SearchSpacesScreen({ onBack }: SearchSpacesScreenProps) {
         }
         loadTenants();
     }, []);
+
+    // Check location permission on mount
+    useEffect(() => {
+        async function checkLocationPermission() {
+            try {
+                const status = await Geolocation.checkPermissions();
+                if (status.location === 'granted') {
+                    // Already granted, get position directly
+                    const position = await Geolocation.getCurrentPosition();
+                    const loc: [number, number] = [position.coords.latitude, position.coords.longitude];
+                    setUserLocation(loc);
+                    setMapCenter(loc);
+                } else if (status.location !== 'denied') {
+                    // Not yet asked — show overlay
+                    setShowLocationOverlay(true);
+                }
+                // If denied, just use default Pisa center
+            } catch (error) {
+                console.error("Error checking location permission", error);
+            } finally {
+                setLocationChecked(true);
+            }
+        }
+        checkLocationPermission();
+    }, []);
+
+    const handleGrantLocation = async () => {
+        try {
+            const status = await Geolocation.requestPermissions();
+            if (status.location === 'granted') {
+                const position = await Geolocation.getCurrentPosition();
+                const loc: [number, number] = [position.coords.latitude, position.coords.longitude];
+                setUserLocation(loc);
+                setMapCenter(loc);
+            }
+        } catch (error) {
+            console.error("Error requesting location", error);
+        }
+        setShowLocationOverlay(false);
+    };
 
     const requestLocation = async () => {
         try {
@@ -85,6 +127,42 @@ export function SearchSpacesScreen({ onBack }: SearchSpacesScreenProps) {
                     userLocation={userLocation}
                     mapCenter={mapCenter}
                 />
+
+                {/* Location Permission Overlay */}
+                {showLocationOverlay && locationChecked && (
+                    <div className="absolute inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[3000] p-6">
+                        <div className="bg-white rounded-[32px] p-8 max-w-sm w-full text-center shadow-2xl">
+                            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <MapPin className="w-8 h-8 text-primary" />
+                            </div>
+
+                            <h3 className="text-2xl font-black text-gray-900 mb-3">
+                                Posizione necessaria
+                            </h3>
+
+                            <p className="text-gray-500 font-medium text-sm mb-8 leading-relaxed">
+                                Per mostrarti gli spazi Local vicino a te, abbiamo bisogno di accedere alla tua posizione.
+                            </p>
+
+                            <div className="space-y-3">
+                                <button
+                                    onClick={handleGrantLocation}
+                                    className="w-full h-14 bg-primary text-white rounded-2xl font-bold text-base flex items-center justify-center gap-2 active:scale-[0.97] transition-all shadow-lg shadow-primary/20"
+                                >
+                                    <LocateFixed className="w-5 h-5" />
+                                    Attiva posizione
+                                </button>
+
+                                <button
+                                    onClick={() => setShowLocationOverlay(false)}
+                                    className="w-full h-12 flex items-center justify-center"
+                                >
+                                    <span className="text-gray-400 font-bold text-sm">Non ora</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 {/* Localization Button */}
                 <button

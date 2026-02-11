@@ -2,11 +2,12 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Wifi, MapPin, Sparkles, ChevronRight, BellRing, ArrowRight } from 'lucide-react';
+import { Wifi, MapPin, Sparkles, ArrowRight } from 'lucide-react';
 import { checkAndRequestLocationPermissions } from '@/lib/wifi';
-import WifiConfig from '@/lib/wifi-config';
+import { wifiProfileService } from '@/lib/wifiProfileService';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { Capacitor } from '@capacitor/core';
+import { sqliteService } from '@/lib/sqlite';
 
 interface OnboardingScreenProps {
     onComplete: () => void;
@@ -16,73 +17,87 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
     const [step, setStep] = useState(1);
     const [isRequesting, setIsRequesting] = useState(false);
 
-    const finishOnboarding = () => {
+    const totalSteps = Capacitor.isNativePlatform() ? 3 : 1;
+
+    const finishOnboarding = async () => {
+        // Persist to SQLite (native) + localStorage (fallback)
         localStorage.setItem('onboarding_done', 'true');
+        if (Capacitor.isNativePlatform()) {
+            try {
+                await sqliteService.initialize();
+                await sqliteService.setSetting('onboarding_done', 'true');
+            } catch {
+                // localStorage fallback already set
+            }
+        }
         onComplete();
     };
 
-    const handleAction = async () => {
-        const isNative = Capacitor.isNativePlatform();
-
-        if (step === 1) {
-            if (!isNative) {
-                // Web/macOS: Just one step
-                Haptics.impact({ style: ImpactStyle.Light }).catch(() => { });
-                finishOnboarding();
-            } else {
-                // Native: Go to permissions step
-                Haptics.impact({ style: ImpactStyle.Light }).catch(() => { });
-                setStep(2);
-            }
-            return;
+    const handleStep1 = () => {
+        Haptics.impact({ style: ImpactStyle.Light }).catch(() => {});
+        if (!Capacitor.isNativePlatform()) {
+            finishOnboarding();
+        } else {
+            setStep(2);
         }
+    };
 
-        // Step 2 Logic (Native only)
+    const handleStep2 = async () => {
         setIsRequesting(true);
-        Haptics.impact({ style: ImpactStyle.Heavy }).catch(() => { });
+        Haptics.impact({ style: ImpactStyle.Medium }).catch(() => {});
 
-        const ssid = "Local - WiFi";
-        const password = "localwifisicuro";
-
-        // Step 2a: Try WiFi Setup
         try {
-            const wifiPromise = async () => {
-                if (Capacitor.getPlatform() === 'ios') {
-                    // This might hang if capabilities are missing, hence the timeout
-                    await WifiConfig.connect({ ssid, password });
-                } else if (Capacitor.getPlatform() === 'android') {
-                    await WifiConfig.addSuggestion({ ssid, password });
-                }
-            };
-
             await Promise.race([
-                wifiPromise(),
-                new Promise((_, reject) => setTimeout(() => reject(new Error('WiFi Timeout')), 3500))
+                wifiProfileService.installProfile(),
+                new Promise((_, reject) => setTimeout(() => reject(new Error('WiFi Timeout')), 5000))
             ]);
         } catch (e) {
-            console.warn("Native WiFi setup skipped, failed or timed out:", e);
+            console.warn("WiFi profile install skipped or timed out:", e);
         }
 
-        // Step 2b: Request Location Permissions (GPS)
-        // Delay ensures system dialogue for WiFi (if any) has a chance to settle
+        setIsRequesting(false);
+        setStep(3);
+    };
+
+    const handleStep3 = async () => {
+        setIsRequesting(true);
+        Haptics.impact({ style: ImpactStyle.Medium }).catch(() => {});
+
         try {
-            const gpsPromise = checkAndRequestLocationPermissions();
             await Promise.race([
-                gpsPromise,
-                new Promise((_, reject) => setTimeout(() => reject(new Error('GPS Timeout')), 4000))
+                checkAndRequestLocationPermissions(),
+                new Promise((_, reject) => setTimeout(() => reject(new Error('Location Timeout')), 4000))
             ]);
         } catch (e) {
             console.warn("Location permission request failed or timed out:", e);
         }
 
-        // Finalize regardless of results
-        finishOnboarding();
+        await finishOnboarding();
     };
+
+    const handleSkip = () => {
+        if (step === 2) {
+            setStep(3);
+        } else if (step === 3) {
+            finishOnboarding();
+        }
+    };
+
+    const renderDots = () => (
+        <div className="mt-12 flex gap-3">
+            {Array.from({ length: totalSteps }, (_, i) => (
+                <div
+                    key={i}
+                    className={`w-2.5 h-2.5 rounded-full ${i + 1 <= step ? 'bg-primary' : 'bg-gray-200'}`}
+                />
+            ))}
+        </div>
+    );
 
     return (
         <div className="fixed inset-0 bg-white z-[200] flex flex-col items-center overflow-hidden pb-safe">
             <AnimatePresence mode="wait">
-                {step === 1 ? (
+                {step === 1 && (
                     <motion.div
                         key="step1"
                         initial={{ opacity: 0, x: 20 }}
@@ -107,12 +122,11 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
                             Per accedere a Local, devi trovarti fisicamente in uno spazio aderente. In Local, trovi solo persone reali che socializzano vicino a te.
                         </p>
 
-                        <div className="mt-12 flex gap-3">
-                            <div className="w-2.5 h-2.5 rounded-full bg-primary" />
-                            <div className="w-2.5 h-2.5 rounded-full bg-gray-200" />
-                        </div>
+                        {renderDots()}
                     </motion.div>
-                ) : (
+                )}
+
+                {step === 2 && (
                     <motion.div
                         key="step2"
                         initial={{ opacity: 0, x: 20 }}
@@ -125,20 +139,20 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
                                 <div className="absolute -inset-4 bg-primary/5 rounded-full animate-ripple" />
                                 <div className="absolute -inset-8 bg-primary/5 rounded-full animate-ripple-delayed" />
                                 <div className="w-20 h-20 bg-primary/10 rounded-3xl flex items-center justify-center text-primary relative z-10">
-                                    <Sparkles className="w-10 h-10" />
+                                    <Wifi className="w-10 h-10" />
                                 </div>
                             </div>
                         </div>
 
                         <h2 className="text-3xl font-black text-gray-900 tracking-tight mb-4 leading-tight">
-                            Ultimi passaggi
+                            Profilo WiFi
                         </h2>
 
                         <p className="text-gray-500 font-medium mb-8 max-w-[300px]">
-                            Per un'esperienza perfetta, installeremo un profilo WiFi sicuro e ti chiederemo l'accesso alla posizione.
+                            Installa il profilo WiFi per connetterti automaticamente agli spazi Local.
                         </p>
 
-                        <div className="w-full max-w-xs space-y-4">
+                        <div className="w-full max-w-xs">
                             <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl border border-gray-100 text-left">
                                 <div className="w-10 h-10 bg-white rounded-xl shadow-sm flex items-center justify-center text-primary shrink-0">
                                     <Wifi className="w-5 h-5" />
@@ -148,7 +162,39 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
                                     <p className="text-xs text-gray-400 font-medium">Accesso automatico sicuro</p>
                                 </div>
                             </div>
+                        </div>
 
+                        {renderDots()}
+                    </motion.div>
+                )}
+
+                {step === 3 && (
+                    <motion.div
+                        key="step3"
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        className="flex-1 flex flex-col items-center justify-center p-8 text-center"
+                    >
+                        <div className="w-24 h-24 mb-10 flex items-center justify-center">
+                            <div className="relative">
+                                <div className="absolute -inset-4 bg-primary/5 rounded-full animate-ripple" />
+                                <div className="absolute -inset-8 bg-primary/5 rounded-full animate-ripple-delayed" />
+                                <div className="w-20 h-20 bg-primary/10 rounded-3xl flex items-center justify-center text-primary relative z-10">
+                                    <MapPin className="w-10 h-10" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <h2 className="text-3xl font-black text-gray-900 tracking-tight mb-4 leading-tight">
+                            Posizione
+                        </h2>
+
+                        <p className="text-gray-500 font-medium mb-8 max-w-[300px]">
+                            Consenti l'accesso alla posizione per trovare gli spazi Local vicino a te.
+                        </p>
+
+                        <div className="w-full max-w-xs">
                             <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl border border-gray-100 text-left">
                                 <div className="w-10 h-10 bg-white rounded-xl shadow-sm flex items-center justify-center text-primary shrink-0">
                                     <MapPin className="w-5 h-5" />
@@ -160,27 +206,33 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
                             </div>
                         </div>
 
-                        <div className="mt-12 flex gap-3">
-                            <div className="w-2.5 h-2.5 rounded-full bg-primary" />
-                            <div className="w-2.5 h-2.5 rounded-full bg-primary" />
-                        </div>
+                        {renderDots()}
                     </motion.div>
                 )}
             </AnimatePresence>
 
-            <div className="w-full px-8 pb-12 pt-6">
+            <div className="w-full px-8 pb-12 pt-6 space-y-3">
                 <button
-                    onClick={handleAction}
+                    onClick={step === 1 ? handleStep1 : step === 2 ? handleStep2 : handleStep3}
                     disabled={isRequesting}
                     className="w-full h-16 bg-gray-900 rounded-[2rem] flex items-center justify-center gap-3 active:scale-[0.97] transition-all disabled:opacity-50 disabled:scale-100 group shadow-xl"
                 >
                     <span className="text-white font-black text-lg">
-                        {isRequesting ? 'Configurazione...' : (step === 1 ? 'Continua' : 'Inizia ora')}
+                        {isRequesting ? 'Configurazione...' : (step === 1 ? 'Continua' : step === 2 ? 'Installa profilo' : 'Attiva posizione')}
                     </span>
                     {!isRequesting && (
                         <ArrowRight className="w-6 h-6 text-white group-hover:translate-x-1 transition-transform" />
                     )}
                 </button>
+
+                {step > 1 && !isRequesting && (
+                    <button
+                        onClick={handleSkip}
+                        className="w-full h-12 flex items-center justify-center"
+                    >
+                        <span className="text-gray-400 font-bold text-sm">Non ora</span>
+                    </button>
+                )}
             </div>
         </div>
     );

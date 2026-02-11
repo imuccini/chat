@@ -44,6 +44,16 @@ class SQLiteService {
             `;
             await this.db.execute(schema);
 
+            // App settings table for persistent key-value storage
+            const settingsSchema = `
+                CREATE TABLE IF NOT EXISTS app_settings (
+                    "key" TEXT PRIMARY KEY,
+                    "value" TEXT,
+                    "updatedAt" TEXT
+                );
+            `;
+            await this.db.execute(settingsSchema);
+
             // 2. Migration: Add imageUrl if it doesn't exist
             try {
                 const tableInfo = await this.db.query("PRAGMA table_info(messages);");
@@ -209,6 +219,36 @@ class SQLiteService {
         } catch (err) {
             console.error('Error loading private chats from SQLite:', err);
             return [];
+        }
+    }
+
+    async getSetting(key: string): Promise<string | null> {
+        if (!this.db) await this.initialize();
+        if (!this.db) return null;
+
+        try {
+            const res = await this.db.query('SELECT "value" FROM app_settings WHERE "key" = ?;', [key]);
+            if (res.values && res.values.length > 0) {
+                return res.values[0].value || res.values[0].VALUE || null;
+            }
+            return null;
+        } catch (err) {
+            console.error('Error getting setting from SQLite:', err);
+            return null;
+        }
+    }
+
+    async setSetting(key: string, value: string): Promise<void> {
+        if (!this.db) await this.initialize();
+        if (!this.db) return;
+
+        try {
+            await this.db.run(
+                'INSERT OR REPLACE INTO app_settings ("key", "value", "updatedAt") VALUES (?, ?, ?);',
+                [key, value, new Date().toISOString()]
+            );
+        } catch (err) {
+            console.error('Error setting value in SQLite:', err);
         }
     }
 
