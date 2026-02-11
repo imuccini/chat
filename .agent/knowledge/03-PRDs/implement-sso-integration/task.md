@@ -6,13 +6,22 @@
     - [x] Improve keyboard handling and scrolling logic <!-- id: 34 -->
 - [x] Logic Integration <!-- id: 35 -->
     - [x] Implement `handleSocialLogin` in `Login.tsx` <!-- id: 36 -->
+- [x] Debugging Social Login 400 Error <!-- id: 85 -->
+    - [x] Update `.env` with server-side client IDs and secrets <!-- id: 86 -->
+    - [x] Pass default gender in `newUserOptions` during social sign-in <!-- id: 87 -->
+- [x] Debugging Xcode SocialLogin Exception <!-- id: 80 -->
+- [x] UI and Behavior Refinements <!-- id: 70 -->
+    - [x] Remove `autoFocus` from phone input in `Login.tsx` <!-- id: 71 -->
+    - [x] Enable Google SSO on iOS <!-- id: 72 -->
+    - [x] Verify scroll-on-focus behavior <!-- id: 73 -->
 - [x] Multi-Platform Google SSO <!-- id: 60 -->
     - [x] Update `.env` with platform-specific client IDs <!-- id: 61 -->
     - [x] Update `Login.tsx` with platform-specific ID selection <!-- id: 62 -->
-- [/] Capacitor Social Login Plugin Integration <!-- id: 50 -->
+- [x] Capacitor Social Login Plugin Integration <!-- id: 50 -->
     - [x] Install `@capgo/capacitor-social-login` <!-- id: 51 -->
     - [x] Sync native projects with `npx cap sync` <!-- id: 52 -->
-    - [x] Update `Login.tsx` to use the plugin for native platforms <!-- id: 53 -->
+    - [x] Initialize plugin with Client IDs in `Login.tsx` <!-- id: 53 -->
+    - [x] Fix `handleSocialLogin` logic and types <!-- id: 54 -->
 - [x] Visual Optimization <!-- id: 40 -->
     - [x] Restore vertical balance in `Login.tsx` <!-- id: 41 -->
     - [x] Increase spacing between header and content <!-- id: 42 -->

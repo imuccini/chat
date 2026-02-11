@@ -48,6 +48,22 @@ This plan outlines the steps to add Apple and Google SSO options to the login sc
   - Use `Capacitor.getPlatform()` to choose the correct ID from environment variables.
   - Pass the selected ID to `SocialLogin.login` options.
 
+### UI and Behavior Refinements
+
+#### [MODIFY] [Login.tsx](file:///Users/ivanmuccini/Desktop/chatapp/chat/apps/web/components/Login.tsx)
+- **Remove `autoFocus`**: Disable `autoFocus` on the phone number input to prevent the keyboard from hiding SSO buttons immediately.
+- **Enable Google SSO on iOS**: Update visibility logic to show the Google login button on all platforms, including iOS.
+- **Maintain Scroll Behavior**: Ensure manual focus on the phone input still triggers the smooth scroll-up behavior.
+
+### Native Plugin Initialization & Configuration
+
+#### [MODIFY] [Login.tsx](file:///Users/ivanmuccini/Desktop/chatapp/chat/apps/web/components/Login.tsx)
+- **Plugin Initialization**: Add `useEffect` to call `SocialLogin.initialize` with platform-specific Client IDs (`iOSClientId`, `webClientId`).
+- **Fix Login Logic**: 
+  - Update `SocialLogin.login` to pass empty options as per documentation.
+  - Fix type errors for `result.result` by correctly accessing the user data returned by the plugin.
+  - Ensure the `idToken` or `accessToken` is correctly passed to `better-auth`'s `signIn.social`.
+
 ## Verification Plan
 
 ### Automated Tests

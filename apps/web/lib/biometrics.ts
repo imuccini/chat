@@ -13,6 +13,8 @@ interface BiometricResult {
         name?: string;
         alias?: string;
         phoneNumber?: string;
+        email?: string;
+        image?: string;
         gender?: string;
     };
     sessionToken?: string;
@@ -45,15 +47,15 @@ export const BiometricService = {
      * Sets up biometrics for the current user.
      * 1. Prompts FaceID/TouchID to confirm user wants to enable biometrics.
      * 2. Calls backend to generate a secure token.
-     * 3. Stores token + phoneNumber in Keychain/Keystore via NativeBiometric.
+     * 3. Stores token + identifier in Keychain/Keystore via NativeBiometric.
      * 4. Sets local flag.
      *
-     * @param phoneNumber - User's phone number
-     * @param sessionToken - Optional session token from OTP login (for native apps where cookies don't work)
+     * @param identifier - User's phone number or email (used to identify user during biometric login)
+     * @param sessionToken - Optional session token from OTP/social login (for native apps where cookies don't work)
      */
-    setup: async (phoneNumber: string, sessionToken?: string): Promise<boolean> => {
+    setup: async (identifier: string, sessionToken?: string): Promise<boolean> => {
         try {
-            console.log("!!! [BIOMETRICS_V4] SETUP_STARTING_FOR:", phoneNumber, "!!!");
+            console.log("!!! [BIOMETRICS_V4] SETUP_STARTING_FOR:", identifier, "!!!");
             console.log("[Biometrics] Session token provided:", !!sessionToken);
 
             // Step 0: Verify identity FIRST to trigger FaceID prompt
@@ -98,8 +100,9 @@ export const BiometricService = {
 
             // 2. Save to Secure Store
             // Server: Identify specific app/server scope
+            // Username can be phone number or email - backend handles both
             await NativeBiometric.setCredentials({
-                username: phoneNumber,
+                username: identifier,
                 password: token,
                 server: 'com.antigravity.chat',
             });
@@ -144,10 +147,11 @@ export const BiometricService = {
                 return { success: false, error: 'No credentials found' };
             }
 
-            const phoneNumber = credentials.username;
+            // Username can be phone number or email - backend handles both
+            const identifier = credentials.username;
             const token = credentials.password;
 
-            console.log("[Biometrics] Valid credentials retrieved, calling login...");
+            console.log("[Biometrics] Valid credentials retrieved, calling login with identifier:", identifier);
 
             // Call Backend Login - Use absolute URL on native
             const url = Capacitor.isNativePlatform() ? `${SERVER_URL}/api/auth/biometric/login` : '/api/auth/biometric/login';
@@ -156,7 +160,7 @@ export const BiometricService = {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include', // Try to get cookies set
-                body: JSON.stringify({ token, phoneNumber })
+                body: JSON.stringify({ token, identifier })
             });
 
             const data = await response.json();

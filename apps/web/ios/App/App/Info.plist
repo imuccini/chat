@@ -62,5 +62,14 @@
 	<string>Light</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>CFBundleURLTypes</key>
+<array>
+ <dict>
+   <key>CFBundleURLSchemes</key>
+   <array>
+     <string>com.googleusercontent.apps.563821470731-mno4lr54tt17f8o47op6mrn0rap87r5v</string>
+   </array>
+ </dict>
+</array>
 </dict>
 </plist>

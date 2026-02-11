@@ -16,6 +16,7 @@ I have implemented Apple and Google SSO options to the login screen and improved
 - **Keyboard Handling**:
   - The login screen now uses an internal scrollable container.
   - When the phone input is focused, the view automatically scrolls to ensure the input and the submit button remain visible above the keyboard.
+  - **Refined Focus**: Disabled `autoFocus` on the phone input to ensure SSO buttons are visible on first load.
   - Improved layout resilience when the keyboard is active.
 
 ## Technical Details

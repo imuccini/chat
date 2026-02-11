@@ -11,9 +11,13 @@ export async function POST(req: NextRequest) {
     const origin = req.headers.get('origin');
 
     try {
-        const { token, phoneNumber, deviceId } = await req.json();
+        // Support both old format (phoneNumber) and new format (identifier)
+        const body = await req.json();
+        const token = body.token;
+        const identifier = body.identifier || body.phoneNumber; // Backwards compatible
+        const deviceId = body.deviceId;
 
-        if (!token || !phoneNumber) {
+        if (!token || !identifier) {
             return NextResponse.json({ error: 'Missing credentials' }, { status: 400 });
         }
 
@@ -29,11 +33,16 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Invalid biometric token' }, { status: 401 });
         }
 
-        // 2. Validate User & Phone Match
-        // We ensure the token belongs to the user with this phone number
+        // 2. Validate User & Identifier Match
+        // Identifier can be phone number OR email
+        // We ensure the token belongs to the user with this identifier
         // This prevents spoofing just by having the token
-        if (bioToken.user.phoneNumber !== phoneNumber) {
-            return NextResponse.json({ error: 'Phone number mismatch' }, { status: 401 });
+        const userPhone = bioToken.user.phoneNumber;
+        const userEmail = bioToken.user.email;
+
+        if (identifier !== userPhone && identifier !== userEmail) {
+            console.log(`[Biometric Login] Identifier mismatch: got '${identifier}', expected phone '${userPhone}' or email '${userEmail}'`);
+            return NextResponse.json({ error: 'Identifier mismatch' }, { status: 401 });
         }
 
         // Optional: Validate Device ID if sent
@@ -68,6 +77,8 @@ export async function POST(req: NextRequest) {
                 name: bioToken.user.name,
                 alias: bioToken.user.name, // Alias is stored as name
                 phoneNumber: bioToken.user.phoneNumber,
+                email: bioToken.user.email, // Include email for social login users
+                image: bioToken.user.image,
                 gender: bioToken.user.gender
             },
             sessionToken: rawToken

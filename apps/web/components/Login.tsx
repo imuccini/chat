@@ -63,6 +63,20 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
       document.body.style.backgroundColor = '#ffffff';
       document.documentElement.style.backgroundColor = '#ffffff';
       Keyboard.setStyle({ style: KeyboardStyle.Light }).catch(() => { });
+
+      // Initialize Social Login
+      SocialLogin.initialize({
+        google: {
+          webClientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID_WEB || '',
+          iOSClientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID_IOS || '',
+          iOSServerClientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID_WEB || '', // CRITICAL for server-side token verification
+          mode: 'online'
+        },
+        apple: {
+          clientId: process.env.NEXT_PUBLIC_APPLE_CLIENT_ID || '',
+          redirectUrl: window.location.origin,
+        }
+      });
     }
   }, []);
 
@@ -94,6 +108,8 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
         name: result.user.name,
         alias: result.user.alias || result.user.name || 'User',
         phoneNumber: result.user.phoneNumber,
+        email: result.user.email,
+        image: result.user.image,
         gender: (result.user.gender as Gender) || 'other'
       };
 
@@ -108,12 +124,19 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
   };
 
   const handleBiometricSetup = async () => {
-    if (!pendingUser?.phoneNumber) return;
+    // Support both phone-based and email-based users
+    const identifier = pendingUser?.phoneNumber || pendingUser?.email;
+    if (!identifier) {
+      console.error("[Login] No identifier (phone or email) for biometric setup");
+      setShowBiometricPrompt(false);
+      if (pendingUser) onLogin(pendingUser);
+      return;
+    }
 
     try {
       // Pass session token for native apps where cookies don't work
       const success = await BiometricService.setup(
-        pendingUser.phoneNumber,
+        identifier,
         pendingSessionToken || undefined
       );
       if (success) {
@@ -147,27 +170,91 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
 
         const result = await SocialLogin.login({
           provider,
-          options: {
-            google: {
-              webClientId: googleClientId,
-            },
-            apple: {
-              clientId: process.env.NEXT_PUBLIC_APPLE_CLIENT_ID || '',
-              redirectURI: window.location.origin,
-            }
-          }
+          options: {}
         });
 
+        console.log(`[SocialLogin] Result for ${provider}:`, JSON.stringify(result));
+
         if (result.result) {
-          // Exchange the token with better-auth
-          // better-auth-client usually handles this via signIn.social if configured for "idToken"
-          // but if we are doing it manually:
-          await signIn.social({
-            provider,
-            idToken: result.result.idToken,
-            accessToken: result.result.accessToken,
-            callbackURL: window.location.origin,
-          });
+          // Cast to any to access properties safely and avoid lint errors
+          const authData = result.result as any;
+          const idToken = authData.idToken || authData.id_token; // Try both formats just in case
+          const accessToken = authData.accessToken || authData.access_token;
+
+          console.log(`[SocialLogin] Tokens found - idToken: ${idToken ? 'YES' : 'NO'}, accessToken: ${accessToken ? 'YES' : 'NO'}`);
+
+          if (!idToken) {
+            console.error("[SocialLogin] Missing idToken! Verification will likely fail.");
+            setError("Errore: token di autenticazione mancante da Google");
+            setIsLoading(false);
+            return;
+          }
+
+          try {
+            // Use our custom native social login endpoint that properly handles the token format
+            const url = `${SERVER_URL}/api/auth/social/native`;
+            console.log(`[SocialLogin] Calling native endpoint: ${url}`);
+
+            // Extract profile data from the result
+            const profile = authData.profile || {};
+
+            const response = await fetch(url, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
+              body: JSON.stringify({
+                provider,
+                idToken,
+                profile: {
+                  email: profile.email,
+                  name: profile.name || profile.displayName,
+                  imageUrl: profile.imageUrl || profile.picture,
+                  id: profile.id
+                }
+              })
+            });
+
+            const data = await response.json();
+            console.log(`[SocialLogin] Native endpoint response:`, JSON.stringify(data));
+
+            if (!response.ok) {
+              throw new Error(data.error || 'Social login failed');
+            }
+
+            if (data.success && data.user) {
+              // Store session token for native apps
+              if (data.sessionToken) {
+                localStorage.setItem('session_token', data.sessionToken);
+              }
+
+              const appUser: AppUser = {
+                id: data.user.id,
+                name: data.user.name,
+                alias: data.user.alias || data.user.name || data.user.email?.split('@')[0],
+                email: data.user.email,
+                image: data.user.image,
+                gender: (data.user.gender as Gender) || 'other'
+              };
+
+              // Check if we should prompt for biometrics (new user or never set up)
+              if (isBiometricsAvailable && !isBiometricsEnabled) {
+                setPendingUser(appUser);
+                setPendingSessionToken(data.sessionToken || null);
+                setShowBiometricPrompt(true);
+                setIsLoading(false);
+              } else {
+                onLogin(appUser);
+              }
+            } else {
+              throw new Error('Invalid response from server');
+            }
+          } catch (signInErr: any) {
+            console.error(`[SocialLogin] Native endpoint error:`, signInErr);
+            throw signInErr;
+          }
+        } else {
+          console.warn(`[SocialLogin] Result.result is empty/null`);
+          setIsLoading(false);
         }
       } else {
         await signIn.social({
@@ -715,7 +802,7 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
 
               {/* SSO Section */}
               <div className="flex gap-3">
-                {(Capacitor.getPlatform() === 'android' || !Capacitor.isNativePlatform()) && (
+                {(Capacitor.getPlatform() === 'ios' || Capacitor.getPlatform() === 'android' || !Capacitor.isNativePlatform()) && (
                   <button
                     type="button"
                     onClick={() => handleSocialLogin('google')}
@@ -752,7 +839,6 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
                     <input
                       type="tel"
                       required
-                      autoFocus
                       value={phone}
                       onFocus={(e) => {
                         // Scroll the whole page so that the input is at the top
