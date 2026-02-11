@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { authClient, signIn, signUp } from '@/lib/auth-client';
 import { User, Gender } from '@/types';
@@ -108,8 +109,6 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
         name: result.user.name,
         alias: result.user.alias || result.user.name || 'User',
         phoneNumber: result.user.phoneNumber,
-        email: result.user.email,
-        image: result.user.image,
         gender: (result.user.gender as Gender) || 'other'
       };
 
@@ -124,19 +123,12 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
   };
 
   const handleBiometricSetup = async () => {
-    // Support both phone-based and email-based users
-    const identifier = pendingUser?.phoneNumber || pendingUser?.email;
-    if (!identifier) {
-      console.error("[Login] No identifier (phone or email) for biometric setup");
-      setShowBiometricPrompt(false);
-      if (pendingUser) onLogin(pendingUser);
-      return;
-    }
+    if (!pendingUser?.phoneNumber) return;
 
     try {
       // Pass session token for native apps where cookies don't work
       const success = await BiometricService.setup(
-        identifier,
+        pendingUser.phoneNumber,
         pendingSessionToken || undefined
       );
       if (success) {
@@ -191,65 +183,20 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
           }
 
           try {
-            // Use our custom native social login endpoint that properly handles the token format
-            const url = `${SERVER_URL}/api/auth/social/native`;
-            console.log(`[SocialLogin] Calling native endpoint: ${url}`);
-
-            // Extract profile data from the result
-            const profile = authData.profile || {};
-
-            const response = await fetch(url, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              credentials: 'include',
-              body: JSON.stringify({
-                provider,
-                idToken,
-                profile: {
-                  email: profile.email,
-                  name: profile.name || profile.displayName,
-                  imageUrl: profile.imageUrl || profile.picture,
-                  id: profile.id
+            const resp = await (signIn.social as any)({
+              provider,
+              idToken: idToken,
+              accessToken: accessToken,
+              callbackURL: window.location.origin,
+              newUserOptions: {
+                data: {
+                  gender: 'other', // Default gender for social signup
                 }
-              })
+              }
             });
-
-            const data = await response.json();
-            console.log(`[SocialLogin] Native endpoint response:`, JSON.stringify(data));
-
-            if (!response.ok) {
-              throw new Error(data.error || 'Social login failed');
-            }
-
-            if (data.success && data.user) {
-              // Store session token for native apps
-              if (data.sessionToken) {
-                localStorage.setItem('session_token', data.sessionToken);
-              }
-
-              const appUser: AppUser = {
-                id: data.user.id,
-                name: data.user.name,
-                alias: data.user.alias || data.user.name || data.user.email?.split('@')[0],
-                email: data.user.email,
-                image: data.user.image,
-                gender: (data.user.gender as Gender) || 'other'
-              };
-
-              // Check if we should prompt for biometrics (new user or never set up)
-              if (isBiometricsAvailable && !isBiometricsEnabled) {
-                setPendingUser(appUser);
-                setPendingSessionToken(data.sessionToken || null);
-                setShowBiometricPrompt(true);
-                setIsLoading(false);
-              } else {
-                onLogin(appUser);
-              }
-            } else {
-              throw new Error('Invalid response from server');
-            }
+            console.log(`[SocialLogin] Better-Auth response:`, JSON.stringify(resp));
           } catch (signInErr: any) {
-            console.error(`[SocialLogin] Native endpoint error:`, signInErr);
+            console.error(`[SocialLogin] Better-Auth sign-in catch block:`, signInErr);
             throw signInErr;
           }
         } else {
