@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        if (!verifiedProfile || !verifiedProfile.email) {
+        if (!verifiedProfile) {
             return NextResponse.json(
                 { error: 'Token verification failed' },
                 { status: 401, headers: corsHeaders }
@@ -59,9 +59,28 @@ export async function POST(req: NextRequest) {
         }
 
         // Find or create user
-        let user = await prisma.user.findFirst({
-            where: { email: verifiedProfile.email }
-        });
+        // First try by email, then fall back to provider account ID (important for Apple
+        // which may not include email on subsequent logins)
+        let user = verifiedProfile.email
+            ? await prisma.user.findFirst({ where: { email: verifiedProfile.email } })
+            : null;
+
+        if (!user && verifiedProfile.providerId) {
+            const existingAccount = await prisma.account.findFirst({
+                where: { providerId: provider, accountId: verifiedProfile.providerId },
+                include: { user: true }
+            });
+            if (existingAccount?.user) {
+                user = existingAccount.user;
+            }
+        }
+
+        if (!user && !verifiedProfile.email) {
+            return NextResponse.json(
+                { error: 'No email provided and no existing account found' },
+                { status: 401, headers: corsHeaders }
+            );
+        }
 
         const isNewUser = !user;
 

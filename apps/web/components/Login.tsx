@@ -171,10 +171,11 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
           googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID_ANDROID || '';
         }
 
-        const result = await SocialLogin.login({
-          provider,
-          options: {}
-        });
+        const loginOptions = provider === 'apple'
+          ? { provider: 'apple' as const, options: { scopes: ['email', 'name'] } }
+          : { provider: 'google' as const, options: {} };
+
+        const result = await SocialLogin.login(loginOptions);
 
         if (result.result) {
           const authData = result.result as any;
@@ -192,6 +193,15 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
             const url = `${SERVER_URL}/api/auth/social/native`;
             const profile = authData.profile || {};
 
+            // Apple returns givenName/familyName/user, Google returns name/id
+            const profileName = provider === 'apple'
+              ? [profile.givenName, profile.familyName].filter(Boolean).join(' ') || undefined
+              : profile.name || profile.displayName;
+
+            const profileId = provider === 'apple'
+              ? profile.user
+              : profile.id;
+
             const response = await fetch(url, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -201,9 +211,9 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
                 idToken,
                 profile: {
                   email: profile.email,
-                  name: profile.name || profile.displayName,
+                  name: profileName,
                   imageUrl: profile.imageUrl || profile.picture,
-                  id: profile.id
+                  id: profileId
                 }
               })
             });
