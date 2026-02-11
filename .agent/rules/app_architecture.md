@@ -76,7 +76,22 @@ Defined in `schema.prisma` (`TenantRole` enum):
 - **Backend**: `TenantService` methods (e.g., `isTenantAdmin`) verify roles before allowing sensitive actions.
 - **API Guards**: Controllers use these service methods to throw `ForbiddenException`.
 
-## 4. CORS & Network
+## 4. Database (Prisma)
+
+The application uses a centered Prisma management pattern via the `@local/database` package.
+
+### Client Management
+- **Schema Changes**: After modifying `schema.prisma`, always run `npm run db:generate` within the `packages/database` directory to update the generated client.
+- **Service Delegation**: The `PrismaService` in `apps/api` wraps the singleton client. **CRITICAL**: For every new model added to the schema, you MUST manually add a getter delegation in `apps/api/src/prisma/prisma.service.ts` to expose it to NestJS services.
+
+## 5. UI Patterns & Animations
+
+### Swipe-to-Action
+- **Logic**: Uses `framer-motion` for layered drag interactions.
+- **Styling Rule**: Avoid using `direction: 'rtl'` on action underlays to reveal icons. This causes visibility issues across different display densities and browsers.
+- **Better Approach**: Use standard flexbox `flex items-center justify-end px-6` to align actions on the right side.
+
+## 6. CORS & Network
 
 - **Native Issues**: iOS/Android impose strict CORS and networking rules.
 - **Fetch API**: Native apps must use absolute URLs (`API_BASE_URL` + endpoint).
