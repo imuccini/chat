@@ -148,8 +148,14 @@ export class TenantService {
             }
         });
 
-        if (!tenant) return [];
-        return tenant.members.map((m: any) => (m as any).user);
+        if (!tenant) {
+            console.warn(`[TenantService.findStaff] Tenant not found for slug: ${slug}`);
+            return [];
+        }
+
+        const staff = tenant.members.map((m: any) => (m as any).user);
+        console.log(`[TenantService.findStaff] Found ${staff.length} staff members for tenant "${slug}":`, staff.map((s: any) => ({ id: s.id, name: s.name, email: s.email })));
+        return staff;
     }
 
     /**

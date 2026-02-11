@@ -16,9 +16,10 @@ interface LocalSectionProps {
     onOpenMenu?: () => void;
     onContactStaff?: () => void;
     onLeaveFeedback?: () => void;
+    staffError?: string | null;
 }
 
-export const LocalSection: React.FC<LocalSectionProps> = ({ tenant, isAdmin, token, onOpenMenu, onContactStaff, onLeaveFeedback }) => {
+export const LocalSection: React.FC<LocalSectionProps> = ({ tenant, isAdmin, token, onOpenMenu, onContactStaff, onLeaveFeedback, staffError }) => {
     const router = useRouter(); // Initialized useRouter
     const services = [
         {
@@ -209,6 +210,12 @@ export const LocalSection: React.FC<LocalSectionProps> = ({ tenant, isAdmin, tok
                             </button>
                         ))}
                 </div>
+
+                {staffError && (
+                    <div className="mt-3 p-3 bg-red-50 border border-red-100 rounded-xl text-sm text-red-600 font-medium text-center">
+                        {staffError}
+                    </div>
+                )}
             </div>
 
             {/* Edit Dialog */}

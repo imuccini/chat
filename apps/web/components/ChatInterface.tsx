@@ -516,22 +516,31 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
         setActiveTab('chats');
     };
 
+    const [staffError, setStaffError] = useState<string | null>(null);
+
     const handleContactStaff = async () => {
+        setStaffError(null);
         try {
             const staff = await clientGetTenantStaff(tenant.slug);
+            console.log('[handleContactStaff] Staff response:', staff);
             if (staff && staff.length > 0) {
                 // Map backend user to frontend user format
                 const staffMember = staff[0];
                 const staffUser: User = {
                     id: staffMember.id,
-                    alias: staffMember.name || 'Staff',
+                    alias: staffMember.name || staffMember.email?.split('@')[0] || 'Staff',
                     gender: (staffMember.gender as any) || 'other',
+                    image: staffMember.image,
+                    email: staffMember.email,
                 };
                 // Open chat with the first staff member found
                 handleStartChat(staffUser);
+            } else {
+                setStaffError('Nessun membro dello staff disponibile al momento.');
             }
         } catch (error) {
             console.error("Error contacting staff:", error);
+            setStaffError('Errore nel contattare lo staff. Riprova.');
         }
     };
 
@@ -636,6 +645,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                                 onOpenMenu={() => setIsMenuOpen(true)}
                                 onContactStaff={handleContactStaff}
                                 onLeaveFeedback={() => setIsFeedbackOpen(true)}
+                                staffError={staffError}
                             />
                         )}
                         {activeTab === 'settings' && <Settings user={currentUser} onLogout={handleLogout} onUpdateAlias={handleUpdateAlias} onUpdateStatus={handleUpdateStatus} onUpdateImage={handleUpdateImage} tenantId={tenant.id} />}
@@ -687,6 +697,13 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                                     </div>
                                 </div>
                             </header>
+                            {!onlineUsers.some(u => u.id === selectedChatPeerId) && (
+                                <div className="px-4 py-2.5 bg-amber-50 border-b border-amber-100 text-center">
+                                    <p className="text-xs text-amber-700 font-medium">
+                                        {privateChats[selectedChatPeerId!].peer.alias} non è online al momento. Lascia un messaggio e risponderà non appena possibile.
+                                    </p>
+                                </div>
+                            )}
                             <div className="flex-1 overflow-hidden relative" style={keyboardContentStyle}>
                                 <GlobalChat user={currentUser} messages={privateChats[selectedChatPeerId!].messages} onSendMessage={handlePrivateSend} onlineCount={0} isOnline={true} hideHeader={true} showBottomNavPadding={false} isFocused={isInputFocused} onInputFocusChange={setIsInputFocused} isSyncing={false} />
                             </div>
