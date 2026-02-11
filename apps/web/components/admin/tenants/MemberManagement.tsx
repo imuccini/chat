@@ -59,6 +59,7 @@ export function MemberManagement({ tenant }: MemberManagementProps) {
     const handleRemoveMember = async (id: string) => {
         const formData = new FormData()
         formData.append('id', id)
+        formData.append('tenantId', tenant.id)
         await removeTenantMemberAction(formData)
     }
 
@@ -141,6 +142,7 @@ export function MemberManagement({ tenant }: MemberManagementProps) {
                                             <SelectValue />
                                         </SelectTrigger>
                                         <SelectContent>
+                                            <SelectItem value="OWNER">OWNER</SelectItem>
                                             <SelectItem value="ADMIN">ADMIN</SelectItem>
                                             <SelectItem value="MODERATOR">MODERATOR</SelectItem>
                                             <SelectItem value="STAFF">STAFF</SelectItem>

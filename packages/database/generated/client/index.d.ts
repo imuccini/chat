@@ -97,6 +97,7 @@ export type GlobalRole = (typeof GlobalRole)[keyof typeof GlobalRole]
 
 
 export const TenantRole: {
+  OWNER: 'OWNER',
   ADMIN: 'ADMIN',
   MODERATOR: 'MODERATOR',
   STAFF: 'STAFF'

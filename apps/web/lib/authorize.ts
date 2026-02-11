@@ -43,6 +43,10 @@ export async function isGlobalAdmin(hList?: Headers) {
  * @returns An object containing the membership if authorized, or throws an error.
  */
 export async function authorizeTenant(userId: string, tenantId: string, context: ConnectionContext, hList?: Headers) {
+    if (!tenantId) {
+        throw new Error("Tenant ID is required for authorization");
+    }
+
     // 0. Check for Global Admin (Superadmin bypass)
     const { isSuperadmin } = await isGlobalAdmin(hList);
     const tenant = await prisma.tenant.findUnique({ where: { id: tenantId } });

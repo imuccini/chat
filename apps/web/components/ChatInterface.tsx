@@ -533,7 +533,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                     image: staffMember.image,
                     email: staffMember.email,
                 };
-                // Open chat with the first staff member found
+                // Open chat with the staff member, even if offline
                 handleStartChat(staffUser);
             } else {
                 setStaffError('Nessun membro dello staff disponibile al momento.');

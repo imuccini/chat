@@ -139,7 +139,7 @@ export class TenantService {
             include: {
                 members: {
                     where: {
-                        role: { in: ['ADMIN', 'STAFF'] }
+                        role: { in: ['OWNER', 'ADMIN', 'STAFF', 'MODERATOR'] }
                     },
                     include: {
                         user: true

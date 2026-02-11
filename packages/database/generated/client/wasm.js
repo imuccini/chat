@@ -318,6 +318,7 @@ exports.GlobalRole = exports.$Enums.GlobalRole = {
 };
 
 exports.TenantRole = exports.$Enums.TenantRole = {
+  OWNER: 'OWNER',
   ADMIN: 'ADMIN',
   MODERATOR: 'MODERATOR',
   STAFF: 'STAFF'

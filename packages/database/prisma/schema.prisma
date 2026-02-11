@@ -129,6 +129,7 @@ enum GlobalRole {
 }
 
 enum TenantRole {
+  OWNER
   ADMIN
   MODERATOR
   STAFF

@@ -165,6 +165,8 @@ export async function removeTenantMemberAction(formData: FormData) {
     const id = formData.get('id') as string;
     const tenantId = formData.get('tenantId') as string;
 
+    if (!id || !tenantId) throw new Error("Missing ID or Tenant ID");
+
     const { isSuperadmin, user } = await isGlobalAdmin();
     if (!isSuperadmin && !user) throw new Error("Unauthorized");
 
