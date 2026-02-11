@@ -5,6 +5,8 @@
 	<key>com.apple.developer.networking.wifi-info</key>
 	<true/>
 	<key>com.apple.developer.wifi-aware</key>
-	<array/>
+	<array>
+		<string>Subscribe</string>
+	</array>
 </dict>
 </plist>

@@ -3,10 +3,10 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Wifi, MapPin, Sparkles, ArrowRight } from 'lucide-react';
-import { checkAndRequestLocationPermissions } from '@/lib/wifi';
 import { wifiProfileService } from '@/lib/wifiProfileService';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { Capacitor } from '@capacitor/core';
+import { Geolocation } from '@capacitor/geolocation';
 import { sqliteService } from '@/lib/sqlite';
 
 interface OnboardingScreenProps {
@@ -47,10 +47,24 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
         Haptics.impact({ style: ImpactStyle.Medium }).catch(() => {});
 
         try {
+            const { default: WifiConfig } = await import('@/lib/wifi-config');
+            const platform = Capacitor.getPlatform();
+
+            const wifiPromise = async () => {
+                if (platform === 'ios') {
+                    await WifiConfig.connect({ ssid: "Local - WiFi", password: "localwifisicuro" });
+                } else if (platform === 'android') {
+                    await WifiConfig.addSuggestion({ ssid: "Local - WiFi", password: "localwifisicuro" });
+                }
+            };
+
             await Promise.race([
-                wifiProfileService.installProfile(),
+                wifiPromise(),
                 new Promise((_, reject) => setTimeout(() => reject(new Error('WiFi Timeout')), 5000))
             ]);
+
+            // Record opt-in on success (best effort)
+            wifiProfileService.setOptedIn(true).catch(() => {});
         } catch (e) {
             console.warn("WiFi profile install skipped or timed out:", e);
         }
@@ -65,8 +79,8 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
 
         try {
             await Promise.race([
-                checkAndRequestLocationPermissions(),
-                new Promise((_, reject) => setTimeout(() => reject(new Error('Location Timeout')), 4000))
+                Geolocation.requestPermissions({ permissions: ['location'] }),
+                new Promise((_, reject) => setTimeout(() => reject(new Error('Location Timeout')), 5000))
             ]);
         } catch (e) {
             console.warn("Location permission request failed or timed out:", e);

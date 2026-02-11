@@ -44,8 +44,6 @@
 	<string>Local uses FaceID to authenticate you quickly and securely.</string>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>We use the local network to understad the venue you are in</string>
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Local usa la tua posizione in background per scoprire automaticamente gli spazi aderenti vicino a te.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>usiamo la tua posizione per sapere dove connetere la chat</string>
 	<key>UILaunchStoryboardName</key>

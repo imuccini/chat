@@ -64,14 +64,44 @@ function HomeContent() {
         return await clientResolveTenant(nasId, bssid);
     };
 
-    // Initial Discovery Phase
+    // Check onboarding status on mount (before discovery)
     useEffect(() => {
+        async function checkOnboarding() {
+            // Check if onboarding is already done
+            const localDone = localStorage.getItem('onboarding_done');
+
+            if (Capacitor.isNativePlatform()) {
+                try {
+                    await sqliteService.initialize();
+                    const sqliteDone = await sqliteService.getSetting('onboarding_done');
+                    if (sqliteDone || localDone) {
+                        // Migrate from localStorage to SQLite if needed
+                        if (localDone && !sqliteDone) {
+                            await sqliteService.setSetting('onboarding_done', 'true');
+                        }
+                        setShowOnboarding(false);
+                    } else {
+                        setShowOnboarding(true);
+                    }
+                } catch {
+                    // SQLite failed — fallback to localStorage
+                    setShowOnboarding(!localDone);
+                }
+            } else {
+                setShowOnboarding(!localDone);
+            }
+        }
+        checkOnboarding();
+    }, []);
+
+    // Discovery Phase — only runs AFTER onboarding is complete
+    useEffect(() => {
+        // Wait for onboarding check to finish, and don't start if onboarding is showing
+        if (showOnboarding === null || showOnboarding === true) return;
+
         let isCancelled = false;
 
         async function init() {
-            // Defer onboarding check — will show on instruction screen if needed
-            setShowOnboarding(false);
-
             try {
                 const startTime = Date.now();
                 const nasId = searchParams.get('nas_id') || undefined;
@@ -117,30 +147,6 @@ function HomeContent() {
                         router.replace(`/${slug}`);
                     }
                 } else {
-                    // Check onboarding status before showing instruction screen
-                    if (Capacitor.isNativePlatform()) {
-                        try {
-                            await sqliteService.initialize();
-                            const sqliteDone = await sqliteService.getSetting('onboarding_done');
-                            const localDone = localStorage.getItem('onboarding_done');
-                            if (sqliteDone || localDone) {
-                                // Migrate from localStorage to SQLite if needed
-                                if (localDone && !sqliteDone) {
-                                    await sqliteService.setSetting('onboarding_done', 'true');
-                                }
-                                setShowOnboarding(false);
-                            } else {
-                                setShowOnboarding(true);
-                            }
-                        } catch {
-                            // Fallback to localStorage
-                            const localDone = localStorage.getItem('onboarding_done');
-                            setShowOnboarding(!localDone);
-                        }
-                    } else {
-                        const localDone = localStorage.getItem('onboarding_done');
-                        setShowOnboarding(!localDone);
-                    }
                     setState('tenant_not_found');
                 }
             } catch (err: any) {
@@ -151,7 +157,7 @@ function HomeContent() {
 
         init();
         return () => { isCancelled = true; };
-    }, [router, searchParams]);
+    }, [showOnboarding, router, searchParams]);
 
     // Background Resolution (Instructions Screen)
     // Uses significant location monitoring on iOS + fallback polling
@@ -233,13 +239,14 @@ function HomeContent() {
         return <TenantChatClient overrideSlug={resolvedSlug} />;
     }
 
-    // Loading state
-    if (state === 'loading' || showOnboarding === null) {
-        return <DiscoveryScreen />;
-    }
-
+    // Onboarding — shows FIRST on fresh install, before discovery starts
     if (showOnboarding === true) {
         return <OnboardingScreen onComplete={() => setShowOnboarding(false)} />;
+    }
+
+    // Loading state (discovery in progress, or onboarding check still pending)
+    if (state === 'loading' || showOnboarding === null) {
+        return <DiscoveryScreen />;
     }
 
     if (showMap) {
