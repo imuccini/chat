@@ -71,6 +71,7 @@ model User {
   passkeys      Passkey[]
   feedbacks     Feedback[]
   biometricTokens BiometricToken[]
+  hiddenConversations HiddenConversation[]
 
   @@map("user")
   @@index([createdAt])
@@ -249,4 +250,18 @@ model BiometricToken {
 
   @@index([userId])
   @@index([deviceId])
+}
+
+model HiddenConversation {
+  id        String   @id @default(uuid())
+  userId    String
+  peerId    String   // The user ID of the other person in the chat
+  tenantId  String
+  hiddenAt  DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, peerId, tenantId])
+  @@index([userId])
+  @@index([tenantId])
 }

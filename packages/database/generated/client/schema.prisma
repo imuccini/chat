@@ -64,13 +64,14 @@ model User {
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
 
-  memberships     TenantMember[]
-  sessions        Session[]
-  accounts        Account[]
-  messages        Message[]
-  passkeys        Passkey[]
-  feedbacks       Feedback[]
-  biometricTokens BiometricToken[]
+  memberships         TenantMember[]
+  sessions            Session[]
+  accounts            Account[]
+  messages            Message[]
+  passkeys            Passkey[]
+  feedbacks           Feedback[]
+  biometricTokens     BiometricToken[]
+  hiddenConversations HiddenConversation[]
 
   @@index([createdAt])
   @@map("user")
@@ -248,4 +249,18 @@ model BiometricToken {
 
   @@index([userId])
   @@index([deviceId])
+}
+
+model HiddenConversation {
+  id       String   @id @default(uuid())
+  userId   String
+  peerId   String // The user ID of the other person in the chat
+  tenantId String
+  hiddenAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, peerId, tenantId])
+  @@index([userId])
+  @@index([tenantId])
 }

@@ -353,6 +353,24 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         }
     }
 
+    @SubscribeMessage('hideConversation')
+    async handleHideConversation(
+        @ConnectedSocket() socket: CustomSocket,
+        @MessageBody() data: { peerId: string; tenantSlug: string },
+    ) {
+        const { peerId, tenantSlug } = data;
+        const userId = socket.data.user?.id;
+        if (!peerId || !tenantSlug || !userId || !socket.data.user?.tenantId) return;
+
+        this.logger.log(`[handleHideConversation] User ${userId} hiding conversation with ${peerId} in tenant ${tenantSlug}`);
+
+        // Persist to DB
+        await this.chatService.hideConversation(userId, peerId, socket.data.user.tenantId);
+
+        // Optional: emit confirmation back
+        socket.emit('conversationHidden', { peerId });
+    }
+
     private async broadcastPresence(tenantSlug: string) {
         const tenantUsers = Array.from(this.onlineUsers.entries())
             .filter(([_, data]) => data.tenantSlug === tenantSlug)

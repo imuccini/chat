@@ -211,6 +211,27 @@ class SQLiteService {
             return [];
         }
     }
+
+    async deleteConversation(currentUserId: string, peerId: string) {
+        if (!this.db) await this.initialize();
+        if (!this.db) return;
+
+        try {
+            // Delete all messages where this user is either sender or recipient and the other is peerId
+            const query = `
+                DELETE FROM messages 
+                WHERE isGlobal = 0 
+                AND (
+                    (senderId = ? AND recipientId = ?) OR 
+                    (senderId = ? AND recipientId = ?)
+                );
+            `;
+            await this.db.run(query, [currentUserId, peerId, peerId, currentUserId]);
+            console.log(`SQLite: Deleted conversation with peer ${peerId}`);
+        } catch (err) {
+            console.error(`Error deleting conversation with peer ${peerId} from SQLite:`, err);
+        }
+    }
 }
 
 export const sqliteService = new SQLiteService();

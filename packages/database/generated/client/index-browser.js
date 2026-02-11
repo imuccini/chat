@@ -279,6 +279,14 @@ exports.Prisma.BiometricTokenScalarFieldEnum = {
   expiresAt: 'expiresAt'
 };
 
+exports.Prisma.HiddenConversationScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  peerId: 'peerId',
+  tenantId: 'tenantId',
+  hiddenAt: 'hiddenAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -333,7 +341,8 @@ exports.Prisma.ModelName = {
   SystemLog: 'SystemLog',
   Passkey: 'Passkey',
   Feedback: 'Feedback',
-  BiometricToken: 'BiometricToken'
+  BiometricToken: 'BiometricToken',
+  HiddenConversation: 'HiddenConversation'
 };
 
 /**

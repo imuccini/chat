@@ -544,9 +544,34 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
         }
     };
 
-    const handleDeleteChat = (peerId: string) => {
-        setPrivateChats(prev => { const n = { ...prev }; delete n[peerId]; return n; });
-        if (selectedChatPeerId === peerId) setSelectedChatPeerId(null);
+    const handleSelectChat = (id: string) => {
+        setSelectedChatPeerId(id);
+        setActiveRoomId(null);
+    };
+
+    const handleDeleteChat = async (peerId: string) => {
+        console.log(`[ChatInterface] Hiding conversation with ${peerId}`);
+
+        // 1. Optimistic UI update
+        setPrivateChats(prev => {
+            const updated = { ...prev };
+            delete updated[peerId];
+            return updated;
+        });
+
+        if (selectedChatPeerId === peerId) {
+            setSelectedChatPeerId(null);
+        }
+
+        // 2. Clear local SQLite messages (if on native)
+        if (Capacitor.isNativePlatform() && currentUser) {
+            await sqliteService.deleteConversation(currentUser.id, peerId);
+        }
+
+        // 3. Emit socket event
+        if (socket && tenant.slug) {
+            socket.emit('hideConversation', { peerId, tenantSlug: tenant.slug });
+        }
     };
 
     // 4. Swipe Back Logic (Native Only)
@@ -598,6 +623,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
         return <div className="h-full w-full flex items-center justify-center bg-white sm:bg-gray-50 flex-col"><Login onLogin={handleLogin} tenantName={tenant.name} tenantLogo={tenant.logoUrl || undefined} /></div>;
     }
 
+
     return (
         <div className="relative w-full h-full max-w-3xl mx-auto bg-white shadow-xl overflow-hidden">
 
@@ -623,17 +649,9 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                                     setSelectedChatPeerId(null);
                                     setRoomUnreads(prev => ({ ...prev, [id]: 0 }));
                                 }}
-                                onSelectChat={(id) => {
-                                    setSelectedChatPeerId(id);
-                                    setActiveRoomId(null);
-                                    // Clear unread immediately on select
-                                    setPrivateChats(prev => ({
-                                        ...prev,
-                                        [id]: { ...prev[id], unread: 0 }
-                                    }));
-                                }}
+                                onSelectChat={handleSelectChat}
                                 onDeleteChat={handleDeleteChat}
-                                tenantName={tenant.name}
+                                tenantName={tenant?.name || "Local Chat"}
                             />
                         )}
                         {activeTab === 'users' && <UserList currentUser={currentUser} users={onlineUsers} onStartChat={handleStartChat} />}

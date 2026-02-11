@@ -139,4 +139,33 @@ export class ChatService {
         // Flatten rooms from all tenants
         return memberships.flatMap((m: any) => m.tenant.rooms);
     }
+
+    /**
+     * Hide a private conversation for a user
+     */
+    async hideConversation(userId: string, peerId: string, tenantId: string): Promise<boolean> {
+        try {
+            await this.prisma.hiddenConversation.upsert({
+                where: {
+                    userId_peerId_tenantId: {
+                        userId,
+                        peerId,
+                        tenantId,
+                    },
+                },
+                update: {
+                    hiddenAt: new Date(),
+                },
+                create: {
+                    userId,
+                    peerId,
+                    tenantId,
+                },
+            });
+            return true;
+        } catch (error) {
+            this.logger.error(`Failed to hide conversation for user ${userId} and peer ${peerId}: ${error.message}`);
+            return false;
+        }
+    }
 }

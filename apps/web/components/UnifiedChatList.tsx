@@ -3,6 +3,7 @@ import React, { useState, useMemo } from 'react';
 import { User, Message, Room } from '@/types';
 import { Megaphone, Hash } from 'lucide-react';
 import Icon from './Icon';
+import { SwipeableChatItem } from './ui/SwipeableChatItem';
 
 interface PrivateChatSession {
     peer: User;
@@ -221,38 +222,42 @@ export function UnifiedChatList({
                             // I'll stick to the existing style for now, maybe incorporate the Icon component if I had specific icon names.
 
                             return (
-                                <button
+                                <SwipeableChatItem
                                     key={chat.peer.id}
-                                    onClick={() => onSelectChat(chat.peer.id)}
-                                    className={`w-full flex items-center p-3 rounded-xl transition-all ${isActive
-                                        ? 'bg-primary/5 text-gray-900'
-                                        : 'hover:bg-gray-50 text-gray-900'
-                                        }`}
+                                    onDelete={() => onDeleteChat(chat.peer.id)}
                                 >
-                                    <div className={`w-12 h-12 rounded-full ${getAvatarColor(chat.peer.gender)} flex items-center justify-center text-white shrink-0 mr-3 relative shadow-sm overflow-hidden`}>
-                                        {chat.peer.image ? (
-                                            <img src={chat.peer.image} alt={chat.peer.alias} className="w-full h-full object-cover" />
-                                        ) : (
-                                            <span className="font-bold text-lg uppercase">{chat.peer.alias.charAt(0)}</span>
-                                        )}
-                                        <div className={`absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-white ${onlineUserIds.includes(chat.peer.id) ? 'bg-primary' : 'bg-red-400'}`} />
-                                    </div>
-
-                                    <div className="flex-1 text-left min-w-0">
-                                        <div className="flex justify-between items-baseline mb-0.5">
-                                            <h3 className="font-bold text-base truncate pr-2">{chat.peer.alias}</h3>
-                                            <span className="text-[11px] text-gray-400 font-medium shrink-0">{getLastTime(chat.messages)}</span>
-                                        </div>
-                                        <div className="flex justify-between items-center">
-                                            <p className="text-sm text-gray-500 truncate flex-1 pr-2">{getLastMessage(chat.messages)}</p>
-                                            {chat.unreadCount > 0 && (
-                                                <div className="min-w-[20px] h-5 px-1.5 bg-primary rounded-full flex items-center justify-center shrink-0">
-                                                    <span className="text-[10px] font-bold text-white leading-none">{chat.unreadCount}</span>
-                                                </div>
+                                    <button
+                                        onClick={() => onSelectChat(chat.peer.id)}
+                                        className={`w-full flex items-center p-3 transition-all ${isActive
+                                            ? 'bg-primary/5 text-gray-900'
+                                            : 'hover:bg-gray-50 text-gray-900'
+                                            }`}
+                                    >
+                                        <div className={`w-12 h-12 rounded-full ${getAvatarColor(chat.peer.gender)} flex items-center justify-center text-white shrink-0 mr-3 relative shadow-sm overflow-hidden`}>
+                                            {chat.peer.image ? (
+                                                <img src={chat.peer.image} alt={chat.peer.alias} className="w-full h-full object-cover" />
+                                            ) : (
+                                                <span className="font-bold text-lg uppercase">{chat.peer.alias.charAt(0)}</span>
                                             )}
+                                            <div className={`absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-white ${onlineUserIds.includes(chat.peer.id) ? 'bg-primary' : 'bg-red-400'}`} />
                                         </div>
-                                    </div>
-                                </button>
+
+                                        <div className="flex-1 text-left min-w-0">
+                                            <div className="flex justify-between items-baseline mb-0.5">
+                                                <h3 className="font-bold text-base truncate pr-2">{chat.peer.alias}</h3>
+                                                <span className="text-[11px] text-gray-400 font-medium shrink-0">{getLastTime(chat.messages)}</span>
+                                            </div>
+                                            <div className="flex justify-between items-center">
+                                                <p className="text-sm text-gray-500 truncate flex-1 pr-2">{getLastMessage(chat.messages)}</p>
+                                                {chat.unreadCount > 0 && (
+                                                    <div className="min-w-[20px] h-5 px-1.5 bg-primary rounded-full flex items-center justify-center shrink-0">
+                                                        <span className="text-[10px] font-bold text-white leading-none">{chat.unreadCount}</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </button>
+                                </SwipeableChatItem>
                             );
                         })}
                     </div>

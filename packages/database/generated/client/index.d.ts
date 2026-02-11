@@ -78,6 +78,11 @@ export type Feedback = $Result.DefaultSelection<Prisma.$FeedbackPayload>
  * 
  */
 export type BiometricToken = $Result.DefaultSelection<Prisma.$BiometricTokenPayload>
+/**
+ * Model HiddenConversation
+ * 
+ */
+export type HiddenConversation = $Result.DefaultSelection<Prisma.$HiddenConversationPayload>
 
 /**
  * Enums
@@ -373,6 +378,16 @@ export class PrismaClient<
     * ```
     */
   get biometricToken(): Prisma.BiometricTokenDelegate<ExtArgs>;
+
+  /**
+   * `prisma.hiddenConversation`: Exposes CRUD operations for the **HiddenConversation** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more HiddenConversations
+    * const hiddenConversations = await prisma.hiddenConversation.findMany()
+    * ```
+    */
+  get hiddenConversation(): Prisma.HiddenConversationDelegate<ExtArgs>;
 }
 
 export namespace Prisma {
@@ -826,7 +841,8 @@ export namespace Prisma {
     SystemLog: 'SystemLog',
     Passkey: 'Passkey',
     Feedback: 'Feedback',
-    BiometricToken: 'BiometricToken'
+    BiometricToken: 'BiometricToken',
+    HiddenConversation: 'HiddenConversation'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -842,7 +858,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "tenant" | "nasDevice" | "user" | "session" | "account" | "verification" | "tenantMember" | "room" | "message" | "systemLog" | "passkey" | "feedback" | "biometricToken"
+      modelProps: "tenant" | "nasDevice" | "user" | "session" | "account" | "verification" | "tenantMember" | "room" | "message" | "systemLog" | "passkey" | "feedback" | "biometricToken" | "hiddenConversation"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1756,6 +1772,76 @@ export namespace Prisma {
           }
         }
       }
+      HiddenConversation: {
+        payload: Prisma.$HiddenConversationPayload<ExtArgs>
+        fields: Prisma.HiddenConversationFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.HiddenConversationFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HiddenConversationPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.HiddenConversationFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HiddenConversationPayload>
+          }
+          findFirst: {
+            args: Prisma.HiddenConversationFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HiddenConversationPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.HiddenConversationFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HiddenConversationPayload>
+          }
+          findMany: {
+            args: Prisma.HiddenConversationFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HiddenConversationPayload>[]
+          }
+          create: {
+            args: Prisma.HiddenConversationCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HiddenConversationPayload>
+          }
+          createMany: {
+            args: Prisma.HiddenConversationCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.HiddenConversationCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HiddenConversationPayload>[]
+          }
+          delete: {
+            args: Prisma.HiddenConversationDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HiddenConversationPayload>
+          }
+          update: {
+            args: Prisma.HiddenConversationUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HiddenConversationPayload>
+          }
+          deleteMany: {
+            args: Prisma.HiddenConversationDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.HiddenConversationUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.HiddenConversationUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HiddenConversationPayload>
+          }
+          aggregate: {
+            args: Prisma.HiddenConversationAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateHiddenConversation>
+          }
+          groupBy: {
+            args: Prisma.HiddenConversationGroupByArgs<ExtArgs>
+            result: $Utils.Optional<HiddenConversationGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.HiddenConversationCountArgs<ExtArgs>
+            result: $Utils.Optional<HiddenConversationCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -2000,6 +2086,7 @@ export namespace Prisma {
     passkeys: number
     feedbacks: number
     biometricTokens: number
+    hiddenConversations: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2010,6 +2097,7 @@ export namespace Prisma {
     passkeys?: boolean | UserCountOutputTypeCountPasskeysArgs
     feedbacks?: boolean | UserCountOutputTypeCountFeedbacksArgs
     biometricTokens?: boolean | UserCountOutputTypeCountBiometricTokensArgs
+    hiddenConversations?: boolean | UserCountOutputTypeCountHiddenConversationsArgs
   }
 
   // Custom InputTypes
@@ -2070,6 +2158,13 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountBiometricTokensArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: BiometricTokenWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountHiddenConversationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: HiddenConversationWhereInput
   }
 
 
@@ -4550,6 +4645,7 @@ export namespace Prisma {
     passkeys?: boolean | User$passkeysArgs<ExtArgs>
     feedbacks?: boolean | User$feedbacksArgs<ExtArgs>
     biometricTokens?: boolean | User$biometricTokensArgs<ExtArgs>
+    hiddenConversations?: boolean | User$hiddenConversationsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -4591,6 +4687,7 @@ export namespace Prisma {
     passkeys?: boolean | User$passkeysArgs<ExtArgs>
     feedbacks?: boolean | User$feedbacksArgs<ExtArgs>
     biometricTokens?: boolean | User$biometricTokensArgs<ExtArgs>
+    hiddenConversations?: boolean | User$hiddenConversationsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -4605,6 +4702,7 @@ export namespace Prisma {
       passkeys: Prisma.$PasskeyPayload<ExtArgs>[]
       feedbacks: Prisma.$FeedbackPayload<ExtArgs>[]
       biometricTokens: Prisma.$BiometricTokenPayload<ExtArgs>[]
+      hiddenConversations: Prisma.$HiddenConversationPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -4990,6 +5088,7 @@ export namespace Prisma {
     passkeys<T extends User$passkeysArgs<ExtArgs> = {}>(args?: Subset<T, User$passkeysArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PasskeyPayload<ExtArgs>, T, "findMany"> | Null>
     feedbacks<T extends User$feedbacksArgs<ExtArgs> = {}>(args?: Subset<T, User$feedbacksArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, "findMany"> | Null>
     biometricTokens<T extends User$biometricTokensArgs<ExtArgs> = {}>(args?: Subset<T, User$biometricTokensArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BiometricTokenPayload<ExtArgs>, T, "findMany"> | Null>
+    hiddenConversations<T extends User$hiddenConversationsArgs<ExtArgs> = {}>(args?: Subset<T, User$hiddenConversationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HiddenConversationPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -5482,6 +5581,26 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: BiometricTokenScalarFieldEnum | BiometricTokenScalarFieldEnum[]
+  }
+
+  /**
+   * User.hiddenConversations
+   */
+  export type User$hiddenConversationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HiddenConversation
+     */
+    select?: HiddenConversationSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HiddenConversationInclude<ExtArgs> | null
+    where?: HiddenConversationWhereInput
+    orderBy?: HiddenConversationOrderByWithRelationInput | HiddenConversationOrderByWithRelationInput[]
+    cursor?: HiddenConversationWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: HiddenConversationScalarFieldEnum | HiddenConversationScalarFieldEnum[]
   }
 
   /**
@@ -15306,6 +15425,939 @@ export namespace Prisma {
 
 
   /**
+   * Model HiddenConversation
+   */
+
+  export type AggregateHiddenConversation = {
+    _count: HiddenConversationCountAggregateOutputType | null
+    _min: HiddenConversationMinAggregateOutputType | null
+    _max: HiddenConversationMaxAggregateOutputType | null
+  }
+
+  export type HiddenConversationMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    peerId: string | null
+    tenantId: string | null
+    hiddenAt: Date | null
+  }
+
+  export type HiddenConversationMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    peerId: string | null
+    tenantId: string | null
+    hiddenAt: Date | null
+  }
+
+  export type HiddenConversationCountAggregateOutputType = {
+    id: number
+    userId: number
+    peerId: number
+    tenantId: number
+    hiddenAt: number
+    _all: number
+  }
+
+
+  export type HiddenConversationMinAggregateInputType = {
+    id?: true
+    userId?: true
+    peerId?: true
+    tenantId?: true
+    hiddenAt?: true
+  }
+
+  export type HiddenConversationMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    peerId?: true
+    tenantId?: true
+    hiddenAt?: true
+  }
+
+  export type HiddenConversationCountAggregateInputType = {
+    id?: true
+    userId?: true
+    peerId?: true
+    tenantId?: true
+    hiddenAt?: true
+    _all?: true
+  }
+
+  export type HiddenConversationAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which HiddenConversation to aggregate.
+     */
+    where?: HiddenConversationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of HiddenConversations to fetch.
+     */
+    orderBy?: HiddenConversationOrderByWithRelationInput | HiddenConversationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: HiddenConversationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` HiddenConversations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` HiddenConversations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned HiddenConversations
+    **/
+    _count?: true | HiddenConversationCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: HiddenConversationMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: HiddenConversationMaxAggregateInputType
+  }
+
+  export type GetHiddenConversationAggregateType<T extends HiddenConversationAggregateArgs> = {
+        [P in keyof T & keyof AggregateHiddenConversation]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateHiddenConversation[P]>
+      : GetScalarType<T[P], AggregateHiddenConversation[P]>
+  }
+
+
+
+
+  export type HiddenConversationGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: HiddenConversationWhereInput
+    orderBy?: HiddenConversationOrderByWithAggregationInput | HiddenConversationOrderByWithAggregationInput[]
+    by: HiddenConversationScalarFieldEnum[] | HiddenConversationScalarFieldEnum
+    having?: HiddenConversationScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: HiddenConversationCountAggregateInputType | true
+    _min?: HiddenConversationMinAggregateInputType
+    _max?: HiddenConversationMaxAggregateInputType
+  }
+
+  export type HiddenConversationGroupByOutputType = {
+    id: string
+    userId: string
+    peerId: string
+    tenantId: string
+    hiddenAt: Date
+    _count: HiddenConversationCountAggregateOutputType | null
+    _min: HiddenConversationMinAggregateOutputType | null
+    _max: HiddenConversationMaxAggregateOutputType | null
+  }
+
+  type GetHiddenConversationGroupByPayload<T extends HiddenConversationGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<HiddenConversationGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof HiddenConversationGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], HiddenConversationGroupByOutputType[P]>
+            : GetScalarType<T[P], HiddenConversationGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type HiddenConversationSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    peerId?: boolean
+    tenantId?: boolean
+    hiddenAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["hiddenConversation"]>
+
+  export type HiddenConversationSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    peerId?: boolean
+    tenantId?: boolean
+    hiddenAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["hiddenConversation"]>
+
+  export type HiddenConversationSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    peerId?: boolean
+    tenantId?: boolean
+    hiddenAt?: boolean
+  }
+
+  export type HiddenConversationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type HiddenConversationIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $HiddenConversationPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "HiddenConversation"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string
+      peerId: string
+      tenantId: string
+      hiddenAt: Date
+    }, ExtArgs["result"]["hiddenConversation"]>
+    composites: {}
+  }
+
+  type HiddenConversationGetPayload<S extends boolean | null | undefined | HiddenConversationDefaultArgs> = $Result.GetResult<Prisma.$HiddenConversationPayload, S>
+
+  type HiddenConversationCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<HiddenConversationFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: HiddenConversationCountAggregateInputType | true
+    }
+
+  export interface HiddenConversationDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['HiddenConversation'], meta: { name: 'HiddenConversation' } }
+    /**
+     * Find zero or one HiddenConversation that matches the filter.
+     * @param {HiddenConversationFindUniqueArgs} args - Arguments to find a HiddenConversation
+     * @example
+     * // Get one HiddenConversation
+     * const hiddenConversation = await prisma.hiddenConversation.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends HiddenConversationFindUniqueArgs>(args: SelectSubset<T, HiddenConversationFindUniqueArgs<ExtArgs>>): Prisma__HiddenConversationClient<$Result.GetResult<Prisma.$HiddenConversationPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one HiddenConversation that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {HiddenConversationFindUniqueOrThrowArgs} args - Arguments to find a HiddenConversation
+     * @example
+     * // Get one HiddenConversation
+     * const hiddenConversation = await prisma.hiddenConversation.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends HiddenConversationFindUniqueOrThrowArgs>(args: SelectSubset<T, HiddenConversationFindUniqueOrThrowArgs<ExtArgs>>): Prisma__HiddenConversationClient<$Result.GetResult<Prisma.$HiddenConversationPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first HiddenConversation that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HiddenConversationFindFirstArgs} args - Arguments to find a HiddenConversation
+     * @example
+     * // Get one HiddenConversation
+     * const hiddenConversation = await prisma.hiddenConversation.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends HiddenConversationFindFirstArgs>(args?: SelectSubset<T, HiddenConversationFindFirstArgs<ExtArgs>>): Prisma__HiddenConversationClient<$Result.GetResult<Prisma.$HiddenConversationPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first HiddenConversation that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HiddenConversationFindFirstOrThrowArgs} args - Arguments to find a HiddenConversation
+     * @example
+     * // Get one HiddenConversation
+     * const hiddenConversation = await prisma.hiddenConversation.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends HiddenConversationFindFirstOrThrowArgs>(args?: SelectSubset<T, HiddenConversationFindFirstOrThrowArgs<ExtArgs>>): Prisma__HiddenConversationClient<$Result.GetResult<Prisma.$HiddenConversationPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more HiddenConversations that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HiddenConversationFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all HiddenConversations
+     * const hiddenConversations = await prisma.hiddenConversation.findMany()
+     * 
+     * // Get first 10 HiddenConversations
+     * const hiddenConversations = await prisma.hiddenConversation.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const hiddenConversationWithIdOnly = await prisma.hiddenConversation.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends HiddenConversationFindManyArgs>(args?: SelectSubset<T, HiddenConversationFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HiddenConversationPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a HiddenConversation.
+     * @param {HiddenConversationCreateArgs} args - Arguments to create a HiddenConversation.
+     * @example
+     * // Create one HiddenConversation
+     * const HiddenConversation = await prisma.hiddenConversation.create({
+     *   data: {
+     *     // ... data to create a HiddenConversation
+     *   }
+     * })
+     * 
+     */
+    create<T extends HiddenConversationCreateArgs>(args: SelectSubset<T, HiddenConversationCreateArgs<ExtArgs>>): Prisma__HiddenConversationClient<$Result.GetResult<Prisma.$HiddenConversationPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many HiddenConversations.
+     * @param {HiddenConversationCreateManyArgs} args - Arguments to create many HiddenConversations.
+     * @example
+     * // Create many HiddenConversations
+     * const hiddenConversation = await prisma.hiddenConversation.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends HiddenConversationCreateManyArgs>(args?: SelectSubset<T, HiddenConversationCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many HiddenConversations and returns the data saved in the database.
+     * @param {HiddenConversationCreateManyAndReturnArgs} args - Arguments to create many HiddenConversations.
+     * @example
+     * // Create many HiddenConversations
+     * const hiddenConversation = await prisma.hiddenConversation.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many HiddenConversations and only return the `id`
+     * const hiddenConversationWithIdOnly = await prisma.hiddenConversation.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends HiddenConversationCreateManyAndReturnArgs>(args?: SelectSubset<T, HiddenConversationCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HiddenConversationPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a HiddenConversation.
+     * @param {HiddenConversationDeleteArgs} args - Arguments to delete one HiddenConversation.
+     * @example
+     * // Delete one HiddenConversation
+     * const HiddenConversation = await prisma.hiddenConversation.delete({
+     *   where: {
+     *     // ... filter to delete one HiddenConversation
+     *   }
+     * })
+     * 
+     */
+    delete<T extends HiddenConversationDeleteArgs>(args: SelectSubset<T, HiddenConversationDeleteArgs<ExtArgs>>): Prisma__HiddenConversationClient<$Result.GetResult<Prisma.$HiddenConversationPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one HiddenConversation.
+     * @param {HiddenConversationUpdateArgs} args - Arguments to update one HiddenConversation.
+     * @example
+     * // Update one HiddenConversation
+     * const hiddenConversation = await prisma.hiddenConversation.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends HiddenConversationUpdateArgs>(args: SelectSubset<T, HiddenConversationUpdateArgs<ExtArgs>>): Prisma__HiddenConversationClient<$Result.GetResult<Prisma.$HiddenConversationPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more HiddenConversations.
+     * @param {HiddenConversationDeleteManyArgs} args - Arguments to filter HiddenConversations to delete.
+     * @example
+     * // Delete a few HiddenConversations
+     * const { count } = await prisma.hiddenConversation.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends HiddenConversationDeleteManyArgs>(args?: SelectSubset<T, HiddenConversationDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more HiddenConversations.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HiddenConversationUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many HiddenConversations
+     * const hiddenConversation = await prisma.hiddenConversation.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends HiddenConversationUpdateManyArgs>(args: SelectSubset<T, HiddenConversationUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one HiddenConversation.
+     * @param {HiddenConversationUpsertArgs} args - Arguments to update or create a HiddenConversation.
+     * @example
+     * // Update or create a HiddenConversation
+     * const hiddenConversation = await prisma.hiddenConversation.upsert({
+     *   create: {
+     *     // ... data to create a HiddenConversation
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the HiddenConversation we want to update
+     *   }
+     * })
+     */
+    upsert<T extends HiddenConversationUpsertArgs>(args: SelectSubset<T, HiddenConversationUpsertArgs<ExtArgs>>): Prisma__HiddenConversationClient<$Result.GetResult<Prisma.$HiddenConversationPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of HiddenConversations.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HiddenConversationCountArgs} args - Arguments to filter HiddenConversations to count.
+     * @example
+     * // Count the number of HiddenConversations
+     * const count = await prisma.hiddenConversation.count({
+     *   where: {
+     *     // ... the filter for the HiddenConversations we want to count
+     *   }
+     * })
+    **/
+    count<T extends HiddenConversationCountArgs>(
+      args?: Subset<T, HiddenConversationCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], HiddenConversationCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a HiddenConversation.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HiddenConversationAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends HiddenConversationAggregateArgs>(args: Subset<T, HiddenConversationAggregateArgs>): Prisma.PrismaPromise<GetHiddenConversationAggregateType<T>>
+
+    /**
+     * Group by HiddenConversation.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HiddenConversationGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends HiddenConversationGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: HiddenConversationGroupByArgs['orderBy'] }
+        : { orderBy?: HiddenConversationGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, HiddenConversationGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetHiddenConversationGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the HiddenConversation model
+   */
+  readonly fields: HiddenConversationFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for HiddenConversation.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__HiddenConversationClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the HiddenConversation model
+   */ 
+  interface HiddenConversationFieldRefs {
+    readonly id: FieldRef<"HiddenConversation", 'String'>
+    readonly userId: FieldRef<"HiddenConversation", 'String'>
+    readonly peerId: FieldRef<"HiddenConversation", 'String'>
+    readonly tenantId: FieldRef<"HiddenConversation", 'String'>
+    readonly hiddenAt: FieldRef<"HiddenConversation", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * HiddenConversation findUnique
+   */
+  export type HiddenConversationFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HiddenConversation
+     */
+    select?: HiddenConversationSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HiddenConversationInclude<ExtArgs> | null
+    /**
+     * Filter, which HiddenConversation to fetch.
+     */
+    where: HiddenConversationWhereUniqueInput
+  }
+
+  /**
+   * HiddenConversation findUniqueOrThrow
+   */
+  export type HiddenConversationFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HiddenConversation
+     */
+    select?: HiddenConversationSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HiddenConversationInclude<ExtArgs> | null
+    /**
+     * Filter, which HiddenConversation to fetch.
+     */
+    where: HiddenConversationWhereUniqueInput
+  }
+
+  /**
+   * HiddenConversation findFirst
+   */
+  export type HiddenConversationFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HiddenConversation
+     */
+    select?: HiddenConversationSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HiddenConversationInclude<ExtArgs> | null
+    /**
+     * Filter, which HiddenConversation to fetch.
+     */
+    where?: HiddenConversationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of HiddenConversations to fetch.
+     */
+    orderBy?: HiddenConversationOrderByWithRelationInput | HiddenConversationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for HiddenConversations.
+     */
+    cursor?: HiddenConversationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` HiddenConversations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` HiddenConversations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of HiddenConversations.
+     */
+    distinct?: HiddenConversationScalarFieldEnum | HiddenConversationScalarFieldEnum[]
+  }
+
+  /**
+   * HiddenConversation findFirstOrThrow
+   */
+  export type HiddenConversationFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HiddenConversation
+     */
+    select?: HiddenConversationSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HiddenConversationInclude<ExtArgs> | null
+    /**
+     * Filter, which HiddenConversation to fetch.
+     */
+    where?: HiddenConversationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of HiddenConversations to fetch.
+     */
+    orderBy?: HiddenConversationOrderByWithRelationInput | HiddenConversationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for HiddenConversations.
+     */
+    cursor?: HiddenConversationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` HiddenConversations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` HiddenConversations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of HiddenConversations.
+     */
+    distinct?: HiddenConversationScalarFieldEnum | HiddenConversationScalarFieldEnum[]
+  }
+
+  /**
+   * HiddenConversation findMany
+   */
+  export type HiddenConversationFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HiddenConversation
+     */
+    select?: HiddenConversationSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HiddenConversationInclude<ExtArgs> | null
+    /**
+     * Filter, which HiddenConversations to fetch.
+     */
+    where?: HiddenConversationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of HiddenConversations to fetch.
+     */
+    orderBy?: HiddenConversationOrderByWithRelationInput | HiddenConversationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing HiddenConversations.
+     */
+    cursor?: HiddenConversationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` HiddenConversations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` HiddenConversations.
+     */
+    skip?: number
+    distinct?: HiddenConversationScalarFieldEnum | HiddenConversationScalarFieldEnum[]
+  }
+
+  /**
+   * HiddenConversation create
+   */
+  export type HiddenConversationCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HiddenConversation
+     */
+    select?: HiddenConversationSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HiddenConversationInclude<ExtArgs> | null
+    /**
+     * The data needed to create a HiddenConversation.
+     */
+    data: XOR<HiddenConversationCreateInput, HiddenConversationUncheckedCreateInput>
+  }
+
+  /**
+   * HiddenConversation createMany
+   */
+  export type HiddenConversationCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many HiddenConversations.
+     */
+    data: HiddenConversationCreateManyInput | HiddenConversationCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * HiddenConversation createManyAndReturn
+   */
+  export type HiddenConversationCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HiddenConversation
+     */
+    select?: HiddenConversationSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many HiddenConversations.
+     */
+    data: HiddenConversationCreateManyInput | HiddenConversationCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HiddenConversationIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * HiddenConversation update
+   */
+  export type HiddenConversationUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HiddenConversation
+     */
+    select?: HiddenConversationSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HiddenConversationInclude<ExtArgs> | null
+    /**
+     * The data needed to update a HiddenConversation.
+     */
+    data: XOR<HiddenConversationUpdateInput, HiddenConversationUncheckedUpdateInput>
+    /**
+     * Choose, which HiddenConversation to update.
+     */
+    where: HiddenConversationWhereUniqueInput
+  }
+
+  /**
+   * HiddenConversation updateMany
+   */
+  export type HiddenConversationUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update HiddenConversations.
+     */
+    data: XOR<HiddenConversationUpdateManyMutationInput, HiddenConversationUncheckedUpdateManyInput>
+    /**
+     * Filter which HiddenConversations to update
+     */
+    where?: HiddenConversationWhereInput
+  }
+
+  /**
+   * HiddenConversation upsert
+   */
+  export type HiddenConversationUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HiddenConversation
+     */
+    select?: HiddenConversationSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HiddenConversationInclude<ExtArgs> | null
+    /**
+     * The filter to search for the HiddenConversation to update in case it exists.
+     */
+    where: HiddenConversationWhereUniqueInput
+    /**
+     * In case the HiddenConversation found by the `where` argument doesn't exist, create a new HiddenConversation with this data.
+     */
+    create: XOR<HiddenConversationCreateInput, HiddenConversationUncheckedCreateInput>
+    /**
+     * In case the HiddenConversation was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<HiddenConversationUpdateInput, HiddenConversationUncheckedUpdateInput>
+  }
+
+  /**
+   * HiddenConversation delete
+   */
+  export type HiddenConversationDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HiddenConversation
+     */
+    select?: HiddenConversationSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HiddenConversationInclude<ExtArgs> | null
+    /**
+     * Filter which HiddenConversation to delete.
+     */
+    where: HiddenConversationWhereUniqueInput
+  }
+
+  /**
+   * HiddenConversation deleteMany
+   */
+  export type HiddenConversationDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which HiddenConversations to delete
+     */
+    where?: HiddenConversationWhereInput
+  }
+
+  /**
+   * HiddenConversation without action
+   */
+  export type HiddenConversationDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HiddenConversation
+     */
+    select?: HiddenConversationSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HiddenConversationInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -15513,6 +16565,17 @@ export namespace Prisma {
   };
 
   export type BiometricTokenScalarFieldEnum = (typeof BiometricTokenScalarFieldEnum)[keyof typeof BiometricTokenScalarFieldEnum]
+
+
+  export const HiddenConversationScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    peerId: 'peerId',
+    tenantId: 'tenantId',
+    hiddenAt: 'hiddenAt'
+  };
+
+  export type HiddenConversationScalarFieldEnum = (typeof HiddenConversationScalarFieldEnum)[keyof typeof HiddenConversationScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -15901,6 +16964,7 @@ export namespace Prisma {
     passkeys?: PasskeyListRelationFilter
     feedbacks?: FeedbackListRelationFilter
     biometricTokens?: BiometricTokenListRelationFilter
+    hiddenConversations?: HiddenConversationListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -15923,6 +16987,7 @@ export namespace Prisma {
     passkeys?: PasskeyOrderByRelationAggregateInput
     feedbacks?: FeedbackOrderByRelationAggregateInput
     biometricTokens?: BiometricTokenOrderByRelationAggregateInput
+    hiddenConversations?: HiddenConversationOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -15948,6 +17013,7 @@ export namespace Prisma {
     passkeys?: PasskeyListRelationFilter
     feedbacks?: FeedbackListRelationFilter
     biometricTokens?: BiometricTokenListRelationFilter
+    hiddenConversations?: HiddenConversationListRelationFilter
   }, "id" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -16708,6 +17774,62 @@ export namespace Prisma {
     expiresAt?: DateTimeNullableWithAggregatesFilter<"BiometricToken"> | Date | string | null
   }
 
+  export type HiddenConversationWhereInput = {
+    AND?: HiddenConversationWhereInput | HiddenConversationWhereInput[]
+    OR?: HiddenConversationWhereInput[]
+    NOT?: HiddenConversationWhereInput | HiddenConversationWhereInput[]
+    id?: StringFilter<"HiddenConversation"> | string
+    userId?: StringFilter<"HiddenConversation"> | string
+    peerId?: StringFilter<"HiddenConversation"> | string
+    tenantId?: StringFilter<"HiddenConversation"> | string
+    hiddenAt?: DateTimeFilter<"HiddenConversation"> | Date | string
+    user?: XOR<UserRelationFilter, UserWhereInput>
+  }
+
+  export type HiddenConversationOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    peerId?: SortOrder
+    tenantId?: SortOrder
+    hiddenAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type HiddenConversationWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    userId_peerId_tenantId?: HiddenConversationUserIdPeerIdTenantIdCompoundUniqueInput
+    AND?: HiddenConversationWhereInput | HiddenConversationWhereInput[]
+    OR?: HiddenConversationWhereInput[]
+    NOT?: HiddenConversationWhereInput | HiddenConversationWhereInput[]
+    userId?: StringFilter<"HiddenConversation"> | string
+    peerId?: StringFilter<"HiddenConversation"> | string
+    tenantId?: StringFilter<"HiddenConversation"> | string
+    hiddenAt?: DateTimeFilter<"HiddenConversation"> | Date | string
+    user?: XOR<UserRelationFilter, UserWhereInput>
+  }, "id" | "userId_peerId_tenantId">
+
+  export type HiddenConversationOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    peerId?: SortOrder
+    tenantId?: SortOrder
+    hiddenAt?: SortOrder
+    _count?: HiddenConversationCountOrderByAggregateInput
+    _max?: HiddenConversationMaxOrderByAggregateInput
+    _min?: HiddenConversationMinOrderByAggregateInput
+  }
+
+  export type HiddenConversationScalarWhereWithAggregatesInput = {
+    AND?: HiddenConversationScalarWhereWithAggregatesInput | HiddenConversationScalarWhereWithAggregatesInput[]
+    OR?: HiddenConversationScalarWhereWithAggregatesInput[]
+    NOT?: HiddenConversationScalarWhereWithAggregatesInput | HiddenConversationScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"HiddenConversation"> | string
+    userId?: StringWithAggregatesFilter<"HiddenConversation"> | string
+    peerId?: StringWithAggregatesFilter<"HiddenConversation"> | string
+    tenantId?: StringWithAggregatesFilter<"HiddenConversation"> | string
+    hiddenAt?: DateTimeWithAggregatesFilter<"HiddenConversation"> | Date | string
+  }
+
   export type TenantCreateInput = {
     id?: string
     name: string
@@ -16968,6 +18090,7 @@ export namespace Prisma {
     passkeys?: PasskeyCreateNestedManyWithoutUserInput
     feedbacks?: FeedbackCreateNestedManyWithoutUserInput
     biometricTokens?: BiometricTokenCreateNestedManyWithoutUserInput
+    hiddenConversations?: HiddenConversationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -16990,6 +18113,7 @@ export namespace Prisma {
     passkeys?: PasskeyUncheckedCreateNestedManyWithoutUserInput
     feedbacks?: FeedbackUncheckedCreateNestedManyWithoutUserInput
     biometricTokens?: BiometricTokenUncheckedCreateNestedManyWithoutUserInput
+    hiddenConversations?: HiddenConversationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -17012,6 +18136,7 @@ export namespace Prisma {
     passkeys?: PasskeyUpdateManyWithoutUserNestedInput
     feedbacks?: FeedbackUpdateManyWithoutUserNestedInput
     biometricTokens?: BiometricTokenUpdateManyWithoutUserNestedInput
+    hiddenConversations?: HiddenConversationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -17034,6 +18159,7 @@ export namespace Prisma {
     passkeys?: PasskeyUncheckedUpdateManyWithoutUserNestedInput
     feedbacks?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
     biometricTokens?: BiometricTokenUncheckedUpdateManyWithoutUserNestedInput
+    hiddenConversations?: HiddenConversationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -17849,6 +18975,61 @@ export namespace Prisma {
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
+  export type HiddenConversationCreateInput = {
+    id?: string
+    peerId: string
+    tenantId: string
+    hiddenAt?: Date | string
+    user: UserCreateNestedOneWithoutHiddenConversationsInput
+  }
+
+  export type HiddenConversationUncheckedCreateInput = {
+    id?: string
+    userId: string
+    peerId: string
+    tenantId: string
+    hiddenAt?: Date | string
+  }
+
+  export type HiddenConversationUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    peerId?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    hiddenAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutHiddenConversationsNestedInput
+  }
+
+  export type HiddenConversationUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    peerId?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    hiddenAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type HiddenConversationCreateManyInput = {
+    id?: string
+    userId: string
+    peerId: string
+    tenantId: string
+    hiddenAt?: Date | string
+  }
+
+  export type HiddenConversationUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    peerId?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    hiddenAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type HiddenConversationUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    peerId?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    hiddenAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -18234,6 +19415,12 @@ export namespace Prisma {
     none?: BiometricTokenWhereInput
   }
 
+  export type HiddenConversationListRelationFilter = {
+    every?: HiddenConversationWhereInput
+    some?: HiddenConversationWhereInput
+    none?: HiddenConversationWhereInput
+  }
+
   export type SessionOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -18247,6 +19434,10 @@ export namespace Prisma {
   }
 
   export type BiometricTokenOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type HiddenConversationOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -18771,6 +19962,36 @@ export namespace Prisma {
     expiresAt?: SortOrder
   }
 
+  export type HiddenConversationUserIdPeerIdTenantIdCompoundUniqueInput = {
+    userId: string
+    peerId: string
+    tenantId: string
+  }
+
+  export type HiddenConversationCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    peerId?: SortOrder
+    tenantId?: SortOrder
+    hiddenAt?: SortOrder
+  }
+
+  export type HiddenConversationMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    peerId?: SortOrder
+    tenantId?: SortOrder
+    hiddenAt?: SortOrder
+  }
+
+  export type HiddenConversationMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    peerId?: SortOrder
+    tenantId?: SortOrder
+    hiddenAt?: SortOrder
+  }
+
   export type TenantMemberCreateNestedManyWithoutTenantInput = {
     create?: XOR<TenantMemberCreateWithoutTenantInput, TenantMemberUncheckedCreateWithoutTenantInput> | TenantMemberCreateWithoutTenantInput[] | TenantMemberUncheckedCreateWithoutTenantInput[]
     connectOrCreate?: TenantMemberCreateOrConnectWithoutTenantInput | TenantMemberCreateOrConnectWithoutTenantInput[]
@@ -19110,6 +20331,13 @@ export namespace Prisma {
     connect?: BiometricTokenWhereUniqueInput | BiometricTokenWhereUniqueInput[]
   }
 
+  export type HiddenConversationCreateNestedManyWithoutUserInput = {
+    create?: XOR<HiddenConversationCreateWithoutUserInput, HiddenConversationUncheckedCreateWithoutUserInput> | HiddenConversationCreateWithoutUserInput[] | HiddenConversationUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: HiddenConversationCreateOrConnectWithoutUserInput | HiddenConversationCreateOrConnectWithoutUserInput[]
+    createMany?: HiddenConversationCreateManyUserInputEnvelope
+    connect?: HiddenConversationWhereUniqueInput | HiddenConversationWhereUniqueInput[]
+  }
+
   export type TenantMemberUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<TenantMemberCreateWithoutUserInput, TenantMemberUncheckedCreateWithoutUserInput> | TenantMemberCreateWithoutUserInput[] | TenantMemberUncheckedCreateWithoutUserInput[]
     connectOrCreate?: TenantMemberCreateOrConnectWithoutUserInput | TenantMemberCreateOrConnectWithoutUserInput[]
@@ -19157,6 +20385,13 @@ export namespace Prisma {
     connectOrCreate?: BiometricTokenCreateOrConnectWithoutUserInput | BiometricTokenCreateOrConnectWithoutUserInput[]
     createMany?: BiometricTokenCreateManyUserInputEnvelope
     connect?: BiometricTokenWhereUniqueInput | BiometricTokenWhereUniqueInput[]
+  }
+
+  export type HiddenConversationUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<HiddenConversationCreateWithoutUserInput, HiddenConversationUncheckedCreateWithoutUserInput> | HiddenConversationCreateWithoutUserInput[] | HiddenConversationUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: HiddenConversationCreateOrConnectWithoutUserInput | HiddenConversationCreateOrConnectWithoutUserInput[]
+    createMany?: HiddenConversationCreateManyUserInputEnvelope
+    connect?: HiddenConversationWhereUniqueInput | HiddenConversationWhereUniqueInput[]
   }
 
   export type NullableBoolFieldUpdateOperationsInput = {
@@ -19265,6 +20500,20 @@ export namespace Prisma {
     deleteMany?: BiometricTokenScalarWhereInput | BiometricTokenScalarWhereInput[]
   }
 
+  export type HiddenConversationUpdateManyWithoutUserNestedInput = {
+    create?: XOR<HiddenConversationCreateWithoutUserInput, HiddenConversationUncheckedCreateWithoutUserInput> | HiddenConversationCreateWithoutUserInput[] | HiddenConversationUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: HiddenConversationCreateOrConnectWithoutUserInput | HiddenConversationCreateOrConnectWithoutUserInput[]
+    upsert?: HiddenConversationUpsertWithWhereUniqueWithoutUserInput | HiddenConversationUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: HiddenConversationCreateManyUserInputEnvelope
+    set?: HiddenConversationWhereUniqueInput | HiddenConversationWhereUniqueInput[]
+    disconnect?: HiddenConversationWhereUniqueInput | HiddenConversationWhereUniqueInput[]
+    delete?: HiddenConversationWhereUniqueInput | HiddenConversationWhereUniqueInput[]
+    connect?: HiddenConversationWhereUniqueInput | HiddenConversationWhereUniqueInput[]
+    update?: HiddenConversationUpdateWithWhereUniqueWithoutUserInput | HiddenConversationUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: HiddenConversationUpdateManyWithWhereWithoutUserInput | HiddenConversationUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: HiddenConversationScalarWhereInput | HiddenConversationScalarWhereInput[]
+  }
+
   export type TenantMemberUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<TenantMemberCreateWithoutUserInput, TenantMemberUncheckedCreateWithoutUserInput> | TenantMemberCreateWithoutUserInput[] | TenantMemberUncheckedCreateWithoutUserInput[]
     connectOrCreate?: TenantMemberCreateOrConnectWithoutUserInput | TenantMemberCreateOrConnectWithoutUserInput[]
@@ -19361,6 +20610,20 @@ export namespace Prisma {
     update?: BiometricTokenUpdateWithWhereUniqueWithoutUserInput | BiometricTokenUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: BiometricTokenUpdateManyWithWhereWithoutUserInput | BiometricTokenUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: BiometricTokenScalarWhereInput | BiometricTokenScalarWhereInput[]
+  }
+
+  export type HiddenConversationUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<HiddenConversationCreateWithoutUserInput, HiddenConversationUncheckedCreateWithoutUserInput> | HiddenConversationCreateWithoutUserInput[] | HiddenConversationUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: HiddenConversationCreateOrConnectWithoutUserInput | HiddenConversationCreateOrConnectWithoutUserInput[]
+    upsert?: HiddenConversationUpsertWithWhereUniqueWithoutUserInput | HiddenConversationUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: HiddenConversationCreateManyUserInputEnvelope
+    set?: HiddenConversationWhereUniqueInput | HiddenConversationWhereUniqueInput[]
+    disconnect?: HiddenConversationWhereUniqueInput | HiddenConversationWhereUniqueInput[]
+    delete?: HiddenConversationWhereUniqueInput | HiddenConversationWhereUniqueInput[]
+    connect?: HiddenConversationWhereUniqueInput | HiddenConversationWhereUniqueInput[]
+    update?: HiddenConversationUpdateWithWhereUniqueWithoutUserInput | HiddenConversationUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: HiddenConversationUpdateManyWithWhereWithoutUserInput | HiddenConversationUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: HiddenConversationScalarWhereInput | HiddenConversationScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutSessionsInput = {
@@ -19611,6 +20874,20 @@ export namespace Prisma {
     upsert?: UserUpsertWithoutBiometricTokensInput
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutBiometricTokensInput, UserUpdateWithoutBiometricTokensInput>, UserUncheckedUpdateWithoutBiometricTokensInput>
+  }
+
+  export type UserCreateNestedOneWithoutHiddenConversationsInput = {
+    create?: XOR<UserCreateWithoutHiddenConversationsInput, UserUncheckedCreateWithoutHiddenConversationsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutHiddenConversationsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserUpdateOneRequiredWithoutHiddenConversationsNestedInput = {
+    create?: XOR<UserCreateWithoutHiddenConversationsInput, UserUncheckedCreateWithoutHiddenConversationsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutHiddenConversationsInput
+    upsert?: UserUpsertWithoutHiddenConversationsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutHiddenConversationsInput, UserUpdateWithoutHiddenConversationsInput>, UserUncheckedUpdateWithoutHiddenConversationsInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -20594,6 +21871,30 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type HiddenConversationCreateWithoutUserInput = {
+    id?: string
+    peerId: string
+    tenantId: string
+    hiddenAt?: Date | string
+  }
+
+  export type HiddenConversationUncheckedCreateWithoutUserInput = {
+    id?: string
+    peerId: string
+    tenantId: string
+    hiddenAt?: Date | string
+  }
+
+  export type HiddenConversationCreateOrConnectWithoutUserInput = {
+    where: HiddenConversationWhereUniqueInput
+    create: XOR<HiddenConversationCreateWithoutUserInput, HiddenConversationUncheckedCreateWithoutUserInput>
+  }
+
+  export type HiddenConversationCreateManyUserInputEnvelope = {
+    data: HiddenConversationCreateManyUserInput | HiddenConversationCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
   export type TenantMemberUpsertWithWhereUniqueWithoutUserInput = {
     where: TenantMemberWhereUniqueInput
     update: XOR<TenantMemberUpdateWithoutUserInput, TenantMemberUncheckedUpdateWithoutUserInput>
@@ -20768,6 +22069,33 @@ export namespace Prisma {
     expiresAt?: DateTimeNullableFilter<"BiometricToken"> | Date | string | null
   }
 
+  export type HiddenConversationUpsertWithWhereUniqueWithoutUserInput = {
+    where: HiddenConversationWhereUniqueInput
+    update: XOR<HiddenConversationUpdateWithoutUserInput, HiddenConversationUncheckedUpdateWithoutUserInput>
+    create: XOR<HiddenConversationCreateWithoutUserInput, HiddenConversationUncheckedCreateWithoutUserInput>
+  }
+
+  export type HiddenConversationUpdateWithWhereUniqueWithoutUserInput = {
+    where: HiddenConversationWhereUniqueInput
+    data: XOR<HiddenConversationUpdateWithoutUserInput, HiddenConversationUncheckedUpdateWithoutUserInput>
+  }
+
+  export type HiddenConversationUpdateManyWithWhereWithoutUserInput = {
+    where: HiddenConversationScalarWhereInput
+    data: XOR<HiddenConversationUpdateManyMutationInput, HiddenConversationUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type HiddenConversationScalarWhereInput = {
+    AND?: HiddenConversationScalarWhereInput | HiddenConversationScalarWhereInput[]
+    OR?: HiddenConversationScalarWhereInput[]
+    NOT?: HiddenConversationScalarWhereInput | HiddenConversationScalarWhereInput[]
+    id?: StringFilter<"HiddenConversation"> | string
+    userId?: StringFilter<"HiddenConversation"> | string
+    peerId?: StringFilter<"HiddenConversation"> | string
+    tenantId?: StringFilter<"HiddenConversation"> | string
+    hiddenAt?: DateTimeFilter<"HiddenConversation"> | Date | string
+  }
+
   export type UserCreateWithoutSessionsInput = {
     id?: string
     name?: string | null
@@ -20787,6 +22115,7 @@ export namespace Prisma {
     passkeys?: PasskeyCreateNestedManyWithoutUserInput
     feedbacks?: FeedbackCreateNestedManyWithoutUserInput
     biometricTokens?: BiometricTokenCreateNestedManyWithoutUserInput
+    hiddenConversations?: HiddenConversationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSessionsInput = {
@@ -20808,6 +22137,7 @@ export namespace Prisma {
     passkeys?: PasskeyUncheckedCreateNestedManyWithoutUserInput
     feedbacks?: FeedbackUncheckedCreateNestedManyWithoutUserInput
     biometricTokens?: BiometricTokenUncheckedCreateNestedManyWithoutUserInput
+    hiddenConversations?: HiddenConversationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSessionsInput = {
@@ -20845,6 +22175,7 @@ export namespace Prisma {
     passkeys?: PasskeyUpdateManyWithoutUserNestedInput
     feedbacks?: FeedbackUpdateManyWithoutUserNestedInput
     biometricTokens?: BiometricTokenUpdateManyWithoutUserNestedInput
+    hiddenConversations?: HiddenConversationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -20866,6 +22197,7 @@ export namespace Prisma {
     passkeys?: PasskeyUncheckedUpdateManyWithoutUserNestedInput
     feedbacks?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
     biometricTokens?: BiometricTokenUncheckedUpdateManyWithoutUserNestedInput
+    hiddenConversations?: HiddenConversationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutAccountsInput = {
@@ -20887,6 +22219,7 @@ export namespace Prisma {
     passkeys?: PasskeyCreateNestedManyWithoutUserInput
     feedbacks?: FeedbackCreateNestedManyWithoutUserInput
     biometricTokens?: BiometricTokenCreateNestedManyWithoutUserInput
+    hiddenConversations?: HiddenConversationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutAccountsInput = {
@@ -20908,6 +22241,7 @@ export namespace Prisma {
     passkeys?: PasskeyUncheckedCreateNestedManyWithoutUserInput
     feedbacks?: FeedbackUncheckedCreateNestedManyWithoutUserInput
     biometricTokens?: BiometricTokenUncheckedCreateNestedManyWithoutUserInput
+    hiddenConversations?: HiddenConversationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutAccountsInput = {
@@ -20945,6 +22279,7 @@ export namespace Prisma {
     passkeys?: PasskeyUpdateManyWithoutUserNestedInput
     feedbacks?: FeedbackUpdateManyWithoutUserNestedInput
     biometricTokens?: BiometricTokenUpdateManyWithoutUserNestedInput
+    hiddenConversations?: HiddenConversationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -20966,6 +22301,7 @@ export namespace Prisma {
     passkeys?: PasskeyUncheckedUpdateManyWithoutUserNestedInput
     feedbacks?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
     biometricTokens?: BiometricTokenUncheckedUpdateManyWithoutUserNestedInput
+    hiddenConversations?: HiddenConversationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutMembershipsInput = {
@@ -20987,6 +22323,7 @@ export namespace Prisma {
     passkeys?: PasskeyCreateNestedManyWithoutUserInput
     feedbacks?: FeedbackCreateNestedManyWithoutUserInput
     biometricTokens?: BiometricTokenCreateNestedManyWithoutUserInput
+    hiddenConversations?: HiddenConversationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutMembershipsInput = {
@@ -21008,6 +22345,7 @@ export namespace Prisma {
     passkeys?: PasskeyUncheckedCreateNestedManyWithoutUserInput
     feedbacks?: FeedbackUncheckedCreateNestedManyWithoutUserInput
     biometricTokens?: BiometricTokenUncheckedCreateNestedManyWithoutUserInput
+    hiddenConversations?: HiddenConversationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutMembershipsInput = {
@@ -21098,6 +22436,7 @@ export namespace Prisma {
     passkeys?: PasskeyUpdateManyWithoutUserNestedInput
     feedbacks?: FeedbackUpdateManyWithoutUserNestedInput
     biometricTokens?: BiometricTokenUpdateManyWithoutUserNestedInput
+    hiddenConversations?: HiddenConversationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutMembershipsInput = {
@@ -21119,6 +22458,7 @@ export namespace Prisma {
     passkeys?: PasskeyUncheckedUpdateManyWithoutUserNestedInput
     feedbacks?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
     biometricTokens?: BiometricTokenUncheckedUpdateManyWithoutUserNestedInput
+    hiddenConversations?: HiddenConversationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type TenantUpsertWithoutMembersInput = {
@@ -21386,6 +22726,7 @@ export namespace Prisma {
     passkeys?: PasskeyCreateNestedManyWithoutUserInput
     feedbacks?: FeedbackCreateNestedManyWithoutUserInput
     biometricTokens?: BiometricTokenCreateNestedManyWithoutUserInput
+    hiddenConversations?: HiddenConversationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutMessagesInput = {
@@ -21407,6 +22748,7 @@ export namespace Prisma {
     passkeys?: PasskeyUncheckedCreateNestedManyWithoutUserInput
     feedbacks?: FeedbackUncheckedCreateNestedManyWithoutUserInput
     biometricTokens?: BiometricTokenUncheckedCreateNestedManyWithoutUserInput
+    hiddenConversations?: HiddenConversationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutMessagesInput = {
@@ -21526,6 +22868,7 @@ export namespace Prisma {
     passkeys?: PasskeyUpdateManyWithoutUserNestedInput
     feedbacks?: FeedbackUpdateManyWithoutUserNestedInput
     biometricTokens?: BiometricTokenUpdateManyWithoutUserNestedInput
+    hiddenConversations?: HiddenConversationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutMessagesInput = {
@@ -21547,6 +22890,7 @@ export namespace Prisma {
     passkeys?: PasskeyUncheckedUpdateManyWithoutUserNestedInput
     feedbacks?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
     biometricTokens?: BiometricTokenUncheckedUpdateManyWithoutUserNestedInput
+    hiddenConversations?: HiddenConversationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type TenantUpsertWithoutMessagesInput = {
@@ -21739,6 +23083,7 @@ export namespace Prisma {
     messages?: MessageCreateNestedManyWithoutUserInput
     feedbacks?: FeedbackCreateNestedManyWithoutUserInput
     biometricTokens?: BiometricTokenCreateNestedManyWithoutUserInput
+    hiddenConversations?: HiddenConversationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutPasskeysInput = {
@@ -21760,6 +23105,7 @@ export namespace Prisma {
     messages?: MessageUncheckedCreateNestedManyWithoutUserInput
     feedbacks?: FeedbackUncheckedCreateNestedManyWithoutUserInput
     biometricTokens?: BiometricTokenUncheckedCreateNestedManyWithoutUserInput
+    hiddenConversations?: HiddenConversationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutPasskeysInput = {
@@ -21797,6 +23143,7 @@ export namespace Prisma {
     messages?: MessageUpdateManyWithoutUserNestedInput
     feedbacks?: FeedbackUpdateManyWithoutUserNestedInput
     biometricTokens?: BiometricTokenUpdateManyWithoutUserNestedInput
+    hiddenConversations?: HiddenConversationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutPasskeysInput = {
@@ -21818,6 +23165,7 @@ export namespace Prisma {
     messages?: MessageUncheckedUpdateManyWithoutUserNestedInput
     feedbacks?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
     biometricTokens?: BiometricTokenUncheckedUpdateManyWithoutUserNestedInput
+    hiddenConversations?: HiddenConversationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutFeedbacksInput = {
@@ -21839,6 +23187,7 @@ export namespace Prisma {
     messages?: MessageCreateNestedManyWithoutUserInput
     passkeys?: PasskeyCreateNestedManyWithoutUserInput
     biometricTokens?: BiometricTokenCreateNestedManyWithoutUserInput
+    hiddenConversations?: HiddenConversationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutFeedbacksInput = {
@@ -21860,6 +23209,7 @@ export namespace Prisma {
     messages?: MessageUncheckedCreateNestedManyWithoutUserInput
     passkeys?: PasskeyUncheckedCreateNestedManyWithoutUserInput
     biometricTokens?: BiometricTokenUncheckedCreateNestedManyWithoutUserInput
+    hiddenConversations?: HiddenConversationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutFeedbacksInput = {
@@ -21950,6 +23300,7 @@ export namespace Prisma {
     messages?: MessageUpdateManyWithoutUserNestedInput
     passkeys?: PasskeyUpdateManyWithoutUserNestedInput
     biometricTokens?: BiometricTokenUpdateManyWithoutUserNestedInput
+    hiddenConversations?: HiddenConversationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutFeedbacksInput = {
@@ -21971,6 +23322,7 @@ export namespace Prisma {
     messages?: MessageUncheckedUpdateManyWithoutUserNestedInput
     passkeys?: PasskeyUncheckedUpdateManyWithoutUserNestedInput
     biometricTokens?: BiometricTokenUncheckedUpdateManyWithoutUserNestedInput
+    hiddenConversations?: HiddenConversationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type TenantUpsertWithoutFeedbacksInput = {
@@ -22051,6 +23403,7 @@ export namespace Prisma {
     messages?: MessageCreateNestedManyWithoutUserInput
     passkeys?: PasskeyCreateNestedManyWithoutUserInput
     feedbacks?: FeedbackCreateNestedManyWithoutUserInput
+    hiddenConversations?: HiddenConversationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutBiometricTokensInput = {
@@ -22072,6 +23425,7 @@ export namespace Prisma {
     messages?: MessageUncheckedCreateNestedManyWithoutUserInput
     passkeys?: PasskeyUncheckedCreateNestedManyWithoutUserInput
     feedbacks?: FeedbackUncheckedCreateNestedManyWithoutUserInput
+    hiddenConversations?: HiddenConversationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutBiometricTokensInput = {
@@ -22109,6 +23463,7 @@ export namespace Prisma {
     messages?: MessageUpdateManyWithoutUserNestedInput
     passkeys?: PasskeyUpdateManyWithoutUserNestedInput
     feedbacks?: FeedbackUpdateManyWithoutUserNestedInput
+    hiddenConversations?: HiddenConversationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutBiometricTokensInput = {
@@ -22130,6 +23485,111 @@ export namespace Prisma {
     messages?: MessageUncheckedUpdateManyWithoutUserNestedInput
     passkeys?: PasskeyUncheckedUpdateManyWithoutUserNestedInput
     feedbacks?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
+    hiddenConversations?: HiddenConversationUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserCreateWithoutHiddenConversationsInput = {
+    id?: string
+    name?: string | null
+    email?: string | null
+    emailVerified?: boolean | null
+    image?: string | null
+    phoneNumber?: string | null
+    gender?: string | null
+    status?: string | null
+    isAnonymous?: boolean
+    role?: $Enums.GlobalRole
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    memberships?: TenantMemberCreateNestedManyWithoutUserInput
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    accounts?: AccountCreateNestedManyWithoutUserInput
+    messages?: MessageCreateNestedManyWithoutUserInput
+    passkeys?: PasskeyCreateNestedManyWithoutUserInput
+    feedbacks?: FeedbackCreateNestedManyWithoutUserInput
+    biometricTokens?: BiometricTokenCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutHiddenConversationsInput = {
+    id?: string
+    name?: string | null
+    email?: string | null
+    emailVerified?: boolean | null
+    image?: string | null
+    phoneNumber?: string | null
+    gender?: string | null
+    status?: string | null
+    isAnonymous?: boolean
+    role?: $Enums.GlobalRole
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    memberships?: TenantMemberUncheckedCreateNestedManyWithoutUserInput
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
+    messages?: MessageUncheckedCreateNestedManyWithoutUserInput
+    passkeys?: PasskeyUncheckedCreateNestedManyWithoutUserInput
+    feedbacks?: FeedbackUncheckedCreateNestedManyWithoutUserInput
+    biometricTokens?: BiometricTokenUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutHiddenConversationsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutHiddenConversationsInput, UserUncheckedCreateWithoutHiddenConversationsInput>
+  }
+
+  export type UserUpsertWithoutHiddenConversationsInput = {
+    update: XOR<UserUpdateWithoutHiddenConversationsInput, UserUncheckedUpdateWithoutHiddenConversationsInput>
+    create: XOR<UserCreateWithoutHiddenConversationsInput, UserUncheckedCreateWithoutHiddenConversationsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutHiddenConversationsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutHiddenConversationsInput, UserUncheckedUpdateWithoutHiddenConversationsInput>
+  }
+
+  export type UserUpdateWithoutHiddenConversationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerified?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    isAnonymous?: BoolFieldUpdateOperationsInput | boolean
+    role?: EnumGlobalRoleFieldUpdateOperationsInput | $Enums.GlobalRole
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    memberships?: TenantMemberUpdateManyWithoutUserNestedInput
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    accounts?: AccountUpdateManyWithoutUserNestedInput
+    messages?: MessageUpdateManyWithoutUserNestedInput
+    passkeys?: PasskeyUpdateManyWithoutUserNestedInput
+    feedbacks?: FeedbackUpdateManyWithoutUserNestedInput
+    biometricTokens?: BiometricTokenUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutHiddenConversationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerified?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    phoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: NullableStringFieldUpdateOperationsInput | string | null
+    isAnonymous?: BoolFieldUpdateOperationsInput | boolean
+    role?: EnumGlobalRoleFieldUpdateOperationsInput | $Enums.GlobalRole
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    memberships?: TenantMemberUncheckedUpdateManyWithoutUserNestedInput
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
+    messages?: MessageUncheckedUpdateManyWithoutUserNestedInput
+    passkeys?: PasskeyUncheckedUpdateManyWithoutUserNestedInput
+    feedbacks?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
+    biometricTokens?: BiometricTokenUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type TenantMemberCreateManyTenantInput = {
@@ -22444,6 +23904,13 @@ export namespace Prisma {
     expiresAt?: Date | string | null
   }
 
+  export type HiddenConversationCreateManyUserInput = {
+    id?: string
+    peerId: string
+    tenantId: string
+    hiddenAt?: Date | string
+  }
+
   export type TenantMemberUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     role?: EnumTenantRoleFieldUpdateOperationsInput | $Enums.TenantRole
@@ -22678,6 +24145,27 @@ export namespace Prisma {
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
+  export type HiddenConversationUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    peerId?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    hiddenAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type HiddenConversationUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    peerId?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    hiddenAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type HiddenConversationUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    peerId?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    hiddenAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type MessageCreateManyRoomInput = {
     id?: string
     text: string
@@ -22799,6 +24287,10 @@ export namespace Prisma {
      * @deprecated Use BiometricTokenDefaultArgs instead
      */
     export type BiometricTokenArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = BiometricTokenDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use HiddenConversationDefaultArgs instead
+     */
+    export type HiddenConversationArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = HiddenConversationDefaultArgs<ExtArgs>
 
   /**
    * Batch Payload for updateMany & deleteMany & createMany
