@@ -17,7 +17,12 @@ import { PrismaService } from '../prisma/prisma.service.js';
 
 @WebSocketGateway({
     cors: {
-        origin: '*',
+        origin: [
+            'http://localhost:3000',
+            'http://localhost:3001',
+            'https://app.meetlocal.app',
+            'capacitor://localhost',
+        ],
         credentials: true,
     },
     transports: ['websocket', 'polling'],
