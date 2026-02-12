@@ -73,10 +73,7 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
           iOSServerClientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID_WEB || '', // CRITICAL for server-side token verification
           mode: 'online'
         },
-        apple: {
-          clientId: process.env.NEXT_PUBLIC_APPLE_CLIENT_ID || '',
-          redirectUrl: window.location.origin,
-        }
+        apple: {}
       });
     }
   }, []);
