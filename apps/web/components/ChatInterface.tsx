@@ -557,26 +557,41 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
 
     const handleContactStaff = async () => {
         setStaffError(null);
+
+        // 1. Try using cached staff data from useQuery first (most reliable if already loaded)
+        let staff = staffMembers;
+        console.log('[handleContactStaff] Cached staff check:', staff);
+
+        // 2. If cache is empty, try explicit fetch
+        if (!staff || staff.length === 0) {
+            try {
+                console.log('[handleContactStaff] No cached staff, fetching from API...');
+                staff = await clientGetTenantStaff(tenant.slug);
+            } catch (error) {
+                console.error("Error fetching staff:", error);
+            }
+        }
+
         try {
-            const staff = await clientGetTenantStaff(tenant.slug);
-            console.log('[handleContactStaff] Staff response:', staff);
             if (staff && staff.length > 0) {
-                // Map backend user to frontend user format
-                const staffMember = staff[0];
+                // The backend now sorts these by priority: OWNER > ADMIN > etc.
+                const primaryAdmin = staff[0];
+                console.log('[handleContactStaff] Targeting primary admin:', primaryAdmin);
+
                 const staffUser: User = {
-                    id: staffMember.id,
-                    alias: staffMember.name || staffMember.email?.split('@')[0] || 'Staff',
-                    gender: (staffMember.gender as any) || 'other',
-                    image: staffMember.image,
-                    email: staffMember.email,
+                    id: primaryAdmin.id,
+                    alias: primaryAdmin.name || primaryAdmin.email?.split('@')[0] || 'Admin',
+                    gender: (primaryAdmin.gender as any) || 'other',
+                    image: primaryAdmin.image,
+                    email: primaryAdmin.email,
                 };
-                // Open chat with the staff member, even if offline
+                // Open chat with the admin immediately.
                 handleStartChat(staffUser);
             } else {
                 setStaffError('Nessun membro dello staff disponibile al momento.');
             }
         } catch (error) {
-            console.error("Error contacting staff:", error);
+            console.error("Error starting chat with staff:", error);
             setStaffError('Errore nel contattare lo staff. Riprova.');
         }
     };
