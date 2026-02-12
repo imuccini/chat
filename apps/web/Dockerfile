@@ -27,7 +27,7 @@ COPY turbo.json turbo.json
 # Generate Prisma Client (needed for build)
 RUN npx turbo run db:generate --filter=@local/web
 
-# BuildRUN npx prisma generate
+# Build
 RUN NODE_OPTIONS='--max-old-space-size=1536' npx turbo run build --filter=@local/web -- --workers 1
 
 # RUNNER STAGE

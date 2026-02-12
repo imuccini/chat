@@ -28,7 +28,6 @@ COPY turbo.json turbo.json
 RUN npx turbo run db:generate --filter=@local/api
 
 # Build
-RUN npx prisma generate
 RUN NODE_OPTIONS='--max-old-space-size=1536' npx turbo run build --filter=@local/api
 
 # RUNNER STAGE
