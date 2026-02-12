@@ -40,7 +40,7 @@ echo "🚀 Running Next.js Build..."
 export $(grep -v '^#' ../../.env | xargs)
 export NEXT_STATIC_EXPORT=true 
 
-if next build; then
+if npx next build; then
     echo "✅ Build Successful!"
 else
     echo "❌ Build Failed!"

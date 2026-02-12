@@ -24,13 +24,13 @@ const UserList: React.FC<UserListProps> = ({ currentUser, users, staff = [], onS
     const filteredOnlineUsers = uniqueOnlineUsers.filter(u =>
         u.id !== currentUser.id &&
         !staffIds.has(u.id) && // Don't show staff in general list
-        u.alias.toLowerCase().includes(searchQuery.toLowerCase())
+        (u.alias || (u as any).name || "User").toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     // Filter staff by search query
     const filteredStaff = staff.filter(s =>
         s.id !== currentUser.id &&
-        s.alias.toLowerCase().includes(searchQuery.toLowerCase())
+        (s.alias || (s as any).name || "Staff").toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     const getAvatarColor = (gender: Gender) => {
@@ -59,7 +59,7 @@ const UserList: React.FC<UserListProps> = ({ currentUser, users, staff = [], onS
                         {user.image ? (
                             <img src={user.image} alt={user.alias} className="w-full h-full object-cover" />
                         ) : (
-                            <span className="font-bold text-lg uppercase">{user.alias.charAt(0)}</span>
+                            <span className="font-bold text-lg uppercase">{(user.alias || (user as any).name || "U").charAt(0)}</span>
                         )}
                     </div>
                     {isOnline && (

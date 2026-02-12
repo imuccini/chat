@@ -39,7 +39,7 @@ cd apps/web && npm run build:cap && npx cap:sync && npx cap open ios
 
 
 COAMNDO:
-npm run build:cap && npx cap:sync:ios
+npm run build:cap && run npx cap:sync:ios
 
 
 

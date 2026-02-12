@@ -55,7 +55,7 @@ export function UnifiedChatList({
         const filteredChats = privateChats.filter(chat => {
             if (activeFilter === 'rooms') return false;
             if (activeFilter === 'unread' && chat.unreadCount === 0) return false;
-            return chat.peer.alias.toLowerCase().includes(query);
+            return (chat.peer.alias || (chat.peer as any).name || "User").toLowerCase().includes(query);
         }).sort((a, b) => {
             // Sort by latest message timestamp
             const timeA = a.messages.length ? new Date(a.messages[a.messages.length - 1].timestamp).getTime() : 0;

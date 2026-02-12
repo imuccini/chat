@@ -10,7 +10,7 @@ dotenv.config({ path: path.join(__dirname, '../../.env') });
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    output: 'standalone',
+    output: process.env.NEXT_STATIC_EXPORT === 'true' ? 'export' : 'standalone',
     images: {
         unoptimized: true,
     },

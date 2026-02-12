@@ -147,8 +147,14 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
     // 1.1 Fetch Tenant Staff (for UserList and offline contact)
     const { data: staffMembers = [] } = useQuery({
         queryKey: ['staff', tenant.slug],
-        queryFn: () => clientGetTenantStaff(tenant.slug),
-        staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+        queryFn: async () => {
+            const rawStaff = await clientGetTenantStaff(tenant.slug);
+            return rawStaff.map((s: any) => ({
+                ...s,
+                alias: s.name || s.email?.split('@')[0] || 'Staff'
+            }));
+        },
+        staleTime: 1000 * 60 * 5,
     });
 
     // 2. Sync user data from BetterAuth session (updates localStorage user with fresh server data)

@@ -13,8 +13,7 @@ export const clientResolveTenant = async (urlNasId?: string, bssid?: string): Pr
         // This avoids direct port 3001 access issues from the device
         // On Web, SERVER_URL is empty, so this becomes relative '/api/tenants/validate-nas'
 
-        const baseUrl = SERVER_URL;
-        const url = `${baseUrl}/api/tenants/validate-nas`;
+        const url = `${API_BASE_URL}/api/tenants/validate-nas`;
         console.log(`[apiService] Resolving tenant via ${url}`, payload);
 
         const res = await fetch(url, {
@@ -73,7 +72,7 @@ export const clientGetTenantStaff = async (slug: string) => {
 };
 
 export const clientSubmitFeedback = async (slug: string, score: number, comment?: string, userId?: string) => {
-    const res = await fetch(`${SERVER_URL}/api/tenants/${slug}/feedback`, {
+    const res = await fetch(`${API_BASE_URL}/api/tenants/${slug}/feedback`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -85,7 +84,7 @@ export const clientSubmitFeedback = async (slug: string, score: number, comment?
 
 export const clientGetFeedback = async (slug: string, userId?: string) => {
     const params = userId ? `?userId=${userId}` : '';
-    const res = await fetch(`${SERVER_URL}/api/tenants/${slug}/feedback${params}`, {
+    const res = await fetch(`${API_BASE_URL}/api/tenants/${slug}/feedback${params}`, {
         credentials: 'include',
         cache: 'no-store',
     });

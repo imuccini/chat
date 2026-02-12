@@ -1,26 +1,19 @@
-diff --git a/node_modules/@capacitor-community/sqlite/.swiftpm/xcode/xcuserdata/ivanmuccini.xcuserdatad/xcschemes/xcschememanagement.plist b/node_modules/@capacitor-community/sqlite/.swiftpm/xcode/xcuserdata/ivanmuccini.xcuserdatad/xcschemes/xcschememanagement.plist
-new file mode 100644
-index 0000000..6d0da2c
---- /dev/null
-+++ b/node_modules/@capacitor-community/sqlite/.swiftpm/xcode/xcuserdata/ivanmuccini.xcuserdatad/xcschemes/xcschememanagement.plist
-@@ -0,0 +1,14 @@
-+<?xml version="1.0" encoding="UTF-8"?>
-+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-+<plist version="1.0">
-+<dict>
-+	<key>SchemeUserState</key>
-+	<dict>
-+		<key>CapacitorCommunitySqlite.xcscheme_^#shared#^_</key>
-+		<dict>
-+			<key>orderHint</key>
-+			<integer>5</integer>
-+		</dict>
-+	</dict>
-+</dict>
-+</plist>
+diff --git a/node_modules/@capacitor-community/sqlite/android/build.gradle b/node_modules/@capacitor-community/sqlite/android/build.gradle
+index 9e45856..8f56432 100644
+--- a/node_modules/@capacitor-community/sqlite/android/build.gradle
++++ b/node_modules/@capacitor-community/sqlite/android/build.gradle
+@@ -33,7 +33,7 @@
+     buildTypes {
+         release {
+             minifyEnabled false
+-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
++            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+         }
+     }
+     lintOptions {
 diff --git a/node_modules/@capacitor-community/sqlite/Package.swift b/node_modules/@capacitor-community/sqlite/Package.swift
 new file mode 100644
-index 0000000..57fe1c4
+index 0000000..b3c4d5e
 --- /dev/null
 +++ b/node_modules/@capacitor-community/sqlite/Package.swift
 @@ -0,0 +1,29 @@
@@ -53,58 +46,14 @@ index 0000000..57fe1c4
 +            exclude: ["CapacitorSQLitePlugin.h", "CapacitorSQLitePlugin.m"])
 +    ]
 +)
-diff --git a/node_modules/@capacitor-community/sqlite/android/.project b/node_modules/@capacitor-community/sqlite/android/.project
-new file mode 100644
-index 0000000..d42629f
---- /dev/null
-+++ b/node_modules/@capacitor-community/sqlite/android/.project
-@@ -0,0 +1,28 @@
-+<?xml version="1.0" encoding="UTF-8"?>
-+<projectDescription>
-+	<name>capacitor-community-sqlite</name>
-+	<comment>Project capacitor-community-sqlite created by Buildship.</comment>
-+	<projects>
-+	</projects>
-+	<buildSpec>
-+		<buildCommand>
-+			<name>org.eclipse.buildship.core.gradleprojectbuilder</name>
-+			<arguments>
-+			</arguments>
-+		</buildCommand>
-+	</buildSpec>
-+	<natures>
-+		<nature>org.eclipse.buildship.core.gradleprojectnature</nature>
-+	</natures>
-+	<filteredResources>
-+		<filter>
-+			<id>1770134898501</id>
-+			<name></name>
-+			<type>30</type>
-+			<matcher>
-+				<id>org.eclipse.core.resources.regexFilterMatcher</id>
-+				<arguments>node_modules|\.git|__CREATED_BY_JAVA_LANGUAGE_SERVER__</arguments>
-+			</matcher>
-+		</filter>
-+	</filteredResources>
-+</projectDescription>
-diff --git a/node_modules/@capacitor-community/sqlite/android/build.gradle b/node_modules/@capacitor-community/sqlite/android/build.gradle
-index 3531a2f..8b67850 100644
---- a/node_modules/@capacitor-community/sqlite/android/build.gradle
-+++ b/node_modules/@capacitor-community/sqlite/android/build.gradle
-@@ -33,7 +33,7 @@ android {
-     buildTypes {
-         release {
-             minifyEnabled false
--            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-         }
-     }
-     lintOptions {
 diff --git a/node_modules/@capacitor-community/sqlite/ios/Plugin/CapacitorSQLitePlugin.swift b/node_modules/@capacitor-community/sqlite/ios/Plugin/CapacitorSQLitePlugin.swift
-index 33f6a4d..27ecb3b 100644
+index 1234567..abcdef0 100644
 --- a/node_modules/@capacitor-community/sqlite/ios/Plugin/CapacitorSQLitePlugin.swift
 +++ b/node_modules/@capacitor-community/sqlite/ios/Plugin/CapacitorSQLitePlugin.swift
-@@ -4,7 +4,60 @@ import Capacitor
+@@ -1,9 +1,57 @@
+ import Foundation
+ import Capacitor
+
  @objc(CapacitorSQLitePlugin)
  // swiftlint:disable file_length
  // swiftlint:disable type_body_length
@@ -166,3 +115,37 @@ index 33f6a4d..27ecb3b 100644
      private var implementation: CapacitorSQLite?
      private let modeList: [String] = ["no-encryption", "encryption", "secret",
                                        "decryption", "newsecret", "wrongsecret"]
+diff --git a/node_modules/@capacitor-community/sqlite/android/.project b/node_modules/@capacitor-community/sqlite/android/.project
+new file mode 100644
+index 0000000..d42629f
+--- /dev/null
++++ b/node_modules/@capacitor-community/sqlite/android/.project
+@@ -0,0 +1,28 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<projectDescription>
++	<name>capacitor-community-sqlite</name>
++	<comment>Project capacitor-community-sqlite created by Buildship.</comment>
++	<projects>
++	</projects>
++	<buildSpec>
++		<buildCommand>
++			<name>org.eclipse.buildship.core.gradleprojectbuilder</name>
++			<arguments>
++			</arguments>
++		</buildCommand>
++	</buildSpec>
++	<natures>
++		<nature>org.eclipse.buildship.core.gradleprojectnature</nature>
++	</natures>
++	<filteredResources>
++		<filter>
++			<id>1770134898501</id>
++			<name></name>
++			<type>30</type>
++			<matcher>
++				<id>org.eclipse.core.resources.regexFilterMatcher</id>
++				<arguments>node_modules|\.git|__CREATED_BY_JAVA_LANGUAGE_SERVER__</arguments>
++			</matcher>
++		</filter>
++	</filteredResources>
++</projectDescription>
