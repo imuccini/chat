@@ -35,8 +35,8 @@
 		A1B2C3D401000002 /* WifiConfigPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WifiConfigPlugin.swift; sourceTree = "<group>"; };
 		A1B2C3D401000006 /* WifiInfoPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WifiInfoPlugin.swift; sourceTree = "<group>"; };
 		A1B2C3D40100000A /* SignificantLocationPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignificantLocationPlugin.swift; sourceTree = "<group>"; };
-		DDC1ECD42F3CF344002B3B56 /* App.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = App.entitlements; sourceTree = "<group>"; };
 		A1B2C3D40100000E /* BridgeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BridgeViewController.swift; sourceTree = "<group>"; };
+		DDC1ECD42F3CF344002B3B56 /* App.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = App.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */

@@ -49,18 +49,19 @@ async function bootstrap() {
 
       await Promise.all([pubClient.connect(), subClient.connect()]);
 
-      const ioAdapter = new IoAdapter(app);
-      // @ts-ignore - custom adapter setup
-      ioAdapter.createIOServer = (port: number, options?: any) => {
-        const io = new Server(port, options);
-        io.adapter(createAdapter(pubClient, subClient));
-        return io;
-      };
+      // Proper Adapter Class to ensure we attach to the HTTP server
+      class RedisIoAdapter extends IoAdapter {
+        createIOServer(port: number, options?: any): any {
+          const server = super.createIOServer(port, options);
+          server.adapter(createAdapter(pubClient, subClient));
+          return server;
+        }
+      }
 
-      app.useWebSocketAdapter(ioAdapter);
+      app.useWebSocketAdapter(new RedisIoAdapter(app));
       logger.log('Redis adapter enabled for Socket.IO');
     } catch (error) {
-      logger.warn('Redis connection failed, using default adapter');
+      logger.warn(`Redis connection failed: ${error.message}, using default adapter`);
     }
   }
 
