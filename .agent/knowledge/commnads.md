@@ -35,7 +35,7 @@ npx cap open android
 Riassunto rapido (One-liner):
 Se sei già nella root del progetto e vuoi fare tutto in un colpo solo per iOS:
 
-cd apps/web && npm run build:cap && npx cap sync && npx cap open ios
+cd apps/web && npm run build:cap && run npx cap:sync && npx cap open ios
 
 
 
