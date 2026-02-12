@@ -30,6 +30,7 @@ async function bootstrap() {
         'capacitor://localhost',
         'http://localhost',
         'http://localhost:3000',
+        'https://app.meetlocal.app',
       ];
       const isAllowed = !origin || allowed.includes(origin) ||
         origin?.startsWith('http://192.168.') ||

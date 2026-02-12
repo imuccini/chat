@@ -94,3 +94,20 @@ Building mobile apps requires specific command chains to prepare assets and sync
 cd apps/web && npm run build:cap && npx cap sync && npx cap open ios
 ```
 *Note: `run npx` is incorrect syntax; use `npx` directly or define a script.*
+
+### 7. Split API Routing (Next.js + NestJS)
+**Problem:**
+Next.js handles Auth (`/api/auth/*`), but Nginx routes *all* `/api/*` to NestJS (3001), causing 404s for auth endpoints.
+**Solution:**
+Configure Nginx with specific blocks to split traffic:
+```nginx
+# specific auth routes -> Next.js (3000)
+location /api/auth/ {
+    proxy_pass http://localhost:3000;
+}
+
+# catch-all api routes -> NestJS (3001)
+location /api/ {
+    proxy_pass http://localhost:3001;
+}
+```
