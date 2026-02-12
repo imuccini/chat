@@ -24,6 +24,15 @@
                 "dist/**"
             ]
         },
+        "build:marketing": {
+            "dependsOn": [
+                "^build"
+            ],
+            "outputs": [
+                "marketing/.next/**",
+                "!marketing/.next/cache/**"
+            ]
+        },
         "dev": {
             "cache": false,
             "persistent": true,

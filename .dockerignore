@@ -1,0 +1,17 @@
+node_modules
+.next
+.turbo
+dist
+*.log
+.DS_Store
+.git
+apps/web/ios
+apps/web/android
+apps/web/ios.bak
+apps/web/android.bak
+apps/web/out
+out
+# Ignore local DBs
+*.db
+*.db-shm
+*.db-wal

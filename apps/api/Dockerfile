@@ -1,5 +1,5 @@
 # BASE IMAGE
-FROM node:20.18-bullseye-slim AS base
+FROM node:22-bullseye-slim AS base
 RUN npm install -g turbo
 RUN apt-get update && apt-get install -y openssl ca-certificates && rm -rf /var/lib/apt/lists/*
 
