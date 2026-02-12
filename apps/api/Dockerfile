@@ -57,6 +57,8 @@ ENV PORT 3001
 
 EXPOSE 3001
 
-# The path needs to match the bundled build structure: dist/main.js
-# When webpack is enabled, Nest flattens the output
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main.js"]
+# Rename main.js to main.cjs to force CommonJS mode (since package.json has "type": "module")
+RUN mv dist/main.js dist/main.cjs
+
+# The path needs to match the bundled build structure: dist/main.cjs
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main.cjs"]
