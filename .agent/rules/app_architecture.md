@@ -96,23 +96,25 @@ The application uses a centered Prisma management pattern via the `@local/databa
 - **Native Issues**: iOS/Android impose strict CORS and networking rules.
 - **Fetch API**: Native apps must use absolute URLs (`API_BASE_URL` + endpoint).
 - **Caching**: iOS aggressively caches GET requests. **CRITICAL RULE**: All fetch calls for changing data (like messages or room lists) MUST use `{ cache: 'no-store' }`.
-- **Localhost**: Android emulator uses `10.0.2.2` to access host localhost; iOS simulator uses `localhost`. The `API_BASE_URL` config handles this dynamically.
+- **Localhost**: 
+  - Android emulator uses `10.0.2.2` to access host localhost.
+  - iOS simulator uses `localhost`.
+  - **MacOS Local Dev**: When running `next dev` locally, server-side fetches (SSR) to LAN IP (e.g., `192.168.1.x`) often fail (`ECONNREFUSED`). **Use `127.0.0.1` for server-side fetches on Web platform** in `config.ts` to bypass this.
 
-## 5. Architectural Rules for Development
+## 7. Native Development Guidelines
 
-1.  **Always Send Auth**: When modifying `apiService`, ensure the `Authorization` header is included if a token exists. Do not rely on cookies alone.
-2.  **Check Socket Events**: Verify event names in `ChatGateway` before implementing frontend listeners. Mismatches (e.g. `message` vs `privateMessage`) are common bugs.
-3.  **Handle Native Fetches**: Always prepend `API_BASE_URL` and disable cache for dynamic data.
-4.  **Platform Checks**: Use `Capacitor.isNativePlatform()` for UI logic differences (e.g., back buttons, haptics, status bars).
-### 6. Security & Rate Limiting
-- **Feedback API**: Implements in-memory rate limiting (1 submission per IP per 30 seconds) to prevent spam.
-- **Logout**: A dedicated `/api/auth/logout` route invalidates the session server-side and clears cookies appropriately. `ChatInterface` calls this after disconnecting the socket.
-- **Debug Endpoints**: `/api/debug-session` is now gated to prevent leaking session data in production.
+### Build System
+- **SPM Versioning**: Use `from: "x.x.x"` instead of `exact: "x.x.x"` in `Package.swift` to allow flexible patch updates and avoid conflicts with `npm` installed versions.
+- **Patch Management**: 
+  - Use `patch-package` for modifying native plugins (e.g., adding `Package.swift` to plugins that lack it).
+  - Store patches in the **root** `patches/` directory.
+  - Run `npm install` from the **root** to apply patches correctly to hoisted dependencies.
 
-## 5. Architectural Rules for Development
+## 8. Architectural Rules for Development
 
 1.  **Always Send Auth**: When modifying `apiService`, ensure the `Authorization` header is included if a token exists. Do not rely on cookies alone.
 2.  **Check Socket Events**: Verify event names in `ChatGateway` before implementing frontend listeners. Mismatches (e.g. `message` vs `privateMessage`) are common bugs.
 3.  **Handle Native Fetches**: Always prepend `API_BASE_URL` and disable cache for dynamic data.
 4.  **Platform Checks**: Use `Capacitor.isNativePlatform()` for UI logic differences (e.g., back buttons, haptics, status bars).
 5.  **Session Consistency**: Prefer `session.token` for authentication. Use `authClient.getSession()` to re-sync state after auth actions.
+6.  **Align API Paths**: Frontend code should use the **full backend path** (e.g., `/api/tenants/validate-nas`) to avoid loops in production where Nginx proxies directly. Update local Next.js rewrites to match this structure.

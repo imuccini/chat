@@ -30,6 +30,10 @@ The frontend was calling `/api/validate-nas`, which worked locally (via Next.js 
 Local dev was failing with `ECONNREFUSED` when connecting to the LAN IP (192.168.1.110) from the same machine (macOS loopback/firewall issue).
 - **`apps/web/config.ts`**: Updated `API_BASE_URL` logic to force `http://127.0.0.1:3001` when running on the Web platform (SSR), bypassing the LAN IP for local requests while keeping it for native devices.
 
+### 6. Fix Production Loading Freeze
+The app was getting stuck on "Caricamento..." in production because `config.ts` was effectively hardcoding port `:3001` for API calls, which is blocked by firewalls (bypassing Nginx).
+- **`apps/web/config.ts`**: Updated `API_BASE_URL` and `SOCKET_URL` to use **relative paths** (`""`) when in production on the Web platform. This allows Nginx to correctly route `/api` and `/socket.io` requests via standard ports (443).
+
 ### 3. WiFi Profile Service
 - **`wifiProfileService.ts`**: Centralized service that handles connecting to the "Local - WiFi" network.
     - Uses `NEHotspotConfiguration` on iOS to prompt the user to join the network.

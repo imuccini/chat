@@ -36,3 +36,4 @@ Based on [ios-permission-plan.md](file:///Users/ivanmuccini/Desktop/chatapp/chat
 - [x] **Fix Prod API Loop**: Update `apiService.ts` to use correct backend path `/api/tenants/validate-nas`. <!-- id: 22 -->
 - [x] **Fix Prod API Loop**: Update `next.config.mjs` rewrites for local dev. <!-- id: 23 -->
 - [x] **Cleanup**: Delete redundant `apps/web/app/api/validate-nas` route. <!-- id: 24 -->
+- [x] **Fix Prod Loading Freeze**: Update `config.ts` to use relative paths in production (Web). <!-- id: 25 -->
