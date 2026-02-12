@@ -97,10 +97,8 @@ sudo certbot --nginx -d meetlocal.app -d www.meetlocal.app -d app.meetlocal.app
 ```
 Follow the prompts (enter email, agree to terms, choose "Redirect" if asked).
 
-## 5. Verify and Start App
-Ensure your Docker containers are running with the correct host port mapping:
 ```bash
-docker compose up -d
+docker-compose up -d
 ```
 
 ---

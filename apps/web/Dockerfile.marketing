@@ -39,11 +39,14 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 USER nextjs
 
-# Copy essential files
-COPY --from=installer /app/apps/web/package.json .
-COPY --from=installer /app/apps/web/marketing/public ./marketing/public
-COPY --from=installer /app/apps/web/marketing/.next ./marketing/.next
-COPY --from=installer /app/node_modules ./node_modules
+# Copy essential files (Standalone mode)
+# In standalone mode, Marketing build results are under apps/web/.next/standalone
+COPY --from=installer --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
+COPY --from=installer --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
+COPY --from=installer --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
+
+# Remove internal .env to prevent overrides
+RUN rm -f .env apps/web/.env
 
 # Environment variables
 ENV NODE_ENV production
@@ -52,5 +55,7 @@ ENV NEXT_TELEMETRY_DISABLED 1
 
 EXPOSE 3000
 
-# Start marketing site
-CMD ["npm", "run", "start:marketing"]
+# Start standalone Marketing server
+# Note: Next.js standalone bundles the marketing site under the same server if built together,
+# but since we have a separate Dockerfile, it will run the specific marketing build.
+CMD ["node", "apps/web/server.js"]

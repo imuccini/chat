@@ -40,10 +40,14 @@ RUN adduser --system --uid 1001 nestjs
 USER nestjs
 
 # Copy essential files
-COPY --from=installer /app/apps/api/package.json .
-COPY --from=installer /app/apps/api/dist ./dist
-COPY --from=installer /app/node_modules ./node_modules
-COPY --from=installer /app/packages/database/prisma ./prisma
+COPY --from=installer --chown=nestjs:node /app/apps/api/package.json .
+COPY --from=installer --chown=nestjs:node /app/apps/api/dist ./dist
+COPY --from=installer --chown=nestjs:node /app/node_modules ./node_modules
+COPY --from=installer --chown=nestjs:node /app/packages/database/prisma ./prisma
+COPY --from=installer --chown=nestjs:node /app/packages/database/src/generated/client ./packages/database/src/generated/client
+
+# Remove internal .env to prevent overrides of Docker env vars
+RUN rm -f .env apps/api/.env
 
 # Environment variables
 ENV NODE_ENV production

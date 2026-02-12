@@ -39,12 +39,13 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 USER nextjs
 
-# Copy essential files
-COPY --from=installer /app/apps/web/package.json .
-COPY --from=installer /app/apps/web/public ./public
-COPY --from=installer /app/apps/web/.next ./.next
-COPY --from=installer /app/node_modules ./node_modules
-COPY --from=installer /app/packages/database/prisma ./prisma
+# Copy essential files (Standalone mode)
+COPY --from=installer --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
+COPY --from=installer --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
+COPY --from=installer --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
+
+# Remove internal .env to prevent overrides
+RUN rm -f .env apps/web/.env
 
 # Environment variables
 ENV NODE_ENV production
@@ -53,5 +54,5 @@ ENV NEXT_TELEMETRY_DISABLED 1
 
 EXPOSE 3000
 
-# Start standard Next.js
-CMD ["npm", "start"]
+# Start standalone Next.js server
+CMD ["node", "apps/web/server.js"]
