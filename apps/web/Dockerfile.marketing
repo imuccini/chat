@@ -58,4 +58,4 @@ EXPOSE 3000
 # Start standalone Marketing server
 # Note: Next.js standalone bundles the marketing site under the same server if built together,
 # but since we have a separate Dockerfile, it will run the specific marketing build.
-CMD ["node", "apps/web/server.js"]
+CMD ["node", "apps/web/marketing/server.js"]

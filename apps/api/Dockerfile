@@ -55,4 +55,4 @@ ENV PORT 3001
 
 EXPOSE 3001
 
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main.js"]
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/apps/api/src/main.js"]
