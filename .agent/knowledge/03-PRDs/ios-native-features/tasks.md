@@ -31,3 +31,4 @@ Based on [ios-permission-plan.md](file:///Users/ivanmuccini/Desktop/chatapp/chat
 - [x] Restore `.m` files (Required for method dispatch/registration fallback) <!-- id: 17 -->
 - [x] Update `build_cap.sh` to use `cap sync` and inject plugins <!-- id: 18 -->
 - [x] Reinstall `@capacitor-community/sqlite` (Was corrupted/empty in node_modules) <!-- id: 19 -->
+- [x] **Fix Portability**: Added `patch-package` to apply `Package.swift` fix on `npm install` (Required for new machines) <!-- id: 20 -->

@@ -10,6 +10,7 @@ The custom plugins were missing, and `@capacitor-community/sqlite` was failing t
 - **Fixed SQLite Plugin**: 
     - Reinstalled corrupted package.
     - Manually added `Package.swift` to `node_modules/@capacitor-community/sqlite`.
+    - **Portability**: Used `patch-package` to persist this fix. It automatically applies `Package.swift` on `npm install`.
 - **Updated `build_cap.sh`**: Runs `npx cap sync ios` and injects custom plugins.
 - **CRITICAL**: Use `npm run build:cap`. Do NOT run `npx cap sync` manually.
 
