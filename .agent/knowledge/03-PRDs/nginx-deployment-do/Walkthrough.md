@@ -80,8 +80,18 @@ sudo nginx -t
 sudo systemctl reload nginx
 ```
 
-## 4. Enable SSL (HTTPS)
-Certbot will automatically update your Nginx config:
+## 4. Enable SSL (HTTPS) - Optional with Cloudflare
+If you are using **Cloudflare** (with proxy enabled 🟠), you have two main options:
+
+### Option A: Cloudflare "Flexible" Mode (Easiest)
+Cloudflare handles SSL between the browser and their edge. The connection from Cloudflare to your Droplet will be HTTP.
+- Skip Step 4.
+- Ensure Cloudflare SSL/TLS settings are set to **"Flexible"**.
+
+### Option B: Cloudflare "Full" or "Full (strict)" (More Secure)
+If you want end-to-end encryption, you still need a certificate on your Droplet. You can either use Certbot (as shown below) or download a **Cloudflare Origin CA Certificate**.
+
+**To use Certbot (Let's Encrypt):**
 ```bash
 sudo certbot --nginx -d meetlocal.app -d www.meetlocal.app -d app.meetlocal.app
 ```
@@ -94,4 +104,4 @@ docker compose up -d
 ```
 
 ---
-**Note:** Ensure your DNS Settings in Digital Ocean point both `@` and `app` A-records to your Droplet IP.
+**Note:** Ensure your DNS Settings in Cloudflare have the **Proxy (Orange Cloud)** enabled for both `@` and `app` records.

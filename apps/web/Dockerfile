@@ -18,6 +18,7 @@ WORKDIR /app
 COPY --from=pruner /app/out/json/ .
 COPY --from=pruner /app/out/package-lock.json ./package-lock.json
 RUN npm ci
+RUN npm cache clean --force
 
 # Copy full pruned source and build
 COPY --from=pruner /app/out/full/ .
@@ -26,8 +27,8 @@ COPY turbo.json turbo.json
 # Generate Prisma Client (needed for build)
 RUN npx turbo run db:generate --filter=@local/web
 
-# Build the project
-RUN npx turbo run build --filter=@local/web
+# BuildRUN npx prisma generate
+RUN NODE_OPTIONS='--max-old-space-size=1536' npx turbo run build --filter=@local/web -- --workers 1
 
 # RUNNER STAGE
 FROM base AS runner
