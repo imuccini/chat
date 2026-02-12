@@ -53,7 +53,7 @@ RUN rm -f .env apps/api/.env
 
 # Environment variables
 ENV NODE_ENV production
-ENV PORT 3001
+ENV API_PORT 3001
 
 EXPOSE 3001
 

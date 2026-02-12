@@ -57,8 +57,10 @@ async function bootstrap() {
   }
 
   const port = process.env.API_PORT || 3001;
-  await app.listen(port, '0.0.0.0'); // Listen on all network interfaces
-  logger.log(`🚀 API server running on http://0.0.0.0:${port}`);
+  const host = '0.0.0.0';
+  console.log(`[Bootstrap] Attempting to listen on ${host}:${port} (API_PORT=${process.env.API_PORT})`);
+  await app.listen(port, host);
+  logger.log(`🚀 API server running on http://${host}:${port}`);
 }
 
 bootstrap();
