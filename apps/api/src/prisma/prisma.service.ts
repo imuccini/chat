@@ -21,6 +21,7 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
     get nasDevice() { return prisma.nasDevice; }
     get systemLog() { return prisma.systemLog; }
     get hiddenConversation() { return prisma.hiddenConversation; }
+    get feedback() { return prisma.feedback; }
 
     async onModuleInit() {
         try {

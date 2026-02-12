@@ -192,7 +192,7 @@ export class TenantService {
             }
         }
 
-        return (this.prisma as any).feedback.create({
+        return this.prisma.feedback.create({
             data: {
                 userId: finalUserId,
                 tenantId,

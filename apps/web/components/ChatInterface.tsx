@@ -181,11 +181,30 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                 return;
             }
 
-            // 2. No BetterAuth session — if we already have a user from localStorage, keep them
-            const savedUser = localStorage.getItem('chat_user');
-            if (savedUser) {
-                setIsRestoringSession(false);
-                return;
+            // 2. No BetterAuth session — check for stale data in localStorage
+            const savedUserStr = localStorage.getItem('chat_user');
+            if (savedUserStr) {
+                try {
+                    const savedUser = JSON.parse(savedUserStr);
+
+                    // CRITICAL FIX: If we have a stored user that claims to be registered (not anonymous),
+                    // but we have NO active session (session is null/undefined at this point),
+                    // then this is a "Zombie" session (stale localStorage). We must clear it.
+                    if (savedUser && !savedUser.isAnonymous) {
+                        console.warn("[ChatInterface] Found stale registered user in localStorage without active session. Clearing to prevent unauthorized admin access.");
+                        localStorage.removeItem('chat_user');
+                        setCurrentUser(null);
+                        setIsRestoringSession(false);
+                        return;
+                    }
+
+                    // If it's an anonymous user, they are allowed to persist without a session
+                    setIsRestoringSession(false);
+                    return;
+                } catch (e) {
+                    console.error("Error parsing saved user", e);
+                    localStorage.removeItem('chat_user');
+                }
             }
 
             // 3. No session AND no localStorage — try backup endpoint as last resort
