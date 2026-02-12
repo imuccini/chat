@@ -13,10 +13,10 @@ index 9e45856..8f56432 100644
      lintOptions {
 diff --git a/node_modules/@capacitor-community/sqlite/Package.swift b/node_modules/@capacitor-community/sqlite/Package.swift
 new file mode 100644
-index 0000000..d2ff9f5
+index 0000000..b3c4d5e
 --- /dev/null
 +++ b/node_modules/@capacitor-community/sqlite/Package.swift
-@@ -0,0 +1,24 @@
+@@ -0,0 +1,29 @@
 +// swift-tools-version: 5.9
 +import PackageDescription
 +
@@ -29,16 +29,21 @@ index 0000000..d2ff9f5
 +            targets: ["CapacitorCommunitySqlite"])
 +    ],
 +    dependencies: [
-+        .package(url: "https://github.com/ionic-team/capacitor-swift-pm.git", from: "6.0.0")
++        .package(url: "https://github.com/ionic-team/capacitor-swift-pm.git", from: "8.0.0"),
++        .package(url: "https://github.com/sqlcipher/SQLCipher.swift.git", from: "4.13.0"),
++        .package(url: "https://github.com/weichsel/ZIPFoundation.git", from: "0.9.0")
 +    ],
 +    targets: [
 +        .target(
 +            name: "CapacitorCommunitySqlite",
 +            dependencies: [
 +                .product(name: "Capacitor", package: "capacitor-swift-pm"),
-+                .product(name: "Cordova", package: "capacitor-swift-pm")
++                .product(name: "Cordova", package: "capacitor-swift-pm"),
++                .product(name: "SQLCipher", package: "SQLCipher.swift"),
++                "ZIPFoundation"
 +            ],
-+            path: "ios/Plugin")
++            path: "ios/Plugin",
++            exclude: ["CapacitorSQLitePlugin.h", "CapacitorSQLitePlugin.m"])
 +    ]
 +)
 diff --git a/node_modules/@capacitor-community/sqlite/android/.project b/node_modules/@capacitor-community/sqlite/android/.project

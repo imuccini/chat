@@ -325,7 +325,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/Users/ivanmuccini/Desktop/chatapp/chat/packages/database/generated/client",
+      "value": "/Users/ivanmuccini/Apps/Antigravity/chat/chat/packages/database/generated/client",
       "fromEnvVar": null
     },
     "config": {
@@ -339,11 +339,12 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "/Users/ivanmuccini/Desktop/chatapp/chat/packages/database/prisma/schema.prisma",
+    "sourceFilePath": "/Users/ivanmuccini/Apps/Antigravity/chat/chat/packages/database/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
-    "rootEnvPath": null
+    "rootEnvPath": null,
+    "schemaEnvPath": "../../.env"
   },
   "relativePath": "../../prisma",
   "clientVersion": "5.22.0",
