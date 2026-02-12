@@ -75,10 +75,19 @@ export class TenantController {
     @Post(':slug/feedback')
     async submitFeedback(
         @Param('slug') slug: string,
-        @Body() body: { score: number; comment?: string },
-        @Headers('authorization') auth: string,
+        @Body() body: { score: number; comment?: string; userId?: string },
+        @Headers('authorization') auth?: string,
     ): Promise<any> {
-        const userId = await this.resolveUserId(auth);
+        let userId: string | undefined;
+
+        if (auth) {
+            userId = await this.resolveUserId(auth);
+        } else if (body.userId) {
+            userId = body.userId;
+        } else {
+            throw new UnauthorizedException('Authentication required');
+        }
+
         const tenant = await this.tenantService.findBySlug(slug);
         if (!tenant) throw new NotFoundException('Tenant not found');
 

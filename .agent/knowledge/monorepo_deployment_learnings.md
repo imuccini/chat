@@ -111,3 +111,21 @@ location /api/ {
     proxy_pass http://localhost:3001;
 }
 ```
+
+### 8. Socket.IO vs NestJS IoAdapter
+**Problem:**
+WebSockets fail to connect through Nginx/Docker even with correct port mapping.
+**Cause:**
+Using a standalone `new Server(port)` in `main.ts` creates a *detached* WebSocket server that doesn't share the HTTP server's port or context. Nginx upgrades the HTTP request, passes it to NestJS, but the detached WS server never sees it.
+**Solution:**
+Always implement a custom class extending `IoAdapter` and call `super.createIOServer(port, options)`. This ensures Socket.IO attaches to the underlying NestJS HTTP server instance.
+```typescript
+class RedisIoAdapter extends IoAdapter {
+  createIOServer(port: number, options?: any): any {
+    const server = super.createIOServer(port, options);
+    server.adapter(createAdapter(pubClient, subClient));
+    return server;
+  }
+}
+app.useWebSocketAdapter(new RedisIoAdapter(app));
+```
