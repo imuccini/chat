@@ -38,6 +38,10 @@ Se sei già nella root del progetto e vuoi fare tutto in un colpo solo per iOS:
 cd apps/web && npm run build:cap && run npx cap:sync && npx cap open ios
 
 
+COAMNDO:
+npm run build:cap && run npx cap:sync:ios
+
+
 
 Nota sul Live Reload (Sviluppo)
 Se vuoi testare le modifiche in tempo reale senza dover ricompilare ogni volta:

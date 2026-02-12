@@ -25,6 +25,7 @@ import { LocalFeedbackOverlay } from './LocalFeedbackOverlay';
 import { useSwipeBack } from '@/hooks/useSwipeBack';
 import { useMembership } from '@/hooks/useMembership';
 import { useKeyboardAnimation } from '@/hooks/useKeyboardAnimation';
+import { useTenantValidation } from '@/hooks/useTenantValidation';
 import { useSession, signOut, authClient } from '@/lib/auth-client';
 import { clientGetTenantBySlug, clientGetMessages, clientGetTenantStaff } from '@/services/apiService';
 
@@ -68,6 +69,16 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
 
     // Smooth keyboard animation (native only) - contentStyle goes on content area, NOT header
     const { isKeyboardVisible, contentStyle: keyboardContentStyle } = useKeyboardAnimation();
+
+    // Periodic tenant validation (native only) - eject user if they leave the venue's WiFi
+    const { isOutOfSpace, countdown } = useTenantValidation(tenant.slug);
+
+    // Navigate home when countdown expires
+    useEffect(() => {
+        if (isOutOfSpace && countdown === 0) {
+            router.replace('/');
+        }
+    }, [isOutOfSpace, countdown, router]);
 
     // UI State
     const searchParams = useSearchParams();
@@ -626,6 +637,15 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
 
     return (
         <div className="relative w-full h-full max-w-3xl mx-auto bg-white shadow-xl overflow-hidden">
+
+            {/* OUT-OF-SPACE WARNING BANNER (native only) */}
+            {isOutOfSpace && countdown > 0 && (
+                <div className="fixed top-0 left-0 right-0 z-50 bg-red-600 text-white text-center pt-safe px-4 py-3 shadow-lg">
+                    <p className="text-sm font-semibold">
+                        Sembra che sei uscito dallo spazio Local. Chiusura in {countdown} secondi...
+                    </p>
+                </div>
+            )}
 
             {/* BASE LAYER: LIST VARIANTS */}
             {/* Always rendered to support transparent swipe reveal, but hidden from SR/Interactions when covered if needed. */}

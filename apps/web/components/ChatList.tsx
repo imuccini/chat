@@ -66,9 +66,11 @@ const ChatList: React.FC<ChatListProps> = ({ chats, onSelectChat, onDeleteChat, 
                                 onClick={() => onSelectChat(chat.peer.id)}
                                 className="flex items-center gap-4 p-3 bg-white hover:bg-gray-50 rounded-xl transition-colors cursor-pointer border-b border-gray-50 last:border-0"
                             >
-                                <div className={`w-14 h-14 rounded-full ${getAvatarColor(chat.peer.gender)} flex items-center justify-center text-white shrink-0 shadow-sm relative`}>
-                                    <span className="font-bold text-xl uppercase">{chat.peer.alias.charAt(0)}</span>
-                                    <div className={`absolute bottom-0 right-0 w-4 h-4 rounded-full border-2 border-white ${onlineUserIds.includes(chat.peer.id) ? 'bg-emerald-500' : 'bg-red-400'}`} />
+                                <div className="relative shrink-0">
+                                    <div className={`w-14 h-14 rounded-full ${getAvatarColor(chat.peer.gender)} flex items-center justify-center text-white shadow-sm overflow-hidden`}>
+                                        <span className="font-bold text-xl uppercase">{chat.peer.alias.charAt(0)}</span>
+                                    </div>
+                                    <div className={`absolute bottom-0 right-0 w-4 h-4 rounded-full border-2 border-white z-10 ${onlineUserIds.includes(chat.peer.id) ? 'bg-emerald-500' : 'bg-red-400'}`} />
                                 </div>
 
                                 <div className="flex-1 min-w-0">
