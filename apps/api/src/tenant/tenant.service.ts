@@ -162,9 +162,39 @@ export class TenantService {
      * Create feedback for a tenant
      */
     async createFeedback(userId: string, tenantId: string, score: number, comment?: string): Promise<any> {
+        // Ensure user exists (for anonymous feedback where userId might be generated client-side but not in DB)
+        const userExists = await this.prisma.user.findUnique({ where: { id: userId } });
+
+        let finalUserId = userId;
+
+        if (!userExists) {
+            this.logger.log(`[createFeedback] User ${userId} not found, creating anonymous user`);
+            try {
+                const newUser = await this.prisma.user.create({
+                    data: {
+                        id: userId, // Try to use the ID provided by client if possible
+                        name: 'Anonymous Feedback',
+                        isAnonymous: true,
+                    },
+                });
+                finalUserId = newUser.id;
+            } catch (e) {
+                // Determine if we should fallback or re-throw
+                this.logger.error(`Failed to create anonymous user for feedback: ${e.message}`);
+                // If ID conflict or other issue, create a fresh user
+                const fallbackUser = await this.prisma.user.create({
+                    data: {
+                        name: 'Anonymous Feedback',
+                        isAnonymous: true
+                    }
+                });
+                finalUserId = fallbackUser.id;
+            }
+        }
+
         return (this.prisma as any).feedback.create({
             data: {
-                userId,
+                userId: finalUserId,
                 tenantId,
                 score,
                 comment,

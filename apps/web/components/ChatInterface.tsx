@@ -144,6 +144,13 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
         initialData: activeRoomId ? undefined : initialMessages,
     });
 
+    // 1.1 Fetch Tenant Staff (for UserList and offline contact)
+    const { data: staffMembers = [] } = useQuery({
+        queryKey: ['staff', tenant.slug],
+        queryFn: () => clientGetTenantStaff(tenant.slug),
+        staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+    });
+
     // 2. Sync user data from BetterAuth session (updates localStorage user with fresh server data)
     useEffect(() => {
         if (isSessionLoading) return;
@@ -674,7 +681,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                                 tenantName={tenant?.name || "Local Chat"}
                             />
                         )}
-                        {activeTab === 'users' && <UserList currentUser={currentUser} users={onlineUsers} onStartChat={handleStartChat} />}
+                        {activeTab === 'users' && <UserList currentUser={currentUser} users={onlineUsers} staff={staffMembers} onStartChat={handleStartChat} />}
                         {activeTab === 'local' && (
                             <LocalSection
                                 tenant={tenant}
@@ -738,7 +745,10 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                             {!onlineUsers.some(u => u.id === selectedChatPeerId) && (
                                 <div className="px-4 py-2.5 bg-amber-50 border-b border-amber-100 text-center">
                                     <p className="text-xs text-amber-700 font-medium">
-                                        {privateChats[selectedChatPeerId!].peer.alias} non è online al momento. Lascia un messaggio e risponderà non appena possibile.
+                                        {staffMembers.some(s => s.id === selectedChatPeerId)
+                                            ? "Lo staff non è online. Lascia un messaggio e ti risponderemo appena possibile."
+                                            : `${privateChats[selectedChatPeerId!].peer.alias} non è online al momento. Lascia un messaggio e risponderà non appena possibile.`
+                                        }
                                     </p>
                                 </div>
                             )}
