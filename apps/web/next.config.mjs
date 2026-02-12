@@ -18,6 +18,10 @@ const nextConfig = {
         ignoreBuildErrors: true,
     },
     productionBrowserSourceMaps: false,
+    experimental: {
+        cpus: 1,
+        workerThreads: false,
+    },
 
     async rewrites() {
         const apiUrl = (process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000').replace(':3000', ':3001');

@@ -28,7 +28,7 @@ COPY turbo.json turbo.json
 RUN npx turbo run db:generate --filter=@local/web
 
 # Build
-RUN NODE_OPTIONS='--max-old-space-size=1536' npx turbo run build --filter=@local/web -- --workers 1
+RUN NODE_OPTIONS='--max-old-space-size=1536' npx turbo run build --filter=@local/web
 
 # RUNNER STAGE
 FROM base AS runner
