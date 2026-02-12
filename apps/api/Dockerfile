@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y openssl ca-certificates && rm -rf /var/
 FROM base AS pruner
 WORKDIR /app
 COPY . .
-RUN turbo prune @local/web --docker
+RUN turbo prune @local/api --docker
 
 # DEV STAGE (Installer)
 FROM base AS installer
@@ -23,10 +23,10 @@ COPY --from=pruner /app/out/full/ .
 COPY turbo.json turbo.json
 
 # Generate Prisma Client (needed for build)
-RUN npx turbo run db:generate --filter=@local/web
+RUN npx turbo run db:generate --filter=@local/api
 
 # Build the project
-RUN npx turbo run build --filter=@local/web
+RUN npx turbo run build --filter=@local/api
 
 # RUNNER STAGE
 FROM base AS runner
@@ -34,22 +34,19 @@ WORKDIR /app
 
 # Create non-root user
 RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
-USER nextjs
+RUN adduser --system --uid 1001 nestjs
+USER nestjs
 
 # Copy essential files
-COPY --from=installer /app/apps/web/package.json .
-COPY --from=installer /app/apps/web/public ./public
-COPY --from=installer /app/apps/web/.next ./.next
+COPY --from=installer /app/apps/api/package.json .
+COPY --from=installer /app/apps/api/dist ./dist
 COPY --from=installer /app/node_modules ./node_modules
 COPY --from=installer /app/packages/database/prisma ./prisma
 
 # Environment variables
 ENV NODE_ENV production
-ENV PORT 3000
-ENV NEXT_TELEMETRY_DISABLED 1
+ENV PORT 3001
 
-EXPOSE 3000
+EXPOSE 3001
 
-# Start standard Next.js
-CMD ["npm", "start"]
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main.js"]
