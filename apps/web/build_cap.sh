@@ -46,3 +46,28 @@ else
     echo "❌ Build Failed!"
     exit 1
 fi
+
+# 3. Copy web assets to native projects
+echo "📱 Syncing to Capacitor..."
+npx cap copy ios
+
+# 4. Inject custom native plugins into iOS capacitor.config.json
+# (Capacitor CLI only auto-discovers npm-packaged plugins, not local Swift/ObjC plugins)
+echo "🔌 Injecting custom native plugins..."
+CUSTOM_PLUGINS='["WifiConfigPlugin","WifiInfoPlugin","SignificantLocationPlugin"]'
+CONFIG_FILE="ios/App/App/capacitor.config.json"
+if [ -f "$CONFIG_FILE" ]; then
+    node -e "
+const fs = require('fs');
+const config = JSON.parse(fs.readFileSync('$CONFIG_FILE', 'utf8'));
+const custom = $CUSTOM_PLUGINS;
+if (!config.packageClassList) config.packageClassList = [];
+for (const p of custom) {
+    if (!config.packageClassList.includes(p)) config.packageClassList.push(p);
+}
+fs.writeFileSync('$CONFIG_FILE', JSON.stringify(config, null, '\t') + '\n');
+"
+    echo "   ✅ Custom plugins injected: $CUSTOM_PLUGINS"
+else
+    echo "   ⚠️  Config file not found: $CONFIG_FILE"
+fi

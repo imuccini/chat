@@ -27,7 +27,7 @@ public class WifiConfigPlugin: CAPPlugin, CAPBridgedPlugin {
         NEHotspotConfigurationManager.shared.apply(hotspotConfig) { error in
             if let error = error as NSError? {
                 // Handle specific errors like user cancellation
-                if error.domain == NEHotspotConfigurationErrorDomain && error.code == NEHotspotConfigurationError.userCancelled.rawValue {
+                if error.domain == NEHotspotConfigurationErrorDomain && error.code == NEHotspotConfigurationError.userDenied.rawValue {
                     call.reject("User cancelled the connection request")
                 } else {
                     call.reject("Failed to connect: \(error.localizedDescription)")
