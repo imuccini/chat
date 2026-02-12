@@ -14,7 +14,7 @@ export const API_BASE_URL = isNative
     ? (process.env.NEXT_PUBLIC_SERVER_URL?.replace(':3000', ':3001') || 'http://localhost:3001')
     : (typeof window !== 'undefined'
         ? `${window.location.protocol}//${window.location.hostname}:3001`
-        : (process.env.NEXT_PUBLIC_SERVER_URL?.replace(':3000', ':3001') || 'http://localhost:3001'));
+        : 'http://127.0.0.1:3001'); // Force localhost for SSR on web to avoid network issues
 
 // For Socket.IO Specifically
 // On Web: Connect to the same host but port 3001

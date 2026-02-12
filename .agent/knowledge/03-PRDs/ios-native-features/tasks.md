@@ -31,4 +31,8 @@ Based on [ios-permission-plan.md](file:///Users/ivanmuccini/Desktop/chatapp/chat
 - [x] Restore `.m` files (Required for method dispatch/registration fallback) <!-- id: 17 -->
 - [x] Update `build_cap.sh` to use `cap sync` and inject plugins <!-- id: 18 -->
 - [x] Reinstall `@capacitor-community/sqlite` (Was corrupted/empty in node_modules) <!-- id: 19 -->
-- [x] **Fix Portability**: Added `patch-package` to apply `Package.swift` fix on `npm install` (Required for new machines) <!-- id: 20 -->
+- [x] **Fix Portability**: Moved patches to root to support hoisted dependencies. Run `npm install` from root. <!-- id: 20 -->
+- [x] **Fix Version Mismatch**: Relaxed `CapApp-SPM` version requirement to `from: "8.0.0"` to match `package.json`. <!-- id: 21 -->
+- [x] **Fix Prod API Loop**: Update `apiService.ts` to use correct backend path `/api/tenants/validate-nas`. <!-- id: 22 -->
+- [x] **Fix Prod API Loop**: Update `next.config.mjs` rewrites for local dev. <!-- id: 23 -->
+- [x] **Cleanup**: Delete redundant `apps/web/app/api/validate-nas` route. <!-- id: 24 -->

@@ -10,14 +10,25 @@ The custom plugins were missing, and `@capacitor-community/sqlite` was failing t
 - **Fixed SQLite Plugin**: 
     - Reinstalled corrupted package.
     - Manually added `Package.swift` to `node_modules/@capacitor-community/sqlite`.
-    - **Portability**: Used `patch-package` to persist this fix. It automatically applies `Package.swift` on `npm install`.
+    - **Portability**: Centralized patches in project root to handle hoisted dependencies.
+    - **Versions**: Updated `CapApp-SPM/Package.swift` to use `from: "8.0.0"` instead of exact pinning, preventing mismatches between machines.
 - **Updated `build_cap.sh`**: Runs `npx cap sync ios` and injects custom plugins.
-- **CRITICAL**: Use `npm run build:cap`. Do NOT run `npx cap sync` manually.
+- **CRITICAL**: Run `npm install` from the **ROOT** of the project, not `apps/web`.
+- **Troubleshooting**: If `patch-package` fails, run `rm -rf node_modules package-lock.json && npm install` to reset dependencies.
 
 ### 2. Reliable BSSID Retrieval
 - **`WifiInfoPlugin`**: Now allows fetching BSSID and checking precise location status on iOS 14+.
 - **`wifi.ts`**: Updated `getConnectedWifiInfo` to use this plugin on iOS.
 - **`Info.plist`**: Added `NSLocationAlwaysAndWhenInUseUsageDescription` to satisfy permission requirements.
+### 4. Fix Production API Loop (404s)
+The frontend was calling `/api/validate-nas`, which worked locally (via Next.js rewrite) but failed in production (Nginx/NestJS 404).
+- **Corrected Path**: Updated frontend to call `/api/tenants/validate-nas` directly.
+- **Aligned Dev**: Updated `next.config.mjs` to rewrite this path locally, matching production behavior.
+- **Removed Code**: Deleted redundant `apps/web/app/api/validate-nas` route.
+
+### 5. Fix Local Dev Connection (ECONNREFUSED)
+Local dev was failing with `ECONNREFUSED` when connecting to the LAN IP (192.168.1.110) from the same machine (macOS loopback/firewall issue).
+- **`apps/web/config.ts`**: Updated `API_BASE_URL` logic to force `http://127.0.0.1:3001` when running on the Web platform (SSR), bypassing the LAN IP for local requests while keeping it for native devices.
 
 ### 3. WiFi Profile Service
 - **`wifiProfileService.ts`**: Centralized service that handles connecting to the "Local - WiFi" network.

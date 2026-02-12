@@ -11,9 +11,10 @@ export const clientResolveTenant = async (urlNasId?: string, bssid?: string): Pr
 
         // Use the Next.js API route which proxies to the NestJS backend
         // This avoids direct port 3001 access issues from the device
-        // On Web, SERVER_URL is empty, so this becomes relative '/api/validate-nas'
+        // On Web, SERVER_URL is empty, so this becomes relative '/api/tenants/validate-nas'
+
         const baseUrl = SERVER_URL;
-        const url = `${baseUrl}/api/validate-nas`;
+        const url = `${baseUrl}/api/tenants/validate-nas`;
         console.log(`[apiService] Resolving tenant via ${url}`, payload);
 
         const res = await fetch(url, {
