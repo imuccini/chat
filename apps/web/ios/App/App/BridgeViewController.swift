@@ -19,7 +19,7 @@ class BridgeViewController: CAPBridgeViewController {
 
     private func debugPluginRegistration() {
         // 1. Check if NSClassFromString can find our classes
-        let customPlugins = ["WifiConfigPlugin", "WifiInfoPlugin", "SignificantLocationPlugin"]
+        let customPlugins = ["WifiConfigPlugin", "WifiInfoPlugin", "SignificantLocationPlugin", "CapacitorSQLitePlugin"]
         for name in customPlugins {
             if let cls = NSClassFromString(name) {
                 NSLog("[DEBUG] NSClassFromString('%@') = %@ (superclass: %@)",

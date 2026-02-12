@@ -7,9 +7,11 @@ I have implemented the native iOS features to improve the app's connectivity and
 ### 1. Fixed Custom Plugin Registration & Dependencies
 The custom plugins were missing, and `@capacitor-community/sqlite` was failing to initialize due to missing SPM support.
 - **Restored .m files**: Ensured consistent interface definitions for Capacitor bridge.
-- **Fixed SQLite Plugin**: The plugin package was corrupted/empty. I reinstalled it and manually added a `Package.swift` to enable SPM linking.
-- **Updated `build_cap.sh`**: The build script now runs `npx cap sync ios` and **automatically injects** the custom plugins into `capacitor.config.json` *after* the sync.
-- **CRITICAL**: You must run `npm run build:cap` in `apps/web`. **Do NOT** run `npx cap sync` manually afterwards.
+- **Fixed SQLite Plugin**: 
+    - Reinstalled corrupted package.
+    - Manually added `Package.swift` to `node_modules/@capacitor-community/sqlite`.
+- **Updated `build_cap.sh`**: Runs `npx cap sync ios` and injects custom plugins.
+- **CRITICAL**: Use `npm run build:cap`. Do NOT run `npx cap sync` manually.
 
 ### 2. Reliable BSSID Retrieval
 - **`WifiInfoPlugin`**: Now allows fetching BSSID and checking precise location status on iOS 14+.
