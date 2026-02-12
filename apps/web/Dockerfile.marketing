@@ -40,10 +40,10 @@ RUN adduser --system --uid 1001 nextjs
 USER nextjs
 
 # Copy essential files (Standalone mode)
-# In standalone mode, Marketing build results are under apps/web/.next/standalone
-COPY --from=installer --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
-COPY --from=installer --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
-COPY --from=installer --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
+# When building with 'next build marketing', output is in apps/web/marketing/.next/standalone
+COPY --from=installer --chown=nextjs:nodejs /app/apps/web/marketing/public ./apps/web/marketing/public
+COPY --from=installer --chown=nextjs:nodejs /app/apps/web/marketing/.next/standalone ./
+COPY --from=installer --chown=nextjs:nodejs /app/apps/web/marketing/.next/static ./apps/web/marketing/.next/static
 
 # Remove internal .env to prevent overrides
 RUN rm -f .env apps/web/.env
