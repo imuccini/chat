@@ -1,5 +1,6 @@
 # BASE IMAGE
 FROM node:22-bullseye-slim AS base
+RUN corepack enable && corepack prepare npm@10.9.0 --activate
 RUN npm install -g turbo
 RUN apt-get update && apt-get install -y openssl ca-certificates && rm -rf /var/lib/apt/lists/*
 

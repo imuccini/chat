@@ -76,9 +76,9 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
     // Navigate home when countdown expires
     useEffect(() => {
         if (isOutOfSpace && countdown === 0) {
-            router.replace('/');
+            window.location.href = '/';
         }
-    }, [isOutOfSpace, countdown, router]);
+    }, [isOutOfSpace, countdown]);
 
     // UI State
     const searchParams = useSearchParams();
