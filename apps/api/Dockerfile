@@ -34,17 +34,19 @@ RUN NODE_OPTIONS='--max-old-space-size=1536' npx turbo run build --filter=@local
 FROM base AS runner
 WORKDIR /app
 
-# Create non-root user
+# Create non-root user (or use existing node user)
+# We use node:nodejs for consistency with standard images
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nestjs
 USER nestjs
 
 # Copy essential files
-COPY --from=installer --chown=nestjs:node /app/apps/api/package.json .
-COPY --from=installer --chown=nestjs:node /app/apps/api/dist ./dist
-COPY --from=installer --chown=nestjs:node /app/node_modules ./node_modules
-COPY --from=installer --chown=nestjs:node /app/packages/database/prisma ./prisma
-COPY --from=installer --chown=nestjs:node /app/packages/database/generated/client ./packages/database/generated/client
+COPY --from=installer --chown=nestjs:nodejs /app/apps/api/package.json .
+# We copy the nested dist structure correctly
+COPY --from=installer --chown=nestjs:nodejs /app/apps/api/dist ./dist
+COPY --from=installer --chown=nestjs:nodejs /app/node_modules ./node_modules
+COPY --from=installer --chown=nestjs:nodejs /app/packages/database/prisma ./prisma
+COPY --from=installer --chown=nestjs:nodejs /app/packages/database/generated/client ./packages/database/generated/client
 
 # Remove internal .env to prevent overrides of Docker env vars
 RUN rm -f .env apps/api/.env
@@ -55,4 +57,6 @@ ENV PORT 3001
 
 EXPOSE 3001
 
+# The path needs to match the monorepo build structure: dist/apps/api/src/main.js
+# But we also want to be able to run migrations
 CMD ["sh", "-c", "npx prisma migrate deploy && node dist/apps/api/src/main.js"]
