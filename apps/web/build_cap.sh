@@ -49,7 +49,7 @@ fi
 
 # 3. Copy web assets to native projects
 echo "📱 Syncing to Capacitor..."
-npx cap copy ios
+npx cap sync ios
 
 # 4. Inject custom native plugins into iOS capacitor.config.json
 # (Capacitor CLI only auto-discovers npm-packaged plugins, not local Swift/ObjC plugins)
