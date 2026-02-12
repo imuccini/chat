@@ -23,7 +23,14 @@ const UserList: React.FC<UserListProps> = ({ currentUser, users, staff = [], onS
     // Filter out self and apply search query
     const filteredOnlineUsers = uniqueOnlineUsers.filter(u =>
         u.id !== currentUser.id &&
+        !staffIds.has(u.id) && // Don't show staff in general list
         (u.alias || (u as any).name || "User").toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    // Filter staff by search query
+    const filteredStaff = staff.filter(s =>
+        s.id !== currentUser.id &&
+        (s.alias || (s as any).name || "Staff").toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     const getAvatarColor = (gender: Gender) => {
@@ -34,9 +41,12 @@ const UserList: React.FC<UserListProps> = ({ currentUser, users, staff = [], onS
         }
     };
 
-    const renderUserItem = (user: User) => {
-        const isStaff = staffIds.has(user.id);
-        const isOnline = true; // Everyone in this list is online
+    const isStaffOnline = (staffId: string) => {
+        return uniqueOnlineUsers.some(u => u.id === staffId);
+    };
+
+    const renderUserItem = (user: User, isStaff: boolean) => {
+        const isOnline = isStaff ? isStaffOnline(user.id) : true; // Regular users in list are always online
 
         return (
             <li
@@ -58,7 +68,7 @@ const UserList: React.FC<UserListProps> = ({ currentUser, users, staff = [], onS
                 </div>
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                        <h3 className="font-bold text-gray-900 truncate text-base">{user.alias || (user as any).name || "User"}</h3>
+                        <h3 className="font-bold text-gray-900 truncate text-base">{user.alias}</h3>
                         {isStaff && (
                             <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-primary/10 text-primary uppercase tracking-wide">
                                 Staff
@@ -66,7 +76,10 @@ const UserList: React.FC<UserListProps> = ({ currentUser, users, staff = [], onS
                         )}
                     </div>
                     <p className="text-sm text-gray-500 truncate">
-                        {user.status || <span className="capitalize">{user.gender}</span>}
+                        {isStaff
+                            ? (isOnline ? 'Online' : 'Offline - Lascia un messaggio')
+                            : (user.status || <span className="capitalize">{user.gender}</span>)
+                        }
                     </p>
                 </div>
                 <div className="p-2 text-gray-300 group-hover:text-primary transition-colors">
@@ -116,7 +129,7 @@ const UserList: React.FC<UserListProps> = ({ currentUser, users, staff = [], onS
             </header>
 
             <main className="flex-1 overflow-y-auto p-4 pb-[80px]">
-                {filteredOnlineUsers.length === 0 ? (
+                {filteredOnlineUsers.length === 0 && filteredStaff.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-full text-gray-400 space-y-4">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -127,12 +140,27 @@ const UserList: React.FC<UserListProps> = ({ currentUser, users, staff = [], onS
                     </div>
                 ) : (
                     <div className="space-y-6">
-                        <div className="space-y-2">
-                            <h2 className="text-xs font-bold text-gray-400 uppercase tracking-wider pl-1">Utenti Online</h2>
-                            <ul className="space-y-2">
-                                {filteredOnlineUsers.map(user => renderUserItem(user))}
-                            </ul>
-                        </div>
+                        {/* Staff Section */}
+                        {filteredStaff.length > 0 && (
+                            <div className="space-y-2">
+                                <h2 className="text-xs font-bold text-gray-400 uppercase tracking-wider pl-1">Staff del Locale</h2>
+                                <ul className="space-y-2">
+                                    {filteredStaff.map(user => renderUserItem(user, true))}
+                                </ul>
+                            </div>
+                        )}
+
+                        {/* Regular Users Section */}
+                        {filteredOnlineUsers.length > 0 && (
+                            <div className="space-y-2">
+                                {filteredStaff.length > 0 && (
+                                    <h2 className="text-xs font-bold text-gray-400 uppercase tracking-wider pl-1 pt-2">Utenti Online</h2>
+                                )}
+                                <ul className="space-y-2">
+                                    {filteredOnlineUsers.map(user => renderUserItem(user, false))}
+                                </ul>
+                            </div>
+                        )}
                     </div>
                 )}
             </main>
