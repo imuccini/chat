@@ -57,6 +57,6 @@ ENV PORT 3001
 
 EXPOSE 3001
 
-# The path needs to match the monorepo build structure: dist/apps/api/src/main.js
-# But we also want to be able to run migrations
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/apps/api/src/main.js"]
+# The path needs to match the bundled build structure: dist/main.js
+# When webpack is enabled, Nest flattens the output
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main.js"]
