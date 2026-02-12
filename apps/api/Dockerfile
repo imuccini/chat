@@ -44,7 +44,7 @@ COPY --from=installer --chown=nestjs:node /app/apps/api/package.json .
 COPY --from=installer --chown=nestjs:node /app/apps/api/dist ./dist
 COPY --from=installer --chown=nestjs:node /app/node_modules ./node_modules
 COPY --from=installer --chown=nestjs:node /app/packages/database/prisma ./prisma
-COPY --from=installer --chown=nestjs:node /app/packages/database/src/generated/client ./packages/database/src/generated/client
+COPY --from=installer --chown=nestjs:node /app/packages/database/generated/client ./packages/database/generated/client
 
 # Remove internal .env to prevent overrides of Docker env vars
 RUN rm -f .env apps/api/.env
