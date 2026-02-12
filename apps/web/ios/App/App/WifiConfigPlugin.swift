@@ -8,7 +8,8 @@ public class WifiConfigPlugin: CAPPlugin, CAPBridgedPlugin {
     public let jsName = "WifiConfig"
     public let pluginMethods: [CAPPluginMethod] = [
         CAPPluginMethod(name: "connect", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "disconnect", returnType: CAPPluginReturnPromise)
+        CAPPluginMethod(name: "disconnect", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "getConfiguredSSIDs", returnType: CAPPluginReturnPromise)
     ]
 
     @objc func connect(_ call: CAPPluginCall) {
@@ -38,6 +39,12 @@ public class WifiConfigPlugin: CAPPlugin, CAPBridgedPlugin {
                     "ssid": ssid
                 ])
             }
+        }
+    }
+
+    @objc func getConfiguredSSIDs(_ call: CAPPluginCall) {
+        NEHotspotConfigurationManager.shared.getConfiguredSSIDs { ssids in
+            call.resolve(["ssids": ssids])
         }
     }
 

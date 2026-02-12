@@ -12,6 +12,11 @@ export interface WifiConfigPlugin {
     disconnect(options: { ssid: string }): Promise<{ status: string }>;
 
     /**
+     * Returns SSIDs of networks configured by this app (iOS only).
+     */
+    getConfiguredSSIDs(): Promise<{ ssids: string[] }>;
+
+    /**
      * Android (10+): Connection immediate/forced using WifiNetworkSpecifier
      */
     connectImmediate(options: { ssid: string; password?: string }): Promise<{ status: string }>;

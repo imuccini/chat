@@ -14,6 +14,7 @@ import { OnboardingScreen } from "@/components/OnboardingScreen";
 import { Wifi, MapPin, ChevronRight, BellRing, Sparkles, LocateFixed } from "lucide-react";
 import { HowItWorks } from "@/components/HowItWorks";
 import { sqliteService } from "@/lib/sqlite";
+import { wifiProfileService } from "@/lib/wifiProfileService";
 
 type InitState = 'loading' | 'permission_denied' | 'wifi_disconnected' | 'tenant_not_found' | 'error';
 
@@ -31,6 +32,7 @@ function HomeContent() {
 
     // Track if instructions animations have already played in this session
     const [hasSeenInstructions, setHasSeenInstructions] = useState(false);
+    const [hasWifiProfile, setHasWifiProfile] = useState<boolean | null>(null);
 
     // Shared helper for tenant resolution
     const resolveCurrentTenant = async (nasId?: string) => {
@@ -230,6 +232,12 @@ function HomeContent() {
         };
     }, [state, resolvedSlug, searchParams, router]);
 
+    // Check if WiFi profile is already installed on the device
+    useEffect(() => {
+        if (state !== 'tenant_not_found') return;
+        wifiProfileService.isProfileInstalled().then(setHasWifiProfile);
+    }, [state]);
+
     // Mark instructions as seen after they appear to disable future animations
     useEffect(() => {
         if (state === 'tenant_not_found' && !hasSeenInstructions) {
@@ -299,41 +307,43 @@ function HomeContent() {
                     </button>
                 </p>
 
-                {/* Instruction Card */}
-                <div className={`w-full max-w-md px-4 mx-auto ${!hasSeenInstructions ? 'animate-card-reveal [animation-delay:1.2s]' : ''} will-change-transform`}>
-                    <div className="flex flex-col items-center gap-4 py-8 px-6 bg-gray-50 rounded-[40px] border border-gray-100/50">
-                        <button
-                            onClick={() => {
-                                Haptics.impact({ style: ImpactStyle.Medium });
-                                resolveCurrentTenant(searchParams.get('nas_id') || undefined).then(slug => {
-                                    if (slug) {
-                                        if (Capacitor.isNativePlatform()) {
-                                            setResolvedSlug(slug);
-                                        } else {
-                                            router.replace(`/${slug}`);
-                                        }
-                                    }
-                                });
-                            }}
-                            className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center hover:bg-primary/20 transition-colors active:scale-95 shadow-sm"
-                        >
-                            <Wifi className="w-8 h-8 text-primary" strokeWidth={2.5} />
-                        </button>
-                        <p className="text-gray-900 font-bold leading-snug">
-                            Cerca e connettiti ad una rete WiFi <span className="text-primary">"Local - WiFi"</span>
-                        </p>
-
-                        <div className="pt-2">
+                {/* Instruction Card — hidden when WiFi profile is already installed */}
+                {!hasWifiProfile && (
+                    <div className={`w-full max-w-md px-4 mx-auto ${!hasSeenInstructions ? 'animate-card-reveal [animation-delay:1.2s]' : ''} will-change-transform`}>
+                        <div className="flex flex-col items-center gap-4 py-8 px-6 bg-gray-50 rounded-[40px] border border-gray-100/50">
                             <button
-                                onClick={() => setShowAutoConnect(true)}
-                                className="bg-primary text-white px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2 hover:bg-primary/90 transition-all shadow-md active:scale-95 whitespace-nowrap"
+                                onClick={() => {
+                                    Haptics.impact({ style: ImpactStyle.Medium });
+                                    resolveCurrentTenant(searchParams.get('nas_id') || undefined).then(slug => {
+                                        if (slug) {
+                                            if (Capacitor.isNativePlatform()) {
+                                                setResolvedSlug(slug);
+                                            } else {
+                                                router.replace(`/${slug}`);
+                                            }
+                                        }
+                                    });
+                                }}
+                                className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center hover:bg-primary/20 transition-colors active:scale-95 shadow-sm"
                             >
-                                <Sparkles className="w-4 h-4" />
-                                Connettimi in automatico
+                                <Wifi className="w-8 h-8 text-primary" strokeWidth={2.5} />
                             </button>
+                            <p className="text-gray-900 font-bold leading-snug">
+                                Cerca e connettiti ad una rete WiFi <span className="text-primary">"Local - WiFi"</span>
+                            </p>
+
+                            <div className="pt-2">
+                                <button
+                                    onClick={() => setShowAutoConnect(true)}
+                                    className="bg-primary text-white px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2 hover:bg-primary/90 transition-all shadow-md active:scale-95 whitespace-nowrap"
+                                >
+                                    <Sparkles className="w-4 h-4" />
+                                    Connettimi in automatico
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
+                )}
             </div>
 
             {/* Branded Footer Banner */}

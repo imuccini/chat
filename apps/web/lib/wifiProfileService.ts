@@ -30,6 +30,26 @@ export const wifiProfileService = {
         }
     },
 
+    async isProfileInstalled(): Promise<boolean> {
+        const platform = Capacitor.getPlatform();
+
+        if (platform === 'ios') {
+            try {
+                const { default: WifiConfig } = await import('@/lib/wifi-config');
+                const { ssids } = await WifiConfig.getConfiguredSSIDs();
+                return ssids.includes(WIFI_SSID);
+            } catch {
+                return false;
+            }
+        }
+
+        if (platform === 'android') {
+            return this.hasOptedIn();
+        }
+
+        return false;
+    },
+
     async installProfile(): Promise<boolean> {
         const platform = Capacitor.getPlatform();
 
