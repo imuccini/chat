@@ -42,15 +42,21 @@ function HomeContent() {
                 // 5-second safety timeout for native WiFi detection
                 await Promise.race([
                     (async () => {
-                        const hasPermission = await checkAndRequestLocationPermissions();
-                        if (hasPermission) {
-                            const wifiInfo = await getConnectedWifiInfo();
-                            if (wifiInfo.isPreciseOff) {
-                                setIsPreciseOff(true);
-                            }
-                            if (wifiInfo.isConnected && wifiInfo.bssid) {
-                                bssid = wifiInfo.bssid;
-                            }
+                        // On iOS, skip @capgo/capacitor-wifi permission check (it hangs).
+                        // Location permissions are already obtained during onboarding.
+                        // getConnectedWifiInfo() uses the custom WifiInfo plugin which
+                        // handles missing permissions gracefully via isPrecise check.
+                        const isIOS = Capacitor.getPlatform() === 'ios';
+                        if (!isIOS) {
+                            const hasPermission = await checkAndRequestLocationPermissions();
+                            if (!hasPermission) return;
+                        }
+                        const wifiInfo = await getConnectedWifiInfo();
+                        if (wifiInfo.isPreciseOff) {
+                            setIsPreciseOff(true);
+                        }
+                        if (wifiInfo.isConnected && wifiInfo.bssid) {
+                            bssid = wifiInfo.bssid;
                         }
                     })(),
                     new Promise((_, reject) => setTimeout(() => reject('Native logic timeout'), 5000))
