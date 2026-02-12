@@ -14,7 +14,14 @@ async function bootstrap() {
   const logger = new Logger('Bootstrap');
 
   // Set Global Prefix
+  // Set Global Prefix
   app.setGlobalPrefix('api');
+
+  // Simple Request Logger
+  app.use((req: any, res: any, next: any) => {
+    console.log(`[Request] ${req.method} ${req.url}`);
+    next();
+  });
 
   // CORS Configuration
   app.enableCors({
