@@ -40,6 +40,18 @@
                 "db:generate"
             ]
         },
+        "dev:marketing": {
+            "cache": false,
+            "persistent": true,
+            "dependsOn": [
+                "db:generate"
+            ]
+        },
+        "start:marketing": {
+            "dependsOn": [
+                "build:marketing"
+            ]
+        },
         "lint": {
             "dependsOn": [
                 "^build"
