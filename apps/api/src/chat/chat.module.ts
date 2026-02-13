@@ -9,13 +9,13 @@ import { TenantService } from '../tenant/tenant.service.js';
 console.error('[ChatModule] FILE EVALUATED');
 
 @Module({
-    imports: [
-        TenantModule,
-        JwtModule.register({
-            secret: process.env.BETTER_AUTH_SECRET,
-        }),
-    ],
-    providers: [ChatGateway, ChatService],
-    exports: [ChatGateway, ChatService],
+  imports: [
+    TenantModule,
+    JwtModule.register({
+      secret: process.env.BETTER_AUTH_SECRET,
+    }),
+  ],
+  providers: [ChatGateway, ChatService],
+  exports: [ChatGateway, ChatService],
 })
-export class ChatModule { }
+export class ChatModule {}

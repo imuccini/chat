@@ -8,6 +8,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { sqliteService } from '@/lib/sqlite';
 import { Keyboard, KeyboardStyle } from '@capacitor/keyboard';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
+import { App as CapApp } from '@capacitor/app';
 
 import { Capacitor } from '@capacitor/core';
 
@@ -286,6 +287,46 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
     // Keyboard listeners - now handled by useKeyboardAnimation hook
     // The hook sets KeyboardResize.None and uses keyboardWillShow/Hide for smooth animations
 
+    // Dedicated join function for re-identification
+    const joinTenant = useCallback((socket: Socket, user: User, slug: string) => {
+        console.log(`[joinTenant] Joining tenant ${slug} as user ${user.id} (${user.alias})`);
+        socket.emit('join', { user, tenantSlug: slug });
+    }, []);
+
+    // App state listener for foreground/background detection (native only)
+    useEffect(() => {
+        if (!Capacitor.isNativePlatform()) return;
+
+        let listenerHandle: any;
+
+        const setupListener = async () => {
+            listenerHandle = await CapApp.addListener('appStateChange', ({ isActive }) => {
+                console.log(`[App State] Changed to: ${isActive ? 'active' : 'background'}`);
+
+                if (isActive && socket && currentUser) {
+                    console.log('[App State] App foregrounded, checking socket connection...');
+
+                    if (!socket.connected) {
+                        console.log('[App State] Socket disconnected, reconnecting...');
+                        socket.connect();
+                    } else {
+                        console.log('[App State] Socket already connected, re-identifying...');
+                        // Force re-join to update server-side presence
+                        joinTenant(socket, currentUser, tenant.slug);
+                    }
+                }
+            });
+        };
+
+        setupListener();
+
+        return () => {
+            if (listenerHandle) {
+                listenerHandle.remove();
+            }
+        };
+    }, [socket, currentUser, tenant.slug, joinTenant]);
+
     // 3. Socket Lifecycle - prevent reconnection loops for anonymous users
     useEffect(() => {
         if (!currentUser) return;
@@ -322,56 +363,84 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                     userId: currentUser.id,
                     userAlias: currentUser.alias  // Pass alias so server uses it
                 },
-                transports: ['websocket', 'polling'], // Added polling for better compatibility
-                reconnectionAttempts: 10,
-                reconnectionDelay: 1000
+                transports: ['websocket', 'polling'],
+                reconnectionAttempts: Infinity, // CHANGED: Never give up reconnecting (mobile resilience)
+                reconnectionDelay: 1000,
+                reconnectionDelayMax: 5000,
+                timeout: 20000,
             });
 
+            // CONNECT event handler (initial connection)
             newSocket.on('connect', () => {
                 if (isCleanedUp) return;
+                console.log('[Socket] Connected! Socket ID:', newSocket.id);
+
                 setIsConnected(true);
                 socketInitializedRef.current = true;
                 userIdRef.current = currentUser.id;
 
-                // CRITICAL: Re-join on reconnection to restore server-side state (onlineUsers)
-                console.log("[Socket] Connected! Socket ID:", newSocket.id, "emitting join...");
-                newSocket.emit('join', { user: currentUser, tenantSlug: tenant.slug });
+                // Join tenant on connect
+                joinTenant(newSocket, currentUser, tenant.slug);
             });
 
+            // RECONNECT event handler (fired after disconnect → reconnect)
+            newSocket.on('reconnect', (attemptNumber) => {
+                if (isCleanedUp) return;
+                console.log(`[Socket] Reconnected after ${attemptNumber} attempts!`);
+
+                // Force re-join to restore server-side presence
+                joinTenant(newSocket, currentUser, tenant.slug);
+            });
+
+            // CONNECT_ERROR event handler
             newSocket.on('connect_error', (err) => {
-                console.error("[Socket] Connection error details:", err.message, err);
+                console.error('[Socket] Connection error:', err.message, err);
             });
 
+            // RECONNECT_ATTEMPT event handler
             newSocket.on('reconnect_attempt', (num) => {
-                console.log("[Socket] Reconnection attempt #", num);
+                console.log(`[Socket] Reconnection attempt #${num}`);
             });
 
             // Listen for user creation (for NEW anonymous users only)
             newSocket.on('userCreated', (userData: { id: string; alias: string; tenantId: string | null }) => {
                 if (isCleanedUp) return;
 
-                // Update local user data but don't trigger socket reconnection
+                console.log('[Socket] User created on server:', userData);
+
+                // Update local user data without triggering reconnection
                 const updatedUser = { ...currentUser, id: userData.id, alias: userData.alias };
                 userIdRef.current = userData.id; // Update ref first to prevent reconnection
                 setCurrentUser(updatedUser);
                 localStorage.setItem('chat_user', JSON.stringify(updatedUser));
 
-                // Now emit join with the correct user ID
-                newSocket.emit('join', { user: updatedUser, tenantSlug: tenant.slug });
+                // Join with correct user ID
+                joinTenant(newSocket, updatedUser, tenant.slug);
             });
 
-            // Listen for user confirmation (for EXISTING anonymous users reconnecting)
+            // Listen for user confirmation (for EXISTING users reconnecting)
             newSocket.on('userConfirmed', (userData: { id: string; alias: string; tenantId: string | null }) => {
                 if (isCleanedUp) return;
 
-                // No need to update user data, just emit join
+                console.log('[Socket] User confirmed on server:', userData);
                 userIdRef.current = userData.id;
-                newSocket.emit('join', { user: currentUser, tenantSlug: tenant.slug });
+
+                // Join tenant
+                joinTenant(newSocket, currentUser, tenant.slug);
             });
 
-            newSocket.on('disconnect', () => {
+            // DISCONNECT event handler
+            newSocket.on('disconnect', (reason) => {
                 if (isCleanedUp) return;
+
+                console.log('[Socket] Disconnected:', reason);
                 setIsConnected(false);
+
+                // If server initiated disconnect, try to reconnect immediately
+                if (reason === 'io server disconnect') {
+                    console.log('[Socket] Server initiated disconnect, reconnecting...');
+                    newSocket.connect();
+                }
             });
 
             newSocket.on('presenceUpdate', (data: { users: User[], onlineIds: string[], roomCounts: Record<string, number> }) => {
@@ -452,11 +521,12 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
         return () => {
             isCleanedUp = true;
             if (newSocket) {
-                newSocket.disconnect();
-                socketInitializedRef.current = false;
+                console.log('[Socket] Cleaning up socket connection');
+                newSocket.off(); // Remove all listeners
+                newSocket.close();
             }
         };
-    }, [currentUser?.id, tenant.slug]);
+    }, [currentUser, tenant.slug, joinTenant, authClient]);
 
     // Handlers
     const handleLogin = (user: User) => {

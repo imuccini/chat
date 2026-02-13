@@ -9,13 +9,34 @@ export const SERVER_URL = isNative
     : '';
 
 // The URL of the NestJS API/Socket server
-// On Native: Connect directly to the API server on port 3001
+// On Native: Connect directly to the API server
+//   - Development (with port): Replace :3000 with :3001
+//   - Production (no port): Use the same URL (server should handle routing)
 // On Web (Dev): Connect to port 3001 (NestJS) directly
 // On Web (Prod): Use relative path (Nginx handles proxying to 3001)
 const isDevelopment = process.env.NODE_ENV === 'development';
 
+// Helper function to resolve API URL for native apps
+const resolveNativeApiUrl = (serverUrl?: string): string => {
+    if (!serverUrl) return 'http://localhost:3001';
+
+    // Check if the URL includes a port (development mode)
+    const hasPort = /:\d+$/.test(serverUrl);
+
+    if (hasPort && serverUrl.includes(':3000')) {
+        // Dev mode: Replace Next.js port with NestJS port
+        return serverUrl.replace(':3000', ':3001');
+    }
+
+    // Production mode: URL has no port, use as-is
+    // Assumes your production setup either:
+    //   1. Has nginx proxying /api and /socket.io to port 3001
+    //   2. Or NestJS is exposed directly on 443/80
+    return serverUrl;
+};
+
 export const API_BASE_URL = isNative
-    ? (process.env.NEXT_PUBLIC_SERVER_URL?.replace(':3000', ':3001') || 'http://localhost:3001')
+    ? resolveNativeApiUrl(process.env.NEXT_PUBLIC_SERVER_URL)
     : (isDevelopment
         ? (typeof window !== 'undefined'
             ? `${window.location.protocol}//${window.location.hostname}:3001`
@@ -24,7 +45,7 @@ export const API_BASE_URL = isNative
 
 // For Socket.IO Specifically
 export const SOCKET_URL = isNative
-    ? (process.env.NEXT_PUBLIC_SERVER_URL?.replace(':3000', ':3001') || 'http://localhost:3001')
+    ? resolveNativeApiUrl(process.env.NEXT_PUBLIC_SERVER_URL)
     : (isDevelopment
         ? (typeof window !== 'undefined'
             ? `${window.location.protocol}//${window.location.hostname}:3001`

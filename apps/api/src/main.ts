@@ -25,14 +25,19 @@ async function bootstrap() {
 
   // CORS Configuration
   app.enableCors({
-    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+    origin: (
+      origin: string | undefined,
+      callback: (err: Error | null, allow?: boolean) => void,
+    ) => {
       const allowed = [
         'capacitor://localhost',
         'http://localhost',
         'http://localhost:3000',
         'https://app.meetlocal.app',
       ];
-      const isAllowed = !origin || allowed.includes(origin) ||
+      const isAllowed =
+        !origin ||
+        allowed.includes(origin) ||
         origin?.startsWith('http://192.168.') ||
         origin?.startsWith('http://10.') ||
         origin?.startsWith('http://172.');
@@ -61,13 +66,17 @@ async function bootstrap() {
       app.useWebSocketAdapter(new RedisIoAdapter(app));
       logger.log('Redis adapter enabled for Socket.IO');
     } catch (error) {
-      logger.warn(`Redis connection failed: ${error.message}, using default adapter`);
+      logger.warn(
+        `Redis connection failed: ${error.message}, using default adapter`,
+      );
     }
   }
 
   const port = process.env.API_PORT || 3001;
   const host = '0.0.0.0';
-  console.log(`[Bootstrap] Attempting to listen on ${host}:${port} (API_PORT=${process.env.API_PORT})`);
+  console.log(
+    `[Bootstrap] Attempting to listen on ${host}:${port} (API_PORT=${process.env.API_PORT})`,
+  );
   await app.listen(port, host);
   logger.log(`🚀 API server running on http://${host}:${port}`);
 }

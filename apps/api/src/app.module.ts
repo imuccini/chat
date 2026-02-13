@@ -28,4 +28,4 @@ import { DiagController } from './diag.controller.js';
   controllers: [AppController, DiagController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}
