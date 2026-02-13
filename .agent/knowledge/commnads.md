@@ -41,6 +41,13 @@ cd apps/web && npm run build:cap && npx cap:sync && npx cap open ios
 COAMNDO:
 npm run build:cap && run npx cap:sync:ios
 
+  The fix is now automated and will run every time you sync Android! 🎉
+
+  Try building Android now with:
+  npm run cap:sync:android
+  npm run cap:open:android
+
+
 
 
 Nota sul Live Reload (Sviluppo)
