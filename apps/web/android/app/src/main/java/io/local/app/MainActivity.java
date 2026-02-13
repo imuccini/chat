@@ -1,4 +1,4 @@
-package io.trenochat.app;
+package io.local.app;
 
 import com.getcapacitor.BridgeActivity;
 

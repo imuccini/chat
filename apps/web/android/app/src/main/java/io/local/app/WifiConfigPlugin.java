@@ -1,4 +1,4 @@
-package io.trenochat.app;
+package io.local.app;
 
 import android.content.Context;
 import android.net.ConnectivityManager;

@@ -5,7 +5,7 @@ import 'dotenv/config';
 const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000';
 
 const config: CapacitorConfig = {
-  appId: 'io.trenochat.app',
+  appId: 'io.local.app',
   appName: 'Local',
   webDir: 'out',
   backgroundColor: '#ffffff',
