@@ -500,7 +500,17 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                         peer: { id: peerId, alias: isMe ? 'Unknown' : msg.senderAlias, gender: isMe ? 'male' : msg.senderGender, joinedAt: Date.now() },
                         messages: [], unread: 0
                     };
-                    if (existing.messages.some(m => m.id === msg.id)) return prev;
+
+                    // ALWAYS update peer metadata in case they changed their alias/gender
+                    if (!isMe) {
+                        existing.peer.alias = msg.senderAlias;
+                        existing.peer.gender = msg.senderGender;
+                    }
+
+                    if (existing.messages.some(m => m.id === msg.id)) {
+                        // Even if message exists, we might have updated the peer above, so return the updated state
+                        return { ...prev, [peerId]: { ...existing } };
+                    }
 
                     // Only increment unread if message is from someone else
                     // AND we are NOT currently looking at this specific chat
@@ -526,7 +536,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                 newSocket.close();
             }
         };
-    }, [currentUser, tenant.slug, joinTenant, authClient]);
+    }, [currentUser?.id, tenant.slug, joinTenant, authClient]);
 
     // Handlers
     const handleLogin = (user: User) => {
