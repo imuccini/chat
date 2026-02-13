@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-    title: "Treno Chat",
-    description: "Chat locale per passeggeri",
+    title: "Local",
+    description: "Chat locale",
     appleWebApp: {
         capable: true,
         statusBarStyle: "default",

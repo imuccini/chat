@@ -50,6 +50,26 @@ npm run build:cap && run npx cap:sync:ios
 
 
 
+iOS:
+  cd apps/web
+  npm run build
+  npm run build:cap
+  npm run cap:sync:ios
+  npm run cap:open:ios
+  # Build in Xcode → Archive → Distribute
+
+  Android:
+  cd apps/web
+  npm run build
+  npm run build:cap
+  npm run cap:sync:android
+  npm run cap:open:android
+  # Build in Android Studio → Generate Signed Bundle/APK
+
+
+
+
+
 Nota sul Live Reload (Sviluppo)
 Se vuoi testare le modifiche in tempo reale senza dover ricompilare ogni volta:
 

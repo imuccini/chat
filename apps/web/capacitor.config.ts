@@ -6,7 +6,7 @@ const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000';
 
 const config: CapacitorConfig = {
   appId: 'io.trenochat.app',
-  appName: 'TrenoChat',
+  appName: 'Local',
   webDir: 'out',
   backgroundColor: '#ffffff',
   server: {
