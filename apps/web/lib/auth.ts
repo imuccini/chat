@@ -87,7 +87,33 @@ export const getAuth = (origin: string) => {
             baseURL, // Ensure the fallback base is also trusted
             process.env.BETTER_AUTH_URL || "",
             process.env.NEXT_PUBLIC_SERVER_URL || ""
-        ].filter((item, index, self) => Boolean(item) && self.indexOf(item) === index)
+        ].filter((item, index, self) => Boolean(item) && self.indexOf(item) === index),
+        callbacks: {
+            signIn: async ({ user, account, request }) => {
+                const noSignupCookie = request?.headers.get('cookie')?.includes('local_no_signup=true');
+                if (noSignupCookie) {
+                    // Check if this is a new user creation attempt.
+                    // Better Auth usually creates the user before calling signIn callback.
+                    // We can check if the user was created in the last 10 seconds.
+                    const isNew = user.createdAt && (new Date().getTime() - new Date(user.createdAt).getTime() < 10000);
+
+                    if (isNew) {
+                        console.log("[Auth] Blocking social signup and cleaning up ghost user:", user.email);
+                        // Clean up the newly created user to avoid database clutter
+                        try {
+                            await prisma.user.delete({ where: { id: user.id } });
+                        } catch (e) {
+                            console.error("[Auth] Failed to cleanup ghost user:", e);
+                        }
+
+                        return {
+                            error: "Account non trovato. Questa pagina consente solo l'accesso ad account esistenti.",
+                        };
+                    }
+                }
+                return true;
+            }
+        }
     });
 };
 

@@ -23,6 +23,7 @@ interface LoginProps {
   onLogin: (user: User) => void;
   tenantName: string;
   tenantLogo?: string;
+  requireExisting?: boolean;
 }
 
 type View = 'phone_input' | 'otp_verification' | 'profile_completion' | 'loading' | 'choice' | 'anonymous' | 'passkey_reg' | 'continue'; // Keeping old ones for safety during transition
@@ -39,7 +40,7 @@ interface AppUser extends User {
   // ensure alias/gender are present or optional if they come from User
 }
 
-export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
+export default function Login({ onLogin, tenantName, tenantLogo, requireExisting }: LoginProps) {
   const [view, setView] = useState<View>('choice'); // Default to Choice selection
   const [existingUser, setExistingUser] = useState<AppUser | null>(null);
   const [alias, setAlias] = useState('');
@@ -206,6 +207,7 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
               body: JSON.stringify({
                 provider,
                 idToken,
+                requireExisting,
                 profile: {
                   email: profile.email,
                   name: profileName,
@@ -256,9 +258,12 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
           setIsLoading(false);
         }
       } else {
+        if (requireExisting) {
+          document.cookie = "local_no_signup=true; path=/; max-age=300; SameSite=Lax";
+        }
         await signIn.social({
           provider,
-          callbackURL: window.location.origin,
+          callbackURL: window.location.href + (window.location.href.includes('?') ? '&' : '?') + (requireExisting ? 'requireExisting=true' : ''),
         });
       }
     } catch (err: any) {
@@ -314,7 +319,11 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ phone: '+39' + phone, code: otp }) // Alias is optional here, we check user existence
+        body: JSON.stringify({
+          phone: '+39' + phone,
+          code: otp,
+          requireExisting
+        })
       });
 
       const data = await res.json();
@@ -689,14 +698,16 @@ export default function Login({ onLogin, tenantName, tenantLogo }: LoginProps) {
                 </button>
               )}
 
-              {/* Anonymous button: Always shown last */}
-              <button
-                onClick={() => setView('anonymous')}
-                className="w-full bg-white hover:bg-gray-50 text-gray-700 font-bold py-4 rounded-xl border-2 border-gray-100 hover:border-primary hover:text-primary transition-all flex items-center justify-center gap-2 group"
-              >
-                <span className="text-xl group-hover:scale-110 transition-transform">🕵️</span>
-                <span>Accesso anonimo</span>
-              </button>
+              {/* Anonymous button: Always shown last (unless restricted) */}
+              {!requireExisting && (
+                <button
+                  onClick={() => setView('anonymous')}
+                  className="w-full bg-white hover:bg-gray-50 text-gray-700 font-bold py-4 rounded-xl border-2 border-gray-100 hover:border-primary hover:text-primary transition-all flex items-center justify-center gap-2 group"
+                >
+                  <span className="text-xl group-hover:scale-110 transition-transform">🕵️</span>
+                  <span>Accesso anonimo</span>
+                </button>
+              )}
             </div>
           )}
 

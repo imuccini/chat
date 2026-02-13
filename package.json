@@ -18,7 +18,10 @@
         "postinstall": "patch-package"
     },
     "devDependencies": {
-        "turbo": "^2.3.0",
-        "patch-package": "^8.0.1"
+        "patch-package": "^8.0.1",
+        "turbo": "^2.3.0"
+    },
+    "optionalDependencies": {
+        "@esbuild/darwin-arm64": "^0.27.3"
     }
 }

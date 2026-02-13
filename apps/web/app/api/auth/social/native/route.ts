@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
     const corsHeaders = getCorsHeaders(origin);
 
     try {
-        const { provider, idToken, profile } = await req.json();
+        const { provider, idToken, profile, requireExisting } = await req.json();
 
         if (!provider || !idToken) {
             return NextResponse.json(
@@ -59,8 +59,6 @@ export async function POST(req: NextRequest) {
         }
 
         // Find or create user
-        // First try by email, then fall back to provider account ID (important for Apple
-        // which may not include email on subsequent logins)
         let user = verifiedProfile.email
             ? await prisma.user.findFirst({ where: { email: verifiedProfile.email } })
             : null;
@@ -73,6 +71,13 @@ export async function POST(req: NextRequest) {
             if (existingAccount?.user) {
                 user = existingAccount.user;
             }
+        }
+
+        if (!user && requireExisting) {
+            return NextResponse.json(
+                { error: 'Account non trovato. Questa pagina consente solo l\'accesso ad account esistenti.' },
+                { status: 404, headers: corsHeaders }
+            );
         }
 
         if (!user && !verifiedProfile.email) {

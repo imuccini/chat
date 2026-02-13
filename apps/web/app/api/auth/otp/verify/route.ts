@@ -11,7 +11,7 @@ export async function POST(req: Request) {
     const corsHeaders = getCorsHeaders(origin);
 
     try {
-        const { phone, code, alias, gender } = await req.json();
+        const { phone, code, alias, gender, requireExisting } = await req.json();
         const cleanPhone = phone?.replace(/\s/g, '');
 
         if (!cleanPhone || !code) {
@@ -37,20 +37,25 @@ export async function POST(req: Request) {
             where: { phoneNumber: cleanPhone }
         });
 
-        const isNewUser = !user;
-
         // 3. Handle potentially new user (Probe phase)
-        // If user doesn't exist and no alias provided, we return 200 asking for alias.
-        // We MUST NOT delete the OTP yet, because the client will send it again with the alias.
-        if (!user && !alias) {
-            return NextResponse.json({
-                success: false,
-                isNewUser: true,
-                message: "Alias richiesto per nuovi utenti"
-            }, { status: 200, headers: corsHeaders });
+        if (!user) {
+            if (requireExisting) {
+                return NextResponse.json({
+                    error: "Account non trovato. Questa pagina consente solo l'accesso ad account esistenti.",
+                    code: "USER_NOT_FOUND"
+                }, { status: 404, headers: corsHeaders });
+            }
+
+            if (!alias) {
+                return NextResponse.json({
+                    success: false,
+                    isNewUser: true,
+                    message: "Alias richiesto per nuovi utenti"
+                }, { status: 200, headers: corsHeaders });
+            }
         }
 
-        // 4. Consume OTP (Delete it) - Now safe to delete as we either have a user or are creating one
+        // 4. Consume OTP (Delete it)
         try {
             await prisma.verification.delete({ where: { id: verification.id } });
         } catch (e) {
