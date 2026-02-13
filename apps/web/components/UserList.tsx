@@ -5,11 +5,12 @@ import { Icon } from './Icon';
 interface UserListProps {
     currentUser: User;
     users: (User & { socketId: string })[];
-    staff?: User[]; // Optional staff list
+    staff?: User[];
+    excludeIds?: Set<string>;
     onStartChat: (targetUser: User) => void;
 }
 
-const UserList: React.FC<UserListProps> = ({ currentUser, users, staff = [], onStartChat }) => {
+const UserList: React.FC<UserListProps> = ({ currentUser, users, staff = [], excludeIds = new Set(), onStartChat }) => {
     const [searchQuery, setSearchQuery] = useState('');
 
     // Deduplicate users by ID (in case of multiple socket connections)
@@ -17,21 +18,16 @@ const UserList: React.FC<UserListProps> = ({ currentUser, users, staff = [], onS
         new Map(users.map(u => [u.id, u])).values()
     );
 
-    // Filter staff from online users to avoid duplication if they are online
     const staffIds = new Set(staff.map(s => s.id));
 
-    // Filter out self and apply search query
-    const filteredOnlineUsers = uniqueOnlineUsers.filter(u =>
-        u.id !== currentUser.id &&
-        !staffIds.has(u.id) && // Don't show staff in general list
-        (u.alias || (u as any).name || "User").toLowerCase().includes(searchQuery.toLowerCase())
-    );
-
-    // Filter staff by search query
-    const filteredStaff = staff.filter(s =>
-        s.id !== currentUser.id &&
-        (s.alias || (s as any).name || "Staff").toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    // Single flat list: online users (excluding self and hidden admins),
+    // with staff members marked via badge if they happen to be online
+    const visibleUsers = uniqueOnlineUsers
+        .filter(u =>
+            u.id !== currentUser.id &&
+            !excludeIds.has(u.id) &&
+            (u.alias || (u as any).name || "User").toLowerCase().includes(searchQuery.toLowerCase())
+        );
 
     const getAvatarColor = (gender: Gender) => {
         switch (gender) {
@@ -41,12 +37,8 @@ const UserList: React.FC<UserListProps> = ({ currentUser, users, staff = [], onS
         }
     };
 
-    const isStaffOnline = (staffId: string) => {
-        return uniqueOnlineUsers.some(u => u.id === staffId);
-    };
-
-    const renderUserItem = (user: User, isStaff: boolean) => {
-        const isOnline = isStaff ? isStaffOnline(user.id) : true; // Regular users in list are always online
+    const renderUserItem = (user: User) => {
+        const isStaff = staffIds.has(user.id);
 
         return (
             <li
@@ -62,9 +54,7 @@ const UserList: React.FC<UserListProps> = ({ currentUser, users, staff = [], onS
                             <span className="font-bold text-lg uppercase">{(user.alias || (user as any).name || "U").charAt(0)}</span>
                         )}
                     </div>
-                    {isOnline && (
-                        <div className={`absolute bottom-0 right-0 w-3.5 h-3.5 bg-primary border-2 border-white rounded-full z-10`}></div>
-                    )}
+                    <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-primary border-2 border-white rounded-full z-10"></div>
                 </div>
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
@@ -76,10 +66,7 @@ const UserList: React.FC<UserListProps> = ({ currentUser, users, staff = [], onS
                         )}
                     </div>
                     <p className="text-sm text-gray-500 truncate">
-                        {isStaff
-                            ? (isOnline ? 'Online' : 'Offline - Lascia un messaggio')
-                            : (user.status || <span className="capitalize">{user.gender}</span>)
-                        }
+                        {user.status || <span className="capitalize">{user.gender}</span>}
                     </p>
                 </div>
                 <div className="p-2 text-gray-300 group-hover:text-primary transition-colors">
@@ -97,7 +84,7 @@ const UserList: React.FC<UserListProps> = ({ currentUser, users, staff = [], onS
                 <div className="h-[60px] px-4 flex items-center justify-between">
                     <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight">Utenti</h1>
                     <span className="text-xs font-bold text-primary bg-primary/10 px-2.5 py-1 rounded-full uppercase tracking-wide">
-                        {uniqueOnlineUsers.length} Online
+                        {visibleUsers.length} Online
                     </span>
                 </div>
 
@@ -129,7 +116,7 @@ const UserList: React.FC<UserListProps> = ({ currentUser, users, staff = [], onS
             </header>
 
             <main className="flex-1 overflow-y-auto p-4 pb-[80px]">
-                {filteredOnlineUsers.length === 0 && filteredStaff.length === 0 ? (
+                {visibleUsers.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-full text-gray-400 space-y-4">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -139,29 +126,9 @@ const UserList: React.FC<UserListProps> = ({ currentUser, users, staff = [], onS
                         </p>
                     </div>
                 ) : (
-                    <div className="space-y-6">
-                        {/* Staff Section */}
-                        {filteredStaff.length > 0 && (
-                            <div className="space-y-2">
-                                <h2 className="text-xs font-bold text-gray-400 uppercase tracking-wider pl-1">Staff del Locale</h2>
-                                <ul className="space-y-2">
-                                    {filteredStaff.map(user => renderUserItem(user, true))}
-                                </ul>
-                            </div>
-                        )}
-
-                        {/* Regular Users Section */}
-                        {filteredOnlineUsers.length > 0 && (
-                            <div className="space-y-2">
-                                {filteredStaff.length > 0 && (
-                                    <h2 className="text-xs font-bold text-gray-400 uppercase tracking-wider pl-1 pt-2">Utenti Online</h2>
-                                )}
-                                <ul className="space-y-2">
-                                    {filteredOnlineUsers.map(user => renderUserItem(user, false))}
-                                </ul>
-                            </div>
-                        )}
-                    </div>
+                    <ul className="space-y-2">
+                        {visibleUsers.map(user => renderUserItem(user))}
+                    </ul>
                 )}
             </main>
         </div>

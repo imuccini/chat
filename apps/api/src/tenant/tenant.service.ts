@@ -180,7 +180,7 @@ export class TenantService {
       return pA - pB;
     });
 
-    let staff = sortedMembers.map((m: any) => m.user);
+    let staff = sortedMembers.map((m: any) => ({ ...m.user, memberRole: m.role }));
 
     // Fallback for DEV/PRE-CONFIGURED tenants:
     // If no members are found, return the first user in the DB as a 'System Admin' fallback

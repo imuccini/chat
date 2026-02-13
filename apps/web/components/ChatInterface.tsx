@@ -158,6 +158,13 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
         staleTime: 1000 * 60 * 5,
     });
 
+    // Admin IDs (OWNER/ADMIN) — hidden from UserList, only reachable via "Scrivi allo staff"
+    const adminIds = new Set(
+        staffMembers.filter((s: any) => s.memberRole === 'OWNER' || s.memberRole === 'ADMIN').map((s: any) => s.id)
+    );
+    // Non-admin staff (MODERATOR/STAFF) — visible in UserList staff section
+    const visibleStaff = staffMembers.filter((s: any) => !adminIds.has(s.id));
+
     // 2. Sync user data from BetterAuth session (updates localStorage user with fresh server data)
     useEffect(() => {
         if (isSessionLoading) return;
@@ -801,7 +808,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                                 tenantName={tenant?.name || "Local Chat"}
                             />
                         )}
-                        {activeTab === 'users' && <UserList currentUser={currentUser} users={onlineUsers} staff={staffMembers} onStartChat={handleStartChat} />}
+                        {activeTab === 'users' && <UserList currentUser={currentUser} users={onlineUsers} staff={visibleStaff} excludeIds={adminIds} onStartChat={handleStartChat} />}
                         {activeTab === 'local' && (
                             <LocalSection
                                 tenant={tenant}
