@@ -17,14 +17,22 @@ export const getAuth = (origin: string) => {
         origin = `http://${origin}`;
     }
 
+    // CRITICAL FIX: Normalize localhost and 127.0.0.1 and local IPs to a canonical baseURL
+    // This ensures session tokens are signed with the SAME secret regardless of how the app is accessed
+    let normalizedOrigin = origin;
+    if (origin.includes('localhost') || origin.includes('127.0.0.1') || origin.match(/192\.168\.\d+\.\d+/) || origin.match(/10\.\d+\.\d+\.\d+/)) {
+        // Always use localhost:3000 as the canonical baseURL for local development
+        normalizedOrigin = 'http://localhost:3000';
+    }
+
     // BetterAuth requires baseURL to be http/https.
     // If the origin is capacitor:// (iOS/Android), use the configured server URL as valid base
     // but keep the original origin in trustedOrigins and for RP ID derivation.
-    const isCapacitor = origin.startsWith("capacitor://");
-    const isAndroidLocal = origin === "http://localhost";
+    const isCapacitor = normalizedOrigin.startsWith("capacitor://");
+    const isAndroidLocal = normalizedOrigin === "http://localhost";
     const baseURL = (isCapacitor || isAndroidLocal)
         ? (process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:3000")
-        : origin;
+        : normalizedOrigin;
 
     let url: URL;
     try {
@@ -35,6 +43,8 @@ export const getAuth = (origin: string) => {
     }
     const rpID = url.hostname;
 
+    console.error(`[Auth Config] Origin: ${origin}, Normalized: ${normalizedOrigin}, baseURL: ${baseURL}, rpID: ${rpID}`);
+
     return betterAuth({
         database: prismaAdapter(prisma, {
             provider: "postgresql"
@@ -42,6 +52,19 @@ export const getAuth = (origin: string) => {
         secret: process.env.BETTER_AUTH_SECRET,
         baseURL: baseURL,
         debug: true,
+        advanced: {
+            cookies: {
+                sessionDataCookie: {
+                    name: "better-auth.session_data",
+                    attributes: {
+                        httpOnly: false, // CRITICAL: Must be readable by client
+                        sameSite: "lax",
+                        path: "/",
+                        secure: false
+                    }
+                }
+            }
+        },
         session: {
             expiresIn: 60 * 60 * 24 * 30, // 30 days
             updateAge: 60 * 60 * 24, // Refresh session expiry every 24 hours
@@ -90,16 +113,20 @@ export const getAuth = (origin: string) => {
         ].filter((item, index, self) => Boolean(item) && self.indexOf(item) === index),
         callbacks: {
             signIn: async ({ user, account, request }) => {
-                const noSignupCookie = request?.headers.get('cookie')?.includes('local_no_signup=true');
+                const cookies = request?.headers.get('cookie') || "";
+                const noSignupCookie = cookies.includes('local_no_signup=true');
+                console.error(`[Auth] signIn callback EXEC. User: ${user.email}, noSignupCookie: ${noSignupCookie}, hasCookies: ${!!cookies}`);
+
                 if (noSignupCookie) {
-                    // Check if this is a new user creation attempt.
-                    // Better Auth usually creates the user before calling signIn callback.
-                    // We can check if the user was created in the last 10 seconds.
-                    const isNew = user.createdAt && (new Date().getTime() - new Date(user.createdAt).getTime() < 10000);
+                    // Robust check: if the user was created very recently, it's a new signup attempt.
+                    const createdAt = user.createdAt ? new Date(user.createdAt).getTime() : 0;
+                    const now = new Date().getTime();
+                    const isNew = createdAt > 0 && (now - createdAt < 20000); // 20 second window
+
+                    console.error(`[Auth] Social login restricted check. isNew: ${isNew}, age: ${now - createdAt}ms`);
 
                     if (isNew) {
-                        console.log("[Auth] Blocking social signup and cleaning up ghost user:", user.email);
-                        // Clean up the newly created user to avoid database clutter
+                        console.error("[Auth] BLOCKING social signup and cleaning up ghost user:", user.email);
                         try {
                             await prisma.user.delete({ where: { id: user.id } });
                         } catch (e) {

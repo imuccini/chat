@@ -1,0 +1,1 @@
+https://app.meetlocal.app/review-setup?name=AppleReview

@@ -261,9 +261,12 @@ export default function Login({ onLogin, tenantName, tenantLogo, requireExisting
         if (requireExisting) {
           document.cookie = "local_no_signup=true; path=/; max-age=300; SameSite=Lax";
         }
+        console.log('[Login] Initiating social login with callback:', `${window.location.origin}/account`);
         await signIn.social({
           provider,
-          callbackURL: window.location.href + (window.location.href.includes('?') ? '&' : '?') + (requireExisting ? 'requireExisting=true' : ''),
+          callbackURL: `${window.location.origin}/account`,
+          // Force redirect to ensure proper cookie handling
+          redirect: true
         });
       }
     } catch (err: any) {
