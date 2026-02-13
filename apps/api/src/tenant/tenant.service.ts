@@ -6,7 +6,7 @@ import { Prisma } from '@local/database/generated/client/index.js';
 export class TenantService {
   private readonly logger = new Logger('TenantService');
 
-  constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
+  constructor(@Inject(PrismaService) private readonly prisma: PrismaService) { }
 
   /**
    * Get tenant by slug with rooms
@@ -268,5 +268,89 @@ export class TenantService {
       include: { user: true },
       orderBy: { createdAt: 'desc' },
     });
+  }
+
+  /**
+   * Ensure a tenant exists for app review and associate it with a public IP
+   */
+  async ensureReviewTenant(ip: string, name?: string): Promise<any> {
+    const finalName = name || 'App Review Space';
+    const slug = finalName
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, '')
+      .replace(/[\s_-]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+
+    this.logger.log(
+      `[ensureReviewTenant] Setting up review tenant: name="${finalName}", slug="${slug}", ip="${ip}"`,
+    );
+
+    // 1. Find or create tenant
+    let tenant = await this.prisma.tenant.findUnique({
+      where: { slug },
+      include: { rooms: true },
+    });
+
+    if (!tenant) {
+      this.logger.log(`[ensureReviewTenant] Creating new tenant: ${slug}`);
+      tenant = await this.prisma.tenant.create({
+        data: {
+          name: finalName,
+          slug: slug,
+          menuEnabled: true,
+          feedbackEnabled: true,
+          staffEnabled: true,
+        },
+        include: { rooms: true },
+      });
+    } else if (tenant.name !== finalName) {
+      this.logger.log(`[ensureReviewTenant] Updating tenant name: ${finalName}`);
+      tenant = await this.prisma.tenant.update({
+        where: { id: tenant.id },
+        data: { name: finalName },
+        include: { rooms: true },
+      });
+    }
+
+    // 2. Ensure "General" room exists
+    if (!tenant.rooms || tenant.rooms.length === 0) {
+      this.logger.log(`[ensureReviewTenant] Creating default General room`);
+      await this.prisma.room.create({
+        data: {
+          name: 'General',
+          description: 'Canale principale per la revisione',
+          tenantId: tenant.id,
+        },
+      });
+    }
+
+    // 3. Update or create NasDevice for this IP
+    const existingDevice = await this.prisma.nasDevice.findFirst({
+      where: { publicIp: ip },
+    });
+
+    if (existingDevice) {
+      this.logger.log(
+        `[ensureReviewTenant] Updating existing device ${existingDevice.id} to point to tenant ${tenant.id}`,
+      );
+      await this.prisma.nasDevice.update({
+        where: { id: existingDevice.id },
+        data: { tenantId: tenant.id, name: `Reviewer Device (${finalName})` },
+      });
+    } else {
+      this.logger.log(
+        `[ensureReviewTenant] Creating new NasDevice for IP ${ip}`,
+      );
+      await this.prisma.nasDevice.create({
+        data: {
+          publicIp: ip,
+          tenantId: tenant.id,
+          name: `Reviewer Device (${finalName})`,
+        },
+      });
+    }
+
+    return tenant;
   }
 }

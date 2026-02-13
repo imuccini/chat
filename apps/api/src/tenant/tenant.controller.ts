@@ -23,7 +23,7 @@ export class TenantController {
   constructor(
     @Inject(TenantService) private readonly tenantService: TenantService,
     private readonly jwtService: JwtService,
-  ) {}
+  ) { }
 
   @Get()
   async listTenants(): Promise<any[]> {
@@ -185,5 +185,27 @@ export class TenantController {
       `[TenantController] Validation success! Tenant: ${device.tenant.name} (${device.tenant.slug})`,
     );
     return { valid: true, tenant: device.tenant };
+  }
+
+  @Get('setup-review')
+  async setupReview(
+    @Req() request: any,
+    @Query('name') name?: string,
+  ): Promise<any> {
+    const forwarded = request.headers['x-forwarded-for'];
+    const remoteIp = forwarded
+      ? forwarded.split(',')[0].trim()
+      : request.socket?.remoteAddress;
+
+    // Remove IPv6 prefix if present (e.g., ::ffff:127.0.0.1)
+    const activeIp = remoteIp.includes(':')
+      ? remoteIp.split(':').pop()
+      : remoteIp;
+
+    console.log(
+      `[TenantController] App Review Setup triggered for IP: ${activeIp}, requested name: ${name}`,
+    );
+
+    return this.tenantService.ensureReviewTenant(activeIp, name);
   }
 }
