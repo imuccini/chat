@@ -159,7 +159,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
     });
 
     // Admin IDs (OWNER/ADMIN) — hidden from UserList, only reachable via "Scrivi allo staff"
-    const adminIds = new Set(
+    const adminIds = new Set<string>(
         staffMembers.filter((s: any) => s.memberRole === 'OWNER' || s.memberRole === 'ADMIN').map((s: any) => s.id)
     );
     // Non-admin staff (MODERATOR/STAFF) — visible in UserList staff section
@@ -880,7 +880,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                                 </div>
                             )}
                             <div className="flex-1 overflow-hidden relative" style={keyboardContentStyle}>
-                                <GlobalChat user={currentUser} messages={privateChats[selectedChatPeerId!].messages} onSendMessage={handlePrivateSend} onlineCount={0} isOnline={true} hideHeader={true} showBottomNavPadding={false} isFocused={isInputFocused} onInputFocusChange={setIsInputFocused} isSyncing={false} />
+                                <GlobalChat user={currentUser} messages={privateChats[selectedChatPeerId!].messages} onSendMessage={handlePrivateSend} onlineCount={0} isOnline={true} isOffline={!onlineUsers.some(u => u.id === selectedChatPeerId)} hideHeader={true} showBottomNavPadding={false} isFocused={isInputFocused} onInputFocusChange={setIsInputFocused} isSyncing={false} />
                             </div>
                         </>
                     ) : isRoomChatOpen ? (
