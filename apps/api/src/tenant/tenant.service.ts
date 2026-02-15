@@ -301,6 +301,20 @@ export class TenantService {
           menuEnabled: true,
           feedbackEnabled: true,
           staffEnabled: true,
+          rooms: {
+            create: [
+              {
+                name: 'Annunci',
+                type: 'ANNOUNCEMENT',
+                description: `Messaggi da ${finalName}`,
+              },
+              {
+                name: finalName,
+                type: 'GENERAL',
+                description: 'Canale principale per la revisione',
+              },
+            ],
+          },
         },
         include: { rooms: true },
       });
@@ -313,16 +327,48 @@ export class TenantService {
       });
     }
 
-    // 2. Ensure "General" room exists
+    // 2. Ensure default rooms exist (if somehow created without them or for existing tenants)
     if (!tenant.rooms || tenant.rooms.length === 0) {
-      this.logger.log(`[ensureReviewTenant] Creating default General room`);
-      await this.prisma.room.create({
-        data: {
-          name: 'General',
-          description: 'Canale principale per la revisione',
-          tenantId: tenant.id,
-        },
+      this.logger.log(`[ensureReviewTenant] Creating default rooms`);
+      await this.prisma.room.createMany({
+        data: [
+          {
+            name: 'Annunci',
+            type: 'ANNOUNCEMENT',
+            description: `Messaggi da ${finalName}`,
+            tenantId: tenant.id,
+          },
+          {
+            name: finalName, // Use tenant name for General room to match admin logic
+            type: 'GENERAL',
+            description: 'Canale principale per la revisione',
+            tenantId: tenant.id,
+          },
+        ],
       });
+      // Refresh tenant to get new rooms
+      tenant = await this.prisma.tenant.findUnique({
+        where: { id: tenant.id },
+        include: { rooms: true },
+      });
+    } else {
+      // Check for missing "Annunci" room specifically (common issue if seeded incorrectly before)
+      const hasAnnunci = tenant.rooms.some(r => r.type === 'ANNOUNCEMENT');
+      if (!hasAnnunci) {
+        this.logger.log(`[ensureReviewTenant] Adding missing Annunci room`);
+        await this.prisma.room.create({
+          data: {
+            name: 'Annunci',
+            type: 'ANNOUNCEMENT',
+            description: `Messaggi da ${finalName}`,
+            tenantId: tenant.id,
+          }
+        });
+        tenant = await this.prisma.tenant.findUnique({
+          where: { id: tenant.id },
+          include: { rooms: true },
+        });
+      }
     }
 
     // 3. Update or create NasDevice for this IP
