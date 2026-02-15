@@ -229,6 +229,15 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                             setIsRestoringSession(false);
                             return;
                         }
+
+                        // On native, trust localStorage user + stored session_token
+                        // (WKWebView cookies are unreliable across app lifecycle transitions)
+                        if (Capacitor.isNativePlatform() && localStorage.getItem('session_token')) {
+                            console.log("[ChatInterface] Native with stored session token — skipping zombie cleanup.");
+                            setIsRestoringSession(false);
+                            return;
+                        }
+
                         console.warn("[ChatInterface] Found stale registered user in localStorage without active session. Clearing to prevent unauthorized admin access.");
                         localStorage.removeItem('chat_user');
                         setCurrentUser(null);
@@ -516,6 +525,12 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                 if (match) token = decodeURIComponent(match[1]);
             }
 
+            // Fallback: use stored session token from native login flows
+            // (cookies can be lost across iOS app lifecycle transitions)
+            if (!token) {
+                token = localStorage.getItem('session_token');
+            }
+
             newSocket = io(SOCKET_URL, {
                 auth: { token },
                 query: {
@@ -741,6 +756,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
         setCurrentUser(null);
         setSocket(null);
         localStorage.removeItem('chat_user');
+        localStorage.removeItem('session_token');
         setPrivateChats({});
         setOnlineUsers([]);
         setOnlineUserIds([]);
