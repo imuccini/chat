@@ -95,7 +95,16 @@ export function useTenantValidation(tenantSlug: string): TenantValidationResult 
                 const { App } = await import('@capacitor/app');
                 const listener = await App.addListener('appStateChange', ({ isActive }) => {
                     if (isActive) {
-                        validate();
+                        // Delay to allow iOS WiFi subsystem to wake up after foregrounding
+                        setTimeout(async () => {
+                            const wifiInfo = await getConnectedWifiInfo();
+                            if (wifiInfo.bssid) {
+                                validate();
+                            } else {
+                                // WiFi not ready yet — retry once after another 2s
+                                setTimeout(() => validate(), 2000);
+                            }
+                        }, 1500);
                     }
                 });
                 removeListener = () => listener.remove();

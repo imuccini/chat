@@ -104,6 +104,10 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
 
     const queryClient = useQueryClient();
 
+    // Track if we've confirmed a valid registered session this lifecycle.
+    // Prevents transient session=null (e.g. app resume) from wiping the user.
+    const hasEstablishedSessionRef = useRef(false);
+
     // Track if this is the first socket connection to prevent reconnection loops
     const socketInitializedRef = useRef(false);
     const userIdRef = useRef<string | null>(null);
@@ -196,6 +200,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
 
                 setCurrentUser(authUser);
                 localStorage.setItem('chat_user', JSON.stringify(authUser));
+                hasEstablishedSessionRef.current = true;
                 setIsRestoringSession(false);
                 return;
             }
@@ -209,7 +214,14 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                     // CRITICAL FIX: If we have a stored user that claims to be registered (not anonymous),
                     // but we have NO active session (session is null/undefined at this point),
                     // then this is a "Zombie" session (stale localStorage). We must clear it.
+                    // HOWEVER: if we already confirmed a valid session this lifecycle, this is
+                    // just a transient null from BetterAuth re-validating after app resume — skip.
                     if (savedUser && !savedUser.isAnonymous) {
+                        if (hasEstablishedSessionRef.current) {
+                            console.log("[ChatInterface] Transient session null after resume — skipping zombie cleanup.");
+                            setIsRestoringSession(false);
+                            return;
+                        }
                         console.warn("[ChatInterface] Found stale registered user in localStorage without active session. Clearing to prevent unauthorized admin access.");
                         localStorage.removeItem('chat_user');
                         setCurrentUser(null);
@@ -428,6 +440,17 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
         const setupListener = async () => {
             listenerHandle = await CapApp.addListener('appStateChange', ({ isActive }) => {
                 console.log(`[App State] Changed to: ${isActive ? 'active' : 'background'}`);
+
+                if (!isActive && socket) {
+                    // Proactively disconnect when backgrounded so the server
+                    // immediately removes the user from presence (marks offline).
+                    // iOS can keep TCP connections alive even when the app is
+                    // suspended, which prevents the server from detecting the
+                    // disconnect via ping timeout.
+                    console.log('[App State] App backgrounded, disconnecting socket for clean presence...');
+                    socket.disconnect();
+                    return;
+                }
 
                 if (isActive && socket && currentUser) {
                     console.log('[App State] App foregrounded, checking socket connection...');
@@ -682,6 +705,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
             socket.disconnect();
             socketInitializedRef.current = false;
         }
+        hasEstablishedSessionRef.current = false;
 
         // 2. BetterAuth sign-out (handles BetterAuth-managed sessions)
         if (session) await signOut();
