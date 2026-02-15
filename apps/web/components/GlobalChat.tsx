@@ -23,6 +23,7 @@ interface GlobalChatProps {
   showOnlineCount?: boolean;
   keyboardContentStyle?: React.CSSProperties;  // Applied to content area, NOT header
   roomType?: 'ANNOUNCEMENT' | 'GENERAL';
+  blockedUserIds?: Set<string>;
 }
 
 const GenderIcon = memo(({ gender, className }: { gender: Gender; className?: string }) => {
@@ -229,17 +230,22 @@ const GlobalChat = memo<GlobalChatProps>(({
   onBack,
   showOnlineCount = true,
   keyboardContentStyle,
-  roomType = 'GENERAL'
+  roomType = 'GENERAL',
+  blockedUserIds,
 }) => {
   const virtuosoRef = useRef<VirtuosoHandle>(null);
 
+  const visibleMessages = blockedUserIds?.size
+    ? messages.filter(msg => !blockedUserIds.has(msg.senderId))
+    : messages;
+
   // Synchronize scroll with keyboard opening
   useEffect(() => {
-    if (isFocused && messages.length > 0) {
+    if (isFocused && visibleMessages.length > 0) {
       // Use requestAnimationFrame to align with the layout change/keyboard animation
       const scroll = () => {
         virtuosoRef.current?.scrollToIndex({
-          index: messages.length - 1,
+          index: visibleMessages.length - 1,
           align: 'end',
           behavior: 'auto' // Instant to 'stick' to the rising keyboard
         });
@@ -250,7 +256,7 @@ const GlobalChat = memo<GlobalChatProps>(({
       const timeout = setTimeout(scroll, 100);
       return () => clearTimeout(timeout);
     }
-  }, [isFocused, messages.length]);
+  }, [isFocused, visibleMessages.length]);
 
   const getAvatarColor = (gender: string) => {
     switch (gender) {
@@ -262,7 +268,7 @@ const GlobalChat = memo<GlobalChatProps>(({
 
   const renderMessage = useCallback((index: number, msg: Message) => {
     const isMe = msg.senderId === user.id;
-    const showSenderInfo = index === 0 || messages[index - 1].senderId !== msg.senderId;
+    const showSenderInfo = index === 0 || visibleMessages[index - 1].senderId !== msg.senderId;
 
     return (
       <div className={`flex ${isMe ? 'justify-end' : 'justify-start'} animate-message pb-4 px-4 group/msg`}>
@@ -310,7 +316,7 @@ const GlobalChat = memo<GlobalChatProps>(({
         </div>
       </div>
     );
-  }, [user.id, messages, canModerate, onRemoveMessage]);
+  }, [user.id, visibleMessages, canModerate, onRemoveMessage]);
 
   return (
     <div className="w-full h-full flex flex-col bg-white">
@@ -358,7 +364,7 @@ const GlobalChat = memo<GlobalChatProps>(({
       {/* Content wrapper - this moves with keyboard, header stays fixed */}
       <div className="flex-1 flex flex-col overflow-hidden" style={keyboardContentStyle}>
         <div className="flex-1 overflow-hidden relative chat-bg">
-          {messages.length === 0 ? (
+          {visibleMessages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-gray-400 p-8 space-y-6 animate-fadeIn">
               <div className="w-20 h-20 rounded-full bg-gray-50 flex items-center justify-center shadow-inner">
                 {roomType === 'ANNOUNCEMENT' ? (
@@ -385,8 +391,8 @@ const GlobalChat = memo<GlobalChatProps>(({
           ) : (
             <Virtuoso
               ref={virtuosoRef}
-              data={messages}
-              initialTopMostItemIndex={messages.length - 1}
+              data={visibleMessages}
+              initialTopMostItemIndex={visibleMessages.length - 1}
               itemContent={renderMessage}
               followOutput={true}
               className="h-full w-full"

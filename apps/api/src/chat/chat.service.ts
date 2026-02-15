@@ -239,6 +239,101 @@ export class ChatService {
   }
 
   /**
+   * Block a user
+   */
+  async blockUser(userId: string, blockedId: string): Promise<boolean> {
+    try {
+      await this.prisma.blockedUser.upsert({
+        where: {
+          userId_blockedId: { userId, blockedId },
+        },
+        update: {},
+        create: { userId, blockedId },
+      });
+      return true;
+    } catch (error) {
+      this.logger.error(
+        `Failed to block user ${blockedId} for user ${userId}: ${error.message}`,
+      );
+      return false;
+    }
+  }
+
+  /**
+   * Unblock a user
+   */
+  async unblockUser(userId: string, blockedId: string): Promise<boolean> {
+    try {
+      await this.prisma.blockedUser.deleteMany({
+        where: { userId, blockedId },
+      });
+      return true;
+    } catch (error) {
+      this.logger.error(
+        `Failed to unblock user ${blockedId} for user ${userId}: ${error.message}`,
+      );
+      return false;
+    }
+  }
+
+  /**
+   * Get IDs of all users blocked by this user
+   */
+  async getBlockedUserIds(userId: string): Promise<string[]> {
+    const records = await this.prisma.blockedUser.findMany({
+      where: { userId },
+      select: { blockedId: true },
+    });
+    return records.map((r: { blockedId: string }) => r.blockedId);
+  }
+
+  /**
+   * Check if either user has blocked the other (bidirectional)
+   */
+  async isBlocked(userA: string, userB: string): Promise<boolean> {
+    const count = await this.prisma.blockedUser.count({
+      where: {
+        OR: [
+          { userId: userA, blockedId: userB },
+          { userId: userB, blockedId: userA },
+        ],
+      },
+    });
+    return count > 0;
+  }
+
+  /**
+   * Create a report
+   */
+  async createReport(
+    reporterId: string,
+    accusedId: string,
+    reason: string,
+    details: string | undefined,
+    context: any,
+    tenantId: string,
+  ): Promise<boolean> {
+    try {
+      await this.prisma.report.create({
+        data: {
+          reporterId,
+          accusedId,
+          reason,
+          details: details || null,
+          context: context || null,
+          tenantId,
+        },
+      });
+      return true;
+    } catch (error) {
+      this.logger.error(
+        `Failed to create report from ${reporterId} against ${accusedId}: ${error.message}`,
+      );
+      return false;
+    }
+  }
+
+  /**
    * Unhide a private conversation for a user
    */
   async unhideConversation(

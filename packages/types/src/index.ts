@@ -71,10 +71,17 @@ export interface ServerToClientEvents {
     privateMessage: (msg: Message) => void;
     rateLimited: (data: { retryAfter: number }) => void;
     error: (data: { message: string }) => void;
+    userBlocked: (data: { blockedId: string }) => void;
+    userUnblocked: (data: { unblockedId: string }) => void;
+    reportSubmitted: () => void;
+    blockedUsers: (data: { blockedIds: string[] }) => void;
 }
 
 export interface ClientToServerEvents {
     join: (data: { user: User; tenantSlug: string }) => void;
     sendMessage: (msg: Message) => void;
     deleteMessage: (data: { messageId: string; roomId?: string; tenantSlug: string }) => void;
+    blockUser: (data: { blockedId: string }) => void;
+    unblockUser: (data: { blockedId: string }) => void;
+    reportUser: (data: { accusedId: string; reason: string; details?: string; context?: any[] }) => void;
 }

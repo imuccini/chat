@@ -48,6 +48,12 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
   get feedback() {
     return prisma.feedback;
   }
+  get blockedUser() {
+    return prisma.blockedUser;
+  }
+  get report() {
+    return prisma.report;
+  }
 
   async onModuleInit() {
     try {

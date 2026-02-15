@@ -72,6 +72,10 @@ model User {
   feedbacks     Feedback[]
   biometricTokens BiometricToken[]
   hiddenConversations HiddenConversation[]
+  blockedUsers      BlockedUser[] @relation("blockerRelation")
+  blockedByUsers    BlockedUser[] @relation("blockedRelation")
+  reportsFiled      Report[]      @relation("reporterRelation")
+  reportsReceived   Report[]      @relation("accusedRelation")
 
   @@map("user")
   @@index([createdAt])
@@ -251,6 +255,36 @@ model BiometricToken {
 
   @@index([userId])
   @@index([deviceId])
+}
+
+model BlockedUser {
+  id        String   @id @default(uuid())
+  userId    String
+  blockedId String
+  createdAt DateTime @default(now())
+
+  user      User     @relation("blockerRelation", fields: [userId], references: [id], onDelete: Cascade)
+  blocked   User     @relation("blockedRelation", fields: [blockedId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, blockedId])
+  @@index([userId])
+}
+
+model Report {
+  id          String   @id @default(uuid())
+  reporterId  String
+  accusedId   String
+  reason      String
+  details     String?
+  context     Json?
+  tenantId    String
+  createdAt   DateTime @default(now())
+
+  reporter    User     @relation("reporterRelation", fields: [reporterId], references: [id], onDelete: Cascade)
+  accused     User     @relation("accusedRelation", fields: [accusedId], references: [id], onDelete: Cascade)
+
+  @@index([accusedId])
+  @@index([tenantId])
 }
 
 model HiddenConversation {

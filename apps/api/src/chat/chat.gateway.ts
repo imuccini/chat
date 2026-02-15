@@ -365,6 +365,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
             `[handleJoin] Completed: user=${user.id} tenant=${tenantSlug} rooms_count=${socket.rooms.size}`,
         );
 
+        // Emit blocked users list to the joining socket
+        const blockedIds = await this.chatService.getBlockedUserIds(user.id);
+        socket.emit('blockedUsers', { blockedIds });
+
         // CRITICAL: Immediately broadcast presence update to all users in tenant
         this.logger.log(
             `[handleJoin] Broadcasting presence for tenant ${tenantSlug}`,
@@ -479,6 +483,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
         // Route message
         if (message.recipientId) {
+            // Check if blocked (bidirectional)
+            const blocked = await this.chatService.isBlocked(message.senderId, message.recipientId);
+            if (blocked) {
+                this.logger.log(`[handleMessage] Message blocked: ${message.senderId} <-> ${message.recipientId}`);
+                return;
+            }
+
             // Private message
             const recipientRoomSize =
                 this.server.sockets.adapter.rooms.get(message.recipientId)?.size || 0;
@@ -544,6 +555,53 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
                 .to(`tenant:${tenantSlug}`)
                 .emit('messageDeleted', { messageId });
         }
+    }
+
+    @SubscribeMessage('blockUser')
+    async handleBlockUser(
+        @ConnectedSocket() socket: CustomSocket,
+        @MessageBody() data: { blockedId: string },
+    ) {
+        const userId = socket.data.user?.id;
+        if (!userId || !data?.blockedId) return;
+
+        this.logger.log(`[handleBlockUser] User ${userId} blocking ${data.blockedId}`);
+        await this.chatService.blockUser(userId, data.blockedId);
+        socket.emit('userBlocked', { blockedId: data.blockedId });
+    }
+
+    @SubscribeMessage('unblockUser')
+    async handleUnblockUser(
+        @ConnectedSocket() socket: CustomSocket,
+        @MessageBody() data: { blockedId: string },
+    ) {
+        const userId = socket.data.user?.id;
+        if (!userId || !data?.blockedId) return;
+
+        this.logger.log(`[handleUnblockUser] User ${userId} unblocking ${data.blockedId}`);
+        await this.chatService.unblockUser(userId, data.blockedId);
+        socket.emit('userUnblocked', { unblockedId: data.blockedId });
+    }
+
+    @SubscribeMessage('reportUser')
+    async handleReportUser(
+        @ConnectedSocket() socket: CustomSocket,
+        @MessageBody() data: { accusedId: string; reason: string; details?: string; context?: any[] },
+    ) {
+        const userId = socket.data.user?.id;
+        const tenantId = socket.data.user?.tenantId;
+        if (!userId || !tenantId || !data?.accusedId || !data?.reason) return;
+
+        this.logger.log(`[handleReportUser] User ${userId} reporting ${data.accusedId} for ${data.reason}`);
+        await this.chatService.createReport(
+            userId,
+            data.accusedId,
+            data.reason,
+            data.details,
+            data.context,
+            tenantId,
+        );
+        socket.emit('reportSubmitted');
     }
 
     @SubscribeMessage('hideConversation')

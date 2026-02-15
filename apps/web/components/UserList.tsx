@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { User, Gender } from '@/types';
 import { Icon } from './Icon';
 import { resolveAvatarUrl } from '@/lib/avatarUrl';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
+import { MoreVertical } from 'lucide-react';
 
 interface UserListProps {
     currentUser: User;
@@ -9,9 +11,12 @@ interface UserListProps {
     staff?: User[];
     excludeIds?: Set<string>;
     onStartChat: (targetUser: User) => void;
+    blockedUserIds?: Set<string>;
+    onShowBlockConfirm?: (userId: string) => void;
+    onShowReport?: (userId: string) => void;
 }
 
-const UserList: React.FC<UserListProps> = ({ currentUser, users, staff = [], excludeIds = new Set(), onStartChat }) => {
+const UserList: React.FC<UserListProps> = ({ currentUser, users, staff = [], excludeIds = new Set(), onStartChat, blockedUserIds, onShowBlockConfirm, onShowReport }) => {
     const [searchQuery, setSearchQuery] = useState('');
 
     // Deduplicate users by ID (in case of multiple socket connections)
@@ -44,8 +49,8 @@ const UserList: React.FC<UserListProps> = ({ currentUser, users, staff = [], exc
         return (
             <li
                 key={user.id}
-                onClick={() => onStartChat(user)}
                 className="flex items-center gap-4 p-3 bg-white rounded-xl hover:bg-gray-50 active:bg-gray-100 transition-colors border-b border-gray-50 last:border-0 cursor-pointer group"
+                onClick={() => onStartChat(user)}
             >
                 <div className="relative shrink-0">
                     <div className={`w-12 h-12 rounded-full ${getAvatarColor(user.gender)} flex items-center justify-center text-white shadow-sm overflow-hidden`}>
@@ -70,11 +75,31 @@ const UserList: React.FC<UserListProps> = ({ currentUser, users, staff = [], exc
                         {user.status || <span className="capitalize">{user.gender}</span>}
                     </p>
                 </div>
-                <div className="p-2 text-gray-300 group-hover:text-primary transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                    </svg>
-                </div>
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                        <button className="p-2 text-gray-300 hover:text-gray-600 transition-colors">
+                            <MoreVertical className="h-5 w-5" />
+                        </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+                        <DropdownMenuItem onClick={() => onStartChat(user)}>
+                            Scrivi messaggio
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                            onClick={() => onShowBlockConfirm?.(user.id)}
+                            className="text-red-600 focus:text-red-600"
+                        >
+                            Blocca utente
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                            onClick={() => onShowReport?.(user.id)}
+                            className="text-red-600 focus:text-red-600"
+                        >
+                            Segnala utente
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </li>
         );
     };

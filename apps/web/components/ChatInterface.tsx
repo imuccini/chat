@@ -23,6 +23,10 @@ import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { LocalSection } from './LocalSection';
 import { LocalMenuOverlay } from './LocalMenuOverlay';
 import { LocalFeedbackOverlay } from './LocalFeedbackOverlay';
+import { ReportDialog } from './ReportDialog';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { MoreVertical } from 'lucide-react';
 import { useSwipeBack } from '@/hooks/useSwipeBack';
 import { useMembership } from '@/hooks/useMembership';
 import { useKeyboardAnimation } from '@/hooks/useKeyboardAnimation';
@@ -101,6 +105,9 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
     const [roomUnreads, setRoomUnreads] = useState<Record<string, number>>({});
     const [roomLastMessages, setRoomLastMessages] = useState<Record<string, Message>>({});
     const [isConnected, setIsConnected] = useState(false);
+    const [blockedUserIds, setBlockedUserIds] = useState<Set<string>>(new Set());
+    const [showBlockConfirm, setShowBlockConfirm] = useState<string | null>(null);
+    const [showReportDialog, setShowReportDialog] = useState<string | null>(null);
 
     const queryClient = useQueryClient();
 
@@ -676,6 +683,19 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                 });
             });
 
+            // Block/Report socket listeners
+            newSocket.on('blockedUsers', ({ blockedIds }: { blockedIds: string[] }) => {
+                setBlockedUserIds(new Set(blockedIds));
+            });
+            newSocket.on('userBlocked', ({ blockedId }: { blockedId: string }) => {
+                setBlockedUserIds(prev => new Set([...prev, blockedId]));
+                if (selectedChatPeerIdRef.current === blockedId) setSelectedChatPeerId(null);
+                setPrivateChats(prev => { const u = { ...prev }; delete u[blockedId]; return u; });
+            });
+            newSocket.on('userUnblocked', ({ unblockedId }: { unblockedId: string }) => {
+                setBlockedUserIds(prev => { const s = new Set(prev); s.delete(unblockedId); return s; });
+            });
+
             if (!isCleanedUp) {
                 setSocket(newSocket);
             }
@@ -873,6 +893,19 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
         }
     };
 
+    // Block/Report handlers
+    const handleBlockUser = (userId: string) => {
+        socket?.emit('blockUser', { blockedId: userId });
+    };
+    const handleUnblockUser = (userId: string) => {
+        socket?.emit('unblockUser', { blockedId: userId });
+    };
+    const handleReportUser = (accusedId: string, reason: string, details?: string) => {
+        const chatMsgs = privateChats[accusedId]?.messages || [];
+        const context = chatMsgs.slice(-10);
+        socket?.emit('reportUser', { accusedId, reason, details, context });
+    };
+
     // 4. Swipe Back Logic (Native Only)
     const isRoomChatOpen = !!activeRoomId && activeTab === 'chats';
     const isPrivateChatOpen = !!selectedChatPeerId && activeTab === 'chats';
@@ -962,7 +995,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                                 tenantName={tenant?.name || "Local Chat"}
                             />
                         )}
-                        {activeTab === 'users' && <UserList currentUser={currentUser} users={onlineUsers} staff={visibleStaff} excludeIds={adminIds} onStartChat={handleStartChat} />}
+                        {activeTab === 'users' && <UserList currentUser={currentUser} users={onlineUsers} staff={visibleStaff} excludeIds={adminIds} onStartChat={handleStartChat} blockedUserIds={blockedUserIds} onShowBlockConfirm={setShowBlockConfirm} onShowReport={setShowReportDialog} />}
                         {activeTab === 'local' && (
                             <LocalSection
                                 tenant={tenant}
@@ -1012,8 +1045,8 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                                         </svg>
                                     </button>
-                                    <div className="flex flex-col">
-                                        <h2 className="font-bold text-lg leading-tight">{privateChats[selectedChatPeerId!].peer.alias}</h2>
+                                    <div className="flex flex-col flex-1 min-w-0">
+                                        <h2 className="font-bold text-lg leading-tight truncate">{privateChats[selectedChatPeerId!].peer.alias}</h2>
                                         <div className="flex items-center gap-1.5">
                                             <span className={`w-2 h-2 rounded-full ${onlineUsers.some(u => u.id === selectedChatPeerId) ? 'bg-primary' : 'bg-red-400'}`}></span>
                                             <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wide">
@@ -1021,6 +1054,33 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                                             </span>
                                         </div>
                                     </div>
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <button className="p-2 rounded-full hover:bg-gray-100 text-gray-500">
+                                                <MoreVertical className="h-5 w-5" />
+                                            </button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align="end">
+                                            <DropdownMenuItem
+                                                onClick={() => {
+                                                    if (blockedUserIds.has(selectedChatPeerId!)) {
+                                                        handleUnblockUser(selectedChatPeerId!);
+                                                    } else {
+                                                        setShowBlockConfirm(selectedChatPeerId);
+                                                    }
+                                                }}
+                                                className={blockedUserIds.has(selectedChatPeerId!) ? 'text-primary' : 'text-red-600 focus:text-red-600'}
+                                            >
+                                                {blockedUserIds.has(selectedChatPeerId!) ? 'Sblocca utente' : 'Blocca utente'}
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem
+                                                onClick={() => setShowReportDialog(selectedChatPeerId)}
+                                                className="text-red-600 focus:text-red-600"
+                                            >
+                                                Segnala utente
+                                            </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
                                 </div>
                             </header>
                             {!onlineUsers.some(u => u.id === selectedChatPeerId) && (
@@ -1048,6 +1108,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                                 showOnlineCount={tenant.rooms?.find(r => r.id === activeRoomId)?.type !== 'ANNOUNCEMENT'}
                                 keyboardContentStyle={keyboardContentStyle}
                                 roomType={tenant.rooms?.find(r => r.id === activeRoomId)?.type as any}
+                                blockedUserIds={blockedUserIds}
                             />
                         </div>
                     ) : isMenuOpen ? (
@@ -1077,6 +1138,51 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                     ) : null}
                 </div>
             )}
+
+            {/* Block Confirmation Dialog */}
+            <Dialog open={!!showBlockConfirm} onOpenChange={(open) => !open && setShowBlockConfirm(null)}>
+                <DialogContent className="max-w-sm mx-auto rounded-2xl">
+                    <DialogHeader>
+                        <DialogTitle>Bloccare questo utente?</DialogTitle>
+                        <DialogDescription>
+                            Non potr&agrave; pi&ugrave; inviarti messaggi privati. Puoi sbloccare in qualsiasi momento.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter className="flex-row gap-2 sm:gap-2">
+                        <button
+                            onClick={() => setShowBlockConfirm(null)}
+                            className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                        >
+                            Annulla
+                        </button>
+                        <button
+                            onClick={() => {
+                                if (showBlockConfirm) handleBlockUser(showBlockConfirm);
+                                setShowBlockConfirm(null);
+                            }}
+                            className="flex-1 px-4 py-2.5 rounded-xl bg-red-500 text-sm font-medium text-white hover:bg-red-600 transition-colors"
+                        >
+                            Blocca
+                        </button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Report Dialog */}
+            <ReportDialog
+                open={!!showReportDialog}
+                onOpenChange={(open) => !open && setShowReportDialog(null)}
+                peerAlias={
+                    showReportDialog
+                        ? (privateChats[showReportDialog]?.peer?.alias ||
+                           onlineUsers.find(u => u.id === showReportDialog)?.alias ||
+                           'Utente')
+                        : ''
+                }
+                onSubmit={(reason, details) => {
+                    if (showReportDialog) handleReportUser(showReportDialog, reason, details);
+                }}
+            />
         </div>
     );
 }

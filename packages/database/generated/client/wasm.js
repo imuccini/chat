@@ -279,6 +279,24 @@ exports.Prisma.BiometricTokenScalarFieldEnum = {
   expiresAt: 'expiresAt'
 };
 
+exports.Prisma.BlockedUserScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  blockedId: 'blockedId',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.ReportScalarFieldEnum = {
+  id: 'id',
+  reporterId: 'reporterId',
+  accusedId: 'accusedId',
+  reason: 'reason',
+  details: 'details',
+  context: 'context',
+  tenantId: 'tenantId',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.HiddenConversationScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -343,6 +361,8 @@ exports.Prisma.ModelName = {
   Passkey: 'Passkey',
   Feedback: 'Feedback',
   BiometricToken: 'BiometricToken',
+  BlockedUser: 'BlockedUser',
+  Report: 'Report',
   HiddenConversation: 'HiddenConversation'
 };
 
