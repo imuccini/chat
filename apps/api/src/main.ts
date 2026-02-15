@@ -2,15 +2,18 @@
 import 'reflect-metadata';
 
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module.js';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import { createAdapter } from '@socket.io/redis-adapter';
 import { createClient } from 'redis';
 import { Server } from 'socket.io';
 import { Logger } from '@nestjs/common';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const logger = new Logger('Bootstrap');
 
   // Set Global Prefix
@@ -45,6 +48,11 @@ async function bootstrap() {
     },
     credentials: true,
   });
+
+  // Serve uploaded files (avatars, etc.) as static assets
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = dirname(__filename);
+  app.useStaticAssets(join(__dirname, '../uploads'), { prefix: '/api/uploads' });
 
   // Redis Adapter for Socket.IO (optional - enable when Redis is available)
   if (process.env.REDIS_URL) {

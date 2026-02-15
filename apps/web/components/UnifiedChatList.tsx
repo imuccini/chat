@@ -4,6 +4,7 @@ import { User, Message, Room } from '@/types';
 import { Megaphone, Hash } from 'lucide-react';
 import Icon from './Icon';
 import { SwipeableChatItem } from './ui/SwipeableChatItem';
+import { resolveAvatarUrl } from '@/lib/avatarUrl';
 
 interface PrivateChatSession {
     peer: User;
@@ -235,8 +236,8 @@ export function UnifiedChatList({
                                     >
                                         <div className="relative shrink-0 mr-3">
                                             <div className={`w-12 h-12 rounded-full ${getAvatarColor(chat.peer.gender)} flex items-center justify-center text-white shadow-sm overflow-hidden`}>
-                                                {chat.peer.image ? (
-                                                    <img src={chat.peer.image} alt={chat.peer.alias} className="w-full h-full object-cover" />
+                                                {resolveAvatarUrl(chat.peer.image) ? (
+                                                    <img src={resolveAvatarUrl(chat.peer.image)} alt={chat.peer.alias} className="w-full h-full object-cover" />
                                                 ) : (
                                                     <span className="font-bold text-lg uppercase">{chat.peer.alias.charAt(0)}</span>
                                                 )}

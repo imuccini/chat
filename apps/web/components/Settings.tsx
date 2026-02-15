@@ -1,7 +1,10 @@
 import React, { useState, useRef } from 'react';
 import { User } from '@/types';
 import { useMembership } from '@/hooks/useMembership';
-import { ShieldCheck, ShieldAlert, Camera, User as UserIcon, Mail, Phone, CheckCircle2, UserCircle2 } from 'lucide-react';
+import { ShieldCheck, ShieldAlert, Camera, User as UserIcon, Mail, Phone, CheckCircle2, UserCircle2, Loader2 } from 'lucide-react';
+import { compressImage } from '@/lib/imageCompression';
+import { clientUploadAvatar } from '@/services/apiService';
+import { resolveAvatarUrl } from '@/lib/avatarUrl';
 
 interface SettingsProps {
     user: User;
@@ -18,6 +21,7 @@ const Settings: React.FC<SettingsProps> = ({ user, onLogout, onUpdateAlias, onUp
     const [isEditingStatus, setIsEditingStatus] = useState(false);
     const [newAlias, setNewAlias] = useState(user.alias);
     const [newStatus, setNewStatus] = useState(user.status || '');
+    const [isUploading, setIsUploading] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleSaveAlias = () => {
@@ -34,14 +38,20 @@ const Settings: React.FC<SettingsProps> = ({ user, onLogout, onUpdateAlias, onUp
         setIsEditingStatus(false);
     };
 
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = () => {
-                onUpdateImage(reader.result as string);
-            };
-            reader.readAsDataURL(file);
+        if (!file) return;
+
+        setIsUploading(true);
+        try {
+            const compressed = await compressImage(file);
+            const imageUrl = await clientUploadAvatar(user.id, compressed);
+            onUpdateImage(imageUrl);
+        } catch (err) {
+            console.error('[Settings] Avatar upload failed:', err);
+        } finally {
+            setIsUploading(false);
+            if (fileInputRef.current) fileInputRef.current.value = '';
         }
     };
 
@@ -73,17 +83,23 @@ const Settings: React.FC<SettingsProps> = ({ user, onLogout, onUpdateAlias, onUp
                                 className="hidden"
                             />
                             <div
-                                onClick={() => fileInputRef.current?.click()}
+                                onClick={() => !isUploading && fileInputRef.current?.click()}
                                 className="w-24 h-24 bg-primary rounded-full flex items-center justify-center text-white text-4xl font-bold shadow-sm overflow-hidden cursor-pointer relative transition-transform active:scale-95 group"
                             >
-                                {user.image ? (
-                                    <img src={user.image} alt={user.alias} className="w-full h-full object-cover" />
+                                {resolveAvatarUrl(user.image) ? (
+                                    <img src={resolveAvatarUrl(user.image)} alt={user.alias} className="w-full h-full object-cover" />
                                 ) : (
                                     (user.alias || (user as any).name || '?').charAt(0).toUpperCase()
                                 )}
-                                <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                                    <Camera size={24} className="text-white" />
-                                </div>
+                                {isUploading ? (
+                                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                                        <Loader2 size={28} className="text-white animate-spin" />
+                                    </div>
+                                ) : (
+                                    <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                                        <Camera size={24} className="text-white" />
+                                    </div>
+                                )}
                             </div>
                             <button
                                 onClick={() => fileInputRef.current?.click()}

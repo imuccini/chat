@@ -111,6 +111,24 @@ export const clientSubmitFeedback = async (slug: string, score: number, comment?
     return await res.json();
 };
 
+export const clientUploadAvatar = async (userId: string, file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const res = await fetch(`${API_BASE_URL}/api/upload/avatar?userId=${encodeURIComponent(userId)}`, {
+        method: 'POST',
+        body: formData,
+    });
+
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || 'Upload failed');
+    }
+
+    const data = await res.json();
+    return data.imageUrl;
+};
+
 export const clientGetFeedback = async (slug: string, userId?: string) => {
     const params = userId ? `?userId=${userId}` : '';
     const res = await fetch(`${API_BASE_URL}/api/tenants/${slug}/feedback${params}`, {

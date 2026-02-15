@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { User, Gender } from '@/types';
 import { Icon } from './Icon';
+import { resolveAvatarUrl } from '@/lib/avatarUrl';
 
 interface UserListProps {
     currentUser: User;
@@ -48,8 +49,8 @@ const UserList: React.FC<UserListProps> = ({ currentUser, users, staff = [], exc
             >
                 <div className="relative shrink-0">
                     <div className={`w-12 h-12 rounded-full ${getAvatarColor(user.gender)} flex items-center justify-center text-white shadow-sm overflow-hidden`}>
-                        {user.image ? (
-                            <img src={user.image} alt={user.alias} className="w-full h-full object-cover" />
+                        {resolveAvatarUrl(user.image) ? (
+                            <img src={resolveAvatarUrl(user.image)} alt={user.alias} className="w-full h-full object-cover" />
                         ) : (
                             <span className="font-bold text-lg uppercase">{(user.alias || (user as any).name || "U").charAt(0)}</span>
                         )}

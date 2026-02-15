@@ -303,13 +303,17 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         this.onlineUsers.set(socket.id, userEntry);
 
         // PERSISTENCE: Update user profile in DB on join/update
+        // Only accept URL-based images (reject base64 data URIs to prevent bloat)
+        const imageValue = (user as any).image || null;
+        const safeImage = imageValue && !imageValue.startsWith('data:') ? imageValue : undefined;
+
         try {
             await this.prisma.user.update({
                 where: { id: user.id },
                 data: {
                     name: user.alias,
                     status: (user as any).status || null,
-                    image: (user as any).image || null,
+                    ...(safeImage !== undefined ? { image: safeImage } : {}),
                 },
             });
             this.logger.debug(
@@ -570,10 +574,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private async broadcastPresence(tenantSlug: string) {
         const tenantUsers = Array.from(this.onlineUsers.entries())
             .filter(([_, data]) => data.tenantSlug === tenantSlug)
-            .map(([socketId, data]) => ({
-                ...data.user,
-                socketId, // Include socketId for frontend to potentially handle multiple sessions
-            }));
+            .map(([socketId, data]) => {
+                const user = { ...data.user, socketId };
+                // Strip base64 images from presence broadcasts to prevent bloat
+                if ((user as any).image && (user as any).image.startsWith('data:')) {
+                    (user as any).image = undefined;
+                }
+                return user;
+            });
 
         const onlineIds = Array.from(new Set(tenantUsers.map((u) => u.id)));
 

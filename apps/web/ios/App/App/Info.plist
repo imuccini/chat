@@ -42,6 +42,10 @@
 	<string>Local usa il Bluetooth per rilevare la tua presenza in uno spazio aderente.</string>
 	<key>NSBluetoothWhileInUseUsageDescription</key>
 	<string>We use Bluetooth to detect your physical presence in a Local enabled space.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Local usa la fotocamera per scattare la tua foto profilo.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Local accede alla tua galleria per scegliere una foto profilo.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Local uses FaceID to authenticate you quickly and securely.</string>
 	<key>NSLocalNetworkUsageDescription</key>

@@ -8,6 +8,7 @@ import { ChatModule } from './chat/chat.module.js';
 import { TenantModule } from './tenant/tenant.module.js';
 import { MessageModule } from './message/message.module.js';
 import { PrismaModule } from './prisma/prisma.module.js';
+import { UploadModule } from './upload/upload.module.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -24,6 +25,7 @@ import { DiagController } from './diag.controller.js';
     TenantModule,
     ChatModule,
     MessageModule,
+    UploadModule,
   ],
   controllers: [AppController, DiagController],
   providers: [AppService],
