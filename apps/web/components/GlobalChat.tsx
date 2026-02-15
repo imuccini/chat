@@ -51,13 +51,14 @@ const GenderIcon = memo(({ gender, className }: { gender: Gender; className?: st
   );
 });
 
-const ChatInput = memo(({ onSendMessage, showBottomNavPadding, onFocusChange, isReadOnly, canUploadImage, isOffline }: {
+const ChatInput = memo(({ onSendMessage, showBottomNavPadding, onFocusChange, isReadOnly, canUploadImage, isOffline, isSyncing }: {
   onSendMessage: (text: string, imageUrl?: string) => void,
   showBottomNavPadding?: boolean,
   onFocusChange?: (isFocused: boolean) => void,
   isReadOnly?: boolean,
   canUploadImage?: boolean,
-  isOffline?: boolean
+  isOffline?: boolean,
+  isSyncing?: boolean
 }) => {
   const [text, setText] = useState('');
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -108,6 +109,30 @@ const ChatInput = memo(({ onSendMessage, showBottomNavPadding, onFocusChange, is
           <p className="text-sm text-gray-500 font-medium italic">In attesa che l'utente torni online...</p>
         </div>
         {/* Disabled visual state for the underlying form */}
+        <div className="flex items-center gap-2 md:gap-3 max-w-5xl mx-auto opacity-40 pointer-events-none">
+          <div className="flex-1 px-4 py-2.5 rounded-full bg-gray-100 border border-gray-200 text-sm md:text-base text-transparent">
+            Placeholder
+          </div>
+          <div className="p-2 text-gray-300">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
+              <path d="M19.4999 2.00098C20.0944 2.00063 20.6989 2.15072 21.2499 2.46875C22.924 3.43525 23.4977 5.57598 22.5312 7.25001L15.0311 20.2403C14.0646 21.9142 11.9238 22.488 10.2498 21.5215C9.41372 21.0387 8.85157 20.2605 8.61994 19.3975L7.1209 13.8028L15.8905 8.73927C16.3687 8.46311 16.5327 7.85126 16.2567 7.37306C15.9805 6.89505 15.3686 6.73096 14.8905 7.00685L6.12089 12.0713L2.02515 7.97462C0.658428 6.60771 0.658787 4.39204 2.02515 3.02539C2.65731 2.39319 3.53383 2.00021 4.49978 2L19.4999 2.00098Z" />
+            </svg>
+          </div>
+        </div>
+      </footer>
+    );
+  }
+
+  if (isSyncing) {
+    return (
+      <footer className={`px-3 py-4 md:p-4 bg-gray-50 shrink-0 text-center relative overflow-hidden ${footerPadding}`}>
+        <div className="absolute inset-0 bg-white/60 z-10 flex items-center justify-center backdrop-blur-[1px] gap-2">
+          <svg className="animate-spin h-4 w-4 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <p className="text-sm text-primary font-medium">Scaricando ultimi messaggi...</p>
+        </div>
         <div className="flex items-center gap-2 md:gap-3 max-w-5xl mx-auto opacity-40 pointer-events-none">
           <div className="flex-1 px-4 py-2.5 rounded-full bg-gray-100 border border-gray-200 text-sm md:text-base text-transparent">
             Placeholder
@@ -377,6 +402,7 @@ const GlobalChat = memo<GlobalChatProps>(({
           isReadOnly={isReadOnly}
           canUploadImage={roomType === 'ANNOUNCEMENT' && canModerate}
           isOffline={isOffline}
+          isSyncing={isSyncing}
         />
       </div>
     </div>

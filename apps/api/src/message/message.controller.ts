@@ -25,6 +25,7 @@ export class MessageController {
     @Query('roomId') roomId: string | undefined,
     @Query('tenant') tenantSlug: string, // Changed to match frontend 'tenant' param which is slug
     @Query('tenantId') tenantId: string | undefined,
+    @Query('since') since: string | undefined,
     @Headers('authorization') auth: string,
   ) {
     let targetTenantId = tenantId;
@@ -41,7 +42,41 @@ export class MessageController {
     }
 
     try {
-      return await this.chatService.getMessagesForRoom(targetTenantId, roomId);
+      return await this.chatService.getMessagesForRoom(
+        targetTenantId,
+        roomId,
+        100,
+        since,
+      );
+    } catch (err: any) {
+      throw err;
+    }
+  }
+
+  @Get('private')
+  async getPrivateMessages(
+    @Query('userId') userId: string,
+    @Query('tenant') tenantSlug: string,
+    @Query('tenantId') tenantId: string | undefined,
+    @Query('since') since: string | undefined,
+    @Headers('authorization') auth: string,
+  ) {
+    if (!userId) return [];
+
+    let targetTenantId = tenantId;
+    if (!targetTenantId && tenantSlug) {
+      const tenant = await this.chatService.getTenantBySlug(tenantSlug);
+      if (tenant) targetTenantId = tenant.id;
+    }
+
+    if (!targetTenantId) return [];
+
+    try {
+      return await this.chatService.getPrivateMessages(
+        userId,
+        targetTenantId,
+        since,
+      );
     } catch (err: any) {
       throw err;
     }

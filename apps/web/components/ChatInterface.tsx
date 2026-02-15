@@ -28,7 +28,7 @@ import { useMembership } from '@/hooks/useMembership';
 import { useKeyboardAnimation } from '@/hooks/useKeyboardAnimation';
 import { useTenantValidation } from '@/hooks/useTenantValidation';
 import { useSession, signOut, authClient } from '@/lib/auth-client';
-import { clientGetTenantBySlug, clientGetMessages, clientGetTenantStaff } from '@/services/apiService';
+import { clientGetTenantBySlug, clientGetMessages, clientGetTenantStaff, clientGetMessagesSince, clientGetPrivateMessagesSince } from '@/services/apiService';
 
 interface ChatInterfaceProps {
     tenant: Tenant;
@@ -110,6 +110,11 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
     const activeRoomIdRef = useRef<string | null>(null);
     const activeTabRef = useRef<Tab>('chats');
     const selectedChatPeerIdRef = useRef<string | null>(null);
+
+    // Sync-on-resume state
+    const [isSyncing, setIsSyncing] = useState(false);
+    const lastActivityRef = useRef<string>(new Date().toISOString());
+    const syncDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     // Sync refs
     useEffect(() => { activeRoomIdRef.current = activeRoomId; }, [activeRoomId]);
@@ -300,6 +305,120 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
         socket.emit('join', { user, tenantSlug: slug });
     }, []);
 
+    // --- Sync-on-resume: fetch delta messages after app resumes ---
+    const syncOnResume = useCallback(async () => {
+        if (isSyncing || !currentUser) return;
+        const since = lastActivityRef.current;
+        console.log('[syncOnResume] Starting delta sync since', since);
+        setIsSyncing(true);
+
+        try {
+            // 1. Fetch delta for all rooms in parallel
+            const rooms = tenant.rooms || [];
+            const roomFetches = rooms.map(async (room) => {
+                const msgs = await clientGetMessagesSince(tenant.slug, since, room.id, tenant.id);
+                return { roomId: room.id, messages: msgs };
+            });
+            // Also fetch the global (no room) messages
+            roomFetches.push(
+                clientGetMessagesSince(tenant.slug, since, undefined, tenant.id).then(msgs => ({ roomId: null as any, messages: msgs }))
+            );
+
+            // 2. Fetch delta private messages
+            const privateFetch = clientGetPrivateMessagesSince(currentUser.id, tenant.slug, tenant.id, since);
+
+            const [roomResults, privateMessages] = await Promise.all([
+                Promise.all(roomFetches),
+                privateFetch,
+            ]);
+
+            // 3. Merge room messages into React Query cache
+            let latestTimestamp = since;
+            for (const { roomId, messages: newMsgs } of roomResults) {
+                if (newMsgs.length === 0) continue;
+                const queryKey = ['messages', 'global', tenant.slug, roomId || null];
+                queryClient.setQueryData(queryKey, (prev: Message[] | undefined) => {
+                    const existing = prev || [];
+                    const existingIds = new Set(existing.map(m => m.id));
+                    const deduped = newMsgs.filter(m => !existingIds.has(m.id));
+                    return [...existing, ...deduped];
+                });
+
+                // Save to SQLite & update room metadata
+                for (const msg of newMsgs) {
+                    await sqliteService.saveMessage(msg, true);
+                    if (msg.timestamp > latestTimestamp) latestTimestamp = msg.timestamp;
+                }
+                const last = newMsgs[newMsgs.length - 1];
+                if (roomId) {
+                    setRoomLastMessages(prev => ({ ...prev, [roomId]: last }));
+                    if (activeRoomIdRef.current !== roomId) {
+                        setRoomUnreads(prev => ({ ...prev, [roomId]: (prev[roomId] || 0) + newMsgs.length }));
+                    }
+                }
+            }
+
+            // 4. Merge private messages into privateChats state
+            if (privateMessages.length > 0) {
+                setPrivateChats(prev => {
+                    const updated = { ...prev };
+                    for (const msg of privateMessages) {
+                        const isMe = msg.senderId === currentUser.id;
+                        const peerId = isMe ? msg.recipientId! : msg.senderId;
+
+                        const existing = updated[peerId] || {
+                            peer: { id: peerId, alias: isMe ? 'Unknown' : msg.senderAlias, gender: isMe ? 'other' as const : msg.senderGender, joinedAt: Date.now() },
+                            messages: [], unread: 0,
+                        };
+
+                        if (existing.messages.some(m => m.id === msg.id)) continue;
+
+                        const isChatActive = activeTabRef.current === 'chats' && selectedChatPeerIdRef.current === peerId;
+                        const newUnread = (isMe || isChatActive) ? existing.unread : existing.unread + 1;
+
+                        updated[peerId] = {
+                            ...existing,
+                            messages: [...existing.messages, msg],
+                            unread: newUnread,
+                        };
+
+                        if (msg.timestamp > latestTimestamp) latestTimestamp = msg.timestamp;
+                    }
+                    return updated;
+                });
+
+                for (const msg of privateMessages) {
+                    await sqliteService.saveMessage(msg, false);
+                }
+            }
+
+            lastActivityRef.current = latestTimestamp;
+            console.log('[syncOnResume] Delta sync complete. New watermark:', latestTimestamp);
+        } catch (e) {
+            console.error('[syncOnResume] Failed:', e);
+        } finally {
+            setIsSyncing(false);
+        }
+    }, [isSyncing, currentUser, tenant.slug, tenant.id, tenant.rooms, queryClient]);
+
+    // Web: visibilitychange listener for sync-on-resume
+    useEffect(() => {
+        if (Capacitor.isNativePlatform() || !currentUser) return;
+
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible') {
+                if (syncDebounceRef.current) clearTimeout(syncDebounceRef.current);
+                syncDebounceRef.current = setTimeout(() => syncOnResume(), 300);
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            if (syncDebounceRef.current) clearTimeout(syncDebounceRef.current);
+        };
+    }, [currentUser, syncOnResume]);
+
     // App state listener for foreground/background detection (native only)
     useEffect(() => {
         if (!Capacitor.isNativePlatform()) return;
@@ -321,6 +440,10 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                         // Force re-join to update server-side presence
                         joinTenant(socket, currentUser, tenant.slug);
                     }
+
+                    // Delta-sync after socket reconnect / re-join settles
+                    if (syncDebounceRef.current) clearTimeout(syncDebounceRef.current);
+                    syncDebounceRef.current = setTimeout(() => syncOnResume(), 500);
                 }
             });
         };
@@ -332,7 +455,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                 listenerHandle.remove();
             }
         };
-    }, [socket, currentUser, tenant.slug, joinTenant]);
+    }, [socket, currentUser, tenant.slug, joinTenant, syncOnResume]);
 
     // 3. Socket Lifecycle - prevent reconnection loops for anonymous users
     useEffect(() => {
@@ -458,6 +581,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
 
             newSocket.on('newMessage', async (msg: Message) => {
                 console.log("[Socket] Received newMessage:", msg);
+                if (msg.timestamp > lastActivityRef.current) lastActivityRef.current = msg.timestamp;
                 try {
                     await sqliteService.saveMessage(msg, true);
                 } catch (e) {
@@ -489,7 +613,8 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
             });
 
             newSocket.on('privateMessage', async (msg: Message) => {
-                console.log("[ChatInterface] Received privateMessage:", msg); // Debug log
+                console.log("[ChatInterface] Received privateMessage:", msg);
+                if (msg.timestamp > lastActivityRef.current) lastActivityRef.current = msg.timestamp;
                 const isMe = msg.senderId === currentUser.id;
                 const peerId = isMe ? msg.recipientId! : msg.senderId;
                 try {
@@ -573,6 +698,11 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
         setSocket(null);
         localStorage.removeItem('chat_user');
         setPrivateChats({});
+        setOnlineUsers([]);
+        setOnlineUserIds([]);
+        setRoomOnlineCounts({});
+        setRoomUnreads({});
+        setRoomLastMessages({});
         sqliteService.clearMessages();
         queryClient.setQueryData(['messages', 'global', tenant.slug], initialMessages);
         setSelectedChatPeerId(null);
@@ -880,7 +1010,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                                 </div>
                             )}
                             <div className="flex-1 overflow-hidden relative" style={keyboardContentStyle}>
-                                <GlobalChat user={currentUser} messages={privateChats[selectedChatPeerId!].messages} onSendMessage={handlePrivateSend} onlineCount={0} isOnline={true} isOffline={!onlineUsers.some(u => u.id === selectedChatPeerId)} hideHeader={true} showBottomNavPadding={false} isFocused={isInputFocused} onInputFocusChange={setIsInputFocused} isSyncing={false} />
+                                <GlobalChat user={currentUser} messages={privateChats[selectedChatPeerId!].messages} onSendMessage={handlePrivateSend} onlineCount={0} isOnline={true} isOffline={!onlineUsers.some(u => u.id === selectedChatPeerId)} hideHeader={true} showBottomNavPadding={false} isFocused={isInputFocused} onInputFocusChange={setIsInputFocused} isSyncing={isSyncing} />
                             </div>
                         </>
                     ) : isRoomChatOpen ? (
@@ -888,7 +1018,7 @@ export default function ChatInterface({ tenant, initialMessages }: ChatInterface
                             <GlobalChat
                                 user={currentUser} messages={messages} onSendMessage={handleRoomSend} onRemoveMessage={handleDeleteMessage}
                                 onlineCount={onlineUsers.length} isOnline={isConnected} headerTitle={tenant.rooms?.find(r => r.id === activeRoomId)?.name || tenant.name}
-                                showBottomNavPadding={false} isFocused={isInputFocused} onInputFocusChange={setIsInputFocused} isSyncing={isFetchingGlobal}
+                                showBottomNavPadding={false} isFocused={isInputFocused} onInputFocusChange={setIsInputFocused} isSyncing={isFetchingGlobal || isSyncing}
                                 isReadOnly={tenant.rooms?.find(r => r.id === activeRoomId)?.type === 'ANNOUNCEMENT' && !canManageTenant}
                                 canModerate={canManageTenant} onBack={() => setActiveRoomId(null)}
                                 showOnlineCount={tenant.rooms?.find(r => r.id === activeRoomId)?.type !== 'ANNOUNCEMENT'}

@@ -51,17 +51,22 @@ export class ChatService {
     tenantId: string,
     roomId?: string,
     limit = 100,
+    since?: string,
   ): Promise<any[]> {
-    // Increased retention to 48h for better UX
-    const retentionTime = new Date(Date.now() - 48 * 60 * 60 * 1000);
     this.logger.debug(
-      `Fetching messages for tenant ${tenantId} ${roomId ? `room ${roomId}` : '(global/all)'}`,
+      `Fetching messages for tenant ${tenantId} ${roomId ? `room ${roomId}` : '(global/all)'}${since ? ` since ${since}` : ''}`,
     );
 
     try {
+      // If `since` is provided, fetch only messages newer than that timestamp (exclusive).
+      // Otherwise fall back to the default 48h retention window.
+      const createdAtFilter = since
+        ? { gt: new Date(since) }
+        : { gte: new Date(Date.now() - 48 * 60 * 60 * 1000) };
+
       const where: any = {
         tenantId,
-        createdAt: { gte: retentionTime },
+        createdAt: createdAtFilter,
       };
 
       if (roomId) {
@@ -86,6 +91,45 @@ export class ChatService {
     } catch (error) {
       this.logger.error(
         `Failed to fetch messages: ${error.message}`,
+        error.stack,
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * Get private messages for a user within a tenant
+   */
+  async getPrivateMessages(
+    userId: string,
+    tenantId: string,
+    since?: string,
+    limit = 200,
+  ): Promise<any[]> {
+    this.logger.debug(
+      `Fetching private messages for user ${userId} in tenant ${tenantId}${since ? ` since ${since}` : ''}`,
+    );
+
+    try {
+      const createdAtFilter = since
+        ? { gt: new Date(since) }
+        : { gte: new Date(Date.now() - 48 * 60 * 60 * 1000) };
+
+      const messages = await this.prisma.message.findMany({
+        where: {
+          tenantId,
+          recipientId: { not: null },
+          createdAt: createdAtFilter,
+          OR: [{ senderId: userId }, { recipientId: userId }],
+        },
+        orderBy: { createdAt: 'asc' },
+        take: limit,
+      });
+      this.logger.debug(`Found ${messages.length} private messages`);
+      return messages;
+    } catch (error) {
+      this.logger.error(
+        `Failed to fetch private messages: ${error.message}`,
         error.stack,
       );
       throw error;

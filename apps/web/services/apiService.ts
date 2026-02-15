@@ -65,6 +65,35 @@ export const clientGetMessages = async (tenantSlug: string, roomId?: string, ten
     return await res.json();
 };
 
+export const clientGetMessagesSince = async (
+    tenantSlug: string,
+    since: string,
+    roomId?: string,
+    tenantId?: string,
+): Promise<Message[]> => {
+    const params = new URLSearchParams({ tenant: tenantSlug, since });
+    if (roomId) params.append('roomId', roomId);
+    if (tenantId) params.append('tenantId', tenantId);
+
+    const res = await fetch(`${API_BASE_URL}/api/messages?${params.toString()}`, { cache: 'no-store' });
+    if (!res.ok) return [];
+    return await res.json();
+};
+
+export const clientGetPrivateMessagesSince = async (
+    userId: string,
+    tenantSlug: string,
+    tenantId: string,
+    since?: string,
+): Promise<Message[]> => {
+    const params = new URLSearchParams({ userId, tenant: tenantSlug, tenantId });
+    if (since) params.append('since', since);
+
+    const res = await fetch(`${API_BASE_URL}/api/messages/private?${params.toString()}`, { cache: 'no-store' });
+    if (!res.ok) return [];
+    return await res.json();
+};
+
 export const clientGetTenantStaff = async (slug: string) => {
     const res = await fetch(`${API_BASE_URL}/api/tenants/${slug}/staff`, { cache: 'no-store' });
     if (!res.ok) return [];
